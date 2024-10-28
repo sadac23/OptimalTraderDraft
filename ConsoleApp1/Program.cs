@@ -6,6 +6,7 @@ using System.Text;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Text.Json.Nodes;
+using System.Data.SQLite;
 
 Console.WriteLine("Hello, World!");
 
@@ -35,6 +36,33 @@ using (HttpClient client = new HttpClient())
     {
         Console.WriteLine($"Date: {i.Date}, Code: {i.Code}, CompanyName: {i.CompanyName}");
     }
+
+    // データベースファイルのパス
+    string dataSource = "Data Source=example.db";
+
+    // SQLite接続を作成
+    using (var connection = new SQLiteConnection(dataSource))
+    {
+        connection.Open();
+
+        // テーブルが存在しない場合に作成するSQLコマンド
+        string createTableQuery = @"
+                CREATE TABLE IF NOT EXISTS example_table (
+                    id INTEGER PRIMARY KEY,
+                    name TEXT NOT NULL,
+                    age INTEGER
+                )";
+
+        // コマンドを実行
+        using (var command = new SQLiteCommand(createTableQuery, connection))
+        {
+            command.ExecuteNonQuery();
+        }
+
+        // 接続を閉じる
+        connection.Close();
+    }
+
 }
 public class ListedInfoResponse
 {
