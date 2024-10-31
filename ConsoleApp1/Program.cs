@@ -7,63 +7,30 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Text.Json.Nodes;
 using System.Data.SQLite;
+using static System.Net.Mime.MediaTypeNames;
+using System.Xml.Linq;
+using System.Runtime.CompilerServices;
 
 Console.WriteLine("Hello, World!");
 
-using (HttpClient client = new HttpClient())
+// ウォッチリスト取得
+var watchList = GetWatchList();
+
+foreach (var l in watchList)
 {
-    // コンテンツを作成
-    StringContent content = new StringContent(JsonConvert.SerializeObject(new { mailaddress = "sadac23@gmail.com", password = "1qaz2WSX3edc" }), Encoding.UTF8, "application/json");
-    HttpResponseMessage response = await client.PostAsync($"https://api.jquants.com/v1/token/auth_user", content);
-    string responseBody = await response.Content.ReadAsStringAsync();
-    var r = JsonConvert.DeserializeObject<ApiResponse>(responseBody);
-//    Console.WriteLine($"refreshtoken：{r.refreshtoken}");
+    // 銘柄情報取得
+    // 株価情報取得
+    // マスタ更新
+}
 
-    response = await client.PostAsync($"https://api.jquants.com/v1/token/auth_refresh?refreshtoken={r.refreshtoken}", content);
-    responseBody = await response.Content.ReadAsStringAsync();
-    var r1 = JsonConvert.DeserializeObject<AuthRefreshResponse>(responseBody);
-//    Console.WriteLine($"idToken：{r1.idToken}");
-
-    client.DefaultRequestHeaders.Accept.Clear();
-    client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-    client.DefaultRequestHeaders.Add("Custom-Header", "HeaderValue");
-    client.DefaultRequestHeaders.Add("Authorization", $"Bearer {r1.idToken}");
-    response = await client.GetAsync($"https://api.jquants.com/v1/listed/info?code=6503");
-    responseBody = await response.Content.ReadAsStringAsync();
-//    Console.WriteLine($"responseBody：{responseBody}");
-    ListedInfoResponse apiResponse = JsonConvert.DeserializeObject<ListedInfoResponse>(responseBody);
-    foreach (var i in apiResponse.info)
-    {
-        Console.WriteLine($"Date: {i.Date}, Code: {i.Code}, CompanyName: {i.CompanyName}");
-    }
-
-    // データベースファイルのパス
-    string dataSource = "Data Source=example.db";
-
-    // SQLite接続を作成
-    using (var connection = new SQLiteConnection(dataSource))
-    {
-        connection.Open();
-
-        // テーブルが存在しない場合に作成するSQLコマンド
-        string createTableQuery = @"
-                CREATE TABLE IF NOT EXISTS example_table (
-                    id INTEGER PRIMARY KEY,
-                    name TEXT NOT NULL,
-                    age INTEGER
-                )";
-
-        // コマンドを実行
-        using (var command = new SQLiteCommand(createTableQuery, connection))
-        {
-            command.ExecuteNonQuery();
-        }
-
-        // 接続を閉じる
-        connection.Close();
-    }
+List<WatchList> GetWatchList()
+{
+    return new List<WatchList>();
 
 }
+class WatchList{}
+
+
 public class ListedInfoResponse
 {
     public List<ListedInfo> info { get; set; }
@@ -93,6 +60,45 @@ public class AuthRefreshResponse
 public class ApiResponse
 {
     public string? refreshtoken { get; set; }
+
+    public static async Task<string> PostDataAsync(string url, object data)
+    {
+        // JSONデータをシリアライズ
+        var content = new StringContent(JsonConvert.SerializeObject(data), Encoding.UTF8, "application/json");
+
+        using (HttpClient client = new HttpClient())
+        {
+            // POSTリクエストを送信
+            var response = await client.PostAsync(url, content);
+            // レスポンスの内容を取得
+            var responseString = await response.Content.ReadAsStringAsync();
+
+
+            return responseString;
+        }
+    }
+
+    public static async Task<string> GetDataAsync(string url, Dictionary<string, string> headers)
+    {
+        using (HttpClient client = new HttpClient())
+        {
+            // ヘッダーを設定
+            client.DefaultRequestHeaders.Clear();
+            foreach (var header in headers)
+            {
+                client.DefaultRequestHeaders.Add(header.Key, header.Value);
+            }
+
+            // GETリクエストを送信
+            var response = await client.GetAsync(url);
+
+            // レスポンスの内容を取得
+            var responseString = await response.Content.ReadAsStringAsync();
+
+            return responseString;
+        }
+    }
+    
     // 他のプロパティも必要に応じて追加
     public static async Task<T> GetResponse<T>(string url, string accessKey, string inputJson)
     {
@@ -121,3 +127,66 @@ public class ApiResponse
     }
 }
 
+class Sample
+{
+    public static async Task<string>  TestMethod()
+    {
+        using (HttpClient client = new HttpClient())
+        {
+            // コンテンツを作成
+            StringContent content = new StringContent(JsonConvert.SerializeObject(new { mailaddress = "sadac23@gmail.com", password = "1qaz2WSX3edc" }), Encoding.UTF8, "application/json");
+            HttpResponseMessage response = await client.PostAsync($"https://api.jquants.com/v1/token/auth_user", content);
+            string responseBody = await response.Content.ReadAsStringAsync();
+            var r = JsonConvert.DeserializeObject<ApiResponse>(responseBody);
+            //    Console.WriteLine($"refreshtoken：{r.refreshtoken}");
+
+            response = await client.PostAsync($"https://api.jquants.com/v1/token/auth_refresh?refreshtoken={r.refreshtoken}", content);
+            responseBody = await response.Content.ReadAsStringAsync();
+            var r1 = JsonConvert.DeserializeObject<AuthRefreshResponse>(responseBody);
+            //    Console.WriteLine($"idToken：{r1.idToken}");
+
+            client.DefaultRequestHeaders.Accept.Clear();
+            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            client.DefaultRequestHeaders.Add("Custom-Header", "HeaderValue");
+            client.DefaultRequestHeaders.Add("Authorization", $"Bearer {r1.idToken}");
+            response = await client.GetAsync($"https://api.jquants.com/v1/listed/info?code=6503");
+            responseBody = await response.Content.ReadAsStringAsync();
+            //    Console.WriteLine($"responseBody：{responseBody}");
+            ListedInfoResponse apiResponse = JsonConvert.DeserializeObject<ListedInfoResponse>(responseBody);
+            foreach (var i in apiResponse.info)
+            {
+                Console.WriteLine($"Date: {i.Date}, Code: {i.Code}, CompanyName: {i.CompanyName}");
+            }
+
+            // データベースファイルのパス
+            string dataSource = "Data Source=example.db";
+
+            // SQLite接続を作成
+            using (var connection = new SQLiteConnection(dataSource))
+            {
+                connection.Open();
+
+                string createTableQuery = @"
+                CREATE TABLE IF NOT EXISTS `watch_list` (
+                  `code` integer PRIMARY KEY,
+                  `name` varchar(255),
+                  `memo` text,
+                  `del_flag` bool,
+                  `add_timestamp` timestamp,
+                  `del_timestamp` timestamp
+                )";
+
+                // コマンドを実行
+                using (var command = new SQLiteCommand(createTableQuery, connection))
+                {
+                    command.ExecuteNonQuery();
+                }
+
+                // 接続を閉じる
+                connection.Close();
+            }
+
+        }
+        return null;
+    }
+}

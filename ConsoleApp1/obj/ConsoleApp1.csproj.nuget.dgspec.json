@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\nx04178\\source\\repos\\ConsoleApp1\\ConsoleApp1\\ConsoleApp1.csproj": {}
+    "C:\\repos\\OTDraft\\OptimalTraderDraft\\ConsoleApp1\\ConsoleApp1.csproj": {}
   },
   "projects": {
-    "C:\\Users\\nx04178\\source\\repos\\ConsoleApp1\\ConsoleApp1\\ConsoleApp1.csproj": {
+    "C:\\repos\\OTDraft\\OptimalTraderDraft\\ConsoleApp1\\ConsoleApp1.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\nx04178\\source\\repos\\ConsoleApp1\\ConsoleApp1\\ConsoleApp1.csproj",
+        "projectUniqueName": "C:\\repos\\OTDraft\\OptimalTraderDraft\\ConsoleApp1\\ConsoleApp1.csproj",
         "projectName": "ConsoleApp1",
-        "projectPath": "C:\\Users\\nx04178\\source\\repos\\ConsoleApp1\\ConsoleApp1\\ConsoleApp1.csproj",
+        "projectPath": "C:\\repos\\OTDraft\\OptimalTraderDraft\\ConsoleApp1\\ConsoleApp1.csproj",
         "packagesPath": "C:\\Users\\nx04178\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\nx04178\\source\\repos\\ConsoleApp1\\ConsoleApp1\\obj\\",
+        "outputPath": "C:\\repos\\OTDraft\\OptimalTraderDraft\\ConsoleApp1\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\nx04178\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -48,6 +48,10 @@
             "Newtonsoft.Json": {
               "target": "Package",
               "version": "[13.0.3, )"
+            },
+            "System.Data.SQLite": {
+              "target": "Package",
+              "version": "[1.0.119, )"
             }
           },
           "imports": [
