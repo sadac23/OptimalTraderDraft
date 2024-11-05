@@ -10,25 +10,63 @@ using System.Data.SQLite;
 using static System.Net.Mime.MediaTypeNames;
 using System.Xml.Linq;
 using System.Runtime.CompilerServices;
+using System.Collections.Generic;
 
 Console.WriteLine("Hello, World!");
+
+string _connectionString = @"Data Source=..\..\..\..\example.db;Version=3;";
+string _refreshtoken = string.Empty;
 
 // ウォッチリスト取得
 var watchList = GetWatchList();
 
-foreach (var l in watchList)
+foreach (var list in watchList)
 {
+    Console.WriteLine($"Code:{list.Code}、Name：{list.Name}");
+
     // 銘柄情報取得
+    var info = GetListedInfo(list.Code);
     // 株価情報取得
     // マスタ更新
 }
 
+ListedInfo GetListedInfo(string code)
+{
+    return null;
+}
+
 List<WatchList> GetWatchList()
 {
-    return new List<WatchList>();
+    var list = new List<WatchList>();
+
+    using (SQLiteConnection connection = new SQLiteConnection(_connectionString))
+    {
+        connection.Open();
+
+        string query = "SELECT * FROM watch_list";
+
+        using (SQLiteCommand command = new SQLiteCommand(query, connection))
+        {
+            using (SQLiteDataReader reader = command.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    list.Add(new WatchList {
+                        Code = reader.GetString(reader.GetOrdinal("code"))
+                        , Name = reader.GetString(reader.GetOrdinal("name")) 
+                    });
+                }
+            }
+        }
+    }
+    return list;
 
 }
-class WatchList{}
+class WatchList
+{
+    public string? Code { get; set; }
+    public string? Name { get; set; }
+}
 
 
 public class ListedInfoResponse
