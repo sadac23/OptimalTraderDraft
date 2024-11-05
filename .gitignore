@@ -1,3 +1,4 @@
 # 無視したいファイルやディレクトリを指定
 /ConsoleApp1/bin/
 /ConsoleApp1/obj/
+/.vs/
