@@ -1,6 +1,8 @@
 ﻿// See https://aka.ms/new-console-template for more information
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Net.Http;
+using HtmlAgilityPack;
 using Newtonsoft.Json;
 using System.Text;
 using Newtonsoft.Json.Linq;
@@ -11,28 +13,273 @@ using static System.Net.Mime.MediaTypeNames;
 using System.Xml.Linq;
 using System.Runtime.CompilerServices;
 using System.Collections.Generic;
+using System.Reflection.Metadata;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+using System.Data.Entity.Core.Common.CommandTrees.ExpressionBuilder;
+using System.Collections;
 
 Console.WriteLine("Hello, World!");
 
-string _connectionString = @"Data Source=..\..\..\..\example.db;Version=3;";
+const string _connectionString = @"Data Source=..\..\..\..\example.db;Version=3;";
+const string _mailAddress = "sadac23@gmail.com";
+const string _password = "1qaz2WSX3edc";
 string _refreshtoken = string.Empty;
 
-// ウォッチリスト取得
-var watchList = GetWatchList();
+string stockCode = "7203"; // トヨタ自動車の株式コード
+string url = $"https://finance.yahoo.co.jp/quote/{stockCode}.T/history";
+var httpClient = new HttpClient();
+var html = await httpClient.GetStringAsync(url);
 
-foreach (var list in watchList)
+var htmlDocument = new HtmlDocument();
+htmlDocument.LoadHtml(html);
+
+var title = htmlDocument.DocumentNode.SelectNodes("//title");
+
+var rows = htmlDocument.DocumentNode.SelectNodes("//table[contains(@class, 'StocksEtfReitPriceHistory')]/tbody/tr");
+
+var stockData = new List<StockPrice>();
+
+foreach (var row in rows)
 {
-    Console.WriteLine($"Code:{list.Code}、Name：{list.Name}");
+    var columns = row.SelectNodes("td|th");
 
-    // 銘柄情報取得
-    var info = GetListedInfo(list.Code);
-    // 株価情報取得
-    // マスタ更新
+    if (columns != null && columns.Count > 6)
+    {
+        var date = columns[0].InnerText.Trim();
+        var open = columns[1].InnerText.Trim();
+        var high = columns[2].InnerText.Trim();
+        var low = columns[3].InnerText.Trim();
+        var close = columns[4].InnerText.Trim();
+        var volume = columns[5].InnerText.Trim();
+
+        stockData.Add(new StockPrice
+        {
+            Date = date,
+            Open = open,
+            High = high,
+            Low = low,
+            Close = close,
+            Volume = volume
+        });
+    }
 }
 
-ListedInfo GetListedInfo(string code)
+string[] parts = title[0].InnerText.Trim().Split('：');
+if (parts.Length > 0)
 {
-    return null;
+    Console.WriteLine($"Title: {parts[0]}");
+}
+
+foreach (var stock in stockData)
+{
+    Console.WriteLine($"Date: {stock.Date}, Open: {stock.Open}, High: {stock.High}, Low: {stock.Low}, Close: {stock.Close}, Volume: {stock.Volume}");
+}
+
+//string url = "https://finance.yahoo.co.jp/quote/7203.T"; // トヨタ自動車の株価ページ
+
+//using (HttpClient client = new HttpClient())
+//{
+//    HttpResponseMessage response = await client.GetAsync(url);
+//    if (response.IsSuccessStatusCode)
+//    {
+//        string html = await response.Content.ReadAsStringAsync();
+//        HtmlDocument doc = new HtmlDocument();
+//        doc.LoadHtml(html);
+
+//        // 株価情報を抽出するXPathを指定
+//        var priceNode = doc.DocumentNode.SelectSingleNode("//span[@class='stoksPrice']");
+//        if (priceNode != null)
+//        {
+//            string price = priceNode.InnerText;
+//            Console.WriteLine($"株価: {price}");
+//        }
+//        else
+//        {
+//            Console.WriteLine("株価情報の取得に失敗しました。");
+//        }
+//    }
+//    else
+//    {
+//        Console.WriteLine("データの取得に失敗しました。");
+//    }
+//}
+
+
+//string symbol = "7203.T"; // トヨタ自動車のティッカーシンボル
+//string url = $"https://finance.yahoo.com/quote/{symbol}/history/?p={symbol}";
+
+//using (HttpClient client = new HttpClient())
+//{
+//    HttpResponseMessage response = await client.GetAsync(url);
+//    if (response.IsSuccessStatusCode)
+//    {
+//        string pageContent = await response.Content.ReadAsStringAsync();
+//        HtmlDocument document = new HtmlDocument();
+//        document.LoadHtml(pageContent);
+
+//        var rows = document.DocumentNode.SelectNodes("//table[contains(@class, 'W(100%) M(0)')]/tbody/tr");
+
+//        if (rows != null)
+//        {
+//            foreach (var row in rows)
+//            {
+//                var cells = row.SelectNodes("td");
+//                if (cells != null && cells.Count >= 7)
+//                {
+//                    string date = cells[0].InnerText.Trim();
+//                    string open = cells[1].InnerText.Trim();
+//                    string high = cells[2].InnerText.Trim();
+//                    string low = cells[3].InnerText.Trim();
+//                    string close = cells[4].InnerText.Trim();
+//                    string adjClose = cells[5].InnerText.Trim();
+//                    string volume = cells[6].InnerText.Trim();
+
+//                    Console.WriteLine($"{date}, {open}, {high}, {low}, {close}, {adjClose}, {volume}");
+//                }
+//            }
+//        }
+//        else
+//        {
+//            Console.WriteLine("データの取得に失敗しました。");
+//        }
+//    }
+//    else
+//    {
+//        Console.WriteLine("ページの取得に失敗しました。");
+//    }
+//}
+
+
+//string apiKey = "HU03ZTWTEKGY3YRQ"; // Alpha VantageのAPIキー
+////string symbol = "7203.T"; // トヨタ自動車のティッカーシンボル
+//string symbol = "7203"; // トヨタ自動車のティッカーシンボル
+////string symbol = "IBM"; // トヨタ自動車のティッカーシンボル
+//string url = $"https://www.alphavantage.co/query?function=TIME_SERIES_INTRADAY&symbol={symbol}&interval=1min&apikey={apiKey}";
+
+//using (HttpClient client = new HttpClient())
+//{
+//    HttpResponseMessage response = await client.GetAsync(url);
+//    if (response.IsSuccessStatusCode)
+//    {
+//        string jsonResponse = await response.Content.ReadAsStringAsync();
+//        Console.WriteLine(jsonResponse);
+//    }
+//    else
+//    {
+//        Console.WriteLine("データの取得に失敗しました。");
+//    }
+//}
+
+//string symbol = "7203.T"; // トヨタ自動車のティッカーシンボル
+//string url = $"https://query1.finance.yahoo.com/v7/finance/quote?symbols={symbol}";
+
+//using (HttpClient client = new HttpClient())
+//{
+//    HttpResponseMessage response = await client.GetAsync(url);
+//    if (response.IsSuccessStatusCode)
+//    {
+//        string jsonResponse = await response.Content.ReadAsStringAsync();
+//        Console.WriteLine(jsonResponse);
+//    }
+//    else
+//    {
+//        Console.WriteLine("データの取得に失敗しました。");
+//    }
+//}
+
+// ** J-QuantsAPIにはがっかりだ。
+//// ウォッチリスト取得
+//var watchList = GetWatchList();
+
+//foreach (var list in watchList)
+//{
+//    Console.WriteLine($"Code:{list.Code}、Name：{list.Name}");
+
+//    // 銘柄情報取得
+//    var listedInfoResponse = GetListedInfoResponse(list.Code).Result;
+
+//    // 株価情報取得
+//    var pricesDailyQuotesResponse = GetPricesDailyQuotesResponse(list.Code, DateTime.Now.AddDays(-1), DateTime.Now.AddDays(-1)).Result;
+
+//    // マスタ更新
+//}
+
+async Task<PricesDailyQuotesResponse> GetPricesDailyQuotesResponse(string code, DateTime from, DateTime to)
+{
+    HttpResponseMessage response = null;
+    string responseBody = string.Empty;
+
+    using (HttpClient client = new HttpClient())
+    {
+        if (string.IsNullOrEmpty(_refreshtoken))
+        {
+            // コンテンツを作成
+            var content = new StringContent(JsonConvert.SerializeObject(new { mailaddress = _mailAddress, password = _password }), Encoding.UTF8, "application/json");
+            response = await client.PostAsync($"https://api.jquants.com/v1/token/auth_user", content);
+            responseBody = await response.Content.ReadAsStringAsync();
+            var r = JsonConvert.DeserializeObject<ApiResponse>(responseBody);
+            _refreshtoken = r.refreshtoken;
+        }
+        Console.WriteLine($"refreshtoken：{_refreshtoken}");
+
+        response = await client.PostAsync($"https://api.jquants.com/v1/token/auth_refresh?refreshtoken={_refreshtoken}", null);
+        responseBody = await response.Content.ReadAsStringAsync();
+        var r1 = JsonConvert.DeserializeObject<AuthRefreshResponse>(responseBody);
+        Console.WriteLine($"idToken：{r1.idToken}");
+
+        client.DefaultRequestHeaders.Accept.Clear();
+        client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+        client.DefaultRequestHeaders.Add("Custom-Header", "HeaderValue");
+        client.DefaultRequestHeaders.Add("Authorization", $"Bearer {r1.idToken}");
+        response = await client.GetAsync($"https://api.jquants.com/v1/prices/daily_quotes?code={code}&from={from.ToString("yyyyMMdd")}&to={to.ToString("yyyyMMdd")}");
+        responseBody = await response.Content.ReadAsStringAsync();
+        Console.WriteLine($"responseBody：{responseBody}");
+        PricesDailyQuotesResponse apiResponse = JsonConvert.DeserializeObject<PricesDailyQuotesResponse>(responseBody);
+        foreach (var i in apiResponse.daily_quotes)
+        {
+            Console.WriteLine($"Date:{i.Date}, Code:{i.Code}, Open:{i.Open}, High:{i.High}, Low:{i.Low}, Close:{i.Close}");
+        }
+        return apiResponse;
+    }
+}
+
+async Task<ListedInfoResponse> GetListedInfoResponse(string code)
+{
+    HttpResponseMessage response = null;
+    string responseBody = string.Empty;
+
+    using (HttpClient client = new HttpClient())
+    {
+        if (string.IsNullOrEmpty(_refreshtoken))
+        {
+            // コンテンツを作成
+            var content = new StringContent(JsonConvert.SerializeObject(new { mailaddress = _mailAddress, password = _password }), Encoding.UTF8, "application/json");
+            response = await client.PostAsync($"https://api.jquants.com/v1/token/auth_user", content);
+            responseBody = await response.Content.ReadAsStringAsync();
+            var r = JsonConvert.DeserializeObject<ApiResponse>(responseBody);
+            _refreshtoken = r.refreshtoken;
+        }
+        //Console.WriteLine($"refreshtoken：{_refreshtoken}");
+
+        response = await client.PostAsync($"https://api.jquants.com/v1/token/auth_refresh?refreshtoken={_refreshtoken}", null);
+        responseBody = await response.Content.ReadAsStringAsync();
+        var r1 = JsonConvert.DeserializeObject<AuthRefreshResponse>(responseBody);
+        //Console.WriteLine($"idToken：{r1.idToken}");
+
+        client.DefaultRequestHeaders.Accept.Clear();
+        client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+        client.DefaultRequestHeaders.Add("Custom-Header", "HeaderValue");
+        client.DefaultRequestHeaders.Add("Authorization", $"Bearer {r1.idToken}");
+        response = await client.GetAsync($"https://api.jquants.com/v1/listed/info?code={code}");
+        responseBody = await response.Content.ReadAsStringAsync();
+        //Console.WriteLine($"responseBody：{responseBody}");
+        ListedInfoResponse apiResponse = JsonConvert.DeserializeObject<ListedInfoResponse>(responseBody);
+        foreach (var i in apiResponse.info)
+        {
+            Console.WriteLine($"Date: {i.Date}, Code: {i.Code}, CompanyName: {i.CompanyName}");
+        }
+        return apiResponse;
+    }
 }
 
 List<WatchList> GetWatchList()
@@ -62,6 +309,58 @@ List<WatchList> GetWatchList()
     return list;
 
 }
+internal class PricesDailyQuotesResponse
+{
+    public List<DailyQuotes> daily_quotes { get; set; }
+    public string pagination_key { get; set; }
+
+    public class DailyQuotes
+    {
+        public string? Date { get; set; }
+        public string? Code { get; set; }
+        public string? Open { get; set; }
+        public string? High { get; set; }
+        public string? Low { get; set; }
+        public string? Close { get; set; }
+        public string? UpperLimit { get; set; }
+        public string? LowerLimit { get; set; }
+        public string? Volume { get; set; }
+        public string? TurnoverValue { get; set; }
+        public string? AdjustmentFactor { get; set; }
+        public string? AdjustmentOpen { get; set; }
+        public string? AdjustmentHigh { get; set; }
+        public string? AdjustmentLow { get; set; }
+        public string? AdjustmentClose { get; set; }
+        public string? AdjustmentVolume { get; set; }
+        public string? MorningOpen { get; set; }
+        public string? MorningHigh { get; set; }
+        public string? MorningLow { get; set; }
+        public string? MorningClose { get; set; }
+        public string? MorningUpperLimit { get; set; }
+        public string? MorningLowerLimit { get; set; }
+        public string? MorningVolume { get; set; }
+        public string? MorningTurnoverValue { get; set; }
+        public string? MorningAdjustmentOpen { get; set; }
+        public string? MorningAdjustmentHigh { get; set; }
+        public string? MorningAdjustmentLow { get; set; }
+        public string? MorningAdjustmentClose { get; set; }
+        public string? MorningAdjustmentVolume { get; set; }
+        public string? AfternoonOpen { get; set; }
+        public string? AfternoonHigh { get; set; }
+        public string? AfternoonLow { get; set; }
+        public string? AfternoonClose { get; set; }
+        public string? AfternoonUpperLimit { get; set; }
+        public string? AfternoonLowerLimit { get; set; }
+        public string? AfternoonVolume { get; set; }
+        public string? AfternoonTurnoverValue { get; set; }
+        public string? AfternoonAdjustmentOpen { get; set; }
+        public string? AfternoonAdjustmentHigh { get; set; }
+        public string? AfternoonAdjustmentLow { get; set; }
+        public string? AfternoonAdjustmentClose { get; set; }
+        public string? AfternoonAdjustmentVolume { get; set; }
+
+    }
+}
 class WatchList
 {
     public string? Code { get; set; }
@@ -71,10 +370,10 @@ class WatchList
 
 public class ListedInfoResponse
 {
-    public List<ListedInfo> info { get; set; }
+    public List<Info> info { get; set; }
 }
 
-public class ListedInfo
+public class Info
 {
     public string? Date { get; set; }
     public string? Code { get; set; }
@@ -227,4 +526,14 @@ class Sample
         }
         return null;
     }
+}
+
+public class StockPrice
+{
+    public string Date { get; set; }
+    public string Open { get; set; }
+    public string High { get; set; }
+    public string Low { get; set; }
+    public string Close { get; set; }
+    public string Volume { get; set; }
 }
