@@ -25,55 +25,65 @@ const string _mailAddress = "sadac23@gmail.com";
 const string _password = "1qaz2WSX3edc";
 string _refreshtoken = string.Empty;
 
-string stockCode = "7203"; // トヨタ自動車の株式コード
-string url = $"https://finance.yahoo.co.jp/quote/{stockCode}.T/history";
-var httpClient = new HttpClient();
-var html = await httpClient.GetStringAsync(url);
+var scraper = new Scraper();
+StockInfo stockInfo =  scraper.GetStockInfo("9432", DateTime.Today.AddMonths(-1), DateTime.Today).Result;
 
-var htmlDocument = new HtmlDocument();
-htmlDocument.LoadHtml(html);
+Console.WriteLine($"Code: {stockInfo.Code}, Name: {stockInfo.Name}");
 
-var title = htmlDocument.DocumentNode.SelectNodes("//title");
-
-var rows = htmlDocument.DocumentNode.SelectNodes("//table[contains(@class, 'StocksEtfReitPriceHistory')]/tbody/tr");
-
-var stockData = new List<StockPrice>();
-
-foreach (var row in rows)
+foreach (var p in stockInfo.Prices)
 {
-    var columns = row.SelectNodes("td|th");
-
-    if (columns != null && columns.Count > 6)
-    {
-        var date = columns[0].InnerText.Trim();
-        var open = columns[1].InnerText.Trim();
-        var high = columns[2].InnerText.Trim();
-        var low = columns[3].InnerText.Trim();
-        var close = columns[4].InnerText.Trim();
-        var volume = columns[5].InnerText.Trim();
-
-        stockData.Add(new StockPrice
-        {
-            Date = date,
-            Open = open,
-            High = high,
-            Low = low,
-            Close = close,
-            Volume = volume
-        });
-    }
+    Console.WriteLine($"Date: {p.Date}, Open: {p.Open}, High: {p.High}, Low: {p.Low}, Close: {p.Close}, Volume: {p.Volume}");
 }
 
-string[] parts = title[0].InnerText.Trim().Split('：');
-if (parts.Length > 0)
-{
-    Console.WriteLine($"Title: {parts[0]}");
-}
+//string stockCode = "9432";
+//string url = $"https://finance.yahoo.co.jp/quote/{stockCode}.T/history";
+//var httpClient = new HttpClient();
+//var html = await httpClient.GetStringAsync(url);
 
-foreach (var stock in stockData)
-{
-    Console.WriteLine($"Date: {stock.Date}, Open: {stock.Open}, High: {stock.High}, Low: {stock.Low}, Close: {stock.Close}, Volume: {stock.Volume}");
-}
+//var htmlDocument = new HtmlDocument();
+//htmlDocument.LoadHtml(html);
+
+//var title = htmlDocument.DocumentNode.SelectNodes("//title");
+
+//var rows = htmlDocument.DocumentNode.SelectNodes("//table[contains(@class, 'StocksEtfReitPriceHistory')]/tbody/tr");
+
+//var stockData = new List<StockPrice>();
+
+//foreach (var row in rows)
+//{
+//    var columns = row.SelectNodes("td|th");
+
+//    if (columns != null && columns.Count > 6)
+//    {
+//        var date = columns[0].InnerText.Trim();
+//        var open = columns[1].InnerText.Trim();
+//        var high = columns[2].InnerText.Trim();
+//        var low = columns[3].InnerText.Trim();
+//        var close = columns[4].InnerText.Trim();
+//        var volume = columns[5].InnerText.Trim();
+
+//        stockData.Add(new StockPrice
+//        {
+//            Date = date,
+//            Open = open,
+//            High = high,
+//            Low = low,
+//            Close = close,
+//            Volume = volume
+//        });
+//    }
+//}
+
+//string[] parts = title[0].InnerText.Trim().Split('：');
+//if (parts.Length > 0)
+//{
+//    Console.WriteLine($"Title: {parts[0]}");
+//}
+
+//foreach (var stock in stockData)
+//{
+//    Console.WriteLine($"Date: {stock.Date}, Open: {stock.Open}, High: {stock.High}, Low: {stock.Low}, Close: {stock.Close}, Volume: {stock.Volume}");
+//}
 
 //string url = "https://finance.yahoo.co.jp/quote/7203.T"; // トヨタ自動車の株価ページ
 
