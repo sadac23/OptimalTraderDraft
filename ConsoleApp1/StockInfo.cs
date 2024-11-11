@@ -12,7 +12,8 @@ internal class StockInfo
 
     public class Price
     {
-        public string Date { get; set; }
+        public DateTime Date { get; set; }
+        public string DateYYYYMMDD { get; set; }
         public string Open { get; set; }
         public string High { get; set; }
         public string Low { get; set; }

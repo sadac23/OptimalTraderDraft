@@ -25,14 +25,96 @@ const string _mailAddress = "sadac23@gmail.com";
 const string _password = "1qaz2WSX3edc";
 string _refreshtoken = string.Empty;
 
+List<WatchList.WatchStock> watchList = WatchList.GetStockList();
+
 var scraper = new Scraper();
-StockInfo stockInfo =  scraper.GetStockInfo("9432", DateTime.Today.AddMonths(-1), DateTime.Today).Result;
+StockInfo stockInfo =  scraper.GetStockInfo("9432", DateTime.Parse("2023/01/01"), DateTime.Today).Result;
 
 Console.WriteLine($"Code: {stockInfo.Code}, Name: {stockInfo.Name}");
 
-foreach (var p in stockInfo.Prices)
+UpdateMaster(stockInfo);
+
+void UpdateMaster(StockInfo stockInfo)
 {
-    Console.WriteLine($"Date: {p.Date}, Open: {p.Open}, High: {p.High}, Low: {p.Low}, Close: {p.Close}, Volume: {p.Volume}");
+    foreach (var p in stockInfo.Prices)
+    {
+        Console.WriteLine($"Date: {p.Date}, DateYYYYMMDD: {p.DateYYYYMMDD}, Open: {p.Open}, High: {p.High}, Low: {p.Low}, Close: {p.Close}, Volume: {p.Volume}");
+        if (!IsExist(stockInfo.Code, p)) {
+            InsertMaster(stockInfo.Code, p);
+        }
+    }
+}
+
+void InsertMaster(string code, StockInfo.Price p)
+{
+    using (SQLiteConnection connection = new SQLiteConnection(_connectionString))
+    {
+        connection.Open();
+
+        // 挿入クエリ
+        string query = "INSERT INTO history (" +
+            "code" +
+            ", date_string" +
+            ", date" +
+            ", open" +
+            ", high" +
+            ", low" +
+            ", close" +
+            ", volume" +
+            ") VALUES (" +
+            "@code" +
+            ", @date_string" +
+            ", @date" +
+            ", @open" +
+            ", @high" +
+            ", @low" +
+            ", @close" +
+            ", @volume" +
+            ")";
+
+        using (SQLiteCommand command = new SQLiteCommand(query, connection))
+        {
+            // パラメータを設定
+            command.Parameters.AddWithValue("@code", code);
+            command.Parameters.AddWithValue("@date_string", p.DateYYYYMMDD);
+            command.Parameters.AddWithValue("@date", p.Date);
+            command.Parameters.AddWithValue("@open", p.Open);
+            command.Parameters.AddWithValue("@high", p.High);
+            command.Parameters.AddWithValue("@low", p.Low);
+            command.Parameters.AddWithValue("@close", p.Close);
+            command.Parameters.AddWithValue("@volume", p.Volume);
+
+            // クエリを実行
+            int rowsAffected = command.ExecuteNonQuery();
+
+            // 結果を表示
+            Console.WriteLine("Rows inserted: " + rowsAffected);
+        }
+    }
+}
+
+bool IsExist(string code, StockInfo.Price p)
+{
+    using (SQLiteConnection connection = new SQLiteConnection(_connectionString))
+    {
+        connection.Open();
+
+        // プライマリーキーに条件を設定したクエリ
+        string query = "SELECT count(code) as count FROM history WHERE code = @code and date_string = @date_string";
+
+        using (SQLiteCommand command = new SQLiteCommand(query, connection))
+        {
+            // パラメータを設定
+            command.Parameters.AddWithValue("@code", code);
+            command.Parameters.AddWithValue("@date_string", p.DateYYYYMMDD);
+
+            // COUNTの結果を取得
+            object result = command.ExecuteScalar();
+            int count = Convert.ToInt32(result);
+
+            return count > 0;
+        }
+    }
 }
 
 //string stockCode = "9432";
@@ -292,33 +374,6 @@ async Task<ListedInfoResponse> GetListedInfoResponse(string code)
     }
 }
 
-List<WatchList> GetWatchList()
-{
-    var list = new List<WatchList>();
-
-    using (SQLiteConnection connection = new SQLiteConnection(_connectionString))
-    {
-        connection.Open();
-
-        string query = "SELECT * FROM watch_list";
-
-        using (SQLiteCommand command = new SQLiteCommand(query, connection))
-        {
-            using (SQLiteDataReader reader = command.ExecuteReader())
-            {
-                while (reader.Read())
-                {
-                    list.Add(new WatchList {
-                        Code = reader.GetString(reader.GetOrdinal("code"))
-                        , Name = reader.GetString(reader.GetOrdinal("name")) 
-                    });
-                }
-            }
-        }
-    }
-    return list;
-
-}
 internal class PricesDailyQuotesResponse
 {
     public List<DailyQuotes> daily_quotes { get; set; }
@@ -371,12 +426,6 @@ internal class PricesDailyQuotesResponse
 
     }
 }
-class WatchList
-{
-    public string? Code { get; set; }
-    public string? Name { get; set; }
-}
-
 
 public class ListedInfoResponse
 {
@@ -547,3 +596,4 @@ public class StockPrice
     public string Close { get; set; }
     public string Volume { get; set; }
 }
+
