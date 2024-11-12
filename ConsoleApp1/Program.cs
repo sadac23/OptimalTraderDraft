@@ -25,14 +25,16 @@ const string _mailAddress = "sadac23@gmail.com";
 const string _password = "1qaz2WSX3edc";
 string _refreshtoken = string.Empty;
 
-List<WatchList.WatchStock> watchList = WatchList.GetStockList();
+List<WatchList.WatchStock> watchList = WatchList.GetWatchStockList(_connectionString);
 
 var scraper = new Scraper();
-StockInfo stockInfo =  scraper.GetStockInfo("9432", DateTime.Parse("2023/01/01"), DateTime.Today).Result;
 
-Console.WriteLine($"Code: {stockInfo.Code}, Name: {stockInfo.Name}");
-
-UpdateMaster(stockInfo);
+foreach (var l in watchList)
+{
+    StockInfo stockInfo = scraper.GetStockInfo(l.Code, DateTime.Parse("2023/01/01"), DateTime.Today).Result;
+    Console.WriteLine($"Code: {stockInfo.Code}, Name: {stockInfo.Name}");
+    UpdateMaster(stockInfo);
+}
 
 void UpdateMaster(StockInfo stockInfo)
 {
