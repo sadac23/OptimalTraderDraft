@@ -6,7 +6,7 @@ internal class WatchList
 {
     internal static List<WatchStock> GetWatchStockList(string connectionString)
     {
-        string query = "SELECT * FROM watch_list WHERE del_flag <> null";
+        string query = "SELECT * FROM watch_list WHERE ifnull(del_flag, 0) = 0";
 
         List<WatchStock> results = new List<WatchStock>();
 
@@ -21,6 +21,7 @@ internal class WatchList
                 using (SQLiteDataReader reader = command.ExecuteReader())
                 {
                     while (reader.Read())
+                    
                     {
                         WatchStock data = new WatchStock
                         {
@@ -36,5 +37,6 @@ internal class WatchList
     internal class WatchStock
     {
         public string Code { get; set; }
+        public string Name { get; set; }
     }
 }

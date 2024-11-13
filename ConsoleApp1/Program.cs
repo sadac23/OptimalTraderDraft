@@ -24,25 +24,73 @@ const string _connectionString = @"Data Source=..\..\..\..\example.db;Version=3;
 const string _mailAddress = "sadac23@gmail.com";
 const string _password = "1qaz2WSX3edc";
 string _refreshtoken = string.Empty;
+DateTime _masterStartDate = DateTime.Parse("2023/01/01");
 
+// ウォッチリスト取得
 List<WatchList.WatchStock> watchList = WatchList.GetWatchStockList(_connectionString);
 
+// マスタ更新
 var scraper = new Scraper();
-
 foreach (var l in watchList)
 {
-    StockInfo stockInfo = scraper.GetStockInfo(l.Code, DateTime.Parse("2023/01/01"), DateTime.Today).Result;
-    Console.WriteLine($"Code: {stockInfo.Code}, Name: {stockInfo.Name}");
+    StockInfo stockInfo = scraper.GetStockInfo(l.Code, _masterStartDate, DateTime.Today).Result;
     UpdateMaster(stockInfo);
+}
+
+// 分析トラン更新
+UpdateAnalysisResultTransaction(watchList);
+
+// アラート通知
+SendAlert();
+
+void UpdateAnalysisResultTransaction(List<WatchList.WatchStock> watchList)
+{
+    foreach (var item in watchList)
+    {
+        // 分析
+        AnalysisResult result = Analysis(item);
+        ResisterResult(result);
+    }
+}
+
+AnalysisResult Analysis(WatchList.WatchStock item)
+{
+    // 結果生成
+    AnalysisResult result = new()
+    {
+        Code = item.Code,
+        DateString = "",
+        Date = DateTime.Now,
+        Name = item.Name,
+        VolatilitySum = 0,
+        VolatilityTerm = 0,
+        LeverageRatio = 0,
+        MarketCap = 0,
+        Roe = 0,
+        EquityRatio = 0,
+        RevenueProfitDividend = 0,
+        MinkabuAnalysis = ""
+    };
+    return result;
+}
+
+void ResisterResult(AnalysisResult result)
+{
+    throw new NotImplementedException();
+}
+
+void SendAlert()
+{
+    throw new NotImplementedException();
 }
 
 void UpdateMaster(StockInfo stockInfo)
 {
     foreach (var p in stockInfo.Prices)
     {
-        Console.WriteLine($"Date: {p.Date}, DateYYYYMMDD: {p.DateYYYYMMDD}, Open: {p.Open}, High: {p.High}, Low: {p.Low}, Close: {p.Close}, Volume: {p.Volume}");
         if (!IsExist(stockInfo.Code, p)) {
             InsertMaster(stockInfo.Code, p);
+            Console.WriteLine($"Date: {p.Date}, DateYYYYMMDD: {p.DateYYYYMMDD}, Open: {p.Open}, High: {p.High}, Low: {p.Low}, Close: {p.Close}, Volume: {p.Volume}");
         }
     }
 }
