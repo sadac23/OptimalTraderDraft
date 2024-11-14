@@ -54,11 +54,11 @@ internal class Scraper
                     if (columns != null && columns.Count > 6)
                     {
                         var date = this.GetDate(columns[0].InnerText.Trim());
-                        var open = columns[1].InnerText.Trim();
-                        var high = columns[2].InnerText.Trim();
-                        var low = columns[3].InnerText.Trim();
-                        var close = columns[4].InnerText.Trim();
-                        var volume = columns[5].InnerText.Trim();
+                        var open = this.GetDouble(columns[1].InnerText.Trim());
+                        var high = this.GetDouble(columns[2].InnerText.Trim());
+                        var low = this.GetDouble(columns[3].InnerText.Trim());
+                        var close = this.GetDouble(columns[4].InnerText.Trim());
+                        var volume = this.GetDouble(columns[5].InnerText.Trim());
 
                         stockInfo.Prices.Add(new StockInfo.Price
                         {
@@ -75,6 +75,14 @@ internal class Scraper
             }
         }
         return stockInfo;
+    }
+
+    private double GetDouble(string v)
+    {
+        double.TryParse(v, NumberStyles.AllowThousands | NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out double result);
+
+        return result;
+
     }
 
     private DateTime GetDate(string v)

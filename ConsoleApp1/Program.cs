@@ -17,6 +17,9 @@ using System.Reflection.Metadata;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 using System.Data.Entity.Core.Common.CommandTrees.ExpressionBuilder;
 using System.Collections;
+using System.Diagnostics.CodeAnalysis;
+using System.Data.Entity;
+using System.Data;
 
 Console.WriteLine("Hello, World!");
 
@@ -48,14 +51,67 @@ void UpdateAnalysisResultTransaction(List<WatchList.WatchStock> watchList)
     foreach (var item in watchList)
     {
         // 分析
-        AnalysisResult result = Analysis(item);
-        ResisterResult(result);
+        var results = Analyze(item);
+        ResisterResult(results);
     }
 }
 
-AnalysisResult Analysis(WatchList.WatchStock item)
+void ResisterResult(List<AnalysisResult> results)
+{
+//    throw new NotImplementedException();
+}
+
+List<AnalysisResult> Analyze(WatchList.WatchStock item)
+{
+    List<AnalysisResult> results = new();
+
+    // 変動幅（1）
+    results.Add(AnalyzeWeeklyfluctuation(item, 1));
+
+
+    return results;
+}
+
+AnalysisResult AnalyzeWeeklyfluctuation(WatchList.WatchStock item, int v)
 {
     // 結果生成
+    using (SQLiteConnection connection = new SQLiteConnection(_connectionString))
+    {
+        connection.Open();
+
+        // プライマリーキーに条件を設定したクエリ
+        string query = "SELECT * FROM history WHERE code = @code and date BETWEEN @date_start and @date_end ORDER BY date";
+
+        using (SQLiteCommand command = new SQLiteCommand(query, connection))
+        {
+            // パラメータを設定
+            command.Parameters.AddWithValue("@code", item.Code);
+            command.Parameters.AddWithValue("@date_start", GetStartOfWeek(DateTime.Today).ToString("yyyy-MM-dd"));
+            command.Parameters.AddWithValue("@date_end", DateTime.Today.ToString("yyyy-MM-dd"));
+
+            // データリーダーを使用して結果を取得
+            using (SQLiteDataReader reader = command.ExecuteReader())
+            {
+                // 結果を読み取り
+                while (reader.Read())
+                {
+                    // カラム名を指定してデータを取得
+                    string code = reader.GetString(reader.GetOrdinal("code"));
+                    DateTime date = reader.GetDateTime(reader.GetOrdinal("date"));
+                    //int open = reader.GetInt32(reader.GetOrdinal("open"));
+                    //int high = reader.GetInt32(reader.GetOrdinal("high"));
+                    //int low = reader.GetInt32(reader.GetOrdinal("low"));
+                    //int close = reader.GetInt32(reader.GetOrdinal("close"));
+                    //int volume = reader.GetInt32(reader.GetOrdinal("volume"));
+                    string close = reader.GetString(reader.GetOrdinal("close"));
+
+                    // 結果をコンソールに出力
+                    Console.WriteLine($"code: {code}, close: {close}");
+                }
+            }
+        }
+    }
+
     AnalysisResult result = new()
     {
         Code = item.Code,
@@ -74,14 +130,29 @@ AnalysisResult Analysis(WatchList.WatchStock item)
     return result;
 }
 
-void ResisterResult(AnalysisResult result)
+DateTime GetStartOfWeek(DateTime date)
 {
-    throw new NotImplementedException();
+    // 現在の日付の曜日を取得
+    DayOfWeek dayOfWeek = date.DayOfWeek;
+
+    // 日曜日を0、月曜日を1、...、土曜日を6とする
+    int offset = dayOfWeek - DayOfWeek.Monday;
+
+    // 日曜日の場合、オフセットを-6に設定
+    if (offset < 0)
+    {
+        offset += 7;
+    }
+
+    // 週の最初の日を計算
+    DateTime startOfWeek = date.AddDays(-offset);
+
+    return startOfWeek;
 }
 
 void SendAlert()
 {
-    throw new NotImplementedException();
+    //throw new NotImplementedException();
 }
 
 void UpdateMaster(StockInfo stockInfo)
