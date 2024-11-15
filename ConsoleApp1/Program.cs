@@ -20,6 +20,9 @@ using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 using System.Data.Entity;
 using System.Data;
+using System.Transactions;
+using static System.Data.Entity.Infrastructure.Design.Executor;
+using System.Runtime.InteropServices;
 
 Console.WriteLine("Hello, World!");
 
@@ -36,7 +39,10 @@ List<WatchList.WatchStock> watchList = WatchList.GetWatchStockList(_connectionSt
 var scraper = new Scraper();
 foreach (var l in watchList)
 {
-    StockInfo stockInfo = scraper.GetStockInfo(l.Code, _masterStartDate, DateTime.Today).Result;
+    // 更新開始日取得（なければ基準開始日を取得）
+    DateTime startDate = GetStartDate(l.Code);
+
+    StockInfo stockInfo = scraper.GetStockInfo(l.Code, startDate, DateTime.Today).Result;
     UpdateMaster(stockInfo);
 }
 
@@ -46,12 +52,47 @@ UpdateAnalysisResultTransaction(watchList);
 // アラート通知
 SendAlert();
 
+DateTime GetStartDate(string code)
+{
+    DateTime result = _masterStartDate;
+
+    using (SQLiteConnection connection = new SQLiteConnection(_connectionString))
+    {
+        connection.Open();
+
+        // プライマリーキーに条件を設定したクエリ
+        string query = "SELECT MAX(date) FROM history WHERE code = @code";
+
+        using (SQLiteCommand command = new SQLiteCommand(query, connection))
+        {
+            // パラメータを設定
+            command.Parameters.AddWithValue("@code", code);
+
+            // データリーダーを使用して結果を取得
+            using (SQLiteDataReader reader = command.ExecuteReader())
+            {
+                if (reader.Read())
+                {
+                    result = reader.GetDateTime(0);
+                }
+            }
+        }
+    }
+
+    return result;
+}
+
 void UpdateAnalysisResultTransaction(List<WatchList.WatchStock> watchList)
 {
     foreach (var item in watchList)
     {
         // 分析
         var results = Analyze(item);
+
+        foreach (AnalysisResult result in results)
+        {
+            Console.WriteLine($"Code: {result.Code}, Name: {result.Name}, VolatilityRate: {result.VolatilityRate}, VolatilityTerm: {result.VolatilityTerm}");
+        }
         ResisterResult(results);
     }
 }
@@ -68,12 +109,17 @@ List<AnalysisResult> Analyze(WatchList.WatchStock item)
     // 変動幅（1）
     results.Add(AnalyzeWeeklyfluctuation(item, 1));
 
-
     return results;
 }
 
-AnalysisResult AnalyzeWeeklyfluctuation(WatchList.WatchStock item, int v)
+AnalysisResult AnalyzeWeeklyfluctuation(WatchList.WatchStock item, int term)
 {
+    double start = 0;
+    double end = 0;
+
+    // 基準日を調整
+    DateTime baseDate = term == 1 ? DateTime.Today : DateTime.Today.AddDays(term * -7);
+
     // 結果生成
     using (SQLiteConnection connection = new SQLiteConnection(_connectionString))
     {
@@ -86,27 +132,31 @@ AnalysisResult AnalyzeWeeklyfluctuation(WatchList.WatchStock item, int v)
         {
             // パラメータを設定
             command.Parameters.AddWithValue("@code", item.Code);
-            command.Parameters.AddWithValue("@date_start", GetStartOfWeek(DateTime.Today).ToString("yyyy-MM-dd"));
+            command.Parameters.AddWithValue("@date_start", GetStartOfWeek(baseDate).ToString("yyyy-MM-dd"));    // TODO:ここは前週の最終日じゃないとダメ
             command.Parameters.AddWithValue("@date_end", DateTime.Today.ToString("yyyy-MM-dd"));
 
             // データリーダーを使用して結果を取得
             using (SQLiteDataReader reader = command.ExecuteReader())
             {
+
                 // 結果を読み取り
                 while (reader.Read())
                 {
                     // カラム名を指定してデータを取得
                     string code = reader.GetString(reader.GetOrdinal("code"));
                     DateTime date = reader.GetDateTime(reader.GetOrdinal("date"));
-                    //int open = reader.GetInt32(reader.GetOrdinal("open"));
-                    //int high = reader.GetInt32(reader.GetOrdinal("high"));
-                    //int low = reader.GetInt32(reader.GetOrdinal("low"));
-                    //int close = reader.GetInt32(reader.GetOrdinal("close"));
-                    //int volume = reader.GetInt32(reader.GetOrdinal("volume"));
-                    string close = reader.GetString(reader.GetOrdinal("close"));
+                    double open = reader.GetDouble(reader.GetOrdinal("open"));
+                    double high = reader.GetDouble(reader.GetOrdinal("high"));
+                    double low = reader.GetDouble(reader.GetOrdinal("low"));
+                    double close = reader.GetDouble(reader.GetOrdinal("close"));
+                    double volume = reader.GetDouble(reader.GetOrdinal("volume"));
 
                     // 結果をコンソールに出力
-                    Console.WriteLine($"code: {code}, close: {close}");
+                    Console.WriteLine($"code: {code}, date: {date}, close: {close}");
+
+                    if (start == 0) start = close;
+                    end = close;
+
                 }
             }
         }
@@ -118,8 +168,8 @@ AnalysisResult AnalyzeWeeklyfluctuation(WatchList.WatchStock item, int v)
         DateString = "",
         Date = DateTime.Now,
         Name = item.Name,
-        VolatilitySum = 0,
-        VolatilityTerm = 0,
+        VolatilityRate = (end / start) - 1,
+        VolatilityTerm = term,
         LeverageRatio = 0,
         MarketCap = 0,
         Roe = 0,

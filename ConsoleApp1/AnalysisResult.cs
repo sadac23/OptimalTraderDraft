@@ -5,7 +5,7 @@ internal class AnalysisResult
     public string DateString { get; set; }
     public DateTime Date { get; set; }
     public string Name { get; set; }
-    public double VolatilitySum { get; set; }
+    public double VolatilityRate { get; set; }
     public int VolatilityTerm { get; set; }
     public double LeverageRatio { get; set; }
     public double MarketCap { get; set; }
