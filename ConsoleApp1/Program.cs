@@ -43,14 +43,105 @@ foreach (var l in watchList)
     DateTime startDate = GetStartDate(l.Code);
 
     StockInfo stockInfo = scraper.GetStockInfo(l.Code, startDate, DateTime.Today).Result;
+
     UpdateMaster(stockInfo);
 }
 
 // 分析トラン更新
-UpdateAnalysisResultTransaction(watchList);
+var analyzer = new Analyzer(_connectionString);
+foreach (var item in watchList)
+{
+    // 分析
+    var results = analyzer.Analize(item);
+
+    ResisterResult(results);
+}
 
 // アラート通知
 SendAlert();
+
+void ResisterResult(List<Analyzer.AnalysisResult> results)
+{
+    using (SQLiteConnection connection = new SQLiteConnection(_connectionString))
+    {
+        connection.Open();
+
+        foreach (var r in results)
+        {
+            // 削除クエリ
+            string delQuery = "DELETE FROM analysis_result WHERE code = @code AND date_string = @date_string AND volatility_term = @volatility_term";
+
+            using (SQLiteCommand command = new SQLiteCommand(delQuery, connection))
+            {
+                // パラメータを設定
+                command.Parameters.AddWithValue("@code", r.Code);
+                command.Parameters.AddWithValue("@date_string", DateTime.Today.ToString("yyyyMMdd"));
+                command.Parameters.AddWithValue("@volatility_term", r.VolatilityTerm);
+
+                // クエリを実行
+                int rowsAffected = command.ExecuteNonQuery();
+
+                // 結果を表示
+                Console.WriteLine("Rows deleted: " + rowsAffected);
+            }
+
+            // 挿入クエリ
+            string insQuery = "INSERT INTO analysis_result (" +
+                "code" +
+                ", date_string" +
+                ", date" +
+                ", name" +
+                ", volatility_rate" +
+                ", volatility_term" +
+                ", leverage_ratio" +
+                ", market_cap" +
+                ", roe" +
+                ", equity_ratio" +
+                ", revenue_profit_dividend" +
+                ", minkabu_analysis" +
+                ", should_alert" +
+                ") VALUES (" +
+                "@code" +
+                ", @date_string" +
+                ", @date" +
+                ", @name" +
+                ", @volatility_rate" +
+                ", @volatility_term" +
+                ", @leverage_ratio" +
+                ", @market_cap" +
+                ", @roe" +
+                ", @equity_ratio" +
+                ", @revenue_profit_dividend" +
+                ", @minkabu_analysis" +
+                ", @should_alert" +
+                ")";
+
+            using (SQLiteCommand command = new SQLiteCommand(insQuery, connection))
+            {
+                // パラメータを設定
+                command.Parameters.AddWithValue("@code", r.Code);
+                command.Parameters.AddWithValue("@date_string", DateTime.Today.ToString("yyyyMMdd"));
+                command.Parameters.AddWithValue("@date", DateTime.Today);
+                command.Parameters.AddWithValue("@name", r.Name);
+                command.Parameters.AddWithValue("@volatility_rate", r.VolatilityRate);
+                command.Parameters.AddWithValue("@volatility_term", r.VolatilityTerm);
+                command.Parameters.AddWithValue("@leverage_ratio", r.LeverageRatio);
+                command.Parameters.AddWithValue("@market_cap", r.MarketCap);
+                command.Parameters.AddWithValue("@roe", r.Roe);
+                command.Parameters.AddWithValue("@equity_ratio", r.EquityRatio);
+                command.Parameters.AddWithValue("@revenue_profit_dividend", r.RevenueProfitDividend);
+                command.Parameters.AddWithValue("@minkabu_analysis", r.MinkabuAnalysis);
+                command.Parameters.AddWithValue("@should_alert", r.ShouldAlert());
+
+                // クエリを実行
+                int rowsAffected = command.ExecuteNonQuery();
+
+                // 結果を表示
+                Console.WriteLine("Rows inserted: " + rowsAffected);
+            }
+        }
+    }
+}
 
 DateTime GetStartDate(string code)
 {
@@ -82,123 +173,6 @@ DateTime GetStartDate(string code)
     return result;
 }
 
-void UpdateAnalysisResultTransaction(List<WatchList.WatchStock> watchList)
-{
-    foreach (var item in watchList)
-    {
-        // 分析
-        var results = Analyze(item);
-
-        foreach (AnalysisResult result in results)
-        {
-            Console.WriteLine($"Code: {result.Code}, Name: {result.Name}, VolatilityRate: {result.VolatilityRate}, VolatilityTerm: {result.VolatilityTerm}");
-        }
-        ResisterResult(results);
-    }
-}
-
-void ResisterResult(List<AnalysisResult> results)
-{
-//    throw new NotImplementedException();
-}
-
-List<AnalysisResult> Analyze(WatchList.WatchStock item)
-{
-    List<AnalysisResult> results = new();
-
-    // 変動幅（1）
-    results.Add(AnalyzeWeeklyfluctuation(item, 1));
-
-    return results;
-}
-
-AnalysisResult AnalyzeWeeklyfluctuation(WatchList.WatchStock item, int term)
-{
-    double start = 0;
-    double end = 0;
-
-    // 基準日を調整
-    DateTime baseDate = term == 1 ? DateTime.Today : DateTime.Today.AddDays(term * -7);
-
-    // 結果生成
-    using (SQLiteConnection connection = new SQLiteConnection(_connectionString))
-    {
-        connection.Open();
-
-        // プライマリーキーに条件を設定したクエリ
-        string query = "SELECT * FROM history WHERE code = @code and date BETWEEN @date_start and @date_end ORDER BY date";
-
-        using (SQLiteCommand command = new SQLiteCommand(query, connection))
-        {
-            // パラメータを設定
-            command.Parameters.AddWithValue("@code", item.Code);
-            command.Parameters.AddWithValue("@date_start", GetStartOfWeek(baseDate).ToString("yyyy-MM-dd"));    // TODO:ここは前週の最終日じゃないとダメ
-            command.Parameters.AddWithValue("@date_end", DateTime.Today.ToString("yyyy-MM-dd"));
-
-            // データリーダーを使用して結果を取得
-            using (SQLiteDataReader reader = command.ExecuteReader())
-            {
-
-                // 結果を読み取り
-                while (reader.Read())
-                {
-                    // カラム名を指定してデータを取得
-                    string code = reader.GetString(reader.GetOrdinal("code"));
-                    DateTime date = reader.GetDateTime(reader.GetOrdinal("date"));
-                    double open = reader.GetDouble(reader.GetOrdinal("open"));
-                    double high = reader.GetDouble(reader.GetOrdinal("high"));
-                    double low = reader.GetDouble(reader.GetOrdinal("low"));
-                    double close = reader.GetDouble(reader.GetOrdinal("close"));
-                    double volume = reader.GetDouble(reader.GetOrdinal("volume"));
-
-                    // 結果をコンソールに出力
-                    Console.WriteLine($"code: {code}, date: {date}, close: {close}");
-
-                    if (start == 0) start = close;
-                    end = close;
-
-                }
-            }
-        }
-    }
-
-    AnalysisResult result = new()
-    {
-        Code = item.Code,
-        DateString = "",
-        Date = DateTime.Now,
-        Name = item.Name,
-        VolatilityRate = (end / start) - 1,
-        VolatilityTerm = term,
-        LeverageRatio = 0,
-        MarketCap = 0,
-        Roe = 0,
-        EquityRatio = 0,
-        RevenueProfitDividend = 0,
-        MinkabuAnalysis = ""
-    };
-    return result;
-}
-
-DateTime GetStartOfWeek(DateTime date)
-{
-    // 現在の日付の曜日を取得
-    DayOfWeek dayOfWeek = date.DayOfWeek;
-
-    // 日曜日を0、月曜日を1、...、土曜日を6とする
-    int offset = dayOfWeek - DayOfWeek.Monday;
-
-    // 日曜日の場合、オフセットを-6に設定
-    if (offset < 0)
-    {
-        offset += 7;
-    }
-
-    // 週の最初の日を計算
-    DateTime startOfWeek = date.AddDays(-offset);
-
-    return startOfWeek;
-}
 
 void SendAlert()
 {

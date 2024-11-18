@@ -77,7 +77,7 @@ internal class Scraper
         return stockInfo;
     }
 
-    private double GetDouble(string v)
+    internal double GetDouble(string v)
     {
         double.TryParse(v, NumberStyles.AllowThousands | NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out double result);
 
@@ -85,7 +85,7 @@ internal class Scraper
 
     }
 
-    private DateTime GetDate(string v)
+    internal DateTime GetDate(string v)
     {
         string[] formats = { "yyyy年M月d日", "yyyy年MM月dd日", "yyyy年MM月d日", "yyyy年M月dd日" };
         DateTime.TryParseExact(v, formats, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime date);
