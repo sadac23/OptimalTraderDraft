@@ -40,9 +40,9 @@ var scraper = new Scraper();
 foreach (var l in watchList)
 {
     // 更新開始日取得（なければ基準開始日を取得）
-    DateTime startDate = GetStartDate(l.Code);
+    var startDate = GetStartDate(l.Code);
 
-    StockInfo stockInfo = scraper.GetStockInfo(l.Code, startDate, DateTime.Today).Result;
+    var stockInfo = scraper.GetStockInfo(l.Code, startDate, DateTime.Today).Result;
 
     UpdateMaster(stockInfo);
 }
@@ -82,7 +82,7 @@ void ResisterResult(List<Analyzer.AnalysisResult> results)
                 int rowsAffected = command.ExecuteNonQuery();
 
                 // 結果を表示
-                Console.WriteLine("Rows deleted: " + rowsAffected);
+//                Console.WriteLine("Rows deleted: " + rowsAffected);
             }
 
             // 挿入クエリ
@@ -92,6 +92,8 @@ void ResisterResult(List<Analyzer.AnalysisResult> results)
                 ", date" +
                 ", name" +
                 ", volatility_rate" +
+                ", volatility_rate_index1" +
+                ", volatility_rate_index2" +
                 ", volatility_term" +
                 ", leverage_ratio" +
                 ", market_cap" +
@@ -106,6 +108,8 @@ void ResisterResult(List<Analyzer.AnalysisResult> results)
                 ", @date" +
                 ", @name" +
                 ", @volatility_rate" +
+                ", @volatility_rate_index1" +
+                ", @volatility_rate_index2" +
                 ", @volatility_term" +
                 ", @leverage_ratio" +
                 ", @market_cap" +
@@ -124,6 +128,8 @@ void ResisterResult(List<Analyzer.AnalysisResult> results)
                 command.Parameters.AddWithValue("@date", DateTime.Today);
                 command.Parameters.AddWithValue("@name", r.Name);
                 command.Parameters.AddWithValue("@volatility_rate", r.VolatilityRate);
+                command.Parameters.AddWithValue("@volatility_rate_index1", r.VolatilityRateIndex1);
+                command.Parameters.AddWithValue("@volatility_rate_index2", r.VolatilityRateIndex2);
                 command.Parameters.AddWithValue("@volatility_term", r.VolatilityTerm);
                 command.Parameters.AddWithValue("@leverage_ratio", r.LeverageRatio);
                 command.Parameters.AddWithValue("@market_cap", r.MarketCap);
@@ -137,7 +143,7 @@ void ResisterResult(List<Analyzer.AnalysisResult> results)
                 int rowsAffected = command.ExecuteNonQuery();
 
                 // 結果を表示
-                Console.WriteLine("Rows inserted: " + rowsAffected);
+//                Console.WriteLine("Rows inserted: " + rowsAffected);
             }
         }
     }
@@ -152,17 +158,18 @@ DateTime GetStartDate(string code)
         connection.Open();
 
         // プライマリーキーに条件を設定したクエリ
-        string query = "SELECT MAX(date) FROM history WHERE code = @code";
+        string query = $"SELECT IFNULL(MAX(date), @max_date) FROM history WHERE code = @code";
 
         using (SQLiteCommand command = new SQLiteCommand(query, connection))
         {
             // パラメータを設定
             command.Parameters.AddWithValue("@code", code);
+            command.Parameters.AddWithValue("@max_date", _masterStartDate);
 
             // データリーダーを使用して結果を取得
             using (SQLiteDataReader reader = command.ExecuteReader())
             {
-                if (reader.Read())
+                if (reader.HasRows && reader.Read())
                 {
                     result = reader.GetDateTime(0);
                 }

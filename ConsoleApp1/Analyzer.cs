@@ -22,10 +22,10 @@ internal class Analyzer
             results.Add(Weeklyfluctuation(item, i));
         }
 
-        foreach (AnalysisResult result in results)
-        {
-            Console.WriteLine($"Code: {result.Code}, Name: {result.Name}, Term: {result.VolatilityTerm}, Rate: {result.VolatilityRate}, RateIndex1: {result.VolatilityRateIndex1}, RateIndex2: {result.VolatilityRateIndex2}");
-        }
+        //foreach (AnalysisResult result in results)
+        //{
+        //    Console.WriteLine($"Code: {result.Code}, Name: {result.Name}, Term: {result.VolatilityTerm}, Rate: {result.VolatilityRate}, RateIndex1: {result.VolatilityRateIndex1}, RateIndex2: {result.VolatilityRateIndex2}");
+        //}
 
         return results;
     }
@@ -119,17 +119,19 @@ internal class Analyzer
         {
             bool result = false;
 
-            // -10.0%以下
-            result = this.VolatilityRate <= -0.100 ? true : false;
+            // -10.0%以下（10week以内の下落幅）
+            if (!result && this.VolatilityRate <= -0.100) { result = true; }
 
-            // -9.9%～-9.0%
-            result = (this.VolatilityRate <= -0.090 & this.VolatilityRate >= -0.099) & this.VolatilityTerm <= 3 ? true : false;
+            // -9.9%～-9.0%（3week以内の下落幅）
+            if (!result && (this.VolatilityRate <= -0.090 & this.VolatilityRate >= -0.099) & this.VolatilityTerm <= 3) { result = true; }
 
-            // -8.9%～-8.0%
-            result = (this.VolatilityRate <= -0.080 & this.VolatilityRate >= -0.089) & this.VolatilityTerm <= 2 ? true : false;
+            // -8.9%～-8.0%（2week以内の下落幅）
+            if (!result && (this.VolatilityRate <= -0.080 & this.VolatilityRate >= -0.089) & this.VolatilityTerm <= 2) { result = true; }
 
-            // -7.9%～-7.0%
-            result = (this.VolatilityRate <= -0.070 & this.VolatilityRate >= -0.079) & this.VolatilityTerm <= 2 ? true : false;
+            // -7.9%～-7.0%（2week以内の下落幅）
+            if (!result && (this.VolatilityRate <= -0.070 & this.VolatilityRate >= -0.079) & this.VolatilityTerm <= 2) { result = true; }
+
+            //Console.WriteLine($"Code: {this.Code}, VolatilityRate: {this.VolatilityRate}, VolatilityTerm: {this.VolatilityTerm}, result: {result}");
 
             return result;
         }
