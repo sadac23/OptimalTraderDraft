@@ -23,17 +23,20 @@ using System.Data;
 using System.Transactions;
 using static System.Data.Entity.Infrastructure.Design.Executor;
 using System.Runtime.InteropServices;
+using static WatchList;
 
 Console.WriteLine("Hello, World!");
 
 const string _connectionString = @"Data Source=..\..\..\..\example.db;Version=3;";
+const string _xlsxFilePath = @"C:\Users\sator\OneDrive\ドキュメント\03_資産運用\ウォッチリスト.xlsx";
 const string _mailAddress = "sadac23@gmail.com";
 const string _password = "1qaz2WSX3edc";
 string _refreshtoken = string.Empty;
 DateTime _masterStartDate = DateTime.Parse("2023/01/01");
 
 // ウォッチリスト取得
-List<WatchList.WatchStock> watchList = WatchList.GetWatchStockList(_connectionString);
+//List<WatchList.WatchStock> watchList = WatchList.GetWatchStockList(_connectionString);
+List<WatchList.WatchStock> watchList = WatchList.GetXlsxWatchStockList(_xlsxFilePath);
 
 // マスタ更新
 var scraper = new Scraper();
@@ -183,7 +186,33 @@ DateTime GetStartDate(string code)
 
 void SendAlert()
 {
-    //throw new NotImplementedException();
+    string query = "SELECT * FROM analysis_result WHERE should_alert = @should_alert";
+
+    using (SQLiteConnection connection = new SQLiteConnection(_connectionString))
+    {
+        connection.Open();
+
+        using (SQLiteCommand command = new SQLiteCommand(query, connection))
+        {
+            command.Parameters.AddWithValue("@should_alert", 1);
+
+            using (SQLiteDataReader reader = command.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    Console.WriteLine($"code: {reader.GetString("code")}, "
+                        + $"date: {reader.GetString("date_string")}, "
+                        + $"term: {reader.GetInt32("volatility_term").ToString()}, "
+                        //+ $"name: {reader.GetString("name").ToString()}, "
+                        + $"rate: {reader.GetDouble("volatility_rate").ToString()}, "
+                        + $"index1: {reader.GetDouble("volatility_rate_index1").ToString()}, "
+                        + $"index2: {reader.GetDouble("volatility_rate_index2").ToString()}, "
+                        + $"alert: {reader.GetByte("should_alert").ToString()}"
+                        );
+                }
+            }
+        }
+    }
 }
 
 void UpdateMaster(StockInfo stockInfo)
