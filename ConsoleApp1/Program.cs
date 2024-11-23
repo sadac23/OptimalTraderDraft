@@ -140,7 +140,7 @@ void ResisterResult(List<Analyzer.AnalysisResult> results)
                 command.Parameters.AddWithValue("@equity_ratio", r.EquityRatio);
                 command.Parameters.AddWithValue("@revenue_profit_dividend", r.RevenueProfitDividend);
                 command.Parameters.AddWithValue("@minkabu_analysis", r.MinkabuAnalysis);
-                command.Parameters.AddWithValue("@should_alert", r.ShouldAlert());
+                command.Parameters.AddWithValue("@should_alert", r.ShouldAlert);
 
                 // クエリを実行
                 int rowsAffected = command.ExecuteNonQuery();
@@ -186,7 +186,7 @@ DateTime GetStartDate(string code)
 
 void SendAlert()
 {
-    string query = "SELECT * FROM analysis_result WHERE should_alert = @should_alert";
+    string query = "SELECT * FROM analysis_result WHERE date_string = @date_string and should_alert = @should_alert";
 
     using (SQLiteConnection connection = new SQLiteConnection(_connectionString))
     {
@@ -194,6 +194,7 @@ void SendAlert()
 
         using (SQLiteCommand command = new SQLiteCommand(query, connection))
         {
+            command.Parameters.AddWithValue("@date_string", DateTime.Today.ToString("yyyyMMdd"));
             command.Parameters.AddWithValue("@should_alert", 1);
 
             using (SQLiteDataReader reader = command.ExecuteReader())
@@ -203,8 +204,8 @@ void SendAlert()
                     Console.WriteLine($"code: {reader.GetString("code")}, "
                         + $"date: {reader.GetString("date_string")}, "
                         + $"term: {reader.GetInt32("volatility_term").ToString()}, "
-                        //+ $"name: {reader.GetString("name").ToString()}, "
-                        + $"rate: {reader.GetDouble("volatility_rate").ToString()}, "
+                        + $"name: {reader.GetString("name").ToString()}, "
+                        + $"rate: {ConvertToPercetage(reader.GetDouble("volatility_rate"))}, "
                         + $"index1: {reader.GetDouble("volatility_rate_index1").ToString()}, "
                         + $"index2: {reader.GetDouble("volatility_rate_index2").ToString()}, "
                         + $"alert: {reader.GetByte("should_alert").ToString()}"
@@ -213,6 +214,12 @@ void SendAlert()
             }
         }
     }
+}
+
+string ConvertToPercetage(double v)
+{
+    // パーセント形式の文字列に変換
+    return (v * 100).ToString("F2") + "%";
 }
 
 void UpdateMaster(StockInfo stockInfo)
