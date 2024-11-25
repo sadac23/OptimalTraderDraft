@@ -103,9 +103,9 @@ internal class Analyzer
             Name = item.Name,
             VolatilityRate = (endIndex / startindex) - 1,
             VolatilityRateIndex1 = startindex,
-            VolatilityRateIndexDate1 = startindexDate,
+            VolatilityRateIndex1Date = startindexDate,
             VolatilityRateIndex2 = endIndex,
-            VolatilityRateIndexDate2 = endIndexDate,
+            VolatilityRateIndex2Date = endIndexDate,
             VolatilityTerm = term,
             LeverageRatio = 0,
             MarketCap = 0,
@@ -141,9 +141,9 @@ internal class Analyzer
         public string Name { get; set; }
         public double VolatilityRate { get; set; }
         public double VolatilityRateIndex1 { get; set; }
-        public DateTime VolatilityRateIndexDate1 { get; set; }
+        public DateTime VolatilityRateIndex1Date { get; set; }
         public double VolatilityRateIndex2 { get; set; }
-        public DateTime VolatilityRateIndexDate2 { get; set; }
+        public DateTime VolatilityRateIndex2Date { get; set; }
         public int VolatilityTerm { get; set; }
         public double LeverageRatio { get; set; }
         public double MarketCap { get; set; }

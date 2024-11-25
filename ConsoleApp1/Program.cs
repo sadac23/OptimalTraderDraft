@@ -29,6 +29,7 @@ using DocumentFormat.OpenXml.ExtendedProperties;
 using DocumentFormat.OpenXml.Bibliography;
 using DocumentFormat.OpenXml.Vml;
 using DocumentFormat.OpenXml.Drawing;
+using System.Linq.Expressions;
 
 Console.WriteLine("Hello, World!");
 
@@ -52,6 +53,7 @@ foreach (var l in watchList)
     var startDate = GetStartDate(l.Code);
 
     var stockInfo = scraper.GetStockInfo(l.Code, startDate, DateTime.Today).Result;
+    // TODO: System.AggregateExceptionのリトライ処理
 
     UpdateMaster(stockInfo);
 }
@@ -88,13 +90,14 @@ void SaveAlert()
             {
                 while (reader.Read())
                 {
-                    writer.WriteLine($"code: {reader.GetString("code")}, "
+                    writer.WriteLine(
+                        $"code: {reader.GetString("code")}, "
                         + $"date: {reader.GetString("date_string")}, "
                         + $"term: {reader.GetInt32("volatility_term").ToString()}, "
                         + $"name: {reader.GetString("name").ToString()}, "
-                        + $"rate: {reader.GetDouble("volatility_rate").ToString()}, "
-                        + $"index1: {reader.GetDouble("volatility_rate_index1").ToString()}, "
-                        + $"index2: {reader.GetDouble("volatility_rate_index2").ToString()}, "
+                        + $"rate: {ConvertToPercetage(reader.GetDouble("volatility_rate"))}, "
+                        + $"index1: {reader.GetDouble("volatility_rate_index1").ToString()}({reader.GetDateTime("volatility_rate_index1_date").ToString("yyyy/MM/dd")}), "
+                        + $"index2: {reader.GetDouble("volatility_rate_index2").ToString()}({reader.GetDateTime("volatility_rate_index2_date").ToString("yyyy/MM/dd")}), "
                         + $"alert: {reader.GetByte("should_alert").ToString()}"
                         );
                 }
@@ -136,7 +139,9 @@ void ResisterResult(List<Analyzer.AnalysisResult> results)
                 ", name" +
                 ", volatility_rate" +
                 ", volatility_rate_index1" +
+                ", volatility_rate_index1_date" +
                 ", volatility_rate_index2" +
+                ", volatility_rate_index2_date" +
                 ", volatility_term" +
                 ", leverage_ratio" +
                 ", market_cap" +
@@ -152,7 +157,9 @@ void ResisterResult(List<Analyzer.AnalysisResult> results)
                 ", @name" +
                 ", @volatility_rate" +
                 ", @volatility_rate_index1" +
+                ", @volatility_rate_index1_date" +
                 ", @volatility_rate_index2" +
+                ", @volatility_rate_index2_date" +
                 ", @volatility_term" +
                 ", @leverage_ratio" +
                 ", @market_cap" +
@@ -172,7 +179,9 @@ void ResisterResult(List<Analyzer.AnalysisResult> results)
                 command.Parameters.AddWithValue("@name", r.Name);
                 command.Parameters.AddWithValue("@volatility_rate", r.VolatilityRate);
                 command.Parameters.AddWithValue("@volatility_rate_index1", r.VolatilityRateIndex1);
+                command.Parameters.AddWithValue("@volatility_rate_index1_date", r.VolatilityRateIndex1Date);
                 command.Parameters.AddWithValue("@volatility_rate_index2", r.VolatilityRateIndex2);
+                command.Parameters.AddWithValue("@volatility_rate_index2_date", r.VolatilityRateIndex2Date);
                 command.Parameters.AddWithValue("@volatility_term", r.VolatilityTerm);
                 command.Parameters.AddWithValue("@leverage_ratio", r.LeverageRatio);
                 command.Parameters.AddWithValue("@market_cap", r.MarketCap);
@@ -247,7 +256,9 @@ void SendAlert()
                         + $"name: {reader.GetString("name").ToString()}, "
                         + $"rate: {ConvertToPercetage(reader.GetDouble("volatility_rate"))}, "
                         + $"index1: {reader.GetDouble("volatility_rate_index1").ToString()}, "
+                        + $"index1date: {reader.GetDouble("volatility_rate_index1_date").ToString()}, "
                         + $"index2: {reader.GetDouble("volatility_rate_index2").ToString()}, "
+                        + $"index2date: {reader.GetDouble("volatility_rate_index2_date").ToString()}, "
                         + $"alert: {reader.GetByte("should_alert").ToString()}"
                         );
                 }
