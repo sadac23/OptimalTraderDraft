@@ -32,8 +32,12 @@ internal class Analyzer
 
     AnalysisResult Weeklyfluctuation(WatchList.WatchStock item, int term)
     {
-        double start = 0;
-        double end = 0;
+        double startindex = 0;
+        double endIndex = 0;
+        DateTime startindexDate = DateTime.Now;
+        DateTime endIndexDate = DateTime.Now;
+        double lastFridyIndex = 0;
+        DateTime lastFridyIndexDate = DateTime.Now;
 
         // 基準日を調整
         var baseDate = DateTime.Today.AddDays((term - 1) * -7);
@@ -62,6 +66,7 @@ internal class Analyzer
                         // カラム名を指定してデータを取得
                         string code = reader.GetString(reader.GetOrdinal("code"));
                         DateTime date = reader.GetDateTime(reader.GetOrdinal("date"));
+                        string dateString = date.ToString("yyyyMMdd");
                         double open = reader.GetDouble(reader.GetOrdinal("open"));
                         double high = reader.GetDouble(reader.GetOrdinal("high"));
                         double low = reader.GetDouble(reader.GetOrdinal("low"));
@@ -71,8 +76,20 @@ internal class Analyzer
                         // 結果をコンソールに出力
                         //Console.WriteLine($"code: {code}, date: {date}, close: {close}");
 
-                        if (start == 0) start = close;
-                        end = close;
+                        if (startindex == 0)
+                        {
+                            startindex = close;
+                            startindexDate = date;
+                        }
+                        endIndex = close;
+                        endIndexDate = date;
+
+                        // 実行日の前週金曜日の指数を取得しておく
+                        if (dateString == GetLastFriday(DateTime.Today).ToString("yyyyMMdd"))
+                        {
+                            lastFridyIndex = close;
+                            lastFridyIndexDate = date;
+                        }
                     }
                 }
             }
@@ -81,20 +98,38 @@ internal class Analyzer
         AnalysisResult result = new()
         {
             Code = item.Code,
-            DateString = "",
+            DateString = DateTime.Now.ToString("yyyyMMdd"),
             Date = DateTime.Now,
             Name = item.Name,
-            VolatilityRate = (end / start) - 1,
-            VolatilityRateIndex1 = start,
-            VolatilityRateIndex2 = end,
+            VolatilityRate = (endIndex / startindex) - 1,
+            VolatilityRateIndex1 = startindex,
+            VolatilityRateIndexDate1 = startindexDate,
+            VolatilityRateIndex2 = endIndex,
+            VolatilityRateIndexDate2 = endIndexDate,
             VolatilityTerm = term,
             LeverageRatio = 0,
             MarketCap = 0,
             Roe = 0,
             EquityRatio = 0,
             RevenueProfitDividend = 0,
-            MinkabuAnalysis = ""
+            MinkabuAnalysis = "",
+            ShouldAlert = false,
         };
+
+        // -10.0%以下（10week以内の下落幅）
+        if (!result.ShouldAlert && result.VolatilityRate <= -0.100) { result.ShouldAlert = true; }
+
+        // -9.9%～-9.0%（3week以内の下落幅）
+        if (!result.ShouldAlert && (result.VolatilityRate <= -0.090 & result.VolatilityRate >= -0.099) & result.VolatilityTerm <= 3) { result.ShouldAlert = true; }
+
+        // -8.9%～-8.0%（2week以内の下落幅）
+        if (!result.ShouldAlert && (result.VolatilityRate <= -0.080 & result.VolatilityRate >= -0.089) & result.VolatilityTerm <= 2) { result.ShouldAlert = true; }
+
+        // -7.9%～-7.0%（2week以内の下落幅）
+        if (!result.ShouldAlert && (result.VolatilityRate <= -0.070 & result.VolatilityRate >= -0.079) & result.VolatilityTerm <= 2) { result.ShouldAlert = true; }
+
+        // 直近週が下落していない場合はアラートしない
+        if (result.VolatilityRate >= lastFridyIndex) { result.ShouldAlert = false; }
 
         return result;
     }
@@ -106,7 +141,9 @@ internal class Analyzer
         public string Name { get; set; }
         public double VolatilityRate { get; set; }
         public double VolatilityRateIndex1 { get; set; }
+        public DateTime VolatilityRateIndexDate1 { get; set; }
         public double VolatilityRateIndex2 { get; set; }
+        public DateTime VolatilityRateIndexDate2 { get; set; }
         public int VolatilityTerm { get; set; }
         public double LeverageRatio { get; set; }
         public double MarketCap { get; set; }
@@ -114,8 +151,9 @@ internal class Analyzer
         public double EquityRatio { get; set; }
         public double RevenueProfitDividend { get; set; }
         public string MinkabuAnalysis { get; set; }
+        public bool ShouldAlert { get; set; }
 
-        internal bool ShouldAlert()
+        internal bool ShouldAlertMethod()
         {
             bool result = false;
 
@@ -158,14 +196,20 @@ internal class Analyzer
 
     internal DateTime GetLastFriday(DateTime currentDate)
     {
+        DateTime baseDay = currentDate;
+
         // 現在の日付の曜日を取得
         DayOfWeek currentDayOfWeek = currentDate.DayOfWeek;
+
+        // 土日だったら基準日を金曜日まで調整
+        if (currentDayOfWeek == DayOfWeek.Saturday) { baseDay.AddDays(-1); }
+        if (currentDayOfWeek == DayOfWeek.Sunday) { baseDay.AddDays(-2); }
 
         // 金曜日までの日数を計算
         int daysToLastFriday = ((int)currentDayOfWeek + 1) % 7 + 1;
 
         // 前の金曜日の日付を計算
-        DateTime lastFriday = currentDate.AddDays(-daysToLastFriday);
+        DateTime lastFriday = baseDay.AddDays(-daysToLastFriday);
 
         return lastFriday;
     }
