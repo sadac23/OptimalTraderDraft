@@ -23,14 +23,20 @@ using System.Data;
 using System.Transactions;
 using static System.Data.Entity.Infrastructure.Design.Executor;
 using System.Runtime.InteropServices;
+using System.Configuration;
 using static WatchList;
+using DocumentFormat.OpenXml.ExtendedProperties;
+using DocumentFormat.OpenXml.Bibliography;
+using DocumentFormat.OpenXml.Vml;
+using DocumentFormat.OpenXml.Drawing;
 
 Console.WriteLine("Hello, World!");
 
-const string _connectionString = @"Data Source=..\..\..\..\example.db;Version=3;";
-const string _xlsxFilePath = @"C:\Users\sator\OneDrive\ドキュメント\03_資産運用\ウォッチリスト.xlsx";
 const string _mailAddress = "sadac23@gmail.com";
 const string _password = "1qaz2WSX3edc";
+string _connectionString = ConfigurationManager.ConnectionStrings["OTDB"].ConnectionString;
+string _xlsxFilePath = ConfigurationManager.AppSettings["WatchListFilePath"];
+
 string _refreshtoken = string.Empty;
 DateTime _masterStartDate = DateTime.Parse("2023/01/01");
 
@@ -61,7 +67,41 @@ foreach (var item in watchList)
 }
 
 // アラート通知
-SendAlert();
+//SendAlert();
+SaveAlert();
+
+void SaveAlert()
+{
+    string query = "SELECT * FROM analysis_result WHERE date_string = @date_string and should_alert = @should_alert";
+
+    using (SQLiteConnection connection = new SQLiteConnection(_connectionString))
+    {
+        connection.Open();
+
+        using (StreamWriter writer = new StreamWriter(ConfigurationManager.AppSettings["AlertFilePath"]))
+        using (SQLiteCommand command = new SQLiteCommand(query, connection))
+        {
+            command.Parameters.AddWithValue("@date_string", DateTime.Today.ToString("yyyyMMdd"));
+            command.Parameters.AddWithValue("@should_alert", 1);
+
+            using (SQLiteDataReader reader = command.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    writer.WriteLine($"code: {reader.GetString("code")}, "
+                        + $"date: {reader.GetString("date_string")}, "
+                        + $"term: {reader.GetInt32("volatility_term").ToString()}, "
+                        + $"name: {reader.GetString("name").ToString()}, "
+                        + $"rate: {reader.GetDouble("volatility_rate").ToString()}, "
+                        + $"index1: {reader.GetDouble("volatility_rate_index1").ToString()}, "
+                        + $"index2: {reader.GetDouble("volatility_rate_index2").ToString()}, "
+                        + $"alert: {reader.GetByte("should_alert").ToString()}"
+                        );
+                }
+            }
+        }
+    }
+}
 
 void ResisterResult(List<Analyzer.AnalysisResult> results)
 {
