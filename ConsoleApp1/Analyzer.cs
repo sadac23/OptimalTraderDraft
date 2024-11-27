@@ -101,6 +101,7 @@ internal class Analyzer
             DateString = DateTime.Now.ToString("yyyyMMdd"),
             Date = DateTime.Now,
             Name = item.Name,
+            Classification = item.Classification,
             VolatilityRate = (endIndex / startindex) - 1,
             VolatilityRateIndex1 = startindex,
             VolatilityRateIndex1Date = startindexDate,
@@ -116,20 +117,33 @@ internal class Analyzer
             ShouldAlert = false,
         };
 
-        // -10.0%以下（10week以内の下落幅）
-        if (!result.ShouldAlert && result.VolatilityRate <= -0.100) { result.ShouldAlert = true; }
+        // 個別
+        if (result.Classification == "1")
+        {
+            // -10.0%以下（10week以内の下落幅）
+            if (!result.ShouldAlert && result.VolatilityRate <= -0.100) { result.ShouldAlert = true; }
 
-        // -9.9%～-9.0%（3week以内の下落幅）
-        if (!result.ShouldAlert && (result.VolatilityRate <= -0.090 & result.VolatilityRate >= -0.099) & result.VolatilityTerm <= 3) { result.ShouldAlert = true; }
+            // -9.9%～-9.0%（3week以内の下落幅）
+            if (!result.ShouldAlert && (result.VolatilityRate <= -0.090 & result.VolatilityRate >= -0.099) & result.VolatilityTerm <= 3) { result.ShouldAlert = true; }
 
-        // -8.9%～-8.0%（2week以内の下落幅）
-        if (!result.ShouldAlert && (result.VolatilityRate <= -0.080 & result.VolatilityRate >= -0.089) & result.VolatilityTerm <= 2) { result.ShouldAlert = true; }
+            // -8.9%～-8.0%（2week以内の下落幅）
+            if (!result.ShouldAlert && (result.VolatilityRate <= -0.080 & result.VolatilityRate >= -0.089) & result.VolatilityTerm <= 2) { result.ShouldAlert = true; }
 
-        // -7.9%～-7.0%（2week以内の下落幅）
-        if (!result.ShouldAlert && (result.VolatilityRate <= -0.070 & result.VolatilityRate >= -0.079) & result.VolatilityTerm <= 2) { result.ShouldAlert = true; }
+            // -7.9%～-7.0%（2week以内の下落幅）
+            if (!result.ShouldAlert && (result.VolatilityRate <= -0.070 & result.VolatilityRate >= -0.079) & result.VolatilityTerm <= 2) { result.ShouldAlert = true; }
 
-        // 直近週が下落していない場合はアラートしない
-        if (result.VolatilityRate >= lastFridyIndex) { result.ShouldAlert = false; }
+            // 直近週が下落していない場合はアラートしない
+            if (result.VolatilityRate >= lastFridyIndex) { result.ShouldAlert = false; }
+
+            // 10.0%以上（10week以内の上昇幅）
+            if (!result.ShouldAlert && result.VolatilityRate >= 0.100) { result.ShouldAlert = true; }
+        }
+        // ETF
+        if (result.Classification == "2")
+        {
+            // -3.0%以下（10week以内の下落幅）
+            if (!result.ShouldAlert && result.VolatilityRate <= -0.030) { result.ShouldAlert = true; }
+        }
 
         return result;
     }
@@ -152,6 +166,7 @@ internal class Analyzer
         public double RevenueProfitDividend { get; set; }
         public string MinkabuAnalysis { get; set; }
         public bool ShouldAlert { get; set; }
+        public string Classification { get; set; }
 
         internal bool ShouldAlertMethod()
         {

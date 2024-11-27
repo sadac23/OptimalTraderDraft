@@ -70,7 +70,8 @@ internal class WatchList
                     {
                         Code = row.Cell(3).Value.ToString(),
                         Name = row.Cell(4).Value.ToString(),
-                        DeleteDate = row.Cell(6).Value.ToString()
+                        Classification = row.Cell(5).Value.ToString(),
+                        DeleteDate = row.Cell(7).Value.ToString(),
                     };
                     results.Add(data);
                 }
@@ -89,5 +90,6 @@ internal class WatchList
         public string Code { get; set; }
         public string Name { get; set; }
         public string DeleteDate { get; set; }
+        public string Classification { get; set; }
     }
 }

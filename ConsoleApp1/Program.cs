@@ -33,6 +33,17 @@ using System.Linq.Expressions;
 
 Console.WriteLine("Hello, World!");
 
+/* TODO
+ * ・投信の処理
+ * ・ETFの処理
+ * ・メール通知
+ * ・スクリーニング結果をウォッチリストに追加
+ * ・上昇率の分析追加　→　済
+ * ・通知対象の分析結果を間引く（最も変動が大きいレコードのみに）
+ * ・他の指標（ROEなど）の取得
+ * ・株式分割の異常値の判定（異常に大きい変動で判断）
+ */
+
 const string _mailAddress = "sadac23@gmail.com";
 const string _password = "1qaz2WSX3edc";
 string _connectionString = ConfigurationManager.ConnectionStrings["OTDB"].ConnectionString;
