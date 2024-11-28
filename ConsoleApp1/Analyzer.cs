@@ -135,14 +135,18 @@ internal class Analyzer
             // 直近週が下落していない場合はアラートしない
             if (result.VolatilityRate >= lastFridyIndex) { result.ShouldAlert = false; }
 
+            // -50.0%以下は株式分割の異常値である可能性が高いためアラートしない
+            if (result.VolatilityRate <= -0.500) { result.ShouldAlert = false; }
+
+            // 上昇は一旦、除外。
             // 10.0%以上（10week以内の上昇幅）
-            if (!result.ShouldAlert && result.VolatilityRate >= 0.100) { result.ShouldAlert = true; }
+            //if (!result.ShouldAlert && result.VolatilityRate >= 0.100) { result.ShouldAlert = true; }
         }
         // ETF
         if (result.Classification == "2")
         {
-            // -3.0%以下（10week以内の下落幅）
-            if (!result.ShouldAlert && result.VolatilityRate <= -0.030) { result.ShouldAlert = true; }
+            // -5.0%以下（10week以内の下落幅）
+            if (!result.ShouldAlert && result.VolatilityRate <= -0.050) { result.ShouldAlert = true; }
         }
 
         return result;

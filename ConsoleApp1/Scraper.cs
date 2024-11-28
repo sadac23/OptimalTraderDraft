@@ -23,57 +23,64 @@ internal class Scraper
         var htmlDocument = new HtmlDocument();
         var urlBase = $"https://finance.yahoo.co.jp/quote/{code}.T/history?styl=stock&from={from.ToString("yyyyMMdd")}&to={to.ToString("yyyyMMdd")}&timeFrame=d";
 
-        for (int i = 1; i < _pageCountMax; i++)
+        try
         {
-
-            var url = urlBase + $"&page={i}";
-            var html = await httpClient.GetStringAsync(url);
-            Console.WriteLine(url);
-
-            // 取得できない場合は終了
-            if (html.Contains("時系列情報がありません")) break;
-
-            // 他の処理
-            htmlDocument.LoadHtml(html);
-
-            if (stockInfo.Name == string.Empty)
+            for (int i = 1; i < _pageCountMax; i++)
             {
-                var title = htmlDocument.DocumentNode.SelectNodes("//title");
-                string[] parts = title[0].InnerText.Trim().Split('【');
-                stockInfo.Name = parts.Length > 0 ? parts[0] : stockInfo.Name;
-            }
 
-            var rows = htmlDocument.DocumentNode.SelectNodes("//table[contains(@class, 'StocksEtfReitPriceHistory')]/tbody/tr");
+                var url = urlBase + $"&page={i}";
+                var html = await httpClient.GetStringAsync(url);
+                Console.WriteLine(url);
 
-            if (rows != null && rows.Count != 0)
-            {
-                foreach (var row in rows)
+                // 取得できない場合は終了
+                if (html.Contains("時系列情報がありません")) break;
+
+                // 他の処理
+                htmlDocument.LoadHtml(html);
+
+                if (string.IsNullOrEmpty(stockInfo.Name))
                 {
-                    var columns = row.SelectNodes("td|th");
+                    var title = htmlDocument.DocumentNode.SelectNodes("//title");
+                    string[] parts = title[0].InnerText.Trim().Split('【');
+                    stockInfo.Name = parts.Length > 0 ? parts[0] : stockInfo.Name;
+                }
 
-                    if (columns != null && columns.Count > 6)
+                var rows = htmlDocument.DocumentNode.SelectNodes("//table[contains(@class, 'StocksEtfReitPriceHistory')]/tbody/tr");
+
+                if (rows != null && rows.Count != 0)
+                {
+                    foreach (var row in rows)
                     {
-                        var date = this.GetDate(columns[0].InnerText.Trim());
-                        var open = this.GetDouble(columns[1].InnerText.Trim());
-                        var high = this.GetDouble(columns[2].InnerText.Trim());
-                        var low = this.GetDouble(columns[3].InnerText.Trim());
-                        var close = this.GetDouble(columns[4].InnerText.Trim());
-                        var volume = this.GetDouble(columns[5].InnerText.Trim());
+                        var columns = row.SelectNodes("td|th");
 
-                        stockInfo.Prices.Add(new StockInfo.Price
+                        if (columns != null && columns.Count > 6)
                         {
-                            Date = date,
-                            DateYYYYMMDD = date.ToString("yyyyMMdd"),
-                            Open = open,
-                            High = high,
-                            Low = low,
-                            Close = close,
-                            Volume = volume
-                        });
+                            var date = this.GetDate(columns[0].InnerText.Trim());
+                            var open = this.GetDouble(columns[1].InnerText.Trim());
+                            var high = this.GetDouble(columns[2].InnerText.Trim());
+                            var low = this.GetDouble(columns[3].InnerText.Trim());
+                            var close = this.GetDouble(columns[4].InnerText.Trim());
+                            var volume = this.GetDouble(columns[5].InnerText.Trim());
+
+                            stockInfo.Prices.Add(new StockInfo.Price
+                            {
+                                Date = date,
+                                DateYYYYMMDD = date.ToString("yyyyMMdd"),
+                                Open = open,
+                                High = high,
+                                Low = low,
+                                Close = close,
+                                Volume = volume
+                            });
+                        }
                     }
                 }
             }
         }
+        catch (System.AggregateException ex) { 
+            // 504エラーは無視する。
+        }
+
         return stockInfo;
     }
 
