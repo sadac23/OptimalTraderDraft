@@ -30,6 +30,7 @@ using DocumentFormat.OpenXml.Bibliography;
 using DocumentFormat.OpenXml.Vml;
 using DocumentFormat.OpenXml.Drawing;
 using System.Linq.Expressions;
+using DocumentFormat.OpenXml.Wordprocessing;
 
 Console.WriteLine("Hello, World!");
 
@@ -38,11 +39,17 @@ Console.WriteLine("Hello, World!");
  * ・済：上昇率の分析追加
  * ・済：名称をスクレイピング取得結果より反映
  * ・済：株式分割の異常値の判定（異常に大きい変動で判断）
+ * ・済：ROEの取得
  * ・投信の処理
  * ・メール通知
  * ・スクリーニング結果をウォッチリストに追加
- * ・通知対象の分析結果を間引く（最も変動が大きいレコードのみに）　→　そのままで良い。
- * ・他の指標（ROEなど）の取得
+ * ・通知対象の分析結果を間引く（最も変動が大きいレコードのみに）
+ * ・業績（増収増益増配）の取得
+ * ・自己資本比率の取得
+ * ・利回りの取得
+ * ・PERの取得
+ * ・PBRの取得
+ * ・信用倍率の取得
  */
 
 const string _mailAddress = "sadac23@gmail.com";
@@ -61,42 +68,34 @@ List<WatchList.WatchStock> watchList = WatchList.GetXlsxWatchStockList(_xlsxFile
 var scraper = new Scraper();
 var analyzer = new Analyzer(_connectionString);
 
-foreach (var l in watchList)
+// ウォッチ銘柄を処理
+foreach (var watchStock in watchList)
 {
-    // 更新開始日取得（なければ基準開始日を取得）
-    var startDate = GetStartDate(l.Code);
-
-    if (l.Classification == "1" || l.Classification == "2")
+    if (watchStock.Classification == "1" || watchStock.Classification == "2")
     {
         try {
-            var stockInfo = scraper.GetStockInfo(l.Code, startDate, DateTime.Today).Result;
-            l.Name = stockInfo.Name;
+            // 更新開始日取得（なければ基準開始日を取得）
+            var startDate = GetStartDate(watchStock.Code);
 
+            // 株価情報を取得
+            var stockInfo = scraper.GetStockInfo(watchStock, startDate, DateTime.Today).Result;
+            Console.WriteLine($"Code: {stockInfo.Code}、Name: {stockInfo.Name}、ROE: {stockInfo.Roe}");
+
+            // 株価履歴更新
             UpdateMaster(stockInfo);
 
             // 分析
-            var results = analyzer.Analize(l);
+            var results = analyzer.Analize(stockInfo);
 
+            // 結果登録
             ResisterResult(results);
         }
         catch (System.AggregateException ex)
         {
-            // 504エラーは無視する。
+            // 504(Gatewayエラー)は無視する。
         }
     }
 }
-
-// 分析トラン更新
-//foreach (var l in watchList)
-//{
-//    if (l.Classification == "1" || l.Classification == "2")
-//    {
-//        // 分析
-//        var results = analyzer.Analize(l);
-
-//        ResisterResult(results);
-//    }
-//}
 
 // アラート通知
 //SendAlert();
@@ -130,6 +129,7 @@ void SaveAlert()
                         + $"rate: {ConvertToPercetage(reader.GetDouble("volatility_rate"))}, "
                         + $"index1: {reader.GetDouble("volatility_rate_index1").ToString()}({reader.GetDateTime("volatility_rate_index1_date").ToString("yyyy/MM/dd")}), "
                         + $"index2: {reader.GetDouble("volatility_rate_index2").ToString()}({reader.GetDateTime("volatility_rate_index2_date").ToString("yyyy/MM/dd")}), "
+                        + $"roe: {reader.GetDouble("roe").ToString()}, "
                         + $"alert: {reader.GetByte("should_alert").ToString()}"
                         );
                 }
@@ -160,7 +160,7 @@ void ResisterResult(List<Analyzer.AnalysisResult> results)
                 int rowsAffected = command.ExecuteNonQuery();
 
                 // 結果を表示
-//                Console.WriteLine("Rows deleted: " + rowsAffected);
+                //                Console.WriteLine("Rows deleted: " + rowsAffected);
             }
 
             // 挿入クエリ

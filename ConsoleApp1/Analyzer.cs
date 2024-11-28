@@ -12,7 +12,7 @@ internal class Analyzer
         this._connectionString = connectionString;
     }
 
-    internal List<AnalysisResult> Analize(WatchList.WatchStock item)
+    internal List<AnalysisResult> Analize(StockInfo item)
     {
         List<AnalysisResult> results = new();
 
@@ -22,15 +22,10 @@ internal class Analyzer
             results.Add(Weeklyfluctuation(item, i));
         }
 
-        //foreach (AnalysisResult result in results)
-        //{
-        //    Console.WriteLine($"Code: {result.Code}, Name: {result.Name}, Term: {result.VolatilityTerm}, Rate: {result.VolatilityRate}, RateIndex1: {result.VolatilityRateIndex1}, RateIndex2: {result.VolatilityRateIndex2}");
-        //}
-
         return results;
     }
 
-    AnalysisResult Weeklyfluctuation(WatchList.WatchStock item, int term)
+    AnalysisResult Weeklyfluctuation(StockInfo item, int term)
     {
         double startindex = 0;
         double endIndex = 0;
@@ -102,6 +97,7 @@ internal class Analyzer
             Date = DateTime.Now,
             Name = item.Name,
             Classification = item.Classification,
+            Trend = "0",
             VolatilityRate = (endIndex / startindex) - 1,
             VolatilityRateIndex1 = startindex,
             VolatilityRateIndex1Date = startindexDate,
@@ -110,7 +106,7 @@ internal class Analyzer
             VolatilityTerm = term,
             LeverageRatio = 0,
             MarketCap = 0,
-            Roe = 0,
+            Roe = item.Roe,
             EquityRatio = 0,
             RevenueProfitDividend = 0,
             MinkabuAnalysis = "",
@@ -157,6 +153,7 @@ internal class Analyzer
         public string DateString { get; set; }
         public DateTime Date { get; set; }
         public string Name { get; set; }
+        public string Trend { get; set; }
         public double VolatilityRate { get; set; }
         public double VolatilityRateIndex1 { get; set; }
         public DateTime VolatilityRateIndex1Date { get; set; }
@@ -172,45 +169,6 @@ internal class Analyzer
         public bool ShouldAlert { get; set; }
         public string Classification { get; set; }
 
-        internal bool ShouldAlertMethod()
-        {
-            bool result = false;
-
-            // -10.0%以下（10week以内の下落幅）
-            if (!result && this.VolatilityRate <= -0.100) { result = true; }
-
-            // -9.9%～-9.0%（3week以内の下落幅）
-            if (!result && (this.VolatilityRate <= -0.090 & this.VolatilityRate >= -0.099) & this.VolatilityTerm <= 3) { result = true; }
-
-            // -8.9%～-8.0%（2week以内の下落幅）
-            if (!result && (this.VolatilityRate <= -0.080 & this.VolatilityRate >= -0.089) & this.VolatilityTerm <= 2) { result = true; }
-
-            // -7.9%～-7.0%（2week以内の下落幅）
-            if (!result && (this.VolatilityRate <= -0.070 & this.VolatilityRate >= -0.079) & this.VolatilityTerm <= 2) { result = true; }
-
-            //Console.WriteLine($"Code: {this.Code}, VolatilityRate: {this.VolatilityRate}, VolatilityTerm: {this.VolatilityTerm}, result: {result}");
-
-            return result;
-        }
-    }
-    internal DateTime GetStartOfWeek(DateTime date)
-    {
-        // 現在の日付の曜日を取得
-        DayOfWeek dayOfWeek = date.DayOfWeek;
-
-        // 日曜日を0、月曜日を1、...、土曜日を6とする
-        int offset = dayOfWeek - DayOfWeek.Monday;
-
-        // 日曜日の場合、オフセットを-6に設定
-        if (offset < 0)
-        {
-            offset += 7;
-        }
-
-        // 週の最初の日を計算
-        DateTime startOfWeek = date.AddDays(-offset);
-
-        return startOfWeek;
     }
 
     internal DateTime GetLastFriday(DateTime currentDate)

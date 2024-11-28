@@ -16,69 +16,88 @@ internal class Scraper
         _pageCountMax = pageCountMax;
     }
 
-    internal async Task<StockInfo> GetStockInfo(string code, DateTime from, DateTime to)
+    internal async Task<StockInfo> GetStockInfo(WatchList.WatchStock watchStock, DateTime from, DateTime to)
     {
-        var stockInfo = new StockInfo(code);
+        var stockInfo = new StockInfo(watchStock.Code);
         var httpClient = new HttpClient();
         var htmlDocument = new HtmlDocument();
-        var urlBase = $"https://finance.yahoo.co.jp/quote/{code}.T/history?styl=stock&from={from.ToString("yyyyMMdd")}&to={to.ToString("yyyyMMdd")}&timeFrame=d";
 
-        try
+        var urlBaseYahooFinance = $"https://finance.yahoo.co.jp/quote/{watchStock.Code}.T/history?styl=stock&from={from.ToString("yyyyMMdd")}&to={to.ToString("yyyyMMdd")}&timeFrame=d";
+        var urlBaseKabutanTop = $"https://kabutan.jp/stock/?code={watchStock.Code}";
+        var urlBaseKabutanFinance = $"https://kabutan.jp/stock/finance?code={watchStock.Code}";
+
+        for (int i = 1; i < _pageCountMax; i++)
         {
-            for (int i = 1; i < _pageCountMax; i++)
+
+            var url = urlBaseYahooFinance + $"&page={i}";
+            var html = await httpClient.GetStringAsync(url);
+            Console.WriteLine(url);
+
+            // 取得できない場合は終了
+            if (html.Contains("時系列情報がありません")) break;
+
+            // 他の処理
+            htmlDocument.LoadHtml(html);
+
+            if (string.IsNullOrEmpty(stockInfo.Name))
             {
+                var title = htmlDocument.DocumentNode.SelectNodes("//title");
+                string[] parts = title[0].InnerText.Trim().Split('【');
+                stockInfo.Name = parts.Length > 0 ? parts[0] : stockInfo.Name;
+            }
 
-                var url = urlBase + $"&page={i}";
-                var html = await httpClient.GetStringAsync(url);
-                Console.WriteLine(url);
+            var rows = htmlDocument.DocumentNode.SelectNodes("//table[contains(@class, 'StocksEtfReitPriceHistory')]/tbody/tr");
 
-                // 取得できない場合は終了
-                if (html.Contains("時系列情報がありません")) break;
-
-                // 他の処理
-                htmlDocument.LoadHtml(html);
-
-                if (string.IsNullOrEmpty(stockInfo.Name))
+            if (rows != null && rows.Count != 0)
+            {
+                foreach (var row in rows)
                 {
-                    var title = htmlDocument.DocumentNode.SelectNodes("//title");
-                    string[] parts = title[0].InnerText.Trim().Split('【');
-                    stockInfo.Name = parts.Length > 0 ? parts[0] : stockInfo.Name;
-                }
+                    var columns = row.SelectNodes("td|th");
 
-                var rows = htmlDocument.DocumentNode.SelectNodes("//table[contains(@class, 'StocksEtfReitPriceHistory')]/tbody/tr");
-
-                if (rows != null && rows.Count != 0)
-                {
-                    foreach (var row in rows)
+                    if (columns != null && columns.Count > 6)
                     {
-                        var columns = row.SelectNodes("td|th");
+                        var date = this.GetDate(columns[0].InnerText.Trim());
+                        var open = this.GetDouble(columns[1].InnerText.Trim());
+                        var high = this.GetDouble(columns[2].InnerText.Trim());
+                        var low = this.GetDouble(columns[3].InnerText.Trim());
+                        var close = this.GetDouble(columns[4].InnerText.Trim());
+                        var volume = this.GetDouble(columns[5].InnerText.Trim());
 
-                        if (columns != null && columns.Count > 6)
+                        stockInfo.Prices.Add(new StockInfo.Price
                         {
-                            var date = this.GetDate(columns[0].InnerText.Trim());
-                            var open = this.GetDouble(columns[1].InnerText.Trim());
-                            var high = this.GetDouble(columns[2].InnerText.Trim());
-                            var low = this.GetDouble(columns[3].InnerText.Trim());
-                            var close = this.GetDouble(columns[4].InnerText.Trim());
-                            var volume = this.GetDouble(columns[5].InnerText.Trim());
-
-                            stockInfo.Prices.Add(new StockInfo.Price
-                            {
-                                Date = date,
-                                DateYYYYMMDD = date.ToString("yyyyMMdd"),
-                                Open = open,
-                                High = high,
-                                Low = low,
-                                Close = close,
-                                Volume = volume
-                            });
-                        }
+                            Date = date,
+                            DateYYYYMMDD = date.ToString("yyyyMMdd"),
+                            Open = open,
+                            High = high,
+                            Low = low,
+                            Close = close,
+                            Volume = volume
+                        });
                     }
                 }
             }
-        }
-        catch (System.AggregateException ex) { 
-            // 504エラーは無視する。
+
+            url = urlBaseKabutanFinance;
+            html = await httpClient.GetStringAsync(url);
+            htmlDocument.LoadHtml(html);
+            Console.WriteLine(url);
+
+            rows = htmlDocument.DocumentNode.SelectNodes("//div[contains(@class, 'fin_year_t0_d fin_year_profit_d dispnone')]/table/tbody/tr");
+
+            if (rows != null && rows.Count != 0)
+            {
+                foreach (var row in rows)
+                {
+                    var columns = row.SelectNodes("td|th");
+
+                    if (columns != null && columns.Count > 6)
+                    {
+                        var roe = this.GetDouble(columns[4].InnerText.Trim());
+
+                        stockInfo.Roe = roe;
+                    }
+                }
+            }
         }
 
         return stockInfo;

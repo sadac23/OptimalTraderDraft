@@ -9,6 +9,8 @@ internal class StockInfo
     public string Code { get; set; }
     public string Name { get; set; }
     public List<Price> Prices { get; set; }
+    public string Classification { get; set; }
+    public double Roe { get; internal set; }
 
     public class Price
     {
