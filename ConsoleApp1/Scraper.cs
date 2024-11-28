@@ -3,6 +3,7 @@
 using HtmlAgilityPack;
 using Microsoft.SqlServer.Server;
 using System.Globalization;
+using System.Security.Policy;
 
 internal class Scraper
 {
@@ -18,19 +19,24 @@ internal class Scraper
 
     internal async Task<StockInfo> GetStockInfo(WatchList.WatchStock watchStock, DateTime from, DateTime to)
     {
-        var stockInfo = new StockInfo(watchStock.Code);
+        var stockInfo = new StockInfo(watchStock.Code, watchStock.Classification);
         var httpClient = new HttpClient();
         var htmlDocument = new HtmlDocument();
+
+        var url = string.Empty;
+        var html = string.Empty;
+        HtmlNodeCollection rows = null;
 
         var urlBaseYahooFinance = $"https://finance.yahoo.co.jp/quote/{watchStock.Code}.T/history?styl=stock&from={from.ToString("yyyyMMdd")}&to={to.ToString("yyyyMMdd")}&timeFrame=d";
         var urlBaseKabutanTop = $"https://kabutan.jp/stock/?code={watchStock.Code}";
         var urlBaseKabutanFinance = $"https://kabutan.jp/stock/finance?code={watchStock.Code}";
 
+        // Yahooファイナンス
         for (int i = 1; i < _pageCountMax; i++)
         {
 
-            var url = urlBaseYahooFinance + $"&page={i}";
-            var html = await httpClient.GetStringAsync(url);
+            url = urlBaseYahooFinance + $"&page={i}";
+            html = await httpClient.GetStringAsync(url);
             Console.WriteLine(url);
 
             // 取得できない場合は終了
@@ -46,7 +52,7 @@ internal class Scraper
                 stockInfo.Name = parts.Length > 0 ? parts[0] : stockInfo.Name;
             }
 
-            var rows = htmlDocument.DocumentNode.SelectNodes("//table[contains(@class, 'StocksEtfReitPriceHistory')]/tbody/tr");
+            rows = htmlDocument.DocumentNode.SelectNodes("//table[contains(@class, 'StocksEtfReitPriceHistory')]/tbody/tr");
 
             if (rows != null && rows.Count != 0)
             {
@@ -76,27 +82,68 @@ internal class Scraper
                     }
                 }
             }
+        }
 
-            url = urlBaseKabutanFinance;
-            html = await httpClient.GetStringAsync(url);
-            htmlDocument.LoadHtml(html);
-            Console.WriteLine(url);
+        // 株探（かぶたん）
+        url = urlBaseKabutanFinance;
+        html = await httpClient.GetStringAsync(url);
+        htmlDocument.LoadHtml(html);
+        Console.WriteLine(url);
 
-            rows = htmlDocument.DocumentNode.SelectNodes("//div[contains(@class, 'fin_year_t0_d fin_year_profit_d dispnone')]/table/tbody/tr");
+        // ROE
+        rows = htmlDocument.DocumentNode.SelectNodes("//div[contains(@class, 'fin_year_t0_d fin_year_profit_d dispnone')]/table/tbody/tr");
 
-            if (rows != null && rows.Count != 0)
+        if (rows != null && rows.Count != 0)
+        {
+            foreach (var row in rows)
             {
-                foreach (var row in rows)
+                var columns = row.SelectNodes("td|th");
+
+                if (columns != null && columns.Count > 6)
                 {
-                    var columns = row.SelectNodes("td|th");
+                    var roe = this.GetDouble(columns[4].InnerText.Trim());
 
-                    if (columns != null && columns.Count > 6)
+                    stockInfo.Roe = roe;
+                }
+            }
+        }
+
+        // PER/PBR/利回り/信用倍率/時価総額
+        rows = htmlDocument.DocumentNode.SelectNodes("//div[contains(@id, 'stockinfo_i3')]/table/tbody/tr");
+
+        if (rows != null && rows.Count != 0)
+        {
+            short s = 0;
+            foreach (var row in rows)
+            {
+                var columns = row.SelectNodes("td|th");
+
+                // 1行目
+                if (s == 0)
+                {
+                    if (columns != null && columns.Count > 3)
                     {
-                        var roe = this.GetDouble(columns[4].InnerText.Trim());
-
-                        stockInfo.Roe = roe;
+                        var per = columns[0].InnerText.Trim();
+                        var pbr = columns[1].InnerText.Trim();
+                        var dividendYield = columns[2].InnerText.Trim();
+                        var marginBalanceRatio = columns[3].InnerText.Trim();
+                        stockInfo.Per = per;
+                        stockInfo.Pbr = pbr;
+                        stockInfo.DividendYield = dividendYield;
+                        stockInfo.MarginBalanceRatio = marginBalanceRatio;
                     }
                 }
+                // 2行目
+                if (s == 1)
+                {
+                    if (columns != null && columns.Count > 1)
+                    {
+                        var marketCap = columns[1].InnerText.Trim();
+                        stockInfo.MarketCap = marketCap;
+                    }
+
+                }
+                s++;
             }
         }
 

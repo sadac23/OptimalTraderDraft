@@ -105,12 +105,16 @@ internal class Analyzer
             VolatilityRateIndex2Date = endIndexDate,
             VolatilityTerm = term,
             LeverageRatio = 0,
-            MarketCap = 0,
+            MarketCap = item.MarketCap,
             Roe = item.Roe,
             EquityRatio = 0,
             RevenueProfitDividend = 0,
             MinkabuAnalysis = "",
             ShouldAlert = false,
+            Per = item.Per,
+            Pbr = item.Pbr,
+            DividendYield = item.DividendYield,
+            MarginBalanceRatio = item.MarginBalanceRatio,
         };
 
         // 個別
@@ -130,6 +134,9 @@ internal class Analyzer
 
             // 直近週が下落していない場合はアラートしない
             if (result.VolatilityRate >= lastFridyIndex) { result.ShouldAlert = false; }
+
+            // ROEが7.99%以下の場合はアラートしない
+            if (result.Roe <= 7.99) { result.ShouldAlert = false; }
 
             // -50.0%以下は株式分割の異常値である可能性が高いためアラートしない
             if (result.VolatilityRate <= -0.500) { result.ShouldAlert = false; }
@@ -161,14 +168,17 @@ internal class Analyzer
         public DateTime VolatilityRateIndex2Date { get; set; }
         public int VolatilityTerm { get; set; }
         public double LeverageRatio { get; set; }
-        public double MarketCap { get; set; }
+        public string MarketCap { get; set; }
         public double Roe { get; set; }
         public double EquityRatio { get; set; }
         public double RevenueProfitDividend { get; set; }
         public string MinkabuAnalysis { get; set; }
         public bool ShouldAlert { get; set; }
         public string Classification { get; set; }
-
+        public string Per { get; set; }
+        public string Pbr { get; set; }
+        public string DividendYield { get; set; }
+        public string MarginBalanceRatio { get; set; }
     }
 
     internal DateTime GetLastFriday(DateTime currentDate)

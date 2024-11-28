@@ -40,15 +40,16 @@ Console.WriteLine("Hello, World!");
  * ・済：名称をスクレイピング取得結果より反映
  * ・済：株式分割の異常値の判定（異常に大きい変動で判断）
  * ・済：ROEの取得
+ * ・済：利回りの取得
+ * ・済：PERの取得
+ * ・済：PBRの取得
+ * ・済：時価総額の取得
  * ・投信の処理
  * ・メール通知
  * ・スクリーニング結果をウォッチリストに追加
  * ・通知対象の分析結果を間引く（最も変動が大きいレコードのみに）
  * ・業績（増収増益増配）の取得
  * ・自己資本比率の取得
- * ・利回りの取得
- * ・PERの取得
- * ・PBRの取得
  * ・信用倍率の取得
  */
 
@@ -79,7 +80,17 @@ foreach (var watchStock in watchList)
 
             // 株価情報を取得
             var stockInfo = scraper.GetStockInfo(watchStock, startDate, DateTime.Today).Result;
-            Console.WriteLine($"Code: {stockInfo.Code}、Name: {stockInfo.Name}、ROE: {stockInfo.Roe}");
+            //Console.WriteLine(
+            //    $"Code: {stockInfo.Code}、" +
+            //    $"Classification: {stockInfo.Classification}、" +
+            //    $"Name: {stockInfo.Name}、" +
+            //    $"Roe: {stockInfo.Roe}、" +
+            //    $"Per: {stockInfo.Per}、" +
+            //    $"Pbr: {stockInfo.Pbr}、" +
+            //    $"DividendYield: {stockInfo.DividendYield}、" +
+            //    $"MarginBalanceRatio: {stockInfo.MarginBalanceRatio}、" +
+            //    $"MarketCap: {stockInfo.MarketCap}"
+            //    );
 
             // 株価履歴更新
             UpdateMaster(stockInfo);
@@ -120,21 +131,57 @@ void SaveAlert()
                 while (reader.Read())
                 {
                     string name = reader.IsDBNull(reader.GetOrdinal("name")) ? null : reader.GetString(reader.GetOrdinal("name"));
+                    string per = reader.IsDBNull(reader.GetOrdinal("per")) ? null : reader.GetString(reader.GetOrdinal("per"));
+                    string pbr = reader.IsDBNull(reader.GetOrdinal("pbr")) ? null : reader.GetString(reader.GetOrdinal("pbr"));
+                    string dividendYield = reader.IsDBNull(reader.GetOrdinal("dividend_yield")) ? null : reader.GetString(reader.GetOrdinal("dividend_yield"));
+                    string marginBalanceRatio = reader.IsDBNull(reader.GetOrdinal("margin_balance_ratio")) ? null : reader.GetString(reader.GetOrdinal("margin_balance_ratio"));
+                    string marketCap = reader.IsDBNull(reader.GetOrdinal("market_cap")) ? null : reader.GetString(reader.GetOrdinal("market_cap"));
 
                     writer.WriteLine(
-                        $"code: {reader.GetString("code")}, "
-                        + $"date: {reader.GetString("date_string")}, "
-                        + $"term: {reader.GetInt32("volatility_term").ToString()}, "
-                        + $"name: {name}, "
-                        + $"rate: {ConvertToPercetage(reader.GetDouble("volatility_rate"))}, "
-                        + $"index1: {reader.GetDouble("volatility_rate_index1").ToString()}({reader.GetDateTime("volatility_rate_index1_date").ToString("yyyy/MM/dd")}), "
-                        + $"index2: {reader.GetDouble("volatility_rate_index2").ToString()}({reader.GetDateTime("volatility_rate_index2_date").ToString("yyyy/MM/dd")}), "
-                        + $"roe: {reader.GetDouble("roe").ToString()}, "
-                        + $"alert: {reader.GetByte("should_alert").ToString()}"
-                        );
+                        $"{reader.GetString("date_string")}" +
+                        $", {reader.GetString("code")}：{TrimToByteLength(name, 20)}" +
+                        $", {ConvertToPercetage(reader.GetDouble("volatility_rate"))}({reader.GetInt32("volatility_term").ToString()})" +
+                        $", {reader.GetDouble("volatility_rate_index1").ToString()}({reader.GetDateTime("volatility_rate_index1_date").ToString("yyyy/MM/dd")}) " +
+                        $"> {reader.GetDouble("volatility_rate_index2").ToString()}({reader.GetDateTime("volatility_rate_index2_date").ToString("yyyy/MM/dd")})" +
+                        $", ROE: {reader.GetDouble("roe").ToString()}" +
+                        $", PER: {per}" +
+                        $", PBR: {pbr}" +
+                        $", 時価総額: {marketCap}" +
+                        $", 信用倍率: {marginBalanceRatio}" +
+                        $", 通知: {reader.GetByte("should_alert").ToString()}");
                 }
             }
         }
+    }
+}
+
+string TrimToByteLength(string? input, int byteLimit)
+{
+    // エンコーディングをUTF8に設定
+    Encoding encoding = Encoding.UTF8;
+
+    // 文字列をバイト配列に変換
+    byte[] bytes = encoding.GetBytes(input);
+
+    // バイト数が制限を超えた場合
+    if (bytes.Length > byteLimit)
+    {
+        // トリムされたバイト配列を作成
+        byte[] trimmedBytes = new byte[byteLimit];
+        Array.Copy(bytes, trimmedBytes, byteLimit);
+
+        // 不完全な文字を防ぐために末尾の不完全バイトを削除
+        string result = encoding.GetString(trimmedBytes);
+        while (result.EndsWith("?"))
+        {
+            result = result.Substring(0, result.Length - 1);
+        }
+        return result;
+    }
+    else
+    {
+        // バイト数が制限内の場合はそのまま文字列を返す
+        return input;
     }
 }
 
@@ -182,6 +229,9 @@ void ResisterResult(List<Analyzer.AnalysisResult> results)
                 ", revenue_profit_dividend" +
                 ", minkabu_analysis" +
                 ", should_alert" +
+                ", per" +
+                ", pbr" +
+                ", dividend_yield" +
                 ") VALUES (" +
                 "@code" +
                 ", @date_string" +
@@ -200,6 +250,9 @@ void ResisterResult(List<Analyzer.AnalysisResult> results)
                 ", @revenue_profit_dividend" +
                 ", @minkabu_analysis" +
                 ", @should_alert" +
+                ", @per" +
+                ", @pbr" +
+                ", @dividend_yield" +
                 ")";
 
             using (SQLiteCommand command = new SQLiteCommand(insQuery, connection))
@@ -222,6 +275,9 @@ void ResisterResult(List<Analyzer.AnalysisResult> results)
                 command.Parameters.AddWithValue("@revenue_profit_dividend", r.RevenueProfitDividend);
                 command.Parameters.AddWithValue("@minkabu_analysis", r.MinkabuAnalysis);
                 command.Parameters.AddWithValue("@should_alert", r.ShouldAlert);
+                command.Parameters.AddWithValue("@per", r.Per);
+                command.Parameters.AddWithValue("@pbr", r.Pbr);
+                command.Parameters.AddWithValue("@dividend_yield", r.DividendYield);
 
                 // クエリを実行
                 int rowsAffected = command.ExecuteNonQuery();
