@@ -232,6 +232,7 @@ void ResisterResult(List<Analyzer.AnalysisResult> results)
                 ", per" +
                 ", pbr" +
                 ", dividend_yield" +
+                ", margin_balance_ratio" +
                 ") VALUES (" +
                 "@code" +
                 ", @date_string" +
@@ -253,6 +254,7 @@ void ResisterResult(List<Analyzer.AnalysisResult> results)
                 ", @per" +
                 ", @pbr" +
                 ", @dividend_yield" +
+                ", @margin_balance_ratio" +
                 ")";
 
             using (SQLiteCommand command = new SQLiteCommand(insQuery, connection))
@@ -278,6 +280,7 @@ void ResisterResult(List<Analyzer.AnalysisResult> results)
                 command.Parameters.AddWithValue("@per", r.Per);
                 command.Parameters.AddWithValue("@pbr", r.Pbr);
                 command.Parameters.AddWithValue("@dividend_yield", r.DividendYield);
+                command.Parameters.AddWithValue("@margin_balance_ratio", r.MarginBalanceRatio);
 
                 // クエリを実行
                 int rowsAffected = command.ExecuteNonQuery();
