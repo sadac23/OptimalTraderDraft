@@ -143,6 +143,7 @@ void SaveAlert()
                         $", {ConvertToPercetage(reader.GetDouble("volatility_rate"))}({reader.GetInt32("volatility_term").ToString()})" +
                         $", {reader.GetDouble("volatility_rate_index1").ToString()}({reader.GetDateTime("volatility_rate_index1_date").ToString("yyyy/MM/dd")}) " +
                         $"> {reader.GetDouble("volatility_rate_index2").ToString()}({reader.GetDateTime("volatility_rate_index2_date").ToString("yyyy/MM/dd")})" +
+                        $", 利回り: {dividendYield}" +
                         $", ROE: {reader.GetDouble("roe").ToString()}" +
                         $", PER: {per}" +
                         $", PBR: {pbr}" +
