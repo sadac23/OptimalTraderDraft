@@ -1,11 +1,12 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
 using System.Data.SQLite;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 internal class Analyzer
 {
     string _connectionString = string.Empty;
-    const int _volatilityTermMax = 10;
+    const int _volatilityTermMax = 12;
 
     public Analyzer(string connectionString)
     {
@@ -31,11 +32,18 @@ internal class Analyzer
         double endIndex = 0;
         DateTime startindexDate = DateTime.Now;
         DateTime endIndexDate = DateTime.Now;
-        double lastFridyIndex = 0;
-        DateTime lastFridyIndexDate = DateTime.Now;
+        double lastFridayIndex = 0;
+        DateTime lastFridayIndexDate = DateTime.Now;
 
-        // 基準日を調整
-        var baseDate = DateTime.Today.AddDays((term - 1) * -7);
+        DateTime startDate = DateTime.Today;
+        DateTime endDate = DateTime.Today;
+
+        // 実行日が土日の場合は、終了日を金とする
+        if (DateTime.Today.DayOfWeek == DayOfWeek.Saturday || DateTime.Today.DayOfWeek == DayOfWeek.Sunday)
+        {
+            endDate = GetLastFriday(DateTime.Today);
+        }
+        startDate = GetLastFriday(endDate).AddDays((term - 1) * -7);
 
         // 結果生成
         using (SQLiteConnection connection = new SQLiteConnection(_connectionString))
@@ -49,8 +57,8 @@ internal class Analyzer
             {
                 // パラメータを設定
                 command.Parameters.AddWithValue("@code", item.Code);
-                command.Parameters.AddWithValue("@date_start", GetLastFriday(baseDate).ToString("yyyy-MM-dd 00:00:00"));    // 前週の金曜日
-                command.Parameters.AddWithValue("@date_end", DateTime.Today.ToString("yyyy-MM-dd 23:59:59"));
+                command.Parameters.AddWithValue("@date_start", startDate.ToString("yyyy-MM-dd 00:00:00"));    // 前週の金曜日
+                command.Parameters.AddWithValue("@date_end", endDate.ToString("yyyy-MM-dd 23:59:59"));
 
                 // データリーダーを使用して結果を取得
                 using (SQLiteDataReader reader = command.ExecuteReader())
@@ -82,8 +90,8 @@ internal class Analyzer
                         // 実行日の前週金曜日の指数を取得しておく
                         if (dateString == GetLastFriday(DateTime.Today).ToString("yyyyMMdd"))
                         {
-                            lastFridyIndex = close;
-                            lastFridyIndexDate = date;
+                            lastFridayIndex = close;
+                            lastFridayIndexDate = date;
                         }
                     }
                 }
@@ -133,7 +141,7 @@ internal class Analyzer
             if (!result.ShouldAlert && (result.VolatilityRate <= -0.070 & result.VolatilityRate >= -0.079) & result.VolatilityTerm <= 2) { result.ShouldAlert = true; }
 
             // 直近週が下落していない場合はアラートしない
-            if (result.VolatilityRate >= lastFridyIndex) { result.ShouldAlert = false; }
+            if (result.VolatilityRate >= lastFridayIndex) { result.ShouldAlert = false; }
 
             // ROEが7.99%以下の場合はアラートしない
             if (result.Roe <= 7.99) { result.ShouldAlert = false; }
@@ -154,6 +162,31 @@ internal class Analyzer
 
         return result;
     }
+
+    private DateTime AdjustToFriday(DateTime date)
+    {
+        // 曜日を取得
+        DayOfWeek dayOfWeek = date.DayOfWeek;
+
+        // 金曜日、土曜日、日曜日の場合の処理
+        if (dayOfWeek == DayOfWeek.Friday)
+        {
+            return date; // すでに金曜日
+        }
+        else if (dayOfWeek == DayOfWeek.Saturday)
+        {
+            return date.AddDays(-1); // 土曜日の場合、前日の金曜日に補正
+        }
+        else if (dayOfWeek == DayOfWeek.Sunday)
+        {
+            return date.AddDays(-2); // 日曜日の場合、2日前の金曜日に補正
+        }
+        else
+        {
+            return date; // 月～木曜日の場合、そのままの入力日を返す
+        }
+    }
+
     internal class AnalysisResult
     {
         public string Code { get; set; }
@@ -187,10 +220,6 @@ internal class Analyzer
 
         // 現在の日付の曜日を取得
         DayOfWeek currentDayOfWeek = currentDate.DayOfWeek;
-
-        // 土日だったら基準日を金曜日まで調整
-        if (currentDayOfWeek == DayOfWeek.Saturday) { baseDay.AddDays(-1); }
-        if (currentDayOfWeek == DayOfWeek.Sunday) { baseDay.AddDays(-2); }
 
         // 金曜日までの日数を計算
         int daysToLastFriday = ((int)currentDayOfWeek + 1) % 7 + 1;
