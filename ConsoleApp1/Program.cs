@@ -1,4 +1,4 @@
-﻿// See https://aka.ms/new-console-template for more information
+// See https://aka.ms/new-console-template for more information
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Net.Http;
@@ -56,7 +56,7 @@ Console.WriteLine("Hello, World!");
  * ・所有しているものは、前回購入時より下がっていたら通知する
  * ・全般に、直近で上がっているものは通知しない。
  * ・通知フォーマットの検討
- * ・レンジを12週（四半期）に拡大
+ * ・レンジを12週（四半期）に拡大、スマホからコミットテスト
  */
 
 const string _mailAddress = "sadac23@gmail.com";
