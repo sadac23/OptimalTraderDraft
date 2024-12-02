@@ -123,6 +123,7 @@ internal class Analyzer
             Pbr = item.Pbr,
             DividendYield = item.DividendYield,
             MarginBalanceRatio = item.MarginBalanceRatio,
+            FullyearPerformanceForcastSummary = item.FullYearPerformanceForcastSummary
         };
 
         // 個別
@@ -212,6 +213,7 @@ internal class Analyzer
         public string Pbr { get; set; }
         public string DividendYield { get; set; }
         public string MarginBalanceRatio { get; set; }
+        public string FullyearPerformanceForcastSummary { get; set; }
     }
 
     internal DateTime GetLastFriday(DateTime currentDate)

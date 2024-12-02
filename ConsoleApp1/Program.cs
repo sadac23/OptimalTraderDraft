@@ -57,7 +57,6 @@ Console.WriteLine("Hello, World!");
  * ・約定履歴を取得する
  * ・現在所有しているものは、分析する
  * ・所有しているものは、前回購入時より下がっていたら通知する
- * ・全般に、直近で上がっているものは通知しない。
  * ・直近が上がっていたら、分析結果全体を通知しない
  */
 
@@ -87,7 +86,7 @@ foreach (var watchStock in watchList)
             var startDate = GetStartDate(watchStock.Code);
 
             // 株価情報を取得
-            var stockInfo = scraper.GetStockInfo(watchStock, startDate, DateTime.Today).Result;
+            StockInfo stockInfo = scraper.GetStockInfo(watchStock, startDate, DateTime.Today).Result;
             //Console.WriteLine(
             //    $"Code: {stockInfo.Code}、" +
             //    $"Classification: {stockInfo.Classification}、" +
@@ -157,6 +156,7 @@ void SaveAlert()
                 string dividendYield = string.Empty;
                 string marginBalanceRatio = string.Empty;
                 string marketCap = string.Empty;
+                string fullyearPerformanceForcastSummary = string.Empty;
                 int count = 0;
 
                 while (reader.Read())
@@ -178,11 +178,12 @@ void SaveAlert()
                         dividendYield = reader.IsDBNull(reader.GetOrdinal("dividend_yield")) ? null : reader.GetString(reader.GetOrdinal("dividend_yield"));
                         marginBalanceRatio = reader.IsDBNull(reader.GetOrdinal("margin_balance_ratio")) ? null : reader.GetString(reader.GetOrdinal("margin_balance_ratio"));
                         marketCap = reader.IsDBNull(reader.GetOrdinal("market_cap")) ? null : reader.GetString(reader.GetOrdinal("market_cap"));
+                        fullyearPerformanceForcastSummary = reader.IsDBNull(reader.GetOrdinal("fullyear_performance_forcast_summary")) ? null : reader.GetString(reader.GetOrdinal("fullyear_performance_forcast_summary"));
 
                         writer.WriteLine("");
                         writer.WriteLine($"{code}：{name}");
                         writer.WriteLine($"利回り：{dividendYield}");
-                        writer.WriteLine($"通期予想：増収増益増配");
+                        writer.WriteLine($"通期予想：{fullyearPerformanceForcastSummary}");
                         writer.WriteLine($"時価総額：{marketCap}");
                         writer.WriteLine($"ROE：{roe}");
                         writer.WriteLine($"PER：{per}");
@@ -279,6 +280,7 @@ void ResisterResult(List<Analyzer.AnalysisResult> results)
                 ", pbr" +
                 ", dividend_yield" +
                 ", margin_balance_ratio" +
+                ", fullyear_performance_forcast_summary" +
                 ") VALUES (" +
                 "@code" +
                 ", @date_string" +
@@ -301,6 +303,7 @@ void ResisterResult(List<Analyzer.AnalysisResult> results)
                 ", @pbr" +
                 ", @dividend_yield" +
                 ", @margin_balance_ratio" +
+                ", @fullyear_performance_forcast_summary" +
                 ")";
 
             using (SQLiteCommand command = new SQLiteCommand(insQuery, connection))
@@ -327,6 +330,7 @@ void ResisterResult(List<Analyzer.AnalysisResult> results)
                 command.Parameters.AddWithValue("@pbr", r.Pbr);
                 command.Parameters.AddWithValue("@dividend_yield", r.DividendYield);
                 command.Parameters.AddWithValue("@margin_balance_ratio", r.MarginBalanceRatio);
+                command.Parameters.AddWithValue("@fullyear_performance_forcast_summary", r.FullyearPerformanceForcastSummary);
 
                 // クエリを実行
                 int rowsAffected = command.ExecuteNonQuery();

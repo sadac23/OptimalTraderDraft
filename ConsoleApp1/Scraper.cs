@@ -4,6 +4,7 @@ using HtmlAgilityPack;
 using Microsoft.SqlServer.Server;
 using System.Globalization;
 using System.Security.Policy;
+using static StockInfo;
 
 internal class Scraper
 {
@@ -145,6 +146,44 @@ internal class Scraper
                 }
                 s++;
             }
+        }
+
+        // 通期業績
+        rows = htmlDocument.DocumentNode.SelectNodes("//div[contains(@class, 'fin_year_t0_d fin_year_result_d')]/table/tbody/tr");
+
+        if (rows != null && rows.Count != 0)
+        {
+            foreach (var row in rows)
+            {
+                var columns = row.SelectNodes("td|th");
+
+                if (columns != null && columns.Count >= 8)
+                {
+                    var fiscalPeriod = columns[0].InnerText.Trim();
+                    var revenue = columns[1].InnerText.Trim();
+                    var operatingIncome = columns[2].InnerText.Trim();
+                    var ordinaryIncome = columns[3].InnerText.Trim();
+                    var netIncome = columns[4].InnerText.Trim();
+                    var adjustedEarningsPerShare = columns[5].InnerText.Trim();
+                    var adjustedDividendPerShare = columns[6].InnerText.Trim();
+                    var announcementDate = columns[7].InnerText.Trim();
+
+                    FullYearPerformance p = new FullYearPerformance()
+                    {
+                        FiscalPeriod = fiscalPeriod,
+                        Revenue = revenue,
+                        OperatingIncome = operatingIncome,
+                        OrdinaryIncome = ordinaryIncome,
+                        NetIncome = netIncome,
+                        AdjustedEarningsPerShare= adjustedEarningsPerShare,
+                        AdjustedDividendPerShare= adjustedDividendPerShare,
+                        AnnouncementDate=announcementDate,
+                    };
+
+                    stockInfo.FullYearPerformances.Add( p );
+                }
+            }
+            stockInfo.UpdateFullYearPerformanceForcastSummary();
         }
 
         return stockInfo;
