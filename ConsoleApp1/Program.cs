@@ -31,6 +31,7 @@ using DocumentFormat.OpenXml.Vml;
 using DocumentFormat.OpenXml.Drawing;
 using System.Linq.Expressions;
 using DocumentFormat.OpenXml.Wordprocessing;
+using System.Runtime.ConstrainedExecution;
 
 Console.WriteLine("Hello, World!");
 
@@ -45,6 +46,8 @@ Console.WriteLine("Hello, World!");
  * ・済：PBRの取得
  * ・済：時価総額の取得
  * ・済：信用倍率の取得
+ * ・済：レンジを12週（四半期）に拡大
+ * ・済：通知フォーマットの検討
  * ・投信の処理
  * ・メール通知
  * ・スクリーニング結果をウォッチリストに追加
@@ -55,8 +58,7 @@ Console.WriteLine("Hello, World!");
  * ・現在所有しているものは、分析する
  * ・所有しているものは、前回購入時より下がっていたら通知する
  * ・全般に、直近で上がっているものは通知しない。
- * ・通知フォーマットの検討
- * ・レンジを12週（四半期）に拡大、スマホからコミットテスト
+ * ・直近が上がっていたら、分析結果全体を通知しない
  */
 
 const string _mailAddress = "sadac23@gmail.com";
@@ -68,7 +70,6 @@ string _refreshtoken = string.Empty;
 DateTime _masterStartDate = DateTime.Parse("2023/01/01");
 
 // ウォッチリスト取得
-//List<WatchList.WatchStock> watchList = WatchList.GetWatchStockList(_connectionString);
 List<WatchList.WatchStock> watchList = WatchList.GetXlsxWatchStockList(_xlsxFilePath);
 
 // マスタ更新
@@ -80,7 +81,8 @@ foreach (var watchStock in watchList)
 {
     if (watchStock.Classification == "1" || watchStock.Classification == "2")
     {
-        try {
+        try
+        {
             // 更新開始日取得（なければ基準開始日を取得）
             var startDate = GetStartDate(watchStock.Code);
 
@@ -120,7 +122,7 @@ SaveAlert();
 
 void SaveAlert()
 {
-    string query = "SELECT * FROM analysis_result WHERE date_string = @date_string and should_alert = @should_alert ORDER BY code";
+    string query = "SELECT * FROM analysis_result WHERE date_string = @date_string and should_alert = @should_alert ORDER BY code, volatility_term";
 
     using (SQLiteConnection connection = new SQLiteConnection(_connectionString))
     {
@@ -134,28 +136,65 @@ void SaveAlert()
 
             using (SQLiteDataReader reader = command.ExecuteReader())
             {
+                //1928：積水ハウス(株)
+                //利回り：3.64％
+                //通期予想：増収増益増配
+                //時価総額：2兆3,470億円
+                //ROE：10.71
+                //PER：11.0倍
+                //PBR：1.18倍
+                //信用倍率：8.58倍
+                //自己資本比率：40.0 %,
+                //-10.40 % (8)：3951→3540(2024 / 10 / 04→2024 / 11 / 29)
+                //-14.06 % (9)：4119→3540(2024 / 09 / 27→2024 / 11 / 29)
+                //-10.58 % (10)：3959→3540(2024 / 09 / 20→2024 / 11 / 29)
+
+                string code = string.Empty;
+                string name = string.Empty;
+                string roe = string.Empty;
+                string per = string.Empty;
+                string pbr = string.Empty;
+                string dividendYield = string.Empty;
+                string marginBalanceRatio = string.Empty;
+                string marketCap = string.Empty;
+                int count = 0;
+
                 while (reader.Read())
                 {
-                    string name = reader.IsDBNull(reader.GetOrdinal("name")) ? null : reader.GetString(reader.GetOrdinal("name"));
-                    string per = reader.IsDBNull(reader.GetOrdinal("per")) ? null : reader.GetString(reader.GetOrdinal("per"));
-                    string pbr = reader.IsDBNull(reader.GetOrdinal("pbr")) ? null : reader.GetString(reader.GetOrdinal("pbr"));
-                    string dividendYield = reader.IsDBNull(reader.GetOrdinal("dividend_yield")) ? null : reader.GetString(reader.GetOrdinal("dividend_yield"));
-                    string marginBalanceRatio = reader.IsDBNull(reader.GetOrdinal("margin_balance_ratio")) ? null : reader.GetString(reader.GetOrdinal("margin_balance_ratio"));
-                    string marketCap = reader.IsDBNull(reader.GetOrdinal("market_cap")) ? null : reader.GetString(reader.GetOrdinal("market_cap"));
+                    // ファイルヘッダー
+                    if (count == 0)
+                    {
+                        writer.WriteLine(reader.GetString("date_string"));
+                    }
 
-                    writer.WriteLine(
-                        $"{reader.GetString("date_string")}" +
-                        $", {reader.GetString("code")}：{TrimToByteLength(name, 20)}" +
-                        $", {ConvertToPercetage(reader.GetDouble("volatility_rate"))}({reader.GetInt32("volatility_term").ToString()})" +
-                        $", {reader.GetDouble("volatility_rate_index1").ToString()}({reader.GetDateTime("volatility_rate_index1_date").ToString("yyyy/MM/dd")}) " +
-                        $"> {reader.GetDouble("volatility_rate_index2").ToString()}({reader.GetDateTime("volatility_rate_index2_date").ToString("yyyy/MM/dd")})" +
-                        $", 利回り: {dividendYield}" +
-                        $", ROE: {reader.GetDouble("roe").ToString()}" +
-                        $", PER: {per}" +
-                        $", PBR: {pbr}" +
-                        $", 時価総額: {marketCap}" +
-                        $", 信用倍率: {marginBalanceRatio}" +
-                        $", 通知: {reader.GetByte("should_alert").ToString()}");
+                    // コードが変わったらヘッダー出力
+                    if (code != reader.GetString("code"))
+                    {
+                        code = reader.GetString("code");
+                        name = reader.IsDBNull(reader.GetOrdinal("name")) ? null : reader.GetString(reader.GetOrdinal("name"));
+                        roe = reader.IsDBNull(reader.GetOrdinal("roe")) ? null : reader.GetDouble("roe").ToString();
+                        per = reader.IsDBNull(reader.GetOrdinal("per")) ? null : reader.GetString(reader.GetOrdinal("per"));
+                        pbr = reader.IsDBNull(reader.GetOrdinal("pbr")) ? null : reader.GetString(reader.GetOrdinal("pbr"));
+                        dividendYield = reader.IsDBNull(reader.GetOrdinal("dividend_yield")) ? null : reader.GetString(reader.GetOrdinal("dividend_yield"));
+                        marginBalanceRatio = reader.IsDBNull(reader.GetOrdinal("margin_balance_ratio")) ? null : reader.GetString(reader.GetOrdinal("margin_balance_ratio"));
+                        marketCap = reader.IsDBNull(reader.GetOrdinal("market_cap")) ? null : reader.GetString(reader.GetOrdinal("market_cap"));
+
+                        writer.WriteLine("");
+                        writer.WriteLine($"{code}：{name}");
+                        writer.WriteLine($"利回り：{dividendYield}");
+                        writer.WriteLine($"通期予想：増収増益増配");
+                        writer.WriteLine($"時価総額：{marketCap}");
+                        writer.WriteLine($"ROE：{roe}");
+                        writer.WriteLine($"PER：{per}");
+                        writer.WriteLine($"PBR：{pbr}");
+                        writer.WriteLine($"信用倍率：{marginBalanceRatio}");
+                        writer.WriteLine($"自己資本比率：40.0%");
+                    }
+                    writer.WriteLine($"{ConvertToPercetage(reader.GetDouble("volatility_rate"))}({reader.GetInt32("volatility_term").ToString()})" +
+                        $"：{reader.GetDouble("volatility_rate_index1").ToString()}→{reader.GetDouble("volatility_rate_index2").ToString()}" +
+                        $"({reader.GetDateTime("volatility_rate_index1_date").ToString("yyyy/MM/dd")}→{reader.GetDateTime("volatility_rate_index2_date").ToString("yyyy/MM/dd")})");
+
+                    count++;
                 }
             }
         }
