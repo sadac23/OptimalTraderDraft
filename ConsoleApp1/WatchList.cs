@@ -60,18 +60,13 @@ internal class WatchList
 
                 foreach (var row in rows)
                 {
-                    //foreach (var cell in row.Cells())
-                    //{
-                    //    Console.Write(cell.Value + "\t");
-                    //}
-                    //Console.WriteLine();
-
                     WatchStock data = new WatchStock
                     {
                         Code = row.Cell(3).Value.ToString(),
                         Name = row.Cell(4).Value.ToString(),
                         Classification = row.Cell(5).Value.ToString(),
                         DeleteDate = row.Cell(7).Value.ToString(),
+                        Memo = row.Cell(8).Value.ToString(),
                     };
                     results.Add(data);
                 }
@@ -91,5 +86,6 @@ internal class WatchList
         public string Name { get; set; }
         public string DeleteDate { get; set; }
         public string Classification { get; set; }
+        public string Memo { get; internal set; }
     }
 }

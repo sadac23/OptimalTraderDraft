@@ -84,26 +84,30 @@ internal class StockInfo
     {
         try
         {
-            // 数値化
-            double.TryParse(adjustedDividendPerShare1, out double result1);
-            double.TryParse(adjustedDividendPerShare2, out double result2);
-
-            if (result1 > result2)
+            // パースに成功したら判定
+            if (double.TryParse(adjustedDividendPerShare1, out double result1) && double.TryParse(adjustedDividendPerShare2, out double result2))
             {
-                return "増配";
-            }
-            else if (result1 == result2)
-            {
-                return "同配";
+                if (result1 > result2)
+                {
+                    return "増配";
+                }
+                else if (result1 == result2)
+                {
+                    return "同配";
+                }
+                else
+                {
+                    return "減配";
+                }
             }
             else
             {
-                return "減配";
+                return "？配";
             }
         }
         catch (Exception ex)
         {
-            return "？";
+            return "？配";
         }
     }
 
@@ -111,22 +115,26 @@ internal class StockInfo
     {
         try
         {
-            // 数値化
-            double.TryParse(ordinaryIncome1, out double result1);
-            double.TryParse(ordinaryIncome2, out double result2);
-
-            if (result1 > result2)
+            // パースに成功したら判定
+            if (double.TryParse(ordinaryIncome1, out double result1) && double.TryParse(ordinaryIncome2, out double result2))
             {
-                return "増益";
+                if (result1 > result2)
+                {
+                    return "増益";
+                }
+                else
+                {
+                    return "減益";
+                }
             }
             else
             {
-                return "減益";
+                return "？益";
             }
         }
         catch (Exception ex)
         {
-            return "？";
+            return "？益";
         }
     }
 
@@ -134,22 +142,26 @@ internal class StockInfo
     {
         try
         {
-            // 数値化
-            double.TryParse(revenue1, out double result1);
-            double.TryParse(revenue2, out double result2);
-
-            if (result1 > result2)
+            // パースに成功したら判定
+            if (double.TryParse(revenue1, out double result1) && double.TryParse(revenue2, out double result2))
             {
-                return "増収";
+                if (result1 > result2)
+                {
+                    return "増収";
+                }
+                else
+                {
+                    return "減収";
+                }
             }
             else
             {
-                return "減収";
+                return "？収";
             }
         }
         catch (Exception ex)
         {
-            return "？";
+            return "？収";
         }
     }
 

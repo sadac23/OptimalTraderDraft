@@ -1,6 +1,8 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
+using DocumentFormat.OpenXml.Wordprocessing;
 using System.Data.SQLite;
+using System.Runtime.ConstrainedExecution;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 internal class Analyzer
@@ -13,20 +15,20 @@ internal class Analyzer
         this._connectionString = connectionString;
     }
 
-    internal List<AnalysisResult> Analize(StockInfo item)
+    internal AnalysisResult Analize(StockInfo item)
     {
-        List<AnalysisResult> results = new();
+        var result = new AnalysisResult(item);
 
         // 週間変動値取得
         for (int i = 1; i <= _volatilityTermMax; i++)
         {
-            results.Add(Weeklyfluctuation(item, i));
+            result.PriceVolatilities.Add(Weeklyfluctuation(item, i));
         }
 
-        return results;
+        return result;
     }
 
-    AnalysisResult Weeklyfluctuation(StockInfo item, int term)
+    AnalysisResult.PriceVolatility Weeklyfluctuation(StockInfo item, int term)
     {
         double startindex = 0;
         double endIndex = 0;
@@ -98,36 +100,21 @@ internal class Analyzer
             }
         }
 
-        AnalysisResult result = new()
+        AnalysisResult.PriceVolatility result = new()
         {
-            Code = item.Code,
             DateString = DateTime.Now.ToString("yyyyMMdd"),
             Date = DateTime.Now,
-            Name = item.Name,
-            Classification = item.Classification,
-            Trend = "0",
             VolatilityRate = (endIndex / startindex) - 1,
             VolatilityRateIndex1 = startindex,
             VolatilityRateIndex1Date = startindexDate,
             VolatilityRateIndex2 = endIndex,
             VolatilityRateIndex2Date = endIndexDate,
             VolatilityTerm = term,
-            LeverageRatio = 0,
-            MarketCap = item.MarketCap,
-            Roe = item.Roe,
-            EquityRatio = 0,
-            RevenueProfitDividend = 0,
-            MinkabuAnalysis = "",
             ShouldAlert = false,
-            Per = item.Per,
-            Pbr = item.Pbr,
-            DividendYield = item.DividendYield,
-            MarginBalanceRatio = item.MarginBalanceRatio,
-            FullyearPerformanceForcastSummary = item.FullYearPerformanceForcastSummary
         };
 
         // 個別
-        if (result.Classification == "1")
+        if (item.Classification == "1")
         {
             // -10.0%以下（10week以内の下落幅）
             if (!result.ShouldAlert && result.VolatilityRate <= -0.100) { result.ShouldAlert = true; }
@@ -145,7 +132,7 @@ internal class Analyzer
             if (result.VolatilityRate >= lastFridayIndex) { result.ShouldAlert = false; }
 
             // ROEが7.99%以下の場合はアラートしない
-            if (result.Roe <= 7.99) { result.ShouldAlert = false; }
+            if (item.Roe <= 7.99) { result.ShouldAlert = false; }
 
             // -50.0%以下は株式分割の異常値である可能性が高いためアラートしない
             if (result.VolatilityRate <= -0.500) { result.ShouldAlert = false; }
@@ -155,7 +142,7 @@ internal class Analyzer
             //if (!result.ShouldAlert && result.VolatilityRate >= 0.100) { result.ShouldAlert = true; }
         }
         // ETF
-        if (result.Classification == "2")
+        if (item.Classification == "2")
         {
             // -5.0%以下（10week以内の下落幅）
             if (!result.ShouldAlert && result.VolatilityRate <= -0.050) { result.ShouldAlert = true; }
@@ -190,30 +177,59 @@ internal class Analyzer
 
     internal class AnalysisResult
     {
-        public string Code { get; set; }
-        public string DateString { get; set; }
-        public DateTime Date { get; set; }
-        public string Name { get; set; }
-        public string Trend { get; set; }
-        public double VolatilityRate { get; set; }
-        public double VolatilityRateIndex1 { get; set; }
-        public DateTime VolatilityRateIndex1Date { get; set; }
-        public double VolatilityRateIndex2 { get; set; }
-        public DateTime VolatilityRateIndex2Date { get; set; }
-        public int VolatilityTerm { get; set; }
-        public double LeverageRatio { get; set; }
-        public string MarketCap { get; set; }
-        public double Roe { get; set; }
-        public double EquityRatio { get; set; }
-        public double RevenueProfitDividend { get; set; }
-        public string MinkabuAnalysis { get; set; }
-        public bool ShouldAlert { get; set; }
-        public string Classification { get; set; }
-        public string Per { get; set; }
-        public string Pbr { get; set; }
-        public string DividendYield { get; set; }
-        public string MarginBalanceRatio { get; set; }
-        public string FullyearPerformanceForcastSummary { get; set; }
+        public AnalysisResult(StockInfo stockInfo)
+        {
+            this.StockInfo = stockInfo;
+            this.PriceVolatilities = new List<PriceVolatility>();
+        }
+        /// <summary>
+        /// 銘柄
+        /// </summary>
+        public StockInfo StockInfo { get; set; }
+        /// <summary>
+        /// 値幅履歴
+        /// </summary>
+        public List<PriceVolatility> PriceVolatilities { get; set; }
+
+        public class PriceVolatility
+        {
+            /// <summary>
+            /// 分析日文字列
+            /// </summary>
+            public string DateString { get; internal set; }
+            /// <summary>
+            /// 分析日
+            /// </summary>
+            public DateTime Date { get; internal set; }
+            /// <summary>
+            /// 変動率
+            /// </summary>
+            public double VolatilityRate { get; internal set; }
+            /// <summary>
+            /// 変動指数1
+            /// </summary>
+            public double VolatilityRateIndex1 { get; internal set; }
+            /// <summary>
+            /// 変動指数1の記録日
+            /// </summary>
+            public DateTime VolatilityRateIndex1Date { get; internal set; }
+            /// <summary>
+            /// 変動指数2
+            /// </summary>
+            public double VolatilityRateIndex2 { get; internal set; }
+            /// <summary>
+            /// 変動指数2の記録日
+            /// </summary>
+            public DateTime VolatilityRateIndex2Date { get; internal set; }
+            /// <summary>
+            /// 変動期間（週数）
+            /// </summary>
+            public int VolatilityTerm { get; internal set; }
+            /// <summary>
+            /// 通知すべきか
+            /// </summary>
+            public bool ShouldAlert { get; internal set; }
+        }
     }
 
     internal DateTime GetLastFriday(DateTime currentDate)

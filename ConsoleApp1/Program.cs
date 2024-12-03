@@ -33,8 +33,6 @@ using System.Linq.Expressions;
 using DocumentFormat.OpenXml.Wordprocessing;
 using System.Runtime.ConstrainedExecution;
 
-Console.WriteLine("Hello, World!");
-
 /* TODO
  * ・済：ETFの処理
  * ・済：上昇率の分析追加
@@ -48,15 +46,15 @@ Console.WriteLine("Hello, World!");
  * ・済：信用倍率の取得
  * ・済：レンジを12週（四半期）に拡大
  * ・済：通知フォーマットの検討
+ * ・済：業績（増収増益増配）の取得
  * ・投信の処理
  * ・メール通知
  * ・スクリーニング結果をウォッチリストに追加
  * ・通知対象の分析結果を間引く（最も変動が大きいレコードのみに）
- * ・業績（増収増益増配）の取得
  * ・自己資本比率の取得
  * ・約定履歴を取得する
  * ・現在所有しているものは、分析する
- * ・所有しているものは、前回購入時より下がっていたら通知する
+ * ・所有しているものは、前回購入時より〇%以上下がっていたら通知する
  * ・直近が上がっていたら、分析結果全体を通知しない
  */
 
@@ -68,12 +66,13 @@ string _xlsxFilePath = ConfigurationManager.AppSettings["WatchListFilePath"];
 string _refreshtoken = string.Empty;
 DateTime _masterStartDate = DateTime.Parse("2023/01/01");
 
-// ウォッチリスト取得
-List<WatchList.WatchStock> watchList = WatchList.GetXlsxWatchStockList(_xlsxFilePath);
-
-// マスタ更新
 var scraper = new Scraper();
 var analyzer = new Analyzer(_connectionString);
+
+Console.WriteLine("Hello, World!");
+
+// ウォッチリスト取得
+List<WatchList.WatchStock> watchList = WatchList.GetXlsxWatchStockList(_xlsxFilePath);
 
 // ウォッチ銘柄を処理
 foreach (var watchStock in watchList)
@@ -103,10 +102,10 @@ foreach (var watchStock in watchList)
             UpdateMaster(stockInfo);
 
             // 分析
-            var results = analyzer.Analize(stockInfo);
+            Analyzer.AnalysisResult result = analyzer.Analize(stockInfo);
 
             // 結果登録
-            ResisterResult(results);
+            ResisterResult(result);
         }
         catch (System.AggregateException ex)
         {
@@ -232,13 +231,13 @@ string TrimToByteLength(string? input, int byteLimit)
     }
 }
 
-void ResisterResult(List<Analyzer.AnalysisResult> results)
+void ResisterResult(Analyzer.AnalysisResult result)
 {
     using (SQLiteConnection connection = new SQLiteConnection(_connectionString))
     {
         connection.Open();
 
-        foreach (var r in results)
+        foreach (var r in result.PriceVolatilities)
         {
             // 削除クエリ
             string delQuery = "DELETE FROM analysis_result WHERE code = @code AND date_string = @date_string AND volatility_term = @volatility_term";
@@ -246,7 +245,7 @@ void ResisterResult(List<Analyzer.AnalysisResult> results)
             using (SQLiteCommand command = new SQLiteCommand(delQuery, connection))
             {
                 // パラメータを設定
-                command.Parameters.AddWithValue("@code", r.Code);
+                command.Parameters.AddWithValue("@code", result.StockInfo.Code);
                 command.Parameters.AddWithValue("@date_string", DateTime.Today.ToString("yyyyMMdd"));
                 command.Parameters.AddWithValue("@volatility_term", r.VolatilityTerm);
 
@@ -309,28 +308,28 @@ void ResisterResult(List<Analyzer.AnalysisResult> results)
             using (SQLiteCommand command = new SQLiteCommand(insQuery, connection))
             {
                 // パラメータを設定
-                command.Parameters.AddWithValue("@code", r.Code);
+                command.Parameters.AddWithValue("@code", result.StockInfo.Code);
                 command.Parameters.AddWithValue("@date_string", DateTime.Today.ToString("yyyyMMdd"));
                 command.Parameters.AddWithValue("@date", DateTime.Today);
-                command.Parameters.AddWithValue("@name", r.Name);
+                command.Parameters.AddWithValue("@name", result.StockInfo.Name);
                 command.Parameters.AddWithValue("@volatility_rate", r.VolatilityRate);
                 command.Parameters.AddWithValue("@volatility_rate_index1", r.VolatilityRateIndex1);
                 command.Parameters.AddWithValue("@volatility_rate_index1_date", r.VolatilityRateIndex1Date);
                 command.Parameters.AddWithValue("@volatility_rate_index2", r.VolatilityRateIndex2);
                 command.Parameters.AddWithValue("@volatility_rate_index2_date", r.VolatilityRateIndex2Date);
                 command.Parameters.AddWithValue("@volatility_term", r.VolatilityTerm);
-                command.Parameters.AddWithValue("@leverage_ratio", r.LeverageRatio);
-                command.Parameters.AddWithValue("@market_cap", r.MarketCap);
-                command.Parameters.AddWithValue("@roe", r.Roe);
-                command.Parameters.AddWithValue("@equity_ratio", r.EquityRatio);
-                command.Parameters.AddWithValue("@revenue_profit_dividend", r.RevenueProfitDividend);
-                command.Parameters.AddWithValue("@minkabu_analysis", r.MinkabuAnalysis);
+                command.Parameters.AddWithValue("@leverage_ratio", 0);
+                command.Parameters.AddWithValue("@market_cap", result.StockInfo.MarketCap);
+                command.Parameters.AddWithValue("@roe", result.StockInfo.Roe);
+                command.Parameters.AddWithValue("@equity_ratio", 0);
+                command.Parameters.AddWithValue("@revenue_profit_dividend", 0);
+                command.Parameters.AddWithValue("@minkabu_analysis", "");
                 command.Parameters.AddWithValue("@should_alert", r.ShouldAlert);
-                command.Parameters.AddWithValue("@per", r.Per);
-                command.Parameters.AddWithValue("@pbr", r.Pbr);
-                command.Parameters.AddWithValue("@dividend_yield", r.DividendYield);
-                command.Parameters.AddWithValue("@margin_balance_ratio", r.MarginBalanceRatio);
-                command.Parameters.AddWithValue("@fullyear_performance_forcast_summary", r.FullyearPerformanceForcastSummary);
+                command.Parameters.AddWithValue("@per", result.StockInfo.Per);
+                command.Parameters.AddWithValue("@pbr", result.StockInfo.Pbr);
+                command.Parameters.AddWithValue("@dividend_yield", result.StockInfo.DividendYield);
+                command.Parameters.AddWithValue("@margin_balance_ratio", result.StockInfo.MarginBalanceRatio);
+                command.Parameters.AddWithValue("@fullyear_performance_forcast_summary", result.StockInfo.FullYearPerformanceForcastSummary);
 
                 // クエリを実行
                 int rowsAffected = command.ExecuteNonQuery();
