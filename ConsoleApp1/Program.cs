@@ -47,21 +47,23 @@ using System.Runtime.ConstrainedExecution;
  * ・済：レンジを12週（四半期）に拡大
  * ・済：通知フォーマットの検討
  * ・済：業績（増収増益増配）の取得
+ * ・済：約定履歴を取得する
  * ・投信の処理
+ * ・済：現在所有しているものは、分析する
  * ・メール通知
  * ・スクリーニング結果をウォッチリストに追加
  * ・通知対象の分析結果を間引く（最も変動が大きいレコードのみに）
  * ・自己資本比率の取得
- * ・約定履歴を取得する
- * ・現在所有しているものは、分析する
- * ・所有しているものは、前回購入時より〇%以上下がっていたら通知する
+ * ・所有しているものは、前回購入時より○%以上下がっていたら通知する
  * ・直近が上がっていたら、分析結果全体を通知しない
+ * ・購入履歴を通知に出力する。
  */
 
 const string _mailAddress = "sadac23@gmail.com";
 const string _password = "1qaz2WSX3edc";
 string _connectionString = ConfigurationManager.ConnectionStrings["OTDB"].ConnectionString;
 string _xlsxFilePath = ConfigurationManager.AppSettings["WatchListFilePath"];
+string _xlsxExecutionFilePath = ConfigurationManager.AppSettings["ExecutionListFilePath"];
 
 string _refreshtoken = string.Empty;
 DateTime _masterStartDate = DateTime.Parse("2023/01/01");
@@ -71,8 +73,11 @@ var analyzer = new Analyzer(_connectionString);
 
 Console.WriteLine("Hello, World!");
 
+// 約定履歴取得
+List<WatchList.ExecutionStock> executionList = WatchList.GetXlsxExecutionStockList(_xlsxExecutionFilePath);
+
 // ウォッチリスト取得
-List<WatchList.WatchStock> watchList = WatchList.GetXlsxWatchStockList(_xlsxFilePath);
+List<WatchList.WatchStock> watchList = WatchList.GetXlsxWatchStockList(_xlsxFilePath, executionList);
 
 // ウォッチ銘柄を処理
 foreach (var watchStock in watchList)
