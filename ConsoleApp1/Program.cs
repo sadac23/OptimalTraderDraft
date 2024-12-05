@@ -70,11 +70,12 @@ DateTime _masterStartDate = DateTime.Parse("2023/01/01");
 
 var scraper = new Scraper();
 var analyzer = new Analyzer(_connectionString);
+StockInfo stockInfo = null;
 
 Console.WriteLine("Hello, World!");
 
 // 約定履歴取得
-List<WatchList.ExecutionStock> executionList = WatchList.GetXlsxExecutionStockList(_xlsxExecutionFilePath);
+List<ExecutionList.ListDetail> executionList = ExecutionList.GetXlsxExecutionStockList(_xlsxExecutionFilePath);
 
 // ウォッチリスト取得
 List<WatchList.WatchStock> watchList = WatchList.GetXlsxWatchStockList(_xlsxFilePath, executionList);
@@ -86,11 +87,11 @@ foreach (var watchStock in watchList)
     {
         try
         {
-            // 更新開始日取得（なければ基準開始日を取得）
+            // 株価更新開始日を取得（なければ基準開始日を取得）
             var startDate = GetStartDate(watchStock.Code);
 
-            // 株価情報を取得
-            StockInfo stockInfo = scraper.GetStockInfo(watchStock, startDate, DateTime.Today).Result;
+            // 外部サイトの銘柄情報を取得
+            stockInfo = scraper.GetStockInfo(watchStock, startDate, DateTime.Today).Result;
             //Console.WriteLine(
             //    $"Code: {stockInfo.Code}、" +
             //    $"Classification: {stockInfo.Classification}、" +
@@ -102,6 +103,8 @@ foreach (var watchStock in watchList)
             //    $"MarginBalanceRatio: {stockInfo.MarginBalanceRatio}、" +
             //    $"MarketCap: {stockInfo.MarketCap}"
             //    );
+
+            stockInfo.Executions = ExecutionList.GetExecutions(executionList, stockInfo.Code);
 
             // 株価履歴更新
             UpdateMaster(stockInfo);
@@ -121,7 +124,30 @@ foreach (var watchStock in watchList)
 
 // アラート通知
 //SendAlert();
-SaveAlert();
+SaveAlertFrom(stockInfo);
+
+void SaveAlertFrom(StockInfo? stockInfo)
+{
+    //1928：積水ハウス(株)
+    //利回り：3.64％
+    //通期予想：増収増益増配
+    //時価総額：2兆3,470億円
+    //ROE：10.71
+    //PER：11.0倍
+    //PBR：1.18倍
+    //信用倍率：8.58倍
+    //自己資本比率：40.0%
+    //約定履歴：
+    //買：2024/12/04：2068*300
+    //売：2024/12/05：2068*100
+    //買：2024/12/06：2060*100
+    //変動履歴：
+    //-10.40% (8)：3951→3540(2024/10/04→2024/11/29)
+    //-14.06% (9)：4119→3540(2024/09/27→2024/11/29)
+    //-10.58% (10)：3959→3540(2024/09/20→2024/11/29)
+
+    throw new NotImplementedException();
+}
 
 void SaveAlert()
 {
@@ -147,10 +173,15 @@ void SaveAlert()
                 //PER：11.0倍
                 //PBR：1.18倍
                 //信用倍率：8.58倍
-                //自己資本比率：40.0 %,
-                //-10.40 % (8)：3951→3540(2024 / 10 / 04→2024 / 11 / 29)
-                //-14.06 % (9)：4119→3540(2024 / 09 / 27→2024 / 11 / 29)
-                //-10.58 % (10)：3959→3540(2024 / 09 / 20→2024 / 11 / 29)
+                //自己資本比率：40.0%
+                //約定履歴：
+                //買：2024/12/04：2068*300
+                //売：2024/12/05：2068*100
+                //買：2024/12/06：2060*100
+                //変動履歴：
+                //-10.40% (8)：3951→3540(2024/10/04→2024/11/29)
+                //-14.06% (9)：4119→3540(2024/09/27→2024/11/29)
+                //-10.58% (10)：3959→3540(2024/09/20→2024/11/29)
 
                 string code = string.Empty;
                 string name = string.Empty;

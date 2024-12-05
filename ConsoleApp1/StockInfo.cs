@@ -61,6 +61,10 @@ internal class StockInfo
     /// 通期業績予想概要（例：増収増益増配）
     /// </summary>
     public string FullYearPerformanceForcastSummary { get; internal set; }
+    /// <summary>
+    /// 約定履歴
+    /// </summary>
+    public List<ExecutionList.Execution> Executions { get; set; }
 
     internal void UpdateFullYearPerformanceForcastSummary()
     {
