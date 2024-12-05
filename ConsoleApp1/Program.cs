@@ -123,8 +123,8 @@ foreach (var watchStock in watchList)
 }
 
 // アラート通知
-//SendAlert();
-SaveAlertFrom(stockInfo);
+SaveAlert();
+//SaveAlertFrom(stockInfo);
 
 void SaveAlertFrom(StockInfo? stockInfo)
 {

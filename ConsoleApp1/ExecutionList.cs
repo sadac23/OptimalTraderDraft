@@ -12,25 +12,31 @@ internal class ExecutionList
         {
             if (detail.Code == code)
             {
-                Execution execution = new Execution()
+                if (detail.BuyDate != string.Empty)
                 {
-                    Code = detail.Code,
-                    Name = detail.Name,
-                    BuyOrSell = "買",
-                    Date = DateTime.Parse(detail.BuyDate),
-                    Price = double.Parse(detail.BuyPrice)
-                };
-                list.Add(execution);
+                    Execution execution = new Execution()
+                    {
+                        Code = detail.Code,
+                        Name = detail.Name,
+                        BuyOrSell = "買",
+                        Date = DateTime.Parse(detail.BuyDate),
+                        Price = double.Parse(detail.BuyPrice),
+                        Quantity = double.Parse(detail.BuyQuantity),
+                    };
+                    list.Add(execution);
+                }
 
-                if (detail.SellPrice != string.Empty)
+                if (detail.SellDate != string.Empty)
                 {
                     Execution executionS = new Execution()
                     {
+                        No = detail.No,
                         Code = detail.Code,
                         Name = detail.Name,
                         BuyOrSell = "売",
                         Date = DateTime.Parse(detail.SellDate),
-                        Price = double.Parse(detail.SellPrice)
+                        Price = double.Parse(detail.SellPrice),
+                        Quantity= double.Parse(detail.SellQuantity),
                     };
                     list.Add(executionS);
                 }
@@ -66,12 +72,14 @@ internal class ExecutionList
                     ListDetail data = new ListDetail
                     {
                         No = row.Cell(2).Value.ToString(),
-                        BuyDate = row.Cell(3).Value.ToString(),
                         Code = row.Cell(4).Value.ToString(),
                         Name = row.Cell(5).Value.ToString(),
+                        BuyDate = row.Cell(3).Value.ToString(),
                         BuyPrice = row.Cell(6).Value.ToString(),
-                        SellDate = row.Cell(11).Value.ToString(),
-                        SellPrice = row.Cell(12).Value.ToString(),
+                        BuyQuantity = row.Cell(6).Value.ToString(),
+                        SellDate = row.Cell(12).Value.ToString(),
+                        SellPrice = row.Cell(14).Value.ToString(),
+                        SellQuantity = row.Cell(13).Value.ToString(),
                     };
                     results.Add(data);
                 }
@@ -94,6 +102,8 @@ internal class ExecutionList
         public string BuyPrice { get; internal set; }
         public string SellDate { get; internal set; }
         public string SellPrice { get; internal set; }
+        public string BuyQuantity { get; internal set; }
+        public string SellQuantity { get; internal set; }
     }
 
     internal class Execution
@@ -123,5 +133,6 @@ internal class ExecutionList
         /// 数量
         /// </summary>
         public double Quantity { get; set; }
+        public string No { get; internal set; }
     }
 }
