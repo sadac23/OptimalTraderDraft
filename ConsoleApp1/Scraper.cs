@@ -35,10 +35,12 @@ internal class Scraper
         // Yahooファイナンス
         for (int i = 1; i < _pageCountMax; i++)
         {
-
             url = urlBaseYahooFinance + $"&page={i}";
             html = await httpClient.GetStringAsync(url);
             Console.WriteLine(url);
+
+            // ページ内行カウント
+            short rowCount = 0;
 
             // 取得できない場合は終了
             if (html.Contains("時系列情報がありません")) break;
@@ -57,6 +59,8 @@ internal class Scraper
 
             if (rows != null && rows.Count != 0)
             {
+                rowCount = 0;
+
                 foreach (var row in rows)
                 {
                     var columns = row.SelectNodes("td|th");
@@ -81,8 +85,12 @@ internal class Scraper
                             Volume = volume
                         });
                     }
+                    rowCount++;
                 }
             }
+
+            // ページ内行カウントが19件以下の時は終了
+            if (rowCount <= 19) break;
         }
 
         // 株探（かぶたん）

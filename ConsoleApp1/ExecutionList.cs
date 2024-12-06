@@ -75,11 +75,11 @@ internal class ExecutionList
                         Code = row.Cell(4).Value.ToString(),
                         Name = row.Cell(5).Value.ToString(),
                         BuyDate = row.Cell(3).Value.ToString(),
-                        BuyPrice = row.Cell(6).Value.ToString(),
                         BuyQuantity = row.Cell(6).Value.ToString(),
+                        BuyPrice = row.Cell(7).Value.ToString(),
                         SellDate = row.Cell(12).Value.ToString(),
-                        SellPrice = row.Cell(14).Value.ToString(),
                         SellQuantity = row.Cell(13).Value.ToString(),
+                        SellPrice = row.Cell(14).Value.ToString(),
                     };
                     results.Add(data);
                 }

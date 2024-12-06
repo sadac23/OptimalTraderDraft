@@ -3,6 +3,7 @@
 using DocumentFormat.OpenXml.Wordprocessing;
 using System.Data.SQLite;
 using System.Runtime.ConstrainedExecution;
+using static Analyzer;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 internal class Analyzer
@@ -190,6 +191,25 @@ internal class Analyzer
         /// 値幅履歴
         /// </summary>
         public List<PriceVolatility> PriceVolatilities { get; set; }
+
+        /// <summary>
+        /// 通知すべきか？
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        internal bool ShouldAlert()
+        {
+            bool result = false;
+
+            foreach (Analyzer.AnalysisResult.PriceVolatility v in this.PriceVolatilities)
+            {
+                if (v.ShouldAlert)
+                {
+                    result = true;
+                }
+            }
+            return result;
+        }
 
         public class PriceVolatility
         {

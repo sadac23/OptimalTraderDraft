@@ -48,8 +48,9 @@ using System.Runtime.ConstrainedExecution;
  * ・済：通知フォーマットの検討
  * ・済：業績（増収増益増配）の取得
  * ・済：約定履歴を取得する
- * ・投信の処理
  * ・済：現在所有しているものは、分析する
+ * ・済：yahooスクレイピング、1ページ目の件数を見て2ページ目が必要か判定する。
+ * ・投信の処理
  * ・メール通知
  * ・スクリーニング結果をウォッチリストに追加
  * ・通知対象の分析結果を間引く（最も変動が大きいレコードのみに）
@@ -57,6 +58,7 @@ using System.Runtime.ConstrainedExecution;
  * ・所有しているものは、前回購入時より○%以上下がっていたら通知する
  * ・直近が上がっていたら、分析結果全体を通知しない
  * ・購入履歴を通知に出力する。
+ * ・全銘柄登録する
  */
 
 const string _mailAddress = "sadac23@gmail.com";
@@ -64,13 +66,14 @@ const string _password = "1qaz2WSX3edc";
 string _connectionString = ConfigurationManager.ConnectionStrings["OTDB"].ConnectionString;
 string _xlsxFilePath = ConfigurationManager.AppSettings["WatchListFilePath"];
 string _xlsxExecutionFilePath = ConfigurationManager.AppSettings["ExecutionListFilePath"];
+string _alertFilePath = ConfigurationManager.AppSettings["AlertFilePath"];
 
 string _refreshtoken = string.Empty;
 DateTime _masterStartDate = DateTime.Parse("2023/01/01");
 
 var scraper = new Scraper();
 var analyzer = new Analyzer(_connectionString);
-StockInfo stockInfo = null;
+var results = new List<Analyzer.AnalysisResult>();
 
 Console.WriteLine("Hello, World!");
 
@@ -91,7 +94,7 @@ foreach (var watchStock in watchList)
             var startDate = GetStartDate(watchStock.Code);
 
             // 外部サイトの銘柄情報を取得
-            stockInfo = scraper.GetStockInfo(watchStock, startDate, DateTime.Today).Result;
+            StockInfo stockInfo = scraper.GetStockInfo(watchStock, startDate, DateTime.Today).Result;
             //Console.WriteLine(
             //    $"Code: {stockInfo.Code}、" +
             //    $"Classification: {stockInfo.Classification}、" +
@@ -113,6 +116,7 @@ foreach (var watchStock in watchList)
             Analyzer.AnalysisResult result = analyzer.Analize(stockInfo);
 
             // 結果登録
+            results.Add(result);
             ResisterResult(result);
         }
         catch (System.AggregateException ex)
@@ -123,7 +127,9 @@ foreach (var watchStock in watchList)
 }
 
 // アラート通知
-SaveAlert();
+var alert = new Alert(results);
+alert.SaveFile(_alertFilePath);
+//SaveAlert();
 //SaveAlertFrom(stockInfo);
 
 void SaveAlertFrom(StockInfo? stockInfo)
