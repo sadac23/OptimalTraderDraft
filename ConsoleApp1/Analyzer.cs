@@ -129,12 +129,6 @@ internal class Analyzer
             // -7.9%～-7.0%（2week以内の下落幅）
             if (!result.ShouldAlert && (result.VolatilityRate <= -0.070 & result.VolatilityRate >= -0.079) & result.VolatilityTerm <= 2) { result.ShouldAlert = true; }
 
-            // 直近週が下落していない場合はアラートしない
-            if (result.VolatilityRate >= lastFridayIndex) { result.ShouldAlert = false; }
-
-            // ROEが7.99%以下の場合はアラートしない
-            if (item.Roe <= 7.99) { result.ShouldAlert = false; }
-
             // -50.0%以下は株式分割の異常値である可能性が高いためアラートしない
             if (result.VolatilityRate <= -0.500) { result.ShouldAlert = false; }
 
@@ -195,22 +189,27 @@ internal class Analyzer
         /// <summary>
         /// 通知すべきか？
         /// </summary>
-        /// <returns></returns>
-        /// <exception cref="NotImplementedException"></exception>
         internal bool ShouldAlert()
         {
             bool result = false;
 
             foreach (Analyzer.AnalysisResult.PriceVolatility v in this.PriceVolatilities)
             {
-                if (v.ShouldAlert)
-                {
-                    result = true;
-                }
+                if (v.ShouldAlert) result = true;
             }
+
+            // 直近週が下落していない場合は通知しない
+            if (this.PriceVolatilities[0].VolatilityRate < 0) result = false;
+
+            // ROEが8.00%より低い場合はアラートしない
+            if (this.StockInfo.Roe < 8.00) result = false;
+
             return result;
         }
 
+        /// <summary>
+        /// 価格変動
+        /// </summary>
         public class PriceVolatility
         {
             /// <summary>
@@ -252,6 +251,11 @@ internal class Analyzer
         }
     }
 
+    /// <summary>
+    /// 直近の金曜日を取得
+    /// </summary>
+    /// <param name="currentDate"></param>
+    /// <returns></returns>
     internal DateTime GetLastFriday(DateTime currentDate)
     {
         DateTime baseDay = currentDate;

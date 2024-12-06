@@ -50,26 +50,28 @@ using System.Runtime.ConstrainedExecution;
  * ・済：約定履歴を取得する
  * ・済：現在所有しているものは、分析する
  * ・済：yahooスクレイピング、1ページ目の件数を見て2ページ目が必要か判定する。
+ * ・済：購入履歴を通知に出力する。
+ * ・済：直近が上がっていたら、分析結果全体を通知しない
  * ・投信の処理
  * ・メール通知
  * ・スクリーニング結果をウォッチリストに追加
- * ・通知対象の分析結果を間引く（最も変動が大きいレコードのみに）
  * ・自己資本比率の取得
- * ・所有しているものは、前回購入時より○%以上下がっていたら通知する
- * ・直近が上がっていたら、分析結果全体を通知しない
- * ・購入履歴を通知に出力する。
+ * ・所有しているものは、前回購入時より下がっていたら通知する
  * ・全銘柄登録する
+ * ・ETFの株探取得がうまくできていない
+ * ・時価総額の足きり
+ * ・ウォッチの削除フラグが見れてない
  */
 
 const string _mailAddress = "sadac23@gmail.com";
 const string _password = "1qaz2WSX3edc";
-string _connectionString = ConfigurationManager.ConnectionStrings["OTDB"].ConnectionString;
-string _xlsxFilePath = ConfigurationManager.AppSettings["WatchListFilePath"];
-string _xlsxExecutionFilePath = ConfigurationManager.AppSettings["ExecutionListFilePath"];
-string _alertFilePath = ConfigurationManager.AppSettings["AlertFilePath"];
-
 string _refreshtoken = string.Empty;
-DateTime _masterStartDate = DateTime.Parse("2023/01/01");
+
+var _connectionString = ConfigurationManager.ConnectionStrings["OTDB"].ConnectionString;
+var _xlsxFilePath = ConfigurationManager.AppSettings["WatchListFilePath"];
+var _xlsxExecutionFilePath = ConfigurationManager.AppSettings["ExecutionListFilePath"];
+var _alertFilePath = ConfigurationManager.AppSettings["AlertFilePath"];
+var _masterStartDate = DateTime.Parse("2023/01/01");
 
 var scraper = new Scraper();
 var analyzer = new Analyzer(_connectionString);
@@ -78,14 +80,18 @@ var results = new List<Analyzer.AnalysisResult>();
 Console.WriteLine("Hello, World!");
 
 // 約定履歴取得
-List<ExecutionList.ListDetail> executionList = ExecutionList.GetXlsxExecutionStockList(_xlsxExecutionFilePath);
+var executionList = ExecutionList.GetXlsxExecutionStockList(_xlsxExecutionFilePath);
 
 // ウォッチリスト取得
-List<WatchList.WatchStock> watchList = WatchList.GetXlsxWatchStockList(_xlsxFilePath, executionList);
+var watchList = WatchList.GetXlsxWatchStockList(_xlsxFilePath, executionList);
 
 // ウォッチ銘柄を処理
 foreach (var watchStock in watchList)
 {
+    // 削除日が入っていたらスキップ
+    if (watchStock.DeleteDate != string.Empty) break;
+
+    // 個別 or ETF
     if (watchStock.Classification == "1" || watchStock.Classification == "2")
     {
         try
@@ -94,26 +100,16 @@ foreach (var watchStock in watchList)
             var startDate = GetStartDate(watchStock.Code);
 
             // 外部サイトの銘柄情報を取得
-            StockInfo stockInfo = scraper.GetStockInfo(watchStock, startDate, DateTime.Today).Result;
-            //Console.WriteLine(
-            //    $"Code: {stockInfo.Code}、" +
-            //    $"Classification: {stockInfo.Classification}、" +
-            //    $"Name: {stockInfo.Name}、" +
-            //    $"Roe: {stockInfo.Roe}、" +
-            //    $"Per: {stockInfo.Per}、" +
-            //    $"Pbr: {stockInfo.Pbr}、" +
-            //    $"DividendYield: {stockInfo.DividendYield}、" +
-            //    $"MarginBalanceRatio: {stockInfo.MarginBalanceRatio}、" +
-            //    $"MarketCap: {stockInfo.MarketCap}"
-            //    );
+            var stockInfo = scraper.GetStockInfo(watchStock, startDate, DateTime.Today).Result;
 
+            // 約定履歴を取得
             stockInfo.Executions = ExecutionList.GetExecutions(executionList, stockInfo.Code);
 
             // 株価履歴更新
             UpdateMaster(stockInfo);
 
             // 分析
-            Analyzer.AnalysisResult result = analyzer.Analize(stockInfo);
+            var result = analyzer.Analize(stockInfo);
 
             // 結果登録
             results.Add(result);
@@ -129,149 +125,6 @@ foreach (var watchStock in watchList)
 // アラート通知
 var alert = new Alert(results);
 alert.SaveFile(_alertFilePath);
-//SaveAlert();
-//SaveAlertFrom(stockInfo);
-
-void SaveAlertFrom(StockInfo? stockInfo)
-{
-    //1928：積水ハウス(株)
-    //利回り：3.64％
-    //通期予想：増収増益増配
-    //時価総額：2兆3,470億円
-    //ROE：10.71
-    //PER：11.0倍
-    //PBR：1.18倍
-    //信用倍率：8.58倍
-    //自己資本比率：40.0%
-    //約定履歴：
-    //買：2024/12/04：2068*300
-    //売：2024/12/05：2068*100
-    //買：2024/12/06：2060*100
-    //変動履歴：
-    //-10.40% (8)：3951→3540(2024/10/04→2024/11/29)
-    //-14.06% (9)：4119→3540(2024/09/27→2024/11/29)
-    //-10.58% (10)：3959→3540(2024/09/20→2024/11/29)
-
-    throw new NotImplementedException();
-}
-
-void SaveAlert()
-{
-    string query = "SELECT * FROM analysis_result WHERE date_string = @date_string and should_alert = @should_alert ORDER BY code, volatility_term";
-
-    using (SQLiteConnection connection = new SQLiteConnection(_connectionString))
-    {
-        connection.Open();
-
-        using (StreamWriter writer = new StreamWriter(ConfigurationManager.AppSettings["AlertFilePath"]))
-        using (SQLiteCommand command = new SQLiteCommand(query, connection))
-        {
-            command.Parameters.AddWithValue("@date_string", DateTime.Today.ToString("yyyyMMdd"));
-            command.Parameters.AddWithValue("@should_alert", 1);
-
-            using (SQLiteDataReader reader = command.ExecuteReader())
-            {
-                //1928：積水ハウス(株)
-                //利回り：3.64％
-                //通期予想：増収増益増配
-                //時価総額：2兆3,470億円
-                //ROE：10.71
-                //PER：11.0倍
-                //PBR：1.18倍
-                //信用倍率：8.58倍
-                //自己資本比率：40.0%
-                //約定履歴：
-                //買：2024/12/04：2068*300
-                //売：2024/12/05：2068*100
-                //買：2024/12/06：2060*100
-                //変動履歴：
-                //-10.40% (8)：3951→3540(2024/10/04→2024/11/29)
-                //-14.06% (9)：4119→3540(2024/09/27→2024/11/29)
-                //-10.58% (10)：3959→3540(2024/09/20→2024/11/29)
-
-                string code = string.Empty;
-                string name = string.Empty;
-                string roe = string.Empty;
-                string per = string.Empty;
-                string pbr = string.Empty;
-                string dividendYield = string.Empty;
-                string marginBalanceRatio = string.Empty;
-                string marketCap = string.Empty;
-                string fullyearPerformanceForcastSummary = string.Empty;
-                int count = 0;
-
-                while (reader.Read())
-                {
-                    // ファイルヘッダー
-                    if (count == 0)
-                    {
-                        writer.WriteLine(reader.GetString("date_string"));
-                    }
-
-                    // コードが変わったらヘッダー出力
-                    if (code != reader.GetString("code"))
-                    {
-                        code = reader.GetString("code");
-                        name = reader.IsDBNull(reader.GetOrdinal("name")) ? null : reader.GetString(reader.GetOrdinal("name"));
-                        roe = reader.IsDBNull(reader.GetOrdinal("roe")) ? null : reader.GetDouble("roe").ToString();
-                        per = reader.IsDBNull(reader.GetOrdinal("per")) ? null : reader.GetString(reader.GetOrdinal("per"));
-                        pbr = reader.IsDBNull(reader.GetOrdinal("pbr")) ? null : reader.GetString(reader.GetOrdinal("pbr"));
-                        dividendYield = reader.IsDBNull(reader.GetOrdinal("dividend_yield")) ? null : reader.GetString(reader.GetOrdinal("dividend_yield"));
-                        marginBalanceRatio = reader.IsDBNull(reader.GetOrdinal("margin_balance_ratio")) ? null : reader.GetString(reader.GetOrdinal("margin_balance_ratio"));
-                        marketCap = reader.IsDBNull(reader.GetOrdinal("market_cap")) ? null : reader.GetString(reader.GetOrdinal("market_cap"));
-                        fullyearPerformanceForcastSummary = reader.IsDBNull(reader.GetOrdinal("fullyear_performance_forcast_summary")) ? null : reader.GetString(reader.GetOrdinal("fullyear_performance_forcast_summary"));
-
-                        writer.WriteLine("");
-                        writer.WriteLine($"{code}：{name}");
-                        writer.WriteLine($"利回り：{dividendYield}");
-                        writer.WriteLine($"通期予想：{fullyearPerformanceForcastSummary}");
-                        writer.WriteLine($"時価総額：{marketCap}");
-                        writer.WriteLine($"ROE：{roe}");
-                        writer.WriteLine($"PER：{per}");
-                        writer.WriteLine($"PBR：{pbr}");
-                        writer.WriteLine($"信用倍率：{marginBalanceRatio}");
-                        writer.WriteLine($"自己資本比率：40.0%");
-                    }
-                    writer.WriteLine($"{ConvertToPercetage(reader.GetDouble("volatility_rate"))}({reader.GetInt32("volatility_term").ToString()})" +
-                        $"：{reader.GetDouble("volatility_rate_index1").ToString()}→{reader.GetDouble("volatility_rate_index2").ToString()}" +
-                        $"({reader.GetDateTime("volatility_rate_index1_date").ToString("yyyy/MM/dd")}→{reader.GetDateTime("volatility_rate_index2_date").ToString("yyyy/MM/dd")})");
-
-                    count++;
-                }
-            }
-        }
-    }
-}
-
-string TrimToByteLength(string? input, int byteLimit)
-{
-    // エンコーディングをUTF8に設定
-    Encoding encoding = Encoding.UTF8;
-
-    // 文字列をバイト配列に変換
-    byte[] bytes = encoding.GetBytes(input);
-
-    // バイト数が制限を超えた場合
-    if (bytes.Length > byteLimit)
-    {
-        // トリムされたバイト配列を作成
-        byte[] trimmedBytes = new byte[byteLimit];
-        Array.Copy(bytes, trimmedBytes, byteLimit);
-
-        // 不完全な文字を防ぐために末尾の不完全バイトを削除
-        string result = encoding.GetString(trimmedBytes);
-        while (result.EndsWith("?"))
-        {
-            result = result.Substring(0, result.Length - 1);
-        }
-        return result;
-    }
-    else
-    {
-        // バイト数が制限内の場合はそのまま文字列を返す
-        return input;
-    }
-}
 
 void ResisterResult(Analyzer.AnalysisResult result)
 {
@@ -412,47 +265,6 @@ DateTime GetStartDate(string code)
     }
 
     return result;
-}
-
-
-void SendAlert()
-{
-    string query = "SELECT * FROM analysis_result WHERE date_string = @date_string and should_alert = @should_alert";
-
-    using (SQLiteConnection connection = new SQLiteConnection(_connectionString))
-    {
-        connection.Open();
-
-        using (SQLiteCommand command = new SQLiteCommand(query, connection))
-        {
-            command.Parameters.AddWithValue("@date_string", DateTime.Today.ToString("yyyyMMdd"));
-            command.Parameters.AddWithValue("@should_alert", 1);
-
-            using (SQLiteDataReader reader = command.ExecuteReader())
-            {
-                while (reader.Read())
-                {
-                    Console.WriteLine($"code: {reader.GetString("code")}, "
-                        + $"date: {reader.GetString("date_string")}, "
-                        + $"term: {reader.GetInt32("volatility_term").ToString()}, "
-                        + $"name: {reader.GetString("name").ToString()}, "
-                        + $"rate: {ConvertToPercetage(reader.GetDouble("volatility_rate"))}, "
-                        + $"index1: {reader.GetDouble("volatility_rate_index1").ToString()}, "
-                        + $"index1date: {reader.GetDouble("volatility_rate_index1_date").ToString()}, "
-                        + $"index2: {reader.GetDouble("volatility_rate_index2").ToString()}, "
-                        + $"index2date: {reader.GetDouble("volatility_rate_index2_date").ToString()}, "
-                        + $"alert: {reader.GetByte("should_alert").ToString()}"
-                        );
-                }
-            }
-        }
-    }
-}
-
-string ConvertToPercetage(double v)
-{
-    // パーセント形式の文字列に変換
-    return (v * 100).ToString("F2") + "%";
 }
 
 void UpdateMaster(StockInfo stockInfo)
