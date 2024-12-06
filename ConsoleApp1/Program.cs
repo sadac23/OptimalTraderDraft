@@ -52,12 +52,12 @@ using System.Runtime.ConstrainedExecution;
  * ・済：yahooスクレイピング、1ページ目の件数を見て2ページ目が必要か判定する。
  * ・済：購入履歴を通知に出力する。
  * ・済：直近が上がっていたら、分析結果全体を通知しない
+ * ・済：全銘柄登録する
  * ・投信の処理
  * ・メール通知
  * ・スクリーニング結果をウォッチリストに追加
  * ・自己資本比率の取得
  * ・所有しているものは、前回購入時より下がっていたら通知する
- * ・全銘柄登録する
  * ・ETFの株探取得がうまくできていない
  * ・時価総額の足きり
  * ・ウォッチの削除フラグが見れてない
@@ -70,7 +70,8 @@ string _refreshtoken = string.Empty;
 var _connectionString = ConfigurationManager.ConnectionStrings["OTDB"].ConnectionString;
 var _xlsxFilePath = ConfigurationManager.AppSettings["WatchListFilePath"];
 var _xlsxExecutionFilePath = ConfigurationManager.AppSettings["ExecutionListFilePath"];
-var _alertFilePath = ConfigurationManager.AppSettings["AlertFilePath"];
+var _alertFilePath = ReplacePlaceholder(ConfigurationManager.AppSettings["AlertFilePath"], "{yyyyMMdd}", DateTime.Today.ToString("yyyyMMdd"));
+
 var _masterStartDate = DateTime.Parse("2023/01/01");
 
 var scraper = new Scraper();
@@ -89,7 +90,7 @@ var watchList = WatchList.GetXlsxWatchStockList(_xlsxFilePath, executionList);
 foreach (var watchStock in watchList)
 {
     // 削除日が入っていたらスキップ
-    if (watchStock.DeleteDate != string.Empty) break;
+    if (watchStock.DeleteDate != string.Empty) continue;
 
     // 個別 or ETF
     if (watchStock.Classification == "1" || watchStock.Classification == "2")
@@ -125,6 +126,15 @@ foreach (var watchStock in watchList)
 // アラート通知
 var alert = new Alert(results);
 alert.SaveFile(_alertFilePath);
+
+string ReplacePlaceholder(string? input, string placeholder, string newValue)
+{
+    if (string.IsNullOrEmpty(input))
+    {
+        throw new ArgumentException("Input cannot be null or empty.", nameof(input));
+    }
+    return input.Replace(placeholder, newValue);
+}
 
 void ResisterResult(Analyzer.AnalysisResult result)
 {

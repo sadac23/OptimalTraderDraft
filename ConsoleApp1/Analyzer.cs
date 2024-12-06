@@ -198,8 +198,8 @@ internal class Analyzer
                 if (v.ShouldAlert) result = true;
             }
 
-            // 直近週が下落していない場合は通知しない
-            if (this.PriceVolatilities[0].VolatilityRate < 0) result = false;
+            // 直近の変動幅が0以上だった場合は通知しない
+            if (this.PriceVolatilities[0].VolatilityRate >= 0) result = false;
 
             // ROEが8.00%より低い場合はアラートしない
             if (this.StockInfo.Roe < 8.00) result = false;
