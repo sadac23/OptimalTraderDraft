@@ -192,23 +192,46 @@ internal class Analyzer
         internal bool ShouldAlert()
         {
             bool result = false;
+            bool hasAnalysisAlert = false;
 
             foreach (Analyzer.AnalysisResult.PriceVolatility v in this.PriceVolatilities)
             {
-                if (v.ShouldAlert) result = true;
+                if (v.ShouldAlert) hasAnalysisAlert = true;
             }
 
-            // 直近の変動幅が0以上だった場合は通知しない
-            if (this.PriceVolatilities[0].VolatilityRate >= 0) result = false;
+            // 所有している場合
+            if (this.StockInfo.IsOwnedNow())
+            {
+                // 通知すべき分析がある場合はtrue
+                if (hasAnalysisAlert) result = true;
 
-            // 利回りが3.00%より低い場合はアラートしない
-            if (this.StockInfo.DividendYield < 0.0300) result = false;
+                // 直近の変動幅が0以上だった場合は通知しない
+                if (this.PriceVolatilities[0].VolatilityRate >= 0) result = false;
+            }
+            // 所有していない場合
+            else
+            {
+                // 通知すべき分析がある場合はtrue
+                if (hasAnalysisAlert) result = true;
 
-            // ROEが8.00%より低い場合はアラートしない
-            if (this.StockInfo.Roe < 8.00) result = false;
+                // 直近の変動幅が0以上だった場合は通知しない
+                if (this.PriceVolatilities[0].VolatilityRate >= 0) result = false;
 
-            // 時価総額が1000億より低い場合はアラートしない
-            if (this.StockInfo.MarketCap < 100000000) result = false;
+                // 利回りが3.00%より低い場合はアラートしない
+                if (this.StockInfo.DividendYield < 0.0300) result = false;
+
+                // ROEが8.00%より低い場合はアラートしない
+                if (this.StockInfo.Roe < 8.00) result = false;
+
+                // PERが15倍より高い場合はアラートしない
+                if (this.StockInfo.Per > 15.00) result = false;
+
+                // PBRが2倍より高い場合はアラートしない
+                if (this.StockInfo.Pbr > 2.00) result = false;
+
+                // 時価総額が1000億より低い場合はアラートしない
+                if (this.StockInfo.MarketCap < 100000000000) result = false;
+            }
 
             return result;
         }

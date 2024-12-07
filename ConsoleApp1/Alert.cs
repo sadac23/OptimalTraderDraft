@@ -54,8 +54,8 @@ internal class Alert
                     writer.WriteLine($"通期予想：{r.StockInfo.FullYearPerformanceForcastSummary}");
                     writer.WriteLine($"時価総額：{ConvertToYenNotation(r.StockInfo.MarketCap)}");
                     writer.WriteLine($"ROE：{r.StockInfo.Roe}");
-                    writer.WriteLine($"PER：{r.StockInfo.Per}");
-                    writer.WriteLine($"PBR：{r.StockInfo.Pbr}");
+                    writer.WriteLine($"PER：{ConvertToMultiplierString(r.StockInfo.Per)}");
+                    writer.WriteLine($"PBR：{ConvertToMultiplierString(r.StockInfo.Pbr)}");
                     writer.WriteLine($"信用倍率：{r.StockInfo.MarginBalanceRatio}");
                     writer.WriteLine($"自己資本比率：40.0%");
 
@@ -84,6 +84,12 @@ internal class Alert
                 }
             }
         }
+    }
+
+    private string ConvertToMultiplierString(double value)
+    {
+        // 小数点以下2桁までの文字列に変換し、"倍"を追加
+        return value.ToString("F2", CultureInfo.InvariantCulture) + "倍";
     }
 
     private string ConvertToPercentage(double value)

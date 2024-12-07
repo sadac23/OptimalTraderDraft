@@ -36,11 +36,11 @@ internal class StockInfo
     /// <summary>
     /// PER
     /// </summary>
-    public string Per { get; internal set; }
+    public double Per { get; internal set; }
     /// <summary>
     /// PBR
     /// </summary>
-    public string Pbr { get; internal set; }
+    public double Pbr { get; internal set; }
     /// <summary>
     /// 利回り
     /// "3.58%"は"0.0358"で保持。
@@ -66,6 +66,26 @@ internal class StockInfo
     /// 約定履歴
     /// </summary>
     public List<ExecutionList.Execution> Executions { get; set; }
+
+    /// <summary>
+    /// 現在、所有しているか？
+    /// </summary>
+    internal bool IsOwnedNow()
+    {
+        var result = false;
+
+        double buy = 0;
+        double sell = 0;
+
+        foreach (var execution in Executions)
+        {
+            if (execution.BuyOrSell == "買") buy += execution.Quantity;
+            if (execution.BuyOrSell == "売") sell += execution.Quantity;
+        }
+        if (buy > sell) result = true;
+
+        return result;
+    }
 
     internal void UpdateFullYearPerformanceForcastSummary()
     {

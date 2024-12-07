@@ -137,8 +137,8 @@ internal class Scraper
                         var pbr = columns[1].InnerText.Trim();
                         var dividendYield = columns[2].InnerText.Trim();
                         var marginBalanceRatio = columns[3].InnerText.Trim();
-                        stockInfo.Per = per;
-                        stockInfo.Pbr = pbr;
+                        stockInfo.Per = ConvertToDoubleForPerPbr(per);
+                        stockInfo.Pbr = ConvertToDoubleForPerPbr(pbr);
                         stockInfo.DividendYield = ConvertToDoubleForDividendYield(dividendYield);
                         stockInfo.MarginBalanceRatio = marginBalanceRatio;
                     }
@@ -194,7 +194,38 @@ internal class Scraper
             }
             stockInfo.UpdateFullYearPerformanceForcastSummary();
         }
+
+        // 自己資本比率の取得（Copilotのスニペット）
+        //// 目的のセルを特定するXPath
+        //var node = htmlDocument.DocumentNode.SelectSingleNode("//tr[th/span[text()='I' and contains(text(),'24.04-09')]]/td[2]");
+        //rows = htmlDocument.DocumentNode.SelectNodes("//div[contains(@class, 'fin_year_t0_d fin_year_result_d')]/table/tbody/tr");
+
+        //if (node != null)
+        //{
+        //    Console.WriteLine("取得した値: " + node.InnerText);
+        //}
+        //else
+        //{
+        //    Console.WriteLine("指定のデータが見つかりませんでした。");
+        //}
+
         return stockInfo;
+    }
+
+    private double ConvertToDoubleForPerPbr(string multiplierString)
+    {
+        // "倍"を除去
+        multiplierString = multiplierString.Replace("倍", "");
+
+        // 文字列をdoubleに変換
+        if (double.TryParse(multiplierString, NumberStyles.Any, CultureInfo.InvariantCulture, out double value))
+        {
+            return value;
+        }
+        else
+        {
+            return 0;
+        }
     }
 
     private double ConvertToDoubleForDividendYield(string percentString)
