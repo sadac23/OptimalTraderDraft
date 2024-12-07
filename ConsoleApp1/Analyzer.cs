@@ -201,8 +201,14 @@ internal class Analyzer
             // 直近の変動幅が0以上だった場合は通知しない
             if (this.PriceVolatilities[0].VolatilityRate >= 0) result = false;
 
+            // 利回りが3.00%より低い場合はアラートしない
+            if (this.StockInfo.DividendYield < 0.0300) result = false;
+
             // ROEが8.00%より低い場合はアラートしない
             if (this.StockInfo.Roe < 8.00) result = false;
+
+            // 時価総額が1000億より低い場合はアラートしない
+            if (this.StockInfo.MarketCap < 100000000) result = false;
 
             return result;
         }

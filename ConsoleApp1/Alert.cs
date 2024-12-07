@@ -3,6 +3,7 @@
 
 using DocumentFormat.OpenXml.Wordprocessing;
 using System.Configuration;
+using System.Globalization;
 using System.Runtime.ConstrainedExecution;
 
 internal class Alert
@@ -49,9 +50,9 @@ internal class Alert
                 {
                     writer.WriteLine("");
                     writer.WriteLine($"{r.StockInfo.Code}：{r.StockInfo.Name}");
-                    writer.WriteLine($"利回り：{r.StockInfo.DividendYield}");
+                    writer.WriteLine($"利回り：{ConvertToPercentage(r.StockInfo.DividendYield)}");
                     writer.WriteLine($"通期予想：{r.StockInfo.FullYearPerformanceForcastSummary}");
-                    writer.WriteLine($"時価総額：{r.StockInfo.MarketCap}");
+                    writer.WriteLine($"時価総額：{ConvertToYenNotation(r.StockInfo.MarketCap)}");
                     writer.WriteLine($"ROE：{r.StockInfo.Roe}");
                     writer.WriteLine($"PER：{r.StockInfo.Per}");
                     writer.WriteLine($"PBR：{r.StockInfo.Pbr}");
@@ -84,6 +85,36 @@ internal class Alert
             }
         }
     }
+
+    private string ConvertToPercentage(double value)
+    {
+        // パーセント形式の文字列に変換
+        return (value * 100).ToString("F2", CultureInfo.InvariantCulture) + "%";
+    }
+
+    private string ConvertToYenNotation(double value)
+    {
+        if (value >= 1_000_000_000_000)
+        {
+            double trillions = Math.Floor(value / 1_000_000_000_000);
+            double billions = (value % 1_000_000_000_000) / 100_000_000;
+            return $"{trillions.ToString("N0", CultureInfo.InvariantCulture)}兆{billions.ToString("N0", CultureInfo.InvariantCulture)}億円";
+        }
+        else if (value >= 100_000_000)
+        {
+            double billions = value / 100_000_000;
+            return $"{billions.ToString("N0", CultureInfo.InvariantCulture)}億円";
+        }
+        else if (value >= 10_000)
+        {
+            return $"{value.ToString("N0", CultureInfo.InvariantCulture)}円";
+        }
+        else
+        {
+            return value.ToString("N0", CultureInfo.InvariantCulture) + "円";
+        }
+    }
+
     internal string ConvertToPercetage(double v)
     {
         // パーセント形式の文字列に変換

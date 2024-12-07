@@ -4,6 +4,7 @@ using HtmlAgilityPack;
 using Microsoft.SqlServer.Server;
 using System.Globalization;
 using System.Security.Policy;
+using System.Transactions;
 using static StockInfo;
 
 internal class Scraper
@@ -138,7 +139,7 @@ internal class Scraper
                         var marginBalanceRatio = columns[3].InnerText.Trim();
                         stockInfo.Per = per;
                         stockInfo.Pbr = pbr;
-                        stockInfo.DividendYield = dividendYield;
+                        stockInfo.DividendYield = ConvertToDoubleForDividendYield(dividendYield);
                         stockInfo.MarginBalanceRatio = marginBalanceRatio;
                     }
                 }
@@ -148,7 +149,7 @@ internal class Scraper
                     if (columns != null && columns.Count > 1)
                     {
                         var marketCap = columns[1].InnerText.Trim();
-                        stockInfo.MarketCap = marketCap;
+                        stockInfo.MarketCap = ConvertToDoubleMarketCap(marketCap);
                     }
 
                 }
@@ -193,8 +194,57 @@ internal class Scraper
             }
             stockInfo.UpdateFullYearPerformanceForcastSummary();
         }
-
         return stockInfo;
+    }
+
+    private double ConvertToDoubleForDividendYield(string percentString)
+    {
+        // パーセント記号を除去
+        percentString = percentString.Replace("％", "");
+
+        // 文字列をdoubleに変換
+        if (double.TryParse(percentString, NumberStyles.Any, CultureInfo.InvariantCulture, out double value))
+        {
+            // パーセントから小数に変換
+            return value / 100.0;
+        }
+        else
+        {
+            return 0;
+        }
+    }
+
+    private double ConvertToDoubleMarketCap(string input)
+    {
+        // 兆、億の値を取得する変数
+        double trillion = 0;
+        double billion = 0;
+
+        // "兆" の位置を探して数値を抽出
+        int trillionIndex = input.IndexOf("兆");
+        if (trillionIndex != -1)
+        {
+            string trillionPart = input.Substring(0, trillionIndex).Replace(",", "");
+            if (double.TryParse(trillionPart, NumberStyles.Any, CultureInfo.InvariantCulture, out double tValue))
+            {
+                trillion = tValue * 1_000_000_000_000;
+            }
+            input = input.Substring(trillionIndex + 1);
+        }
+
+        // "億" の位置を探して数値を抽出
+        int billionIndex = input.IndexOf("億");
+        if (billionIndex != -1)
+        {
+            string billionPart = input.Substring(0, billionIndex).Replace(",", "");
+            if (double.TryParse(billionPart, NumberStyles.Any, CultureInfo.InvariantCulture, out double bValue))
+            {
+                billion = bValue * 100_000_000;
+            }
+        }
+
+        // 合計を計算
+        return trillion + billion;
     }
 
     internal double GetDouble(string v)

@@ -53,26 +53,31 @@ using System.Runtime.ConstrainedExecution;
  * ・済：購入履歴を通知に出力する。
  * ・済：直近が上がっていたら、分析結果全体を通知しない
  * ・済：全銘柄登録する
+ * ・済：ウォッチの削除フラグが見れてない
+ * ・済：時価総額でのフィルター
+ * ・済：利回りでのフィルター
+ * ・済：時価総額の足きり
  * ・投信の処理
  * ・メール通知
  * ・スクリーニング結果をウォッチリストに追加
  * ・自己資本比率の取得
  * ・所有しているものは、前回購入時より下がっていたら通知する
  * ・ETFの株探取得がうまくできていない
- * ・時価総額の足きり
- * ・ウォッチの削除フラグが見れてない
+ * ・DBはキャッシュ利用とし、なければ作成する処理を入れる
+ * ・所有している場合は通知する
  */
 
 const string _mailAddress = "sadac23@gmail.com";
 const string _password = "1qaz2WSX3edc";
 string _refreshtoken = string.Empty;
 
+var _currentDate = DateTime.Today;
+var _masterStartDate = DateTime.Parse("2023/01/01");
+
 var _connectionString = ConfigurationManager.ConnectionStrings["OTDB"].ConnectionString;
 var _xlsxFilePath = ConfigurationManager.AppSettings["WatchListFilePath"];
 var _xlsxExecutionFilePath = ConfigurationManager.AppSettings["ExecutionListFilePath"];
-var _alertFilePath = ReplacePlaceholder(ConfigurationManager.AppSettings["AlertFilePath"], "{yyyyMMdd}", DateTime.Today.ToString("yyyyMMdd"));
-
-var _masterStartDate = DateTime.Parse("2023/01/01");
+var _alertFilePath = ReplacePlaceholder(ConfigurationManager.AppSettings["AlertFilePath"], "{yyyyMMdd}", _currentDate.ToString("yyyyMMdd"));
 
 var scraper = new Scraper();
 var analyzer = new Analyzer(_connectionString);
@@ -101,7 +106,7 @@ foreach (var watchStock in watchList)
             var startDate = GetStartDate(watchStock.Code);
 
             // 外部サイトの銘柄情報を取得
-            var stockInfo = scraper.GetStockInfo(watchStock, startDate, DateTime.Today).Result;
+            var stockInfo = scraper.GetStockInfo(watchStock, startDate, _currentDate).Result;
 
             // 約定履歴を取得
             stockInfo.Executions = ExecutionList.GetExecutions(executionList, stockInfo.Code);
@@ -151,7 +156,7 @@ void ResisterResult(Analyzer.AnalysisResult result)
             {
                 // パラメータを設定
                 command.Parameters.AddWithValue("@code", result.StockInfo.Code);
-                command.Parameters.AddWithValue("@date_string", DateTime.Today.ToString("yyyyMMdd"));
+                command.Parameters.AddWithValue("@date_string", _currentDate.ToString("yyyyMMdd"));
                 command.Parameters.AddWithValue("@volatility_term", r.VolatilityTerm);
 
                 // クエリを実行
@@ -214,8 +219,8 @@ void ResisterResult(Analyzer.AnalysisResult result)
             {
                 // パラメータを設定
                 command.Parameters.AddWithValue("@code", result.StockInfo.Code);
-                command.Parameters.AddWithValue("@date_string", DateTime.Today.ToString("yyyyMMdd"));
-                command.Parameters.AddWithValue("@date", DateTime.Today);
+                command.Parameters.AddWithValue("@date_string", _currentDate.ToString("yyyyMMdd"));
+                command.Parameters.AddWithValue("@date", _currentDate);
                 command.Parameters.AddWithValue("@name", result.StockInfo.Name);
                 command.Parameters.AddWithValue("@volatility_rate", r.VolatilityRate);
                 command.Parameters.AddWithValue("@volatility_rate_index1", r.VolatilityRateIndex1);

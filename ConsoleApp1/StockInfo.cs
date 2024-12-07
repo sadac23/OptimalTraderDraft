@@ -43,8 +43,9 @@ internal class StockInfo
     public string Pbr { get; internal set; }
     /// <summary>
     /// 利回り
+    /// "3.58%"は"0.0358"で保持。
     /// </summary>
-    public string DividendYield { get; internal set; }
+    public double DividendYield { get; internal set; }
     /// <summary>
     /// 信用倍率
     /// </summary>
@@ -52,7 +53,7 @@ internal class StockInfo
     /// <summary>
     /// 時価総額
     /// </summary>
-    public string MarketCap { get; internal set; }
+    public double MarketCap { get; internal set; }
     /// <summary>
     /// 通期業績履歴
     /// </summary>
