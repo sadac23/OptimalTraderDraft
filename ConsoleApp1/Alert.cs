@@ -61,7 +61,7 @@ internal class Alert
                     writer.WriteLine($"PER：{ConvertToMultiplierString(r.StockInfo.Per)}");
                     writer.WriteLine($"PBR：{ConvertToMultiplierString(r.StockInfo.Pbr)}");
                     writer.WriteLine($"信用倍率：{r.StockInfo.MarginBalanceRatio}");
-                    writer.WriteLine($"自己資本比率：40.0%");
+                    writer.WriteLine($"自己資本比率：{r.StockInfo.EquityRatio}");
 
                     short count = 0;
                     foreach (ExecutionList.Execution e in r.StockInfo.Executions)

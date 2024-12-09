@@ -195,19 +195,74 @@ internal class Scraper
             stockInfo.UpdateFullYearPerformanceForcastSummary();
         }
 
-        // 自己資本比率の取得（Copilotのスニペット）
-        //// 目的のセルを特定するXPath
-        //var node = htmlDocument.DocumentNode.SelectSingleNode("//tr[th/span[text()='I' and contains(text(),'24.04-09')]]/td[2]");
-        //rows = htmlDocument.DocumentNode.SelectNodes("//div[contains(@class, 'fin_year_t0_d fin_year_result_d')]/table/tbody/tr");
+        /* 自己資本比率 */
 
-        //if (node != null)
-        //{
-        //    Console.WriteLine("取得した値: " + node.InnerText);
-        //}
-        //else
-        //{
-        //    Console.WriteLine("指定のデータが見つかりませんでした。");
-        //}
+        // 指定されたヘッダータイトル
+        string[] requiredHeaders = new string[]
+        {
+            "決算期",
+            "１株純資産",
+            "自己資本比率",
+            "総資産",
+            "自己資本",
+            "剰余金",
+            "有利子負債倍率",
+            "発表日"
+        };
+
+        // すべてのテーブルを取得
+        var tables = htmlDocument.DocumentNode.SelectNodes("//table");
+
+        HtmlNodeCollection targetRows = null;
+
+        foreach (var table in tables)
+        {
+            var headerRow = table.SelectSingleNode(".//tr[1]");
+            if (headerRow != null)
+            {
+                var headerNodes = headerRow.SelectNodes("th");
+                List<string> headers = new List<string>();
+
+                // thが取得できないとき
+                if (headerNodes == null) continue; 
+
+                foreach (var th in headerNodes)
+                {
+                    headers.Add(th.InnerText.Trim());
+                }
+
+                bool allHeadersPresent = true;
+                foreach (var requiredHeader in requiredHeaders)
+                {
+                    if (!headers.Contains(requiredHeader))
+                    {
+                        allHeadersPresent = false;
+                        break;
+                    }
+                }
+
+                if (allHeadersPresent)
+                {
+                    // ヘッダー行以外のすべての行を取得
+                    targetRows = table.SelectNodes(".//tr[position() > 1]");
+                    break;
+                }
+            }
+        }
+
+        if (targetRows != null)
+        {
+            foreach (var row in targetRows)
+            {
+                var columns = row.SelectNodes("td|th");
+
+                if (columns != null && columns.Count >= 8)
+                {
+                    var equityRatio = columns[2].InnerText.Trim();
+                    stockInfo.EquityRatio = equityRatio;
+                }
+            }
+        }
 
         return stockInfo;
     }

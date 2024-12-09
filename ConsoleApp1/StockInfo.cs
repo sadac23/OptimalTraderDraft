@@ -73,6 +73,7 @@ internal class StockInfo
     /// </summary>
     public bool IsFavorite { get; set; }
     public string Memo { get; private set; }
+    public string EquityRatio { get; internal set; }
 
     /// <summary>
     /// 現在、所有しているか？
