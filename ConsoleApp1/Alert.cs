@@ -22,6 +22,7 @@ internal class Alert
     internal void SaveFile(string alertFilePath)
     {
         //1928：積水ハウス(株)
+        //株価：2024/11/29：1234
         //利回り：3.64％
         //通期予想：増収増益増配
         //時価総額：2兆3,470億円
@@ -31,13 +32,15 @@ internal class Alert
         //信用倍率：8.58倍
         //自己資本比率：40.0%
         //約定履歴：
-        //買：2024/12/04：2068*300
-        //売：2024/12/05：2068*100
-        //買：2024/12/06：2060*100
+        //買：2024/12/04：2068*300：-10.40%
+        //売：2024/12/05：2068*100：-10.40%
+        //買：2024/12/06：2060*100：-10.40%
         //変動履歴：
-        //-10.40% (8)：3951→3540(2024/10/04→2024/11/29)
-        //-14.06% (9)：4119→3540(2024/09/27→2024/11/29)
-        //-10.58% (10)：3959→3540(2024/09/20→2024/11/29)
+        //2024/10/04：3951：-10.40% (8)
+        //2024/09/27：4119：-10.40% (9)
+        //2024/09/20：3959：-10.40% (10)
+        //メモ：
+        //ほげほげほげほげほげ。
 
         using (StreamWriter writer = new StreamWriter(alertFilePath))
         {
@@ -50,6 +53,7 @@ internal class Alert
                 {
                     writer.WriteLine("");
                     writer.WriteLine($"{r.StockInfo.Code}：{r.StockInfo.Name}");
+                    writer.WriteLine($"株価：{r.StockInfo.Prices[0].Date.ToString("yyyy/MM/dd")}：{r.StockInfo.Prices[0].Close}");
                     writer.WriteLine($"利回り：{ConvertToPercentage(r.StockInfo.DividendYield)}");
                     writer.WriteLine($"通期予想：{r.StockInfo.FullYearPerformanceForcastSummary}");
                     writer.WriteLine($"時価総額：{ConvertToYenNotation(r.StockInfo.MarketCap)}");
@@ -63,7 +67,7 @@ internal class Alert
                     foreach (ExecutionList.Execution e in r.StockInfo.Executions)
                     {
                         if (count == 0) writer.WriteLine($"約定履歴：");
-                        writer.WriteLine($"{e.BuyOrSell}：{e.Date.ToString("yyyy/MM/dd")}：{e.Price}*{e.Quantity}");
+                        writer.WriteLine($"{e.BuyOrSell}：{e.Date.ToString("yyyy/MM/dd")}：{e.Price}*{e.Quantity}：{ConvertToPercentage((r.StockInfo.Prices[0].Close / e.Price) - 1)}");
                         count++;
                     }
 
@@ -73,13 +77,17 @@ internal class Alert
                         if (p.ShouldAlert)
                         {
                             if (count == 0) writer.WriteLine($"変動履歴：");
-                            writer.WriteLine(
-                                $"{ConvertToPercetage(p.VolatilityRate)}({p.VolatilityTerm})" +
-                                $"：{p.VolatilityRateIndex1}→{p.VolatilityRateIndex2}" +
-                                $"({p.VolatilityRateIndex1Date.ToString("yyyy/MM/dd")}→{p.VolatilityRateIndex2Date.ToString("yyyy/MM/dd")})"
-                                );
+                            writer.WriteLine($"{p.VolatilityRateIndex1Date.ToString("yyyy/MM/dd")}：{p.VolatilityRateIndex1}：{ConvertToPercentage(p.VolatilityRate)}({p.VolatilityTerm})");
                             count++;
                         }
+                    }
+
+                    if (r.StockInfo.Memo != string.Empty)
+                    {
+                        //メモ：
+                        //ほげほげほげほげほげ。
+                        writer.WriteLine($"メモ：");
+                        writer.WriteLine(r.StockInfo.Memo);
                     }
                 }
             }
@@ -121,10 +129,5 @@ internal class Alert
         }
     }
 
-    internal string ConvertToPercetage(double v)
-    {
-        // パーセント形式の文字列に変換
-        return (v * 100).ToString("F2") + "%";
-    }
-
+    
 }

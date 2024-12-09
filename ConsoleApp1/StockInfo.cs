@@ -6,10 +6,12 @@ using System.Text.RegularExpressions;
 
 internal class StockInfo
 {
-    public StockInfo(string code, string classification)
+    public StockInfo(WatchList.WatchStock watchStock)
     {
-        Code = code;
-        Classification = classification;
+        Code = watchStock.Code;
+        Classification = watchStock.Classification;
+        IsFavorite = watchStock.IsFavorite == "1" ? true : false;
+        Memo = watchStock.Memo;
         Prices = new List<StockInfo.Price>();
         FullYearPerformances = new List<StockInfo.FullYearPerformance>();
     }
@@ -66,6 +68,11 @@ internal class StockInfo
     /// 約定履歴
     /// </summary>
     public List<ExecutionList.Execution> Executions { get; set; }
+    /// <summary>
+    /// お気に入りか？
+    /// </summary>
+    public bool IsFavorite { get; set; }
+    public string Memo { get; private set; }
 
     /// <summary>
     /// 現在、所有しているか？

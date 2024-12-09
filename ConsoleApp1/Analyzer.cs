@@ -205,17 +205,24 @@ internal class Analyzer
                 // 通知すべき分析がある場合はtrue
                 if (hasAnalysisAlert) result = true;
 
-                // 直近の変動幅が0以上だった場合は通知しない
-                if (this.PriceVolatilities[0].VolatilityRate >= 0) result = false;
+                // 直近の変動幅が0より大きい場合は通知しない
+                if (this.PriceVolatilities[0].VolatilityRate > 0) result = false;
             }
-            // 所有していない場合
-            else
+            // お気に入りの場合
+            else if (this.StockInfo.IsFavorite)
             {
+                // 強制通知
+                result = true;
+
+            }
+            // 所有していなくてお気に入りでもない場合
+            else
+                    {
                 // 通知すべき分析がある場合はtrue
                 if (hasAnalysisAlert) result = true;
 
-                // 直近の変動幅が0以上だった場合は通知しない
-                if (this.PriceVolatilities[0].VolatilityRate >= 0) result = false;
+                // 直近の変動幅が0より大きい場合は通知しない
+                if (this.PriceVolatilities[0].VolatilityRate > 0) result = false;
 
                 // 利回りが3.00%より低い場合はアラートしない
                 if (this.StockInfo.DividendYield < 0.0300) result = false;

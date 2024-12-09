@@ -69,8 +69,9 @@ internal class WatchList
                         Code = row.Cell(3).Value.ToString(),
                         Name = row.Cell(4).Value.ToString(),
                         Classification = row.Cell(5).Value.ToString(),
-                        DeleteDate = row.Cell(7).Value.ToString(),
-                        Memo = row.Cell(8).Value.ToString(),
+                        IsFavorite = row.Cell(6).Value.ToString(),
+                        DeleteDate = row.Cell(8).Value.ToString(),
+                        Memo = row.Cell(9).Value.ToString(),
                     };
                     results.Add(data);
                 }
@@ -117,7 +118,11 @@ internal class WatchList
         public string Code { get; set; }
         public string Name { get; set; }
         public string DeleteDate { get; set; }
+        /// <summary>
+        /// 1:日本個別、2:日本ETF、3:日本投信、4:米国ETF
+        /// </summary>
         public string Classification { get; set; }
+        public string IsFavorite { get; set; }
         public string Memo { get; internal set; }
     }
 

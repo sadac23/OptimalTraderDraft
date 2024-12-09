@@ -21,7 +21,7 @@ internal class Scraper
 
     internal async Task<StockInfo> GetStockInfo(WatchList.WatchStock watchStock, DateTime from, DateTime to)
     {
-        var stockInfo = new StockInfo(watchStock.Code, watchStock.Classification);
+        var stockInfo = new StockInfo(watchStock);
         var httpClient = new HttpClient();
         var htmlDocument = new HtmlDocument();
 
