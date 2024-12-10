@@ -61,7 +61,7 @@ internal class StockInfo
     /// </summary>
     public List<FullYearPerformance> FullYearPerformances { get; internal set; }
     /// <summary>
-    /// 通期業績予想概要（例：増収増益増配）
+    /// 通期業績予想概要（例：増収増益増配（+50%+50%+50））
     /// </summary>
     public string FullYearPerformanceForcastSummary { get; internal set; }
     /// <summary>
@@ -107,9 +107,78 @@ internal class StockInfo
             // 最後から2件前の値（今期）
             var lastValue = this.FullYearPerformances[this.FullYearPerformances.Count - 2];
 
+            // "増収増益増配（+50%+50%+50）"
             this.FullYearPerformanceForcastSummary += GetRevenueIncreasedSummary(lastValue.Revenue, secondLastValue.Revenue);
             this.FullYearPerformanceForcastSummary += GetOrdinaryIncomeIncreasedSummary(lastValue.OrdinaryIncome, secondLastValue.OrdinaryIncome);
             this.FullYearPerformanceForcastSummary += GetDividendPerShareIncreasedSummary(lastValue.AdjustedDividendPerShare, secondLastValue.AdjustedDividendPerShare);
+            this.FullYearPerformanceForcastSummary += $"（{GetIncreasedRate(lastValue.Revenue, secondLastValue.Revenue)}";
+            this.FullYearPerformanceForcastSummary += $"{GetIncreasedRate(lastValue.OrdinaryIncome, secondLastValue.OrdinaryIncome)}";
+            this.FullYearPerformanceForcastSummary += $"{GetDividendPerShareIncreased(lastValue.AdjustedDividendPerShare, secondLastValue.AdjustedDividendPerShare)}）";
+        }
+    }
+
+    private string GetDividendPerShareIncreased(string adjustedDividendPerShare1, string adjustedDividendPerShare2)
+    {
+        try
+        {
+            // パースに成功したら判定
+            if (double.TryParse(adjustedDividendPerShare1, out double result1) && double.TryParse(adjustedDividendPerShare2, out double result2))
+            {
+                return ConvertToStringWithSign(result1 - result2);
+            }
+            else
+            {
+                return "？";
+            }
+        }
+        catch (Exception ex)
+        {
+            return "？";
+        }
+    }
+
+    private string GetIncreasedRate(string lastValue, string secondLastValue)
+    {
+        try
+        {
+            // パースに成功したら判定
+            if (double.TryParse(lastValue, out double result1) && double.TryParse(secondLastValue, out double result2))
+            {
+                return ConvertToPercentageStringWithSign((result1 / result2) - 1);
+            }
+            else
+            {
+                return "？";
+            }
+        }
+        catch (Exception ex)
+        {
+            return "？";
+        }
+    }
+
+    private string ConvertToPercentageStringWithSign(double v)
+    {
+        double percentage = v * 100;
+        if (percentage >= 0)
+        {
+            return "+" + percentage.ToString("0.0") + "%";
+        }
+        else
+        {
+            return percentage.ToString("0.0") + "%";
+        }
+    }
+
+    private string ConvertToStringWithSign(double number)
+    {
+        if (number >= 0)
+        {
+            return "+" + number.ToString();
+        }
+        else
+        {
+            return number.ToString();
         }
     }
 
