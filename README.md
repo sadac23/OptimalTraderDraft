@@ -1,3 +1,6 @@
 # OptimalTraderDraft
 検証用リポジトリ
-・スマホから編集テスト
+・VS2022
+・C#コンソールアプリケーション
+・Sqlite
+・Excel
