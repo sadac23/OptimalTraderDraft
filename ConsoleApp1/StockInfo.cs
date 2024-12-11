@@ -74,6 +74,30 @@ internal class StockInfo
     public bool IsFavorite { get; set; }
     public string Memo { get; private set; }
     public string EquityRatio { get; internal set; }
+    /// <summary>
+    /// 配当性向
+    /// </summary>
+    public string DividendPayoutRatio { get; internal set; }
+    /// <summary>
+    /// 配当権利確定月
+    /// </summary>
+    public string DividendRecordDateMonth { get; internal set; }
+    /// <summary>
+    /// 優待利回り
+    /// </summary>
+    public string ShareholderBenefitYield { get; internal set; }
+    /// <summary>
+    /// 優待発生株数
+    /// </summary>
+    public string NumberOfSharesRequiredForBenefits { get; internal set; }
+    /// <summary>
+    /// 優待権利確定月
+    /// </summary>
+    public string ShareholderBenefitRecordDateMonth { get; internal set; }
+    /// <summary>
+    /// 優待内容
+    /// </summary>
+    public string ShareholderBenefitsDetails { get; internal set; }
 
     /// <summary>
     /// 現在、所有しているか？
@@ -112,8 +136,8 @@ internal class StockInfo
             this.FullYearPerformanceForcastSummary += GetOrdinaryIncomeIncreasedSummary(lastValue.OrdinaryIncome, secondLastValue.OrdinaryIncome);
             this.FullYearPerformanceForcastSummary += GetDividendPerShareIncreasedSummary(lastValue.AdjustedDividendPerShare, secondLastValue.AdjustedDividendPerShare);
             this.FullYearPerformanceForcastSummary += $"（{GetIncreasedRate(lastValue.Revenue, secondLastValue.Revenue)}";
-            this.FullYearPerformanceForcastSummary += $"{GetIncreasedRate(lastValue.OrdinaryIncome, secondLastValue.OrdinaryIncome)}";
-            this.FullYearPerformanceForcastSummary += $"{GetDividendPerShareIncreased(lastValue.AdjustedDividendPerShare, secondLastValue.AdjustedDividendPerShare)}）";
+            this.FullYearPerformanceForcastSummary += $",{GetIncreasedRate(lastValue.OrdinaryIncome, secondLastValue.OrdinaryIncome)}";
+            this.FullYearPerformanceForcastSummary += $",{GetDividendPerShareIncreased(lastValue.AdjustedDividendPerShare, secondLastValue.AdjustedDividendPerShare)}）";
         }
     }
 

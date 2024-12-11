@@ -23,9 +23,9 @@ internal class Alert
     {
         //1928：積水ハウス(株)
         //株価：2024/11/29：1234
-        //配当利回り：3.64％（50%、5月, 11月）
-        //優待利回り：3.64％（QUOカード）
-        //通期予想：増収増益増配（+50%+50%+50）
+        //配当利回り：3.64％（50%, 5月, 11月）
+        //優待利回り：3.64％（QUOカード, 100株, 5月, 11月）
+        //通期予想：増収増益増配（+50%, +50%, +50）
         //時価総額：2兆3,470億円
         //ROE：10.71
         //PER：11.0倍
@@ -55,7 +55,9 @@ internal class Alert
                     writer.WriteLine("");
                     writer.WriteLine($"{r.StockInfo.Code}：{r.StockInfo.Name}");
                     writer.WriteLine($"株価：{r.StockInfo.Prices[0].Date.ToString("yyyy/MM/dd")}：{r.StockInfo.Prices[0].Close}");
-                    writer.WriteLine($"利回り：{ConvertToPercentage(r.StockInfo.DividendYield)}");
+                    writer.WriteLine($"配当利回り：{ConvertToPercentage(r.StockInfo.DividendYield)}（{r.StockInfo.DividendPayoutRatio},{r.StockInfo.DividendRecordDateMonth}）");
+                    if (!string.IsNullOrEmpty(r.StockInfo.ShareholderBenefitsDetails))
+                        writer.WriteLine($"優待利回り：{r.StockInfo.ShareholderBenefitYield}（{r.StockInfo.ShareholderBenefitsDetails},{r.StockInfo.NumberOfSharesRequiredForBenefits},{r.StockInfo.ShareholderBenefitRecordDateMonth}）");
                     writer.WriteLine($"通期予想：{r.StockInfo.FullYearPerformanceForcastSummary}");
                     writer.WriteLine($"時価総額：{ConvertToYenNotation(r.StockInfo.MarketCap)}");
                     writer.WriteLine($"ROE：{r.StockInfo.Roe}");
@@ -86,7 +88,6 @@ internal class Alert
                     if (r.StockInfo.Memo != string.Empty)
                     {
                         //メモ：
-                        //ほげほげほげほげほげ。
                         writer.WriteLine($"メモ：");
                         writer.WriteLine(r.StockInfo.Memo);
                     }
