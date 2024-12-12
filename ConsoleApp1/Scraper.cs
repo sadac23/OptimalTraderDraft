@@ -194,10 +194,11 @@ internal class Scraper
                         AnnouncementDate=announcementDate,
                     };
 
-                    stockInfo.FullYearPerformances.Add( p );
+                    stockInfo.FullYearPerformances.Add(p);
                 }
             }
             stockInfo.UpdateFullYearPerformanceForcastSummary();
+            stockInfo.UpdateDividendPayoutRatio();
         }
 
         // 自己資本比率
@@ -301,7 +302,8 @@ internal class Scraper
                     if (columns != null && columns.Count >= 2)
                     {
                         var dividendPayoutRatio = columns[1].InnerText.Trim();
-                        stockInfo.DividendPayoutRatio = dividendPayoutRatio;
+                        // 前期の情報であるため採用しない
+                        //stockInfo.DividendPayoutRatio = dividendPayoutRatio;
                     }
                 }
                 // 配当権利確定月

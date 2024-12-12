@@ -61,7 +61,7 @@ internal class StockInfo
     /// </summary>
     public List<FullYearPerformance> FullYearPerformances { get; internal set; }
     /// <summary>
-    /// 通期業績予想概要（例：増収増益増配（+50%+50%+50））
+    /// 通期業績予想概要（例：増収増益増配（+50%,+50%,+50））
     /// </summary>
     public string FullYearPerformanceForcastSummary { get; internal set; }
     /// <summary>
@@ -76,14 +76,16 @@ internal class StockInfo
     public string EquityRatio { get; internal set; }
     /// <summary>
     /// 配当性向
+    /// "3.58%"は"0.0358"で保持。
     /// </summary>
-    public string DividendPayoutRatio { get; internal set; }
+    public double DividendPayoutRatio { get; internal set; }
     /// <summary>
     /// 配当権利確定月
     /// </summary>
     public string DividendRecordDateMonth { get; internal set; }
     /// <summary>
     /// 優待利回り
+    /// "3.58%"は"0.0358"で保持。
     /// </summary>
     public double ShareholderBenefitYield { get; internal set; }
     /// <summary>
@@ -123,21 +125,41 @@ internal class StockInfo
     {
         this.FullYearPerformanceForcastSummary = string.Empty;
 
-        // リストの件数が2件以上あるか確認
-        if (this.FullYearPerformances.Count >= 2)
+        // リストの件数が3件以上あるか確認
+        if (this.FullYearPerformances.Count >= 3)
         {
             // 最後から3件前の値（前期）
             var secondLastValue = this.FullYearPerformances[this.FullYearPerformances.Count - 3];
             // 最後から2件前の値（今期）
             var lastValue = this.FullYearPerformances[this.FullYearPerformances.Count - 2];
 
-            // "増収増益増配（+50%+50%+50）"
+            // "増収増益増配（+50%,+50%,+50）"
             this.FullYearPerformanceForcastSummary += GetRevenueIncreasedSummary(lastValue.Revenue, secondLastValue.Revenue);
             this.FullYearPerformanceForcastSummary += GetOrdinaryIncomeIncreasedSummary(lastValue.OrdinaryIncome, secondLastValue.OrdinaryIncome);
             this.FullYearPerformanceForcastSummary += GetDividendPerShareIncreasedSummary(lastValue.AdjustedDividendPerShare, secondLastValue.AdjustedDividendPerShare);
             this.FullYearPerformanceForcastSummary += $"（{GetIncreasedRate(lastValue.Revenue, secondLastValue.Revenue)}";
             this.FullYearPerformanceForcastSummary += $",{GetIncreasedRate(lastValue.OrdinaryIncome, secondLastValue.OrdinaryIncome)}";
             this.FullYearPerformanceForcastSummary += $",{GetDividendPerShareIncreased(lastValue.AdjustedDividendPerShare, secondLastValue.AdjustedDividendPerShare)}）";
+        }
+    }
+
+    private double GetDividendPayoutRatio(string adjustedDividendPerShare, string adjustedEarningsPerShare)
+    {
+        try
+        {
+            // パースに成功したら判定
+            if (double.TryParse(adjustedDividendPerShare, out double result1) && double.TryParse(adjustedEarningsPerShare, out double result2))
+            {
+                return result1 / result2;
+            }
+            else
+            {
+                return 0;
+            }
+        }
+        catch (Exception ex)
+        {
+            return 0;
         }
     }
 
@@ -148,7 +170,7 @@ internal class StockInfo
             // パースに成功したら判定
             if (double.TryParse(adjustedDividendPerShare1, out double result1) && double.TryParse(adjustedDividendPerShare2, out double result2))
             {
-                return ConvertToStringWithSign(result1 - result2);
+                return ConvertToStringWithSign(Math.Floor(result1 - result2));
             }
             else
             {
@@ -288,6 +310,21 @@ internal class StockInfo
         catch (Exception ex)
         {
             return "？収";
+        }
+    }
+
+    internal void UpdateDividendPayoutRatio()
+    {
+        this.DividendPayoutRatio = 0;
+
+        // リストの件数が2件以上あるか確認
+        if (this.FullYearPerformances.Count >= 2)
+        {
+            // 最後から2件前の値（今期）
+            var lastValue = this.FullYearPerformances[this.FullYearPerformances.Count - 2];
+
+            //  今期レコードより配当性向を算出
+            this.DividendPayoutRatio = GetDividendPayoutRatio(lastValue.AdjustedDividendPerShare, lastValue.AdjustedEarningsPerShare);
         }
     }
 
