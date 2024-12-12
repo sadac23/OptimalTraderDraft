@@ -225,7 +225,7 @@ internal class Analyzer
                 if (this.PriceVolatilities[0].VolatilityRate > 0) result = false;
 
                 // 利回りが3.00%より低い場合はアラートしない
-                if (this.StockInfo.DividendYield < 0.0300) result = false;
+                if ((this.StockInfo.DividendYield + this.StockInfo.ShareholderBenefitYield) < 0.0300) result = false;
 
                 // ROEが8.00%より低い場合はアラートしない
                 if (this.StockInfo.Roe < 8.00) result = false;

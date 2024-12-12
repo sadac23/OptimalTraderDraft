@@ -85,7 +85,7 @@ internal class StockInfo
     /// <summary>
     /// 優待利回り
     /// </summary>
-    public string ShareholderBenefitYield { get; internal set; }
+    public double ShareholderBenefitYield { get; internal set; }
     /// <summary>
     /// 優待発生株数
     /// </summary>

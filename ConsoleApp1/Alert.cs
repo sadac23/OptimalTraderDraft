@@ -57,7 +57,7 @@ internal class Alert
                     writer.WriteLine($"株価：{r.StockInfo.Prices[0].Date.ToString("yyyy/MM/dd")}：{r.StockInfo.Prices[0].Close}");
                     writer.WriteLine($"配当利回り：{ConvertToPercentage(r.StockInfo.DividendYield)}（{r.StockInfo.DividendPayoutRatio},{r.StockInfo.DividendRecordDateMonth}）");
                     if (!string.IsNullOrEmpty(r.StockInfo.ShareholderBenefitsDetails))
-                        writer.WriteLine($"優待利回り：{r.StockInfo.ShareholderBenefitYield}（{r.StockInfo.ShareholderBenefitsDetails},{r.StockInfo.NumberOfSharesRequiredForBenefits},{r.StockInfo.ShareholderBenefitRecordDateMonth}）");
+                        writer.WriteLine($"優待利回り：{ConvertToPercentage(r.StockInfo.ShareholderBenefitYield)}（{r.StockInfo.ShareholderBenefitsDetails},{r.StockInfo.NumberOfSharesRequiredForBenefits},{r.StockInfo.ShareholderBenefitRecordDateMonth}）");
                     writer.WriteLine($"通期予想：{r.StockInfo.FullYearPerformanceForcastSummary}");
                     writer.WriteLine($"時価総額：{ConvertToYenNotation(r.StockInfo.MarketCap)}");
                     writer.WriteLine($"ROE：{r.StockInfo.Roe}");

@@ -144,7 +144,7 @@ internal class Scraper
                         var marginBalanceRatio = columns[3].InnerText.Trim();
                         stockInfo.Per = ConvertToDoubleForPerPbr(per);
                         stockInfo.Pbr = ConvertToDoubleForPerPbr(pbr);
-                        stockInfo.DividendYield = ConvertToDoubleForDividendYield(dividendYield);
+                        stockInfo.DividendYield = ConvertToDoubleForYield(dividendYield);
                         stockInfo.MarginBalanceRatio = marginBalanceRatio;
                     }
                 }
@@ -348,7 +348,8 @@ internal class Scraper
                     if (columns != null && columns.Count >= 4)
                     {
                         var shareholderBenefitYield = columns[3].InnerText.Trim();
-                        stockInfo.ShareholderBenefitYield = shareholderBenefitYield;
+                        //stockInfo.DividendYield = ConvertToDoubleForDividendYield(dividendYield);
+                        stockInfo.ShareholderBenefitYield = ConvertToDoubleForYield(shareholderBenefitYield);
                     }
                 }
                 // 優待発生株数
@@ -392,10 +393,11 @@ internal class Scraper
         }
     }
 
-    private double ConvertToDoubleForDividendYield(string percentString)
+    private double ConvertToDoubleForYield(string percentString)
     {
         // パーセント記号を除去
         percentString = percentString.Replace("％", "");
+        percentString = percentString.Replace("%", "");
 
         // 文字列をdoubleに変換
         if (double.TryParse(percentString, NumberStyles.Any, CultureInfo.InvariantCulture, out double value))
