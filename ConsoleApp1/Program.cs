@@ -80,7 +80,7 @@ using System.Runtime.ConstrainedExecution;
  * ・ETFの株探取得がうまくできていない
  * ・DBはキャッシュ利用とし、なければ作成する処理を入れる
  * ・土日はyahooのスクレイピング不要（休場日の前日までの履歴取得が完了している場合は取得しない）
- * ・業界毎に指標フィルターを分ける
+ * ・市場、業界毎のPER/PBRを表示する
  */
 
 const string _mailAddress = "sadac23@gmail.com";

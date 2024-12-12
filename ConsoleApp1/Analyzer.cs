@@ -231,10 +231,10 @@ internal class Analyzer
                 if (this.StockInfo.Roe < 8.00) result = false;
 
                 // PERが15倍より高い場合はアラートしない
-                if (this.StockInfo.Per > 15.00) result = false;
+                //if (this.StockInfo.Per > 15.00) result = false;
 
                 // PBRが2倍より高い場合はアラートしない
-                if (this.StockInfo.Pbr > 2.00) result = false;
+                //if (this.StockInfo.Pbr > 2.00) result = false;
 
                 // 時価総額が1000億より低い場合はアラートしない
                 if (this.StockInfo.MarketCap < 100000000000) result = false;

@@ -1,0 +1,2661 @@
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>三菱電機（三菱電）【6503】の業績・財務推移［通期・半期・四半期］｜株探（かぶたん）</title>
+<meta name="description" content="三菱電機（三菱電）【6503】の業績分析ができる多様な決算情報を掲載。決算発表と業績修正はリアルタイムで更新。通期は5期、半期は4半期、四半期累計は3期、四半期(3ヵ月)は8四半期の業績推移表を掲載しています。財務とキャッシュフローの推移表もそれぞれ通期3期を掲載。業績推移表は、売上高、営業利益、経常利益、最終利益(純利益)、修正1株利益、1株配当、売上営業利益率、対上期進捗率、対通期進捗率を記載。通期各項目の過去最高値とその決算期も記載。財務推移表は、1株純資産、自己資本比率、総資産、自己資本、剰余金、有利子負債倍率を記載。キャッシュフロー推移表は、フリーキャッシュフロー、営業キャッシュフロー、投資キャッシュフロー、財務キャッシュフロー、現金等残高、現金比率を記載しています。" />
+<meta name="keywords" content="三菱電機,三菱電,みつびしでんき,みつびしでん,Mitsubishi Electric Corporation,6503,電気機器,決算情報,決算発表,業績修正,業績推移,通期,半期,上期,下期,四半期,3ヵ月業績,四半期累計業績,売上高,営業利益,経常利益,最終利益,純利益,修正1株利益,1株配当,決算発表日,業績修正日,過去最高の売上高,過去最高の営業利益,過去最高の経常利益,過去最高の最終利益,過去最高の修正1株利益,売上営業利益率,対上期進捗率,対通期進捗率,1株純資産,自己資本比率,総資産,自己資本,剰余金,有利子負債倍率,フリーキャッシュフロー,FCF,営業キャッシュフロー,投資キャッシュフロー,財務キャッシュフロー,現金等残高,現金比率,株価,株式,株探,かぶたん,kabutan" />
+<meta http-equiv="content-language" content="ja">
+<meta name="google" content="notranslate" />
+<meta name="google-site-verification" content="9TyMQp63vRE7zxgZJofMB6CJlyYQBwnVoHJoVFo1_rg" />
+<meta name="format-detection" content="telephone=no" />
+<meta property="og:url" content="https://kabutan.jp/stock/finance?code=6503" />
+<meta property="og:type" content="article" />
+<meta property="og:title" content="三菱電機（三菱電）【6503】の業績・財務推移［通期・半期・四半期］｜株探（かぶたん）" />
+<meta property="og:description" content="三菱電機（三菱電）【6503】の業績分析ができる多様な決算情報を掲載。決算発表と業績修正はリアルタイムで更新。通期は5期、半期は4半期、四半期累計は3期、四半期(3ヵ月)は8四半期の業績推移表を掲載しています。財務とキャッシュフローの推移表もそれぞれ通期3期を掲載。業績推移表は、売上高、営業利益、経常利益、最終利益(純利益)、修正1株利益、1株配当、売上営業利益率、対上期進捗率、対通期進捗率を記載。通期各項目の過去最高値とその決算期も記載。財務推移表は、1株純資産、自己資本比率、総資産、自己資本、剰余金、有利子負債倍率を記載。キャッシュフロー推移表は、フリーキャッシュフロー、営業キャッシュフロー、投資キャッシュフロー、財務キャッシュフロー、現金等残高、現金比率を記載しています。" />
+<meta property="og:image" content="https://kabutan.jp/images/cmn/SNS_kabutan_logo.png" />
+<meta name="twitter:card" content="summary_large_image" /><meta name='twitter:card' content='summary_large_image'>
+<link rel="shortcut icon" href="/favicon.ico?2" />
+<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Roboto" type="text/css" media="all">
+<link rel="stylesheet" type="text/css" media="all" href="/css/base.css?v=240924" />
+<link rel="canonical" href="https://kabutan.jp/stock/finance?code=6503" />
+<link rel="alternate" media="only screen and (max-width: 640px)" href="https://s.kabutan.jp/stocks/6503/finance/" />
+<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script type="text/javascript">if (typeof jQuery == 'undefined') document.write(unescape("%3Cscript type='text/javascript' src='/js/lib/jquery-1.9.1.min.js' %3E%3C/script%3E"));</script>
+<script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
+<script type="text/javascript">if (typeof jQuery.ui == 'undefined') document.write(unescape("%3Cscript type='text/javascript' src='/js/lib/jquery-ui-1.10.3.min.js' %3E%3C/script%3E"));</script>
+<script type="text/javascript" src="/js/lib/dropdowncontent.js"></script>
+<script type="text/javascript" src="/js/base.js?v=240924"></script>
+<script type="text/javascript" src="/js/rand_ads.js?v=1732761297"></script>
+<script>var googletag = googletag || {};
+googletag.cmd = googletag.cmd || [];
+(function () {
+  var b = document.createElement("script");
+  b.async = true;
+  b.type = "text/javascript";
+  var a = "https:" == document.location.protocol;
+  b.src = (a ? "https:" : "http:") + "//www.googletagservices.com/tag/js/gpt.js";
+  var c = document.getElementsByTagName("script")[0];
+  c.parentNode.insertBefore(b, c)
+})();
+googletag.cmd.push(function () {
+  var b = "";
+  var e = "";
+  if (document.referrer) {
+    var d = new Array();
+    d = document.referrer.split("/");
+    e = d[2];
+    if (e == location.host) {
+      if (d.length > 4) {
+        e = d[2] + "/" + d[3] + "/" + d[4]
+      } else {
+        if (d.length > 3) {
+          e = d[2] + "/" + d[3]
+        }
+      }
+    }
+  }
+  var c = new Array();
+  c = location.pathname.split("/");
+  var a = "";
+  if (c.length > 2) {
+    a = "/" + c[1] + "/" + c[2]
+  } else {
+    if (c.length > 1) {
+      a = "/" + c[1]
+    }
+  }
+  var g = "";
+  b = a + " " + e;
+  b = b.split("=").join("_");
+  g = c[(c.length - 1)];
+  var lf = location.href;
+  var lc = /code=\d{4}/;
+  var lt = /theme=(.*?)(&|$)/;
+  var gc = String(lf.match(lc)).slice(-4);
+  var gt = String(lf.match(lt)).slice(6);
+  googletag.pubads().setTargeting("kabutan0", b);
+  googletag.pubads().setTargeting("kabutan1", g);
+  googletag.pubads().setTargeting("kabutan2", gc);
+  googletag.pubads().setTargeting("kabutan3", gt);
+  googletag.pubads().enableSingleRequest();
+  googletag.enableServices()
+});
+</script>
+</head>
+<body>
+<script>
+window.dataLayer = window.dataLayer || [];
+dataLayer.push({
+  "user_id": "0"
+});
+</script>
+<!-- Google Tag Manager -->
+<noscript><iframe src="//www.googletagmanager.com/ns.html?id=GTM-P89SCD"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-P89SCD');</script>
+<!-- End Google Tag Manager -->
+
+<!--wrapper_main start-->
+<div id="wrapper_main">
+
+<!--ad1291 start-->
+<div class="ad" id="ad1291">
+<script type='text/javascript'>
+// 広告リクエスト部分
+googletag.cmd.push(function() {
+googletag.defineSlot('/94446337/1291_tan_pc_gatead_left', [160, 600], 'div-gpt-ad-1519008725722-0').addService(googletag.pubads());
+googletag.defineSlot('/94446337/1291_tan_pc_gatead_right', [160, 600], 'div-gpt-ad-1519008758041-0').addService(googletag.pubads());
+googletag.defineSlot('/94446337/8100_tan_pc_premiumbanner', [970, 90], 'div-gpt-ad-1497932639366-0').addService(googletag.pubads());
+googletag.defineSlot('/94446337/1201_tan_pc_primerectangle', [[300, 250],  [300, 600]], 'div-gpt-ad-1413891264102-1').addService(googletag.pubads());
+googletag.pubads().enableSingleRequest();
+googletag.enableServices();
+});
+</script>
+<div id="top_impact" style="width:1338px; margin-left:-676px; margin-top:106px;">
+	<div id="top_impact_L" style="float:left;">
+		<div id='div-gpt-ad-1519008725722-0'>
+			<script>googletag.cmd.push(function() { googletag.display('div-gpt-ad-1519008725722-0'); });</script>
+		</div>
+	</div>
+	<div id="top_impact_R">
+		<div id='div-gpt-ad-1519008758041-0'>
+			<script>googletag.cmd.push(function() { googletag.display('div-gpt-ad-1519008758041-0'); });</script>
+		</div>
+	</div>
+</div>
+</div>
+<!--ad1291 end-->
+
+<!--header start-->
+<div id="header">
+<div id="logo"><a href="/"><img src="/images/header/top_kabutan_logo.jpg?v=220310" alt="株探（かぶたん）" /></a>
+</div>
+<div class="login_link">
+<span class="us_site_link1">
+<a href="https://us.kabutan.jp">≫<img src="/images/cmn/us.png" />米株</a>
+</span>
+
+<span><a class="sp1" href="https://info.kabutan.jp/lp/?utm_source=kabutan&utm_medium=referral&utm_campaign=kabutan_pc&utm_content=shared_gnavi">株探プレミアムに登録！</a></span>
+<span><a href="https://account.kabutan.jp/login" rel="nofollow">ログイン</a></span>
+</div><!--/login_link-->
+<table id="header_shisuu_big">
+  <thead>
+    <tr>
+            <th scope="col" colspan="2">
+        <div>
+        <a href="/stock/?code=0000" target="_top">日経平均</a>
+                <time class="close" datetime="2024-11-28T15:12+09:00">15:12</time>
+        </div>
+        <a href="/stock/chart?code=0000" target="_top"><img class="chart-icon" src="/images/header/chart_icon.png" alt="チャートアイコン" /></a>
+      </th>
+            <th scope="col" colspan="2">
+        <div>
+        <a href="/stock/?code=0950" target="_top">米ドル円</a>
+                <time class="close" datetime="2024-11-28T15:13+09:00">15:13</time>
+        </div>
+        <a href="/stock/chart?code=0950" target="_top"><img class="chart-icon" src="/images/header/chart_icon.png" alt="チャートアイコン" /></a>
+      </th>
+            <th scope="col" colspan="2">
+        <div>
+        <a href="/stock/?code=0800" target="_top">ＮＹダウ</a>
+                <time datetime="2024-11-27">終値</time>
+        </div>
+        <a href="/stock/chart?code=0800" target="_top"><img class="chart-icon" src="/images/header/chart_icon.png" alt="チャートアイコン" /></a>
+      </th>
+            <th scope="col" colspan="2">
+        <div>
+        <a href="/stock/?code=0823" target="_top">上海総合</a>
+                <time datetime="2024-11-27">終値</time>
+        </div>
+        <a href="/stock/chart?code=0823" target="_top"><img class="chart-icon" src="/images/header/chart_icon.png" alt="チャートアイコン" /></a>
+      </th>
+          </tr>
+  </thead>
+  <tbody>
+    <tr>
+            <td rowspan="2" class="price">38,307.58</td>
+      <td class="amount"><span class="up">+172.61</span></td>
+            <td rowspan="2" class="price">151.48</td>
+      <td class="amount"><span class="up">+0.37</span></td>
+            <td rowspan="2" class="price">44,722.06</td>
+      <td class="amount"><span class="down">-138.25</span></td>
+            <td rowspan="2" class="price">3,309.77</td>
+      <td class="amount"><span class="up">+50.02</span></td>
+          </tr>
+    <tr class="percentage">
+            <td>0.45%</td>
+            <td>0.25%</td>
+            <td>-0.31%</td>
+            <td>1.53%</td>
+          </tr>
+  </tbody>
+</table>
+<!--menu_1 start-->
+<div id="menu_1">
+<ul>
+<li class="navi_bg_home"><a href="/" >トップ</a></li>
+<li class="navi_bg_marcket"><a href="/news/marketnews/" class="small_font">市場ニュース</a></li>
+<li class="navi_bg_news"><a href="/news/" >決算速報</a></li>
+<li class="navi_bg_warning"><a href="/warning/" >株価注意報</a></li>
+<li class="navi_bg_disclosures"><a href="/disclosures/" class="small_font">会社開示情報</a></li>
+<li class="navi_bg_tansaku"><a href="/tansaku/" >銘柄探検</a></li>
+<li class="navi_bg_shareholder"><a href="/holder/" >日本の株主</a></li>
+<li class="navi_bg_distribution-map"><a href="/distribution-map/" >市場マップ</a></li>
+</ul>
+</div>
+<!--menu_1 end-->
+<div id="main_kensaku">
+<form method="get" action="/search/" name="kensaku" id="kensaku_form">
+<table>
+<tr>
+<td class="kensaku_title"><label for="input_id"><img src="/images/header/kensaku_logo.jpg" alt="株探検隊　検索" /></label></td>
+<td class="kensaku_input">
+<input type="text" id="input_id" name="q" autocomplete="off" placeholder="銘柄コード、企業名、テーマから検索できます" />
+</td>
+<td>
+<button type="button"><img src="/images/header/kensaku_bottom.jpg" id="kensaku_btn" alt="Go"></button>
+</td>
+<td>
+<button type="button"><img src="/images/header/kensaku_theme_bottom.jpg" id="theme_btn" alt="テーマ"></button>
+</td>
+<td>
+<button type="button"><img src="/images/header/kensaku_news_bottom.jpg?1" id="searchlink2" rel="sub_window2"></button>
+<div id="sub_window2" class="sub_window">「株探」で配信したニュース記事を検索します</div>
+</td>
+<td>
+<a href="/" id="searchlink1" rel="sub_window1"><img src="/images/header/kensaku_help_bottom.jpg?1" alt="" /></a>
+<div id="sub_window1" class="sub_window"><img src="/images/header/Help_text.gif?v=220406" alt="help説明文" /></div>
+</td>
+</tr>
+</table>
+</form>
+<!--pr_area start-->
+<div class="pr_area">
+<ul>
+<li class="bg1">&nbsp;</li>
+<script type="text/javascript">rand_ads(3);</script>
+<li class="bg3">&nbsp;</li>
+</ul>
+</div>
+<!--pr_area end-->
+
+<!-- /94446337/8100_tan_pc_premiumbanner -->
+<div style="clear:both;overflow:hidden;max-height:90px;min-height:90px;">
+<div id='div-gpt-ad-1497932639366-0'>
+<script>
+googletag.cmd.push(function() { googletag.display('div-gpt-ad-1497932639366-0'); });
+</script>
+</div>
+</div>
+
+</div>
+<script type="text/javascript">
+$(function(){
+	(function(){
+	dropdowncontent.init("searchlink1", "left-bottom", 300, "mouseover");
+	dropdowncontent.init("searchlink2", "left-bottom", 300, "mouseover");
+	
+	$('#input_id').keypress(function(e){
+		if (e.which == 13) {
+			btn_post('');
+			return false;
+		}
+	});
+	function btn_post(btn){
+		if ($('#input_id').val() == '') return false;
+		if (btn != ''){
+			$("<input>",{
+				type:"hidden",
+				name:"btn",
+				value:btn
+			}).appendTo("#kensaku_form");
+		}
+		$('#kensaku_form').submit();
+		return false;
+	}
+	$('#kensaku_btn').click(function(){btn_post('');});
+	$('#theme_btn').click(function(){btn_post('theme');});
+	$('#searchlink2').click(function(){btn_post('cse');});
+	})();
+	
+	(function(){
+	var d=$("#input_id");
+	if ($(window).scrollTop() == 0) d.focus();
+	d.autocomplete({
+	delay:400,
+	minLength:2,
+	select:function(event, ui){
+		d.val(ui.item.label);
+		$("#kensaku_form").submit();
+	},
+	focus:function(event, ui ){
+		return false;
+	},
+	source:function(request, response){
+		$.ajax({
+			url:"/pulldown/",
+			type:"post",
+			data:{"q": request.term},
+			dataType:"json",
+			success: function( data ) {
+				response( data );
+			},
+			error: function() {
+				response( [] );
+			}
+		});
+	}
+	});
+	})();
+
+});
+</script>
+
+<noscript>
+<div class="w-full2 h-auto px-2 pb-2 gap-2.5 box-border">
+	<div class="w-full2 h-auto py-4 px-4 border border-solid error-input rounded-md gap-2 box-border">
+		<div class="w-full2 mb-2">
+			<div class="w-auto h-auto gap-2 flex">
+				<div class="w-auto h-auto py-0.5 mb-2.5 box-border">
+					<svg class="" width="20" height="18" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+						<path fill="#ef4444" d="M256 32c14.2 0 27.3 7.5 34.5 19.8l216 368c7.3 12.4 7.3 27.7 .2 40.1S486.3 480 472 480H40c-14.3 0-27.6-7.7-34.7-20.1s-7-27.8 .2-40.1l216-368C228.7 39.5 241.8 32 256 32zm0 128c-13.3 0-24 10.7-24 24V296c0 13.3 10.7 24 24 24s24-10.7 24-24V184c0-13.3-10.7-24-24-24zm32 224a32 32 0 1 0 -64 0 32 32 0 1 0 64 0z"/>
+					</svg>
+				</div>
+				<div class="text-base align-middle text-slate-700 font-semibold">
+					JavaScriptが無効になっています。
+				</div>
+			</div>
+			<div class="w-full align-middle text-slate-700 text-sm mt-2.5">
+				株探のすべての機能を利用するためには、JavaScriptを有効にしてください。
+			</div>
+		</div>
+	</div>
+</div>
+</noscript>
+<div class="fs0">
+<div class="topicpath">
+<ol itemscope itemtype="http://schema.org/BreadcrumbList">
+<li itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+<a itemprop="item" href="/"><span itemprop="name">トップ</span></a>
+<meta itemprop="position" content="1" />
+</li>
+<li itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+<a itemprop="item" href="/stock/?code=6503"><span itemprop="name">三菱電(6503)</span></a>
+<meta itemprop="position" content="2" />
+</li>
+<li itemprop="itemListElement" itemscope itemtype="http://schema.org/ListItem">
+<span itemprop="name">決算</span>
+<meta itemprop="position" content="3" />
+</li>
+</ol>
+</div>
+<h1 id="kobetsu">三菱電機(6503) 決算</h1>
+</div>
+</div>
+<!--header end-->
+
+<!--container start-->
+<div id="container">
+<!--main start-->
+<div id="main">
+
+
+<script type="text/javascript">
+$(function(){
+	$(".kubun_btn").each(function(i, e){
+		var $w = $($(this).attr('data-win'));
+		$(this).hover(function(){
+			var of = $(this).offset();
+			$w.css({'top':of.top-28+'px','left':of.left+'px'});
+			$w.show();
+		},function(){
+			$w.hide();
+		});
+		$(this).mouseup(function(){
+			$w.toggle();
+		});
+	});
+	set_stock_url();
+});
+</script>
+
+<section id="stockinfo" class="clearfix">
+
+<div id="stockinfo_b0">
+
+
+<div id="stockinfo_b1">
+
+<div class="si_b1">
+
+<div class="kubun_btn" data-win="#kubun_win1">貸借</div>
+<div id="kubun_win1" class="kubun_win">証券取引所が指定する制度信用銘柄のうち、買建(信用買い)と売建(信用売り)の両方ができる銘柄</div>
+
+<div class="kubun_btn" data-win="#kubun_win2"><a href="/warning/?mode=8_1" class="decoline">225</a></div>
+<div id="kubun_win2" class="kubun_win">日経平均株価の構成銘柄。同指数に連動するETFなどファンドの売買から影響を受ける側面がある</div>
+
+<span class="si_b1_s1">株価15分ディレイ → <a href="https://info.kabutan.jp/lp/?utm_source=kabutan&utm_medium=referral&utm_campaign=kabutan_pc&utm_content=stock__finance__6503">リアルタイムに変更</a></span>
+
+</div>
+
+
+</div><!--stockinfo_b1-->
+
+
+<div id="stockinfo_i0" class="stockinfo_pts_h">
+<div id="stockinfo_i1" class="">
+
+<div class="si_i1_1">
+<h2><span class="inline-block">6503</span><span class="fs0">　</span>三菱電機</h2>
+<div class="si_i1_1_rbox">
+<span class="market">東証Ｐ</span>
+<time datetime="2024-11-28T15:13+09:00">15:13</time>
+</div>
+</div>
+
+<div class="si_i1_2">
+<span class="favorite"><a href="#" id="add-favorite-stock-btn"><div class="favorite-star"></div></a></span>
+<span class="kabuka">2,546.0円</span>
+<dl class="si_i1_dl1">
+<dt>前日比</dt>
+<dd><span class="up">+8.0</span></dd>
+<dd><span class="up">+0.32</span>%</dd>
+</dl>
+</div><!--/si_i1_2-->
+
+<div class="si_i1_3">
+<div class="kabuka1">PTS</div>
+<div class="kabuka2">2,546.6円</div>
+<div class="kabuka3">15:12　11/28</div>
+</div>
+
+
+
+
+
+
+
+</div><!--stockinfo_i1-->
+
+<div id="stockinfo_i2">
+<dl>
+<dt>業績</dt>
+<dd><img src="/images/cmn/gyouseki_2.gif" title="今期予想" /></dd>
+</dl>
+
+<div>
+<a href="/themes/?industry=16&market=1">電気機器</a>
+</div>
+
+<dl>
+  <dt>単位</dt>
+  <dd>100株 </dd>
+</dl>
+</div><!--stockinfo_i2-->
+
+<div id="stockinfo_i3">
+<table>
+  <thead>
+    <tr>
+      <th scope='col'><abbr title="Price Earnings Ratio">PER</abbr></th>
+      <th scope='col'><abbr title="Price Book-value Ratio">PBR</abbr></th>
+      <th scope='col'>利回り</th>
+      <th scope='col'>信用倍率</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+            <td>16.8<span class="fs9">倍</span></td>
+            <td>1.41<span class="fs9">倍</span></td>
+            <td>1.96<span class="fs9">％</span></td>
+      <td>10.05<span class="fs9">倍</span></td>
+          </tr>
+    <tr>
+      <th colspan="2" class="v_zika1">時価総額</th>
+      <td colspan="2" class="v_zika2">5<span>兆</span>3,802<span>億円</span></td>
+    </tr>
+  </tbody>
+</table>
+</div><!--stockinfo_i3-->
+
+
+<div style="background:#fff;padding: 0 0 0 4px; height:21px;">
+<dl class="si_i1_dl2 pdt2">
+<dt>比較される銘柄</dt>
+<dd><a href="/stock/?code=6501">日立</a>,　</dd><dd><a href="/stock/?code=6752">パナＨＤ</a>,　</dd><dd><a href="/stock/?code=6701">ＮＥＣ</a></dd></dl>
+</div>
+
+</div><!--stockinfo_i0-->
+</div><!--stockinfo_b0-->
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="chart_menu">
+<ul>
+<li><a href="/stock/?code=6503" title="基本情報">基本情報</a></li>
+<li><a href="/stock/chart?code=6503" title="チャート">チャート</a></li>
+<li><a href="/stock/kabuka?code=6503" title="時系列">時系列</a></li>
+<li><a href="/stock/news?code=6503" title="ニュース">ニュース</a></li>
+<li class="active"><a href="/stock/finance?code=6503" title="決算">決算</a></li>
+<li><a href="/stock/holder?code=6503" title="大株主">大株主</a></li>
+</ul>
+
+
+
+
+<div id="kessan_happyoubi">
+
+<div class="hikaku_charge">
+<a href="/hikaku/charge.html?stock_code=6503&stock_price=2546.0" >三菱電の取引手数料比較</a>
+</div>
+
+</div>
+
+</div><!--chart_menu-->
+
+</section>
+
+
+
+<script>
+  var requestPath = 'https://async.api.kabutan.jp/srlink?type=view&stock_code=6503';
+  var xhr = new XMLHttpRequest();
+  xhr.open('GET', requestPath, true);
+  xhr.withCredentials = true;
+  xhr.send();
+  xhr.onreadystatechange = function(){
+    if (this.readyState === 4 && this.status === 200) {
+      var elem = document.getElementById('srlink');
+      elem.innerHTML = this.responseText;
+    }
+  }
+</script>
+<div id="srlink"></div>
+
+
+<script>
+$(function() {
+	var opt = {stock:{code:'6503',d_current_price:'2546.0'}};
+	//console.log(opt);
+	favorite_stock_btn(opt);
+});
+</script>
+
+
+<div id="finance_box">
+<div id="th_win1" class="th_win"></div>
+<script>
+$(function(){
+	var timehover = null;
+	$("#finance_box thead th").each(function(i, e){
+		if ($(e).attr('data-text') == null) {
+			return true;
+		}
+		var $w = $('#th_win1');
+		$(this).hover(function(){
+			var of = $(this).offset();
+			$w.css({'max-width':'400px'});
+			$w.html($(e).attr('data-text'));
+			var s = $(window).width() - (of.left + 400);
+			var left = of.left;
+			if (s > 0) {
+				left = of.left;
+			}else{
+				left = of.left + s;
+			}
+			$w.css({'top':of.top-6-$w.height()+'px','left':left+'px'});
+			timehover = setTimeout(function(){
+				$w.fadeIn(300);
+			},500);
+		},function(){
+			$w.hide();
+			clearTimeout(timehover);
+		});
+		$(this).mouseup(function(){
+			$w.hide();
+		});
+	});
+	
+	var ckjs_name = 'shared_finance_tab';
+	var ckjs1 = read_fin_ckjs();
+	
+		
+	var tmp1 = location.search;
+	if (tmp1.indexOf('&ftab=') != -1) {
+		var tmp2 = tmp1.replace(/&ftab=[^&]+/gi, '');
+		window.history.replaceState(null, null, tmp2+location.hash);
+	}
+	
+	function read_fin_ckjs(){
+		var ckdef = {"tab_year":"result","tab_half":"result","tab_quarter":"result",
+		"open_year_result":0,"open_year_profit":0,"open_quarter_result":0,"open_cf":0,"open_bs":0};
+		
+		var js1 = JSON.parse(decodeURIComponent(read_cookie(ckjs_name,'{}')));
+		
+		$.each(ckdef,function(i,val){
+			if (typeof js1[i] === 'undefined'){
+				js1[i] = val;
+			}
+		});
+		return js1;
+	}
+	
+	function write_fin_ckjs(){
+		write_cookie_dm(ckjs_name, encodeURIComponent(JSON.stringify(ckjs1)));
+	}
+	
+	set_fin_tab('.fin_year_'+ckjs1['tab_year'],       '.fin_year_t0_d', '.fin_year_result,.fin_year_forecast,.fin_year_growth,.fin_year_profit');
+	set_fin_tab('.fin_half_'+ckjs1['tab_half'],       '.fin_half_t0_d', '.fin_half_result,.fin_half_forecast');
+	set_fin_tab('.fin_quarter_'+ckjs1['tab_quarter'], '.fin_quarter_t0_d', '.fin_quarter_result,.fin_quarter_growth');
+	
+	function set_fin_tab(a1,a2,a3) {
+		var a = a3.split(',');
+		if (a.indexOf(a1) == -1){
+			a1 = a[0];
+		}
+		if ($(a1).length == 0) {
+			a1 = a[0];
+		}
+		$(a3).on('click',function() {
+			if ($(this).hasClass('active')) return false;
+			$(this).siblings().removeClass('active');
+			$(this).addClass('active');
+			$(a2).hide();
+			var cls = this.className.split(" ")[0];
+			$('.'+cls+'_d').show();
+			var a = cls.match(/^fin_(.+)_(.+)$/);
+			if (a != null && a.length == 3){
+				//console.log('tab_'+a[1]+' '+ckjs1['tab_'+a[1]]+' '+a[2]);
+				if (ckjs1['tab_'+a[1]] != a[2]){
+					ckjs1['tab_'+a[1]] = a[2];
+					write_fin_ckjs();
+				}
+			}
+			return false;
+		});
+		
+		$(a1).click();
+		
+	}
+
+
+set_finance_btn(0,{id:'_year_result', flg:0, so:'2000年3月期～2020年3月期を表示',st:'2020年3月期以前の業績データは、',url:'#'});
+set_finance_btn(0,{id:'_year_profit', flg:0, so:'2000年3月期～2022年3月期を表示',st:'2022年3月期以前の収益性データは、',url:'#'});
+set_finance_btn(0,{id:'_cf', flg:0, so:'2001年3月期～2021年3月期を表示',st:'2021年3月期以前のキャッシュフローは、',url:'#'});
+set_finance_btn(0,{id:'_quarter_result', flg:0, so:'19年10-12月期～22年7-9月期を表示',st:'22年7-9月期以前の業績データは、',url:'#'});
+set_finance_btn(0,{id:'_bs',    flg:0, so:'2004年3月期～2021年3月期を表示', st:'2021年3月期以前の財務データは、',url:'#'});
+
+$.each(ckjs1,function(i,val){
+	if (i.substr(0,5) == 'open_' && val == 1){
+		$('#oc_b1'+i.substr(4)).click();
+	}
+});
+
+//{url:'',id:'',flg:0,so:'',st:''}
+function set_finance_btn(uflg,v){
+	var mrk=['△','▽'],
+	bo = [$('#oc_b1'+v.id),$('#oc_b2'+v.id)],
+	ss = [v.so,'閉じる'],
+	so = [mrk[0]+ss[0], mrk[1]+ss[0]],
+	sc = [mrk[1]+ss[1], mrk[0]+ss[1]];
+	if (!uflg) {
+		var s = '<span>'+v.st+'株探プレミアムコンテンツです。<br>';
+		s += '<a href="'+v.url+'" class="fin_modal decoline">≫≫「株探プレミアム」に申し込む</a><br>';
+		s += '※プレミアム会員の方は、“<a class="decoline" href="https://account.kabutan.jp/login" rel="nofollow">ログイン</a>”してください。</span><br>';
+		var sd1 = $(s);
+	}
+	$.each(bo, function(j) {
+		bo[0].html(so[0]);
+		bo[1].html(so[1]);
+		bo[j].click(function(e) {
+			if (uflg) $('.oc_t1'+v.id).toggle();
+			if (v.flg){
+				bo[0].html(so[0]);
+				bo[1].html(so[1]);
+				if (!uflg) sd1.remove();
+			}else{
+				bo[0].html(sc[0]);
+				bo[1].html(sc[1]);
+				if (!uflg) bo[0].parent().prepend(sd1);
+			}
+			v.flg ^= 1;
+			//console.log('open'+v.id+' '+ckjs1['open'+v.id]+' '+v.flg);
+			if (ckjs1['open'+v.id] != v.flg){
+				ckjs1['open'+v.id] = v.flg;
+				write_fin_ckjs();
+			}
+			e.preventDefault();
+		});
+	});
+}
+
+});
+</script>
+
+
+<div class="stock_kes_menu">
+<ul>
+<li><a href="#kakosaikou_zisseki" title="過去最高【実績】">過去最高<br />【実績】</a></li>
+<li><a href="#hanki_name" title="上期（下期）【予想】">半期<br />【予想】</a></li>
+<li><a href="#cashflow_name" title="現金収支【実績】">現金収支<br />【実績】</a></li>
+<li><a href="#shihankiruikei_name" title="四半期累計【実績】">四半期累計<br />【実績】</a></li>
+<li><a href="#zaimu_name" title="財務【実績】">財務<br />【実績】</a></li>
+<li><a href="#top" title="ＴＯＰへ">ＴＯＰへ</a></li>
+</ul>
+</div>
+
+<div class="gyousekishuusei_zenkihi_title mgt10"><h2>今期の業績予想</h2></div>
+<div>
+<div class="cap1gyousekishuusei fin_menu">
+<div class="title1">通期</div>
+<ul>
+<li class="fin_year_result"><h3><a href="#">業績推移</a></h3></li>
+<li class="fin_year_forecast"><h3><a href="#">修正履歴</a></h3></li>
+<li class="fin_year_growth"><h3><a href="#">成長性</a></h3></li>
+<li class="fin_year_profit"><h3><a href="#">収益性</a></h3></li>
+</ul>
+</div>
+<div class="cap2 cap2s"><img src="/images/finance/kessan_s_bar1Q-4Q.jpg" /></div>
+</div>
+
+<div class="fin_year_t0_d fin_year_result_d">
+<table>
+<thead>
+<tr>
+<th scope="col" class="fb_01">決算期</th>
+<th scope="col" class="fb_02">売上高</th>
+<th scope="col" class="fb_02">営業益</th>
+<th scope="col" class="fb_02">経常益</th>
+<th scope="col" class="fb_02">最終益</th>
+<th scope="col" class="fb_03">修正<br>1株益</th>
+<th scope="col" class="fb_03">修正<br>1株配</th>
+<th scope="col" class="fb_04">発表日</th>
+</tr>
+</thead>
+<tbody>
+<tr><td colspan="8" class="oc_btn1"><a href="#" id="oc_b1_year_result"></a></td></tr>
+<tr >
+<th scope="row" ><span class="kubun1">I&nbsp;&nbsp;　&nbsp;</span>2021.03&nbsp;&nbsp;</th>
+<td>4,191,433</td>
+<td>230,195</td>
+<td>258,754</td>
+<td>193,132</td>
+<td>90.0</td>
+<td>36</td>
+
+
+<td class="fb_pdf1"><a class="fin_modal" href="" target="pdf">21/04/28<img src="/images/cmn/pdf12_p.gif" /></a></td>
+
+
+</tr>
+<tr >
+<th scope="row" ><span class="kubun1">I&nbsp;&nbsp;　&nbsp;</span>2022.03&nbsp;&nbsp;</th>
+<td>4,476,758</td>
+<td>252,051</td>
+<td>279,693</td>
+<td>203,482</td>
+<td>95.4</td>
+<td>40</td>
+
+
+<td class="fb_pdf1"><a class="fin_modal" href="" target="pdf">22/04/28<img src="/images/cmn/pdf12_p.gif" /></a></td>
+
+
+</tr>
+<tr >
+<th scope="row" ><span class="kubun1">I&nbsp;&nbsp;　&nbsp;</span>2023.03&nbsp;&nbsp;</th>
+<td>5,003,694</td>
+<td>262,352</td>
+<td>292,179</td>
+<td>213,908</td>
+<td>101.3</td>
+<td>40</td>
+
+
+<td class="fb_pdf1"><a href="https://kabutan.jp/disclosures/pdf/20230428/140120230426553967/" target="pdf">23/04/28<img src="/images/cmn/pdf12.gif" /></a></td>
+
+
+</tr>
+<tr >
+<th scope="row" ><span class="kubun1">I&nbsp;&nbsp;　&nbsp;</span>2024.03&nbsp;&nbsp;</th>
+<td class="high">5,257,914</td>
+<td class="high">328,525</td>
+<td class="high">365,853</td>
+<td class="high">284,949</td>
+<td class="high">135.7</td>
+<td>50</td>
+
+
+<td class="fb_pdf1"><a href="https://kabutan.jp/disclosures/pdf/20240426/140120240424575617/" target="pdf">24/04/26<img src="/images/cmn/pdf12.gif" /></a></td>
+
+
+</tr>
+<tr >
+<th scope="row" ><span class="kubun1">I&nbsp;&nbsp;予&nbsp;</span>2025.03&nbsp;&nbsp;</th>
+<td>5,390,000</td>
+<td>400,000</td>
+<td>430,000</td>
+<td>315,000</td>
+<td>151.8</td>
+<td>50</td>
+
+
+<td class="fb_pdf1"><a href="https://kabutan.jp/disclosures/pdf/20241031/140120241030506203/" target="pdf">24/10/31<img src="/images/cmn/pdf12.gif" /></a></td>
+
+
+</tr>
+
+<tr>
+<th scope="row">前期比</th>
+<td><span class="up">+2.5</span></td>
+<td><span class="up">+21.8</span></td>
+<td><span class="up">+17.5</span></td>
+<td><span class="up">+10.5</span></td>
+<td><span class="up">+11.8</span></td>
+<td>&nbsp;</td>
+<td>(%)</td>
+</tr>
+
+<tr><td colspan="8" class="oc_btn2"><a href="#" id="oc_b2_year_result"></a></td></tr>
+</tbody>
+</table>
+
+<div class="caution">
+<img src="/images/finance/info_high.gif" class="vabt" />※最新予想と前期実績との比較。予想欄「－」は会社側が未発表。
+</div>
+</div><!--/fin_year_result_d-->
+
+
+<div class="fin_year_t0_d fin_year_forecast_d dispnone">
+<table>
+<thead>
+<tr>
+<th scope="col" class="fb_04" colspan="2">決算期</th>
+<th scope="col" class="fb_04">修正日</th>
+<th scope="col" class="tal">－&nbsp;</th>
+<th scope="col" class="fb_04">修正方向</th>
+<th scope="col" class="fb_02">売上高</th>
+<th scope="col" class="fb_02">営業益</th>
+<th scope="col" class="fb_02">経常益</th>
+<th scope="col" class="fb_02">最終益</th>
+<th scope="col" class="fb_03">修正配当</th>
+</tr>
+</thead>
+
+<tbody>
+<tr>
+<td class="tal bgwhite"><span class="kubun1 tal">I&nbsp;</span></td>
+
+<td class="td_hpd" rowspan="4">2020.03</td>
+
+<td class="tac fs14">19/04/26</td>
+<td class="tal fs12">初</td>
+
+<td><table class="arrow"><tr><td>&nbsp;&nbsp;</td><td>&nbsp;&nbsp;</td><td>&nbsp;&nbsp;</td><td>&nbsp;&nbsp;</td><td>&nbsp;&nbsp;</td></tr></table></td>
+<td>4,630,000</td>
+<td>295,000</td>
+<td>320,000</td>
+<td>240,000</td>
+<td>－</td>
+</tr>
+<tr>
+<td class="tal bgwhite"><span class="kubun1 tal">I&nbsp;</span></td>
+
+
+<td class="tac fs14">19/10/31</td>
+<td class="tal fs12">修</td>
+
+<td><table class="arrow"><tr><td class="down2">↓</td><td class="down2">↓</td><td class="down2">↓</td><td class="down2">↓</td><td>‐</td></tr></table></td>
+<td>4,500,000</td>
+<td>260,000</td>
+<td>275,000</td>
+<td>210,000</td>
+<td>－</td>
+</tr>
+<tr>
+<td class="tal bgwhite"><span class="kubun1 tal">I&nbsp;</span></td>
+
+
+<td class="tac fs14">20/03/25</td>
+<td class="tal fs12">修</td>
+
+<td><table class="arrow"><tr><td class="equal2">→</td><td class="equal2">→</td><td class="equal2">→</td><td class="equal2">→</td><td>‐</td></tr></table></td>
+<td>4,500,000</td>
+<td>260,000</td>
+<td>275,000</td>
+<td>210,000</td>
+<td>40</td>
+</tr>
+<tr class="bggray">
+<td class="tal bgwhite"><span class="kubun1 tal">I&nbsp;</span></td>
+
+
+<td class="tac fs14">20/05/11</td>
+<td class="tal fs12">実</td>
+
+<td><table class="arrow"><tr><td class="down2">↓</td><td class="down2">↓</td><td class="up2">↑</td><td class="up2">↑</td><td class="equal2">→</td></tr></table></td>
+<td>4,462,509</td>
+<td>259,661</td>
+<td>281,986</td>
+<td>221,834</td>
+<td>40</td>
+</tr>
+<tr>
+<td class="tal bgwhite"><span class="kubun1 tal">I&nbsp;</span></td>
+
+<td class="td_hpd" rowspan="5">2021.03</td>
+
+<td class="tac fs14">20/05/11</td>
+<td class="tal fs12">初</td>
+
+
+<td class="nopm" colspan="6" rowspan="19">
+直近の修正履歴は、株探プレミアムコンテンツです。<br>
+<a href="#" class="fin_modal decoline">≫≫「株探プレミアム」に申し込む</a><br>
+※プレミアム会員の方は、“<a class="decoline" href="https://account.kabutan.jp/login" rel="nofollow">ログイン</a>”してください。
+
+</tr>
+<tr>
+<td class="tal bgwhite"><span class="kubun1 tal">I&nbsp;</span></td>
+
+
+<td class="tac fs14">20/10/29</td>
+<td class="tal fs12">修</td>
+
+
+
+</tr>
+<tr>
+<td class="tal bgwhite"><span class="kubun1 tal">I&nbsp;</span></td>
+
+
+<td class="tac fs14">21/02/02</td>
+<td class="tal fs12">修</td>
+
+
+
+</tr>
+<tr>
+<td class="tal bgwhite"><span class="kubun1 tal">I&nbsp;</span></td>
+
+
+<td class="tac fs14">21/03/24</td>
+<td class="tal fs12">修</td>
+
+
+
+</tr>
+<tr class="bggray">
+<td class="tal bgwhite"><span class="kubun1 tal">I&nbsp;</span></td>
+
+
+<td class="tac fs14">21/04/28</td>
+<td class="tal fs12">実</td>
+
+
+
+</tr>
+<tr>
+<td class="tal bgwhite"><span class="kubun1 tal">I&nbsp;</span></td>
+
+<td class="td_hpd" rowspan="6">2022.03</td>
+
+<td class="tac fs14">21/04/28</td>
+<td class="tal fs12">初</td>
+
+
+
+</tr>
+<tr>
+<td class="tal bgwhite"><span class="kubun1 tal">I&nbsp;</span></td>
+
+
+<td class="tac fs14">21/07/29</td>
+<td class="tal fs12">修</td>
+
+
+
+</tr>
+<tr>
+<td class="tal bgwhite"><span class="kubun1 tal">I&nbsp;</span></td>
+
+
+<td class="tac fs14">21/10/28</td>
+<td class="tal fs12">修</td>
+
+
+
+</tr>
+<tr>
+<td class="tal bgwhite"><span class="kubun1 tal">I&nbsp;</span></td>
+
+
+<td class="tac fs14">22/02/02</td>
+<td class="tal fs12">修</td>
+
+
+
+</tr>
+<tr>
+<td class="tal bgwhite"><span class="kubun1 tal">I&nbsp;</span></td>
+
+
+<td class="tac fs14">22/03/25</td>
+<td class="tal fs12">修</td>
+
+
+
+</tr>
+<tr class="bggray">
+<td class="tal bgwhite"><span class="kubun1 tal">I&nbsp;</span></td>
+
+
+<td class="tac fs14">22/04/28</td>
+<td class="tal fs12">実</td>
+
+
+
+</tr>
+<tr>
+<td class="tal bgwhite"><span class="kubun1 tal">I&nbsp;</span></td>
+
+<td class="td_hpd" rowspan="5">2023.03</td>
+
+<td class="tac fs14">22/04/28</td>
+<td class="tal fs12">初</td>
+
+
+
+</tr>
+<tr>
+<td class="tal bgwhite"><span class="kubun1 tal">I&nbsp;</span></td>
+
+
+<td class="tac fs14">22/10/28</td>
+<td class="tal fs12">修</td>
+
+
+
+</tr>
+<tr>
+<td class="tal bgwhite"><span class="kubun1 tal">I&nbsp;</span></td>
+
+
+<td class="tac fs14">23/02/02</td>
+<td class="tal fs12">修</td>
+
+
+
+</tr>
+<tr>
+<td class="tal bgwhite"><span class="kubun1 tal">I&nbsp;</span></td>
+
+
+<td class="tac fs14">23/03/24</td>
+<td class="tal fs12">修</td>
+
+
+
+</tr>
+<tr class="bggray">
+<td class="tal bgwhite"><span class="kubun1 tal">I&nbsp;</span></td>
+
+
+<td class="tac fs14">23/04/28</td>
+<td class="tal fs12">実</td>
+
+
+
+</tr>
+<tr>
+<td class="tal bgwhite"><span class="kubun1 tal">I&nbsp;</span></td>
+
+<td class="td_hpd" rowspan="3">2024.03</td>
+
+<td class="tac fs14">23/04/28</td>
+<td class="tal fs12">初</td>
+
+
+
+</tr>
+<tr>
+<td class="tal bgwhite"><span class="kubun1 tal">I&nbsp;</span></td>
+
+
+<td class="tac fs14">24/02/20</td>
+<td class="tal fs12">修</td>
+
+
+
+</tr>
+<tr class="bggray">
+<td class="tal bgwhite"><span class="kubun1 tal">I&nbsp;</span></td>
+
+
+<td class="tac fs14">24/04/26</td>
+<td class="tal fs12">実</td>
+
+
+
+</tr>
+<tr>
+<td class="tal bgwhite"><span class="kubun1 tal">I&nbsp;</span></td>
+
+<td class="td_hpd" rowspan="3">2025.03</td>
+
+<td class="tac fs14">24/04/26</td>
+<td class="tal fs12">初</td>
+
+<td><table class="arrow"><tr><td>&nbsp;&nbsp;</td><td>&nbsp;&nbsp;</td><td>&nbsp;&nbsp;</td><td>&nbsp;&nbsp;</td><td>&nbsp;&nbsp;</td></tr></table></td>
+<td>5,300,000</td>
+<td>400,000</td>
+<td>430,000</td>
+<td>315,000</td>
+<td>－</td>
+</tr>
+<tr>
+<td class="tal bgwhite"><span class="kubun1 tal">I&nbsp;</span></td>
+
+
+<td class="tac fs14">24/07/31</td>
+<td class="tal fs12">修</td>
+
+<td><table class="arrow"><tr><td class="up2">↑</td><td class="equal2">→</td><td class="equal2">→</td><td class="equal2">→</td><td>‐</td></tr></table></td>
+<td>5,390,000</td>
+<td>400,000</td>
+<td>430,000</td>
+<td>315,000</td>
+<td>－</td>
+</tr>
+<tr>
+<td class="tal bgwhite"><span class="kubun1 tal">I&nbsp;</span></td>
+
+
+<td class="tac fs14">24/10/31</td>
+<td class="tal fs12">修</td>
+
+<td><table class="arrow"><tr><td class="equal2">→</td><td class="equal2">→</td><td class="equal2">→</td><td class="equal2">→</td><td>‐</td></tr></table></td>
+<td>5,390,000</td>
+<td>400,000</td>
+<td>430,000</td>
+<td>315,000</td>
+<td>50</td>
+</tr>
+</tbody>
+</table>
+
+<div class="caution2">
+※「初」：期初予想、「修」：期中の修正、「実」：実績<br />
+※「修正方向」について、矢印は売上高、営業益、経常益、最終益、修正配当の順に修正した方向を示します。
+「<span class="up2">↑</span>」：上方修正、「<span class="down2">↓</span>」：下方修正、「<span class="fwb">→</span>」：変更なし、「-」：比較できず<br />
+※修正配当は、株式分割・併合などを考慮した今期配当に対する相対的な実質配当です。<br />
+※売上高、利益項目、配当の欄における「－」は、非開示もしくは未定を示します。また配当欄において、「*」は株式分割・併合などを実施した期を示し、「#」は今期に株式分割・併合などの実施予定があることを示します。
+</div>
+
+</div><!--/fin_year_forecast_d-->
+
+
+<div class="fin_year_t0_d fin_year_growth_d dispnone">
+<table>
+<thead>
+<tr>
+<th scope="col" class="fb_01">決算期</th>
+<th scope="col" class="fb_02">売上高</th>
+<th scope="col" class="fb_05 mizu">前年比</th>
+<th scope="col" class="fb_02">営業益</th>
+<th scope="col" class="fb_05 mizu">前年比</th>
+<th scope="col" class="fb_02">経常益</th>
+<th scope="col" class="fb_05 mizu">前年比</th>
+<th scope="col" class="fb_02">修正1株益</th>
+<th scope="col" class="fb_05 mizu">前年比</th>
+</tr>
+</thead>
+<tbody>
+
+<tr>
+<th scope="row" ><span class="kubun1">U&nbsp;&nbsp;　&nbsp;</span>2000.03&nbsp;&nbsp;</th>
+<td>3,774,230</td>
+<td class="mizu"><span class="down">-0.5</span></td>
+
+<td class="nopm" colspan="6" rowspan="25">
+利益項目データは、株探プレミアムコンテンツです。<br>
+<a href="#" class="fin_modal decoline">≫≫「株探プレミアム」に申し込む</a><br>
+※プレミアム会員の方は、“<a class="decoline" href="https://account.kabutan.jp/login" rel="nofollow">ログイン</a>”してください。
+
+</tr>
+<tr>
+<th scope="row" ><span class="kubun1">U&nbsp;&nbsp;　&nbsp;</span>2001.03&nbsp;&nbsp;</th>
+<td>4,129,493</td>
+<td class="mizu"><span class="up">+9.4</span></td>
+
+
+</tr>
+<tr>
+<th scope="row" ><span class="kubun1">U&nbsp;&nbsp;　&nbsp;</span>2002.03&nbsp;&nbsp;</th>
+<td>3,648,986</td>
+<td class="mizu"><span class="down">-11.6</span></td>
+
+
+</tr>
+<tr>
+<th scope="row" ><span class="kubun1">U&nbsp;&nbsp;　&nbsp;</span>2003.03&nbsp;&nbsp;</th>
+<td>3,639,071</td>
+<td class="mizu"><span class="down">-0.3</span></td>
+
+
+</tr>
+<tr>
+<th scope="row" ><span class="kubun1">U&nbsp;&nbsp;　&nbsp;</span>2004.03&nbsp;&nbsp;</th>
+<td>3,309,651</td>
+<td class="mizu"><span class="down">-9.1</span></td>
+
+
+</tr>
+<tr>
+<th scope="row" ><span class="kubun1">U&nbsp;&nbsp;　&nbsp;</span>2005.03&nbsp;&nbsp;</th>
+<td>3,410,685</td>
+<td class="mizu"><span class="up">+3.1</span></td>
+
+
+</tr>
+<tr>
+<th scope="row" ><span class="kubun1">U&nbsp;&nbsp;　&nbsp;</span>2006.03&nbsp;&nbsp;</th>
+<td>3,604,185</td>
+<td class="mizu"><span class="up">+5.7</span></td>
+
+
+</tr>
+<tr>
+<th scope="row" ><span class="kubun1">U&nbsp;&nbsp;　&nbsp;</span>2007.03&nbsp;&nbsp;</th>
+<td>3,855,745</td>
+<td class="mizu"><span class="up">+7.0</span></td>
+
+
+</tr>
+<tr>
+<th scope="row" ><span class="kubun1">U&nbsp;&nbsp;　&nbsp;</span>2008.03&nbsp;&nbsp;</th>
+<td>4,049,818</td>
+<td class="mizu"><span class="up">+5.0</span></td>
+
+
+</tr>
+<tr>
+<th scope="row" ><span class="kubun1">U&nbsp;&nbsp;　&nbsp;</span>2009.03&nbsp;&nbsp;</th>
+<td>3,665,119</td>
+<td class="mizu"><span class="down">-9.5</span></td>
+
+
+</tr>
+<tr>
+<th scope="row" ><span class="kubun1">U&nbsp;&nbsp;　&nbsp;</span>2010.03&nbsp;&nbsp;</th>
+<td>3,353,298</td>
+<td class="mizu"><span class="down">-8.5</span></td>
+
+
+</tr>
+<tr>
+<th scope="row" ><span class="kubun1">U&nbsp;&nbsp;　&nbsp;</span>2011.03&nbsp;&nbsp;</th>
+<td>3,645,331</td>
+<td class="mizu"><span class="up">+8.7</span></td>
+
+
+</tr>
+<tr>
+<th scope="row" ><span class="kubun1">U&nbsp;&nbsp;　&nbsp;</span>2012.03&nbsp;&nbsp;</th>
+<td>3,639,468</td>
+<td class="mizu"><span class="down">-0.2</span></td>
+
+
+</tr>
+<tr>
+<th scope="row" ><span class="kubun1">U&nbsp;&nbsp;　&nbsp;</span>2013.03&nbsp;&nbsp;</th>
+<td>3,567,184</td>
+<td class="mizu"><span class="down">-2.0</span></td>
+
+
+</tr>
+<tr>
+<th scope="row" ><span class="kubun1">U&nbsp;&nbsp;　&nbsp;</span>2014.03&nbsp;&nbsp;</th>
+<td>4,054,359</td>
+<td class="mizu"><span class="up">+13.7</span></td>
+
+
+</tr>
+<tr>
+<th scope="row" ><span class="kubun1">U&nbsp;&nbsp;　&nbsp;</span>2015.03&nbsp;&nbsp;</th>
+<td>4,323,041</td>
+<td class="mizu"><span class="up">+6.6</span></td>
+
+
+</tr>
+<tr>
+<th scope="row" ><span class="kubun1">U&nbsp;&nbsp;　&nbsp;</span>2016.03&nbsp;&nbsp;</th>
+<td>4,394,353</td>
+<td class="mizu"><span class="up">+1.6</span></td>
+
+
+</tr>
+<tr>
+<th scope="row" ><span class="kubun1">U&nbsp;&nbsp;　&nbsp;</span>2017.03&nbsp;&nbsp;</th>
+<td>4,238,666</td>
+<td class="mizu"><span class="down">-3.5</span></td>
+
+
+</tr>
+<tr>
+<th scope="row" ><span class="kubun1">I&nbsp;&nbsp;　&nbsp;</span>2018.03&nbsp;&nbsp;</th>
+<td>4,444,424</td>
+<td class="mizu">－</td>
+
+
+</tr>
+<tr>
+<th scope="row" ><span class="kubun1">I&nbsp;&nbsp;　&nbsp;</span>2019.03&nbsp;&nbsp;</th>
+<td>4,519,921</td>
+<td class="mizu"><span class="up">+1.7</span></td>
+
+
+</tr>
+<tr>
+<th scope="row" ><span class="kubun1">I&nbsp;&nbsp;　&nbsp;</span>2020.03&nbsp;&nbsp;</th>
+<td>4,462,509</td>
+<td class="mizu"><span class="down">-1.3</span></td>
+
+
+</tr>
+<tr>
+<th scope="row" ><span class="kubun1">I&nbsp;&nbsp;　&nbsp;</span>2021.03&nbsp;&nbsp;</th>
+<td>4,191,433</td>
+<td class="mizu"><span class="down">-6.1</span></td>
+
+
+</tr>
+<tr>
+<th scope="row" ><span class="kubun1">I&nbsp;&nbsp;　&nbsp;</span>2022.03&nbsp;&nbsp;</th>
+<td>4,476,758</td>
+<td class="mizu"><span class="up">+6.8</span></td>
+
+
+</tr>
+<tr>
+<th scope="row" ><span class="kubun1">I&nbsp;&nbsp;　&nbsp;</span>2023.03&nbsp;&nbsp;</th>
+<td>5,003,694</td>
+<td class="mizu"><span class="up">+11.8</span></td>
+
+
+</tr>
+<tr>
+<th scope="row" ><span class="kubun1">I&nbsp;&nbsp;　&nbsp;</span>2024.03&nbsp;&nbsp;</th>
+<td class="high">5,257,914</td>
+<td class="mizu"><span class="up">+5.1</span></td>
+
+
+</tr>
+<tr>
+<th scope="row" ><span class="kubun1">I&nbsp;&nbsp;予&nbsp;</span>2025.03&nbsp;&nbsp;</th>
+<td>5,390,000</td>
+<td class="mizu"><span class="up">+2.5</span></td>
+<td>400,000</td>
+<td class="mizu"><span class="up">+21.8</span></td>
+<td>430,000</td>
+<td class="mizu"><span class="up">+17.5</span></td>
+<td>151.8</td>
+<td class="mizu"><span class="up">+11.8</span></td>
+</tr>
+
+</tbody>
+</table>
+
+
+</div><!--/fin_year_growth_d-->
+
+
+<div class="fin_year_t0_d fin_year_profit_d dispnone">
+<table>
+<thead>
+<tr>
+<th scope="col" class="fb_01">決算期</th>
+<th scope="col" class="fb_02">　売上高</th>
+<th scope="col" class="fb_02">　営業益</th>
+<th scope="col" class="fb_03">売上営業<br />利益率</th>
+<th scope="col" class="fb_02">　ＲＯＥ</th>
+<th scope="col" class="fb_02">　ＲＯＡ</th>
+<th scope="col" class="fb_03">総資産<br />回転率</th>
+<th scope="col" class="fb_02">修正1株益</th>
+</tr>
+</thead>
+<tbody>
+<tr><td colspan="8" class="oc_btn1"><a href="#" id="oc_b1_year_profit"></a></td></tr>
+<tr >
+<th scope="row" ><span class="kubun1">I&nbsp;&nbsp;　&nbsp;</span>2023.03&nbsp;&nbsp;</th>
+<td>5,003,694</td>
+<td>262,352</td>
+<td>5.24</td>
+<td>6.88</td>
+<td>4.00</td>
+<td>0.94</td>
+<td>101.3</td>
+</tr>
+<tr >
+<th scope="row" ><span class="kubun1">I&nbsp;&nbsp;　&nbsp;</span>2024.03&nbsp;&nbsp;</th>
+<td class="high">5,257,914</td>
+<td class="high">328,525</td>
+<td>6.25</td>
+<td>8.17</td>
+<td>4.85</td>
+<td>0.89</td>
+<td class="high">135.7</td>
+</tr>
+<tr >
+<th scope="row" ><span class="kubun1">I&nbsp;&nbsp;予&nbsp;</span>2025.03&nbsp;&nbsp;</th>
+<td>5,390,000</td>
+<td>400,000</td>
+<td>7.42</td>
+<td>8.39</td>
+<td>5.17</td>
+<td>0.88</td>
+<td>151.8</td>
+</tr>
+<tr><td colspan="8" class="oc_btn2"><a href="#" id="oc_b2_year_profit"></a></td></tr>
+</tbody>
+</table>
+
+
+</div><!--/fin_year_profit_d-->
+
+
+
+<div>
+<div class="cap1 mgt5"><h3>過去最高 【実績】</h3><a name="kakosaikou_zisseki" id="kakozaikou_zisseki"></a></div>
+</div>
+<table>
+<thead>
+<tr>
+<th scope="col" class="fb_01">&nbsp;</th>
+<th scope="col" class="fb_02">売上高</th>
+<th scope="col" class="fb_02">営業益</th>
+<th scope="col" class="fb_02">経常益</th>
+<th scope="col" class="fb_02">最終益</th>
+<th scope="col" class="fb_03">修正1株益</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th scope="row">過去最高</th>
+<td>5,257,914</td>
+<td>328,525</td>
+<td>365,853</td>
+<td>284,949</td>
+<td>135.7</td>
+</tr>
+<tr>
+<th scope="row">決算期</th>
+<td>2024.03</td>
+<td>2024.03</td>
+<td>2024.03</td>
+<td>2024.03</td>
+<td>2024.03</td>
+</tr>
+</tbody>
+</table>
+<a name="hanki_name" id="hanki_name"></a>
+
+<div>
+<div class="cap1gyousekishuusei"><h3>下期業績</h3></div>
+<div class="cap2"><img src="/images/finance/kessan_s_bar3Q-4Q.jpg" /></div>
+</div>
+
+<div class="fin_half_t0_d fin_half_result_d">
+<table>
+<thead>
+<tr>
+<th scope="col" class="fb_01">決算期</th>
+<th scope="col" class="fb_02">売上高</th>
+<th scope="col" class="fb_02">営業益</th>
+<th scope="col" class="fb_02">経常益</th>
+<th scope="col" class="fb_02">最終益</th>
+<th scope="col" class="fb_03">修正<br>1株益</th>
+<th scope="col" class="fb_03">修正<br>1株配</th>
+<th scope="col" class="fb_04">発表日</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th scope="row"><span class="kubun1">I&nbsp;&nbsp;　&nbsp;</span>21.10-03&nbsp;&nbsp;</th>
+<td>2,338,381</td>
+<td>114,221</td>
+<td>131,298</td>
+<td>98,646</td>
+<td>46.3</td>
+<td>26</td>
+<td>22/04/28</td>
+</tr>
+<tr>
+<th scope="row"><span class="kubun1">I&nbsp;&nbsp;　&nbsp;</span>22.10-03&nbsp;&nbsp;</th>
+<td>2,664,127</td>
+<td>181,849</td>
+<td>189,068</td>
+<td>139,083</td>
+<td>65.9</td>
+<td>26</td>
+<td>23/04/28</td>
+</tr>
+<tr>
+<th scope="row"><span class="kubun1">I&nbsp;&nbsp;　&nbsp;</span>23.10-03&nbsp;&nbsp;</th>
+<td>2,719,443</td>
+<td>192,686</td>
+<td>206,067</td>
+<td>164,721</td>
+<td>78.5</td>
+<td>30</td>
+<td>24/04/26</td>
+</tr>
+<tr>
+<th scope="row"><span class="kubun1">I&nbsp;&nbsp;予&nbsp;</span>24.10-03&nbsp;&nbsp;</th>
+<td>2,746,403</td>
+<td>223,318</td>
+<td>253,256</td>
+<td>196,360</td>
+<td>94.6</td>
+<td>30</td>
+<td>24/10/31</td>
+</tr>
+<tr>
+<th scope="row">前年同期比</th>
+<td><span class="up">+1.0</span></td>
+<td><span class="up">+15.9</span></td>
+<td><span class="up">+22.9</span></td>
+<td><span class="up">+19.2</span></td>
+<td><span class="up">+20.6</span></td>
+<td>&nbsp;</td>
+<td>(%)</td>
+</tr>
+</tbody>
+</table>
+</div><!--/fin_half_result_d-->
+
+
+
+
+<div class="mgt10"></div>
+<div class="ads_box">
+<!-- 1502_tan_pc_contentsshowcase -->
+<div id='div-gpt-ad-1413891264102-6' style='min-width:468px; height:60px;'>
+<script type='text/javascript'>
+googletag.cmd.push(function() { googletag.defineSlot('/94446337/1502_tan_pc_contentsshowcase', [[640, 60], [468, 60]], 'div-gpt-ad-1413891264102-6').addService(googletag.pubads()); });
+googletag.cmd.push(function() { googletag.display('div-gpt-ad-1413891264102-6'); });
+</script>
+</div>
+</div>
+
+<a name="cashflow_name" id="cashflow_name"></a>
+<div class="cashflow_title"><h2>キャッシュフロー(CF＝現金収支)推移</h2></div>
+<div>
+<div class="cap1"><h3>通期</h3></div>
+<div class="cap2"></div>
+</div>
+<table>
+<thead>
+<tr>
+<th scope="col" class="fb_01">決算期</th>
+<th scope="col" class="fb_02">営業益</th>
+<th scope="col" class="fb_02" data-text="フリーキャッシュフロー(FCF)は、営業キャッシュフローと投資キャッシュフローを足した値で、純現金収支ともいう。プラスなら営業活動で現金を生み出したことを示し、マイナスなら営業活動で資金が不足したことを示す。">フリーCF</th>
+<th scope="col" class="fb_02" data-text="営業キャッシュフロー(営業CF)は、本業の営業活動で稼いだ現金の増減を示す。">営業CF</th>
+<th scope="col" class="fb_02" data-text="投資キャッシュフロー(投資CF)は、設備投資など将来の利益につながる活動に使った現金の増減を示す。">投資CF</th>
+<th scope="col" class="fb_02" data-text="財務キャッシュフロー(財務CF)は、増資や配当、金融機関に対する借り入れ・返済などによる現金の増減を示す。">財務CF</th>
+<th scope="col" class="fb_02" data-text="現金等残高は、現金・預金と現金同等物を合計した期末の残高を示す。">現金等<br />残高</th>
+<th scope="col" class="fb_03" data-text="現金比率は総資産に対する現金等残高の割合を示す。">現金<br />比率</th>
+</tr>
+</thead>
+<tbody>
+<tr><td colspan="8" class="oc_btn1"><a href="#" id="oc_b1_cf"></a></td></tr>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<tr >
+<th scope="row" ><span class="kubun1">I&nbsp;&nbsp;　&nbsp;</span>2022.03&nbsp;&nbsp;</th>
+<td>252,051</td>
+<td class="mizu2">167,504</td>
+<td class="mizu2">282,371</td>
+<td class="mizu2">-114,867</td>
+<td class="mizu2">-241,319</td>
+<td class="mizu2">727,179</td>
+<td>14.24</td>
+</tr>
+
+<tr >
+<th scope="row" ><span class="kubun1">I&nbsp;&nbsp;　&nbsp;</span>2023.03&nbsp;&nbsp;</th>
+<td>262,352</td>
+<td class="mizu2">18,178</td>
+<td class="mizu2">166,711</td>
+<td class="mizu2">-148,533</td>
+<td class="mizu2">-119,568</td>
+<td class="mizu2">645,870</td>
+<td>11.57</td>
+</tr>
+
+<tr >
+<th scope="row" ><span class="kubun1">I&nbsp;&nbsp;　&nbsp;</span>2024.03&nbsp;&nbsp;</th>
+<td>328,525</td>
+<td class="mizu2">321,360</td>
+<td class="mizu2">415,479</td>
+<td class="mizu2">-94,119</td>
+<td class="mizu2">-240,118</td>
+<td class="mizu2">765,384</td>
+<td>12.41</td>
+</tr>
+<tr><td colspan="8" class="oc_btn2"><a href="#" id="oc_b2_cf"></a></td></tr>
+</tbody>
+</table>
+
+<div class="gyousekizaimu_title"><h2>業績・財務推移【実績】</h2></div>
+<div>
+<a name="shihankiruikei_name" id="shihankiruikei_name"></a>
+<div class="cap1"><h3>第２四半期累計決算【実績】</h3></div>
+<div class="cap2"><img src="/images/finance/kessan_s_bar1Q-2Q.jpg" /></div>
+</div>
+<table>
+<thead>
+<tr>
+<th scope="col" class="fb_01">決算期</th>
+<th scope="col" class="fb_02">売上高</th>
+<th scope="col" class="fb_02">営業益</th>
+<th scope="col" class="fb_02 mizu">経常益</th>
+<th scope="col" class="fb_02">最終益</th>
+<th scope="col" class="fb_03">修正1株益</th>
+<th scope="col" class="fb_03 mizu">対通期<br />進捗率</th>
+<th scope="col" class="fb_04">発表日</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th scope="row" ><span class="kubun1">I&nbsp;&nbsp;　&nbsp;</span>22.04-09&nbsp;&nbsp;</th>
+<td>2,339,567</td>
+<td>80,503</td>
+<td>103,111</td>
+<td>74,825</td>
+<td>35.4</td>
+<td>35.3</td>
+<td>22/10/28</td>
+</tr>
+<tr>
+<th scope="row" ><span class="kubun1">I&nbsp;&nbsp;　&nbsp;</span>23.04-09&nbsp;&nbsp;</th>
+<td>2,538,471</td>
+<td>135,839</td>
+<td>159,786</td>
+<td>120,228</td>
+<td>57.1</td>
+<td>43.7</td>
+<td>23/10/31</td>
+</tr>
+<tr>
+<th scope="row" ><span class="kubun1">I&nbsp;&nbsp;　&nbsp;</span>24.04-09&nbsp;&nbsp;</th>
+<td>2,643,597</td>
+<td>176,682</td>
+<td>176,744</td>
+<td>118,640</td>
+<td>56.9</td>
+<td>41.1</td>
+<td>24/10/31</td>
+</tr>
+<tr>
+<th scope="row">前年同期比</th>
+<td><span class="up">+4.1</span></td>
+<td><span class="up">+30.1</span></td>
+<td><span class="up">+10.6</span></td>
+<td><span class="down">-1.3</span></td>
+<td><span class="down">-0.4</span></td>
+<td>&nbsp;</td>
+<td>(%)</td>
+</tr>
+</tbody>
+</table>
+<div>
+<a name="shihanki_name" id="shihanki_name"></a>
+<div class="cap1gyousekishuusei fin_menu">
+<div class="title1">3ヵ月決算【実績】</div>
+<ul>
+<li class="fin_quarter_result"><h3><a href="#">業績推移</a></h3></li>
+<li class="fin_quarter_growth"><h3><a href="#">成長性</a></h3></li>
+</ul>
+</div>
+<div class="cap2 cap2s"><img src="/images/finance/kessan_s_bar_5Q_2Q.jpg" /></div>
+</div>
+
+<div class="fin_quarter_t0_d fin_quarter_result_d">
+<table>
+<thead>
+<tr>
+<th scope="col" class="fb_01">決算期</th>
+<th scope="col" class="fb_02 mizu">売上高</th>
+<th scope="col" class="fb_02 mizu">営業益</th>
+<th scope="col" class="fb_02">経常益</th>
+<th scope="col" class="fb_02">最終益</th>
+<th scope="col" class="fb_03">修正1株益</th>
+<th scope="col" class="fb_03 mizu">売上営業<br />損益率</th>
+<th scope="col" class="fb_04">発表日</th>
+</tr>
+</thead>
+<tbody>
+<tr><td colspan="8" class="oc_btn1"><a href="#" id="oc_b1_quarter_result"></a></td></tr>
+
+<tr  >
+<th scope="row"><span class="kubun1">I&nbsp;&nbsp;　&nbsp;</span>22.10-12&nbsp;&nbsp;</th>
+
+<td>1,225,670</td>
+<td>82,722</td>
+<td>85,959</td>
+<td>64,518</td>
+<td>30.6</td>
+<td>6.7</td>
+
+<td class="fb_pdf1"><a href="https://kabutan.jp/disclosures/pdf/20230202/140120230130595814/" target="pdf">23/02/02<img src="/images/cmn/pdf12.gif" /></a></td>
+
+
+</tr>
+
+<tr  >
+<th scope="row"><span class="kubun1">I&nbsp;&nbsp;　&nbsp;</span>23.01-03&nbsp;&nbsp;</th>
+
+<td>1,438,457</td>
+<td>99,127</td>
+<td>103,109</td>
+<td>74,565</td>
+<td>35.3</td>
+<td>6.9</td>
+
+<td class="fb_pdf1"><a href="https://kabutan.jp/disclosures/pdf/20230428/140120230426553967/" target="pdf">23/04/28<img src="/images/cmn/pdf12.gif" /></a></td>
+
+
+</tr>
+
+<tr  >
+<th scope="row"><span class="kubun1">I&nbsp;&nbsp;　&nbsp;</span>23.04-06&nbsp;&nbsp;</th>
+
+<td>1,220,300</td>
+<td>61,005</td>
+<td>76,884</td>
+<td>57,834</td>
+<td>27.4</td>
+<td>5.0</td>
+
+<td class="fb_pdf1"><a href="https://kabutan.jp/disclosures/pdf/20230731/140120230727528456/" target="pdf">23/07/31<img src="/images/cmn/pdf12.gif" /></a></td>
+
+
+</tr>
+
+<tr  >
+<th scope="row"><span class="kubun1">I&nbsp;&nbsp;　&nbsp;</span>23.07-09&nbsp;&nbsp;</th>
+
+<td>1,318,171</td>
+<td>74,834</td>
+<td>82,902</td>
+<td>62,394</td>
+<td>29.6</td>
+<td>5.7</td>
+
+<td class="fb_pdf1"><a href="https://kabutan.jp/disclosures/pdf/20231031/140120231027572853/" target="pdf">23/10/31<img src="/images/cmn/pdf12.gif" /></a></td>
+
+
+</tr>
+
+<tr  >
+<th scope="row"><span class="kubun1">I&nbsp;&nbsp;　&nbsp;</span>23.10-12&nbsp;&nbsp;</th>
+
+<td>1,243,935</td>
+<td>86,494</td>
+<td>89,237</td>
+<td>65,869</td>
+<td>31.3</td>
+<td>7.0</td>
+
+<td class="fb_pdf1"><a href="https://kabutan.jp/disclosures/pdf/20240205/140120240131523730/" target="pdf">24/02/05<img src="/images/cmn/pdf12.gif" /></a></td>
+
+
+</tr>
+
+<tr  >
+<th scope="row"><span class="kubun1">I&nbsp;&nbsp;　&nbsp;</span>24.01-03&nbsp;&nbsp;</th>
+
+<td class="high">1,475,508</td>
+<td>106,192</td>
+<td class="high">116,830</td>
+<td class="high">98,852</td>
+<td class="high">47.1</td>
+<td>7.2</td>
+
+<td class="fb_pdf1"><a href="https://kabutan.jp/disclosures/pdf/20240426/140120240424575617/" target="pdf">24/04/26<img src="/images/cmn/pdf12.gif" /></a></td>
+
+
+</tr>
+
+<tr  >
+<th scope="row"><span class="kubun1">I&nbsp;&nbsp;　&nbsp;</span>24.04-06&nbsp;&nbsp;</th>
+
+<td>1,286,484</td>
+<td>58,659</td>
+<td>76,125</td>
+<td>49,138</td>
+<td>23.5</td>
+<td>4.6</td>
+
+<td class="fb_pdf1"><a href="https://kabutan.jp/disclosures/pdf/20240731/140120240729557077/" target="pdf">24/07/31<img src="/images/cmn/pdf12.gif" /></a></td>
+
+
+</tr>
+
+<tr  >
+<th scope="row"><span class="kubun1">I&nbsp;&nbsp;　&nbsp;</span>24.07-09&nbsp;&nbsp;</th>
+
+<td>1,357,113</td>
+<td class="high">118,023</td>
+<td>100,619</td>
+<td>69,502</td>
+<td>33.3</td>
+<td>8.7</td>
+
+<td class="fb_pdf1"><a href="https://kabutan.jp/disclosures/pdf/20241031/140120241030506203/" target="pdf">24/10/31<img src="/images/cmn/pdf12.gif" /></a></td>
+
+
+</tr>
+
+<tr>
+<th scope="row">前年同期比</th>
+<td><span class="up">+3.0</span></td>
+<td><span class="up">+57.7</span></td>
+<td><span class="up">+21.4</span></td>
+<td><span class="up">+11.4</span></td>
+<td><span class="up">+12.4</span></td>
+<td>&nbsp;</td>
+<td>(%)</td>
+</tr>
+
+<tr><td colspan="8" class="oc_btn2"><a href="#" id="oc_b2_quarter_result"></a></td></tr>
+</tbody>
+</table>
+</div><!--/fin_quarter_result_d-->
+
+
+
+
+<div class="fin_quarter_t0_d fin_quarter_growth_d dispnone">
+<table>
+<thead>
+<tr>
+<th scope="col" class="fb_01">決算期</th>
+<th scope="col" class="fb_02">売上高</th>
+<th scope="col" class="fb_05 mizu">前年<br />同期比</th>
+<th scope="col" class="fb_02">営業益</th>
+<th scope="col" class="fb_05 mizu">前年<br />同期比</th>
+<th scope="col" class="fb_02">経常益</th>
+<th scope="col" class="fb_05 mizu">前年<br />同期比</th>
+<th scope="col" class="fb_02">修正1株益</th>
+<th scope="col" class="fb_05 mizu">前年<br />同期比</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th scope="row" ><span class="kubun1">I&nbsp;&nbsp;　&nbsp;</span>19.10-12&nbsp;&nbsp;</th>
+<td>1,067,601</td>
+<td class="mizu"><span class="down">-2.4</span></td>
+
+<td class="nopm" colspan="6" rowspan="19">
+利益項目データは、株探プレミアムコンテンツです。<br>
+<a href="#" class="fin_modal decoline">≫≫「株探プレミアム」に申し込む</a><br>
+※プレミアム会員の方は、“<a class="decoline" href="https://account.kabutan.jp/login" rel="nofollow">ログイン</a>”してください。
+
+</tr>
+<tr>
+<th scope="row" ><span class="kubun1">I&nbsp;&nbsp;　&nbsp;</span>20.01-03&nbsp;&nbsp;</th>
+<td>1,212,380</td>
+<td class="mizu"><span class="down">-3.5</span></td>
+
+
+</tr>
+<tr>
+<th scope="row" ><span class="kubun1">I&nbsp;&nbsp;　&nbsp;</span>20.04-06&nbsp;&nbsp;</th>
+<td>858,151</td>
+<td class="mizu"><span class="down">-18.3</span></td>
+
+
+</tr>
+<tr>
+<th scope="row" ><span class="kubun1">I&nbsp;&nbsp;　&nbsp;</span>20.07-09&nbsp;&nbsp;</th>
+<td>1,043,873</td>
+<td class="mizu"><span class="down">-7.8</span></td>
+
+
+</tr>
+<tr>
+<th scope="row" ><span class="kubun1">I&nbsp;&nbsp;　&nbsp;</span>20.10-12&nbsp;&nbsp;</th>
+<td>1,038,587</td>
+<td class="mizu"><span class="down">-2.7</span></td>
+
+
+</tr>
+<tr>
+<th scope="row" ><span class="kubun1">I&nbsp;&nbsp;　&nbsp;</span>21.01-03&nbsp;&nbsp;</th>
+<td>1,250,822</td>
+<td class="mizu"><span class="up">+3.2</span></td>
+
+
+</tr>
+<tr>
+<th scope="row" ><span class="kubun1">I&nbsp;&nbsp;　&nbsp;</span>21.04-06&nbsp;&nbsp;</th>
+<td>1,066,442</td>
+<td class="mizu"><span class="up">+24.3</span></td>
+
+
+</tr>
+<tr>
+<th scope="row" ><span class="kubun1">I&nbsp;&nbsp;　&nbsp;</span>21.07-09&nbsp;&nbsp;</th>
+<td>1,071,935</td>
+<td class="mizu"><span class="up">+2.7</span></td>
+
+
+</tr>
+<tr>
+<th scope="row" ><span class="kubun1">I&nbsp;&nbsp;　&nbsp;</span>21.10-12&nbsp;&nbsp;</th>
+<td>1,042,886</td>
+<td class="mizu"><span class="up">+0.4</span></td>
+
+
+</tr>
+<tr>
+<th scope="row" ><span class="kubun1">I&nbsp;&nbsp;　&nbsp;</span>22.01-03&nbsp;&nbsp;</th>
+<td>1,295,495</td>
+<td class="mizu"><span class="up">+3.6</span></td>
+
+
+</tr>
+<tr>
+<th scope="row" ><span class="kubun1">I&nbsp;&nbsp;　&nbsp;</span>22.04-06&nbsp;&nbsp;</th>
+<td>1,067,723</td>
+<td class="mizu"><span class="up">+0.1</span></td>
+
+
+</tr>
+<tr>
+<th scope="row" ><span class="kubun1">I&nbsp;&nbsp;　&nbsp;</span>22.07-09&nbsp;&nbsp;</th>
+<td>1,271,844</td>
+<td class="mizu"><span class="up">+18.6</span></td>
+
+
+</tr>
+<tr>
+<th scope="row" ><span class="kubun1">I&nbsp;&nbsp;　&nbsp;</span>22.10-12&nbsp;&nbsp;</th>
+<td>1,225,670</td>
+<td class="mizu"><span class="up">+17.5</span></td>
+
+
+</tr>
+<tr>
+<th scope="row" ><span class="kubun1">I&nbsp;&nbsp;　&nbsp;</span>23.01-03&nbsp;&nbsp;</th>
+<td>1,438,457</td>
+<td class="mizu"><span class="up">+11.0</span></td>
+
+
+</tr>
+<tr>
+<th scope="row" ><span class="kubun1">I&nbsp;&nbsp;　&nbsp;</span>23.04-06&nbsp;&nbsp;</th>
+<td>1,220,300</td>
+<td class="mizu"><span class="up">+14.3</span></td>
+
+
+</tr>
+<tr>
+<th scope="row" ><span class="kubun1">I&nbsp;&nbsp;　&nbsp;</span>23.07-09&nbsp;&nbsp;</th>
+<td>1,318,171</td>
+<td class="mizu"><span class="up">+3.6</span></td>
+
+
+</tr>
+<tr>
+<th scope="row" ><span class="kubun1">I&nbsp;&nbsp;　&nbsp;</span>23.10-12&nbsp;&nbsp;</th>
+<td>1,243,935</td>
+<td class="mizu"><span class="up">+1.5</span></td>
+
+
+</tr>
+<tr>
+<th scope="row" ><span class="kubun1">I&nbsp;&nbsp;　&nbsp;</span>24.01-03&nbsp;&nbsp;</th>
+<td class="high">1,475,508</td>
+<td class="mizu"><span class="up">+2.6</span></td>
+
+
+</tr>
+<tr>
+<th scope="row" ><span class="kubun1">I&nbsp;&nbsp;　&nbsp;</span>24.04-06&nbsp;&nbsp;</th>
+<td>1,286,484</td>
+<td class="mizu"><span class="up">+5.4</span></td>
+
+
+</tr>
+<tr>
+<th scope="row" ><span class="kubun1">I&nbsp;&nbsp;　&nbsp;</span>24.07-09&nbsp;&nbsp;</th>
+<td>1,357,113</td>
+<td class="mizu"><span class="up">+3.0</span></td>
+<td class="high">118,023</td>
+<td class="mizu"><span class="up">+57.7</span></td>
+<td>100,619</td>
+<td class="mizu"><span class="up">+21.4</span></td>
+<td>33.3</td>
+<td class="mizu"><span class="up">+12.4</span></td>
+</tr>
+</tbody>
+</table>
+
+
+</div><!--/fin_quarter_growth_d-->
+
+
+<div>
+<div class="cap1 mgt5"><h3>3ヵ月決算過去最高 【実績】</h3><a name="kakosaikou_zisseki" id="kakozaikou_zisseki"></a></div>
+</div>
+<table>
+<thead>
+<tr>
+<th scope="col" class="fb_01">&nbsp;</th>
+<th scope="col" class="fb_02">売上高</th>
+<th scope="col" class="fb_02">営業益</th>
+<th scope="col" class="fb_02">経常益</th>
+<th scope="col" class="fb_02">最終益</th>
+<th scope="col" class="fb_03">修正1株益</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<th scope="row">過去最高</th>
+<td>1,475,508</td>
+<td>118,023</td>
+<td>116,830</td>
+<td>98,852</td>
+<td>47.1</td>
+</tr>
+<tr>
+<th scope="row">決算期</th>
+<td>2024.03</td>
+<td>2024.09</td>
+<td>2024.03</td>
+<td>2024.03</td>
+<td>2024.03</td>
+</tr>
+</tbody>
+</table>
+<div>
+<a name="zaimu_name" id="zaimu_name"></a>
+<div class="cap1"><h3>財務 【実績】</h3></div>
+<div class="cap2"><img src="/images/finance/kessan_s_bar1Q-2Q.jpg" /></div>
+</div>
+<table>
+<thead>
+<tr>
+<th scope="col" class="fb_01">決算期</th>
+<th scope="col" class="fb_02">１株<br />純資産</th>
+<th scope="col" class="fb_03">自己資本<br />比率</th>
+<th scope="col" class="fb_02">総資産</th>
+<th scope="col" class="fb_02">自己資本</th>
+<th scope="col" class="fb_02">剰余金</th>
+<th scope="col" class="fb_03">有利子<br />負債倍率</th>
+<th scope="col" class="fb_04">発表日</th>
+</tr>
+</thead>
+<tbody>
+<tr><td colspan="8" class="oc_btn1"><a href="#" id="oc_b1_bs"></a></td></tr>
+
+<tr >
+<th scope="row"><span class="kubun1">I&nbsp;&nbsp;　&nbsp;</span>2022.03&nbsp;&nbsp;</th>
+<td>1,409.08</td>
+<td>58.3</td>
+<td>5,107,973</td>
+<td>2,975,941</td>
+<td>2,464,966</td>
+<td>0.11</td>
+<td>22/04/28</td>
+</tr>
+<tr >
+<th scope="row"><span class="kubun1">I&nbsp;&nbsp;　&nbsp;</span>2023.03&nbsp;&nbsp;</th>
+<td>1,533.98</td>
+<td>58.0</td>
+<td>5,582,519</td>
+<td>3,239,027</td>
+<td>2,636,136</td>
+<td>0.12</td>
+<td>23/04/28</td>
+</tr>
+<tr >
+<th scope="row"><span class="kubun1">I&nbsp;&nbsp;　&nbsp;</span>2024.03&nbsp;&nbsp;</th>
+<td>1,790.63</td>
+<td>60.6</td>
+<td>6,167,340</td>
+<td>3,739,324</td>
+<td>3,102,755</td>
+<td>0.11</td>
+<td>24/04/26</td>
+</tr>
+<tr >
+<th scope="row"><span class="kubun1">I&nbsp;&nbsp;　&nbsp;</span>24.04-09&nbsp;&nbsp;</th>
+<td>－</td>
+<td>61.6</td>
+<td>6,092,803</td>
+<td>3,753,772</td>
+<td>3,106,567</td>
+<td>0.10</td>
+<td>24/10/31</td>
+</tr>
+
+<tr><td colspan="8" class="oc_btn2"><a href="#" id="oc_b2_bs"></a></td></tr>
+</tbody>
+</table>
+
+<ul class="info">
+<li>※単位について</li>
+<li>・業績推移：売上高、営業益、経常益、最終益は「百万円」。修正1株益、修正1株配は「円」。進捗率、売上営業利益率は「％」</li>
+<li>・成長性、収益性：前年比、前年同期比、ROE、ROAは「％」、総資産回転率は「回」</li>
+<li>・キャッシュフロー：フリーCF、営業CF、投資CF、財務CF、現金等残高は「百万円」、現金比率は「％」</li>
+<li>・財務：１株純資産は「円」。自己資本比率は「％」。総資産、自己資本、剰余金は「百万円」。有利子負債倍率は「倍」</li>
+<li>◇「連」：日本会計基準［連結決算］、「単」：日本会計基準［非連結決算(単独決算)］、「U」：米国会計基準、「I」：国際会計基準(IFRS)、「予」：予想業績、「旧」：修正前の予想業績、「新」：修正後の予想業績、「実」：実績業績、「変」：決算期変更</li>
+<li>◇［連結／非連結］決算区分の変更があった場合は、連続的に業績推移を追えるように、連結と非連結を混在して表記しています。連結と非連結が混在しない場合は、「連」「単」表記は省略します。</li>
+<li>◇米国会計基準と国際会計基準では、「経常益」欄の数値は「税引き前利益」を表記します。</li>
+<li>◇決算期表記後の「*」は上場前の決算を示し、2018年以前に新規上場した銘柄では1株あたりの項目は株式分割などによる換算修正は行っていません。</li>
+<li>◇前期比および前年同期比は、会計基準や決算期間が異なる場合は比較できないため、「－」で表記します。同一の会計基準内で規則変更が行われた場合については、変更は考慮せずに比較を行っています。</li>
+<li>◇予想１株利益、予想1株配当は期中に実施された株式分割など新株発行を反映した現在の発行済み株式数で算出しています。そのため、会社発表の数値と違う場合があります。</li>
+<li>◇業績予想がレンジで開示された場合は中央値を表記しています。</li>
+<li>◇収益性におけるROE、ROA、総資産回転率は12ヵ月決算以外は算出せず、「－」で表記します。</li>
+<li>◇有利子負債倍率の計算に用いる有利子負債は貸借対照表に基づいて算出しています。IFRSの一部企業、財務諸表が特殊な企業などで有利子負債が取得できない場合は有利子負債倍率を「-」で記載しています。</li>
+</ul>
+
+<div class="stock_kes_menu">
+<ul>
+<li><a href="#kakosaikou_zisseki" title="過去最高【実績】">過去最高<br />【実績】</a></li>
+<li><a href="#hanki_name" title="上期（下期）【予想】">半期<br />【予想】</a></li>
+<li><a href="#cashflow_name" title="現金収支【実績】">現金収支<br />【実績】</a></li>
+<li><a href="#shihankiruikei_name" title="四半期累計【実績】">四半期累計<br />【実績】</a></li>
+<li><a href="#zaimu_name" title="財務【実績】">財務<br />【実績】</a></li>
+<li><a href="#top" title="ＴＯＰへ">ＴＯＰへ</a></li>
+</ul>
+</div>
+
+
+<div class="floatclear mgt10"></div>
+<div class="ads_box">
+<!-- /94446337/1561_tan_pc_longbanner -->
+<div id='div-gpt-ad-1470729919773-0'>
+<script type='text/javascript'>
+googletag.cmd.push(function() { googletag.defineSlot('/94446337/1561_tan_pc_longbanner', [650, 300], 'div-gpt-ad-1470729919773-0').addService(googletag.pubads()); });
+googletag.cmd.push(function() { googletag.display('div-gpt-ad-1470729919773-0'); });
+</script>
+</div>
+</div>
+<div class="floatclear"></div>
+<script>
+$(function(){
+	$(document).on('click','.fin_modal',function() {
+		show_modalwin('#fin_modal');
+		return false;
+	});
+});
+</script>
+<div id="fin_modal" class="modalwin_content" style="display: none;">
+
+<div class="flb_content">
+  <div class="flb_logo">
+    <img src="/images/header/top_kabutan_logo_premium_pc.png?v=220310"  alt="かぶたん ロゴ" noloading=""></img>
+  </div>
+  
+    
+    
+  
+    <div class="flb_content_in">
+    <div class="flb_gentei">
+                      こちらは株探プレミアム 「<b>日本株プラン</b>」 または「<b>日米セットプラン</b>」<span class="red fwb">限定コンテンツ</span> です。プランをご契約して見ることができます。
+                  </div><!--/flb_gentei-->
+    
+        <a class="flb_premium_button"  href="https://info.kabutan.jp/lp/?utm_source=kabutan&utm_medium=referral&utm_campaign=kabutan_pc&utm_content=stock__finance__6503" rel="nofollow">株探プレミアムに申し込む(初回無料体験付き)</a>
+        
+        <a class="flb_login" href="https://account.kabutan.jp/login" rel="nofollow">
+      <svg class="" width="8" height="16" aria-hidden="true" focusable="false" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 512"><path fill="currentColor" d="M224.3 273l-136 136c-9.4 9.4-24.6 9.4-33.9 0l-22.6-22.6c-9.4-9.4-9.4-24.6 0-33.9l96.4-96.4-96.4-96.4c-9.4-9.4-9.4-24.6 0-33.9L54.3 103c9.4-9.4 24.6-9.4 33.9 0l136 136c9.5 9.4 9.5 24.6.1 34z"></path></svg>プレミアム会員の方はこちらからログイン
+    </a>
+        
+            <div class="flb_desc">
+      <div class="fwb">プレミアム会員になると...</div>
+      <div class="flb_flex2">
+        <div class="flb_bg-ash">
+          <svg class="" width="24" height="24" aria-hidden="true" focusable="false" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M496 384H64V80c0-8.84-7.16-16-16-16H16C7.16 64 0 71.16 0 80v336c0 17.67 14.33 32 32 32h464c8.84 0 16-7.16 16-16v-32c0-8.84-7.16-16-16-16zM464 96H345.94c-21.38 0-32.09 25.85-16.97 40.97l32.4 32.4L288 242.75l-73.37-73.37c-12.5-12.5-32.76-12.5-45.25 0l-68.69 68.69c-6.25 6.25-6.25 16.38 0 22.63l22.62 22.62c6.25 6.25 16.38 6.25 22.63 0L192 237.25l73.37 73.37c12.5 12.5 32.76 12.5 45.25 0l96-96 32.4 32.4c15.12 15.12 40.97 4.41 40.97-16.97V112c.01-8.84-7.15-16-15.99-16z"></path></svg>
+        </div>
+        株価情報をリアルタイムで提供
+      </div>
+      <div class="flb_flex2">
+        <div class="flb_bg-ash">
+          <svg class="" width="24" height="24" aria-hidden="true" focusable="false" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 448"><path  fill="currentColor"d="M96 296v16c0 4.25-3.75 8-8 8h-16c-4.25 0-8-3.75-8-8v-16c0-4.25 3.75-8 8-8h16c4.25 0 8 3.75 8 8zM96 232v16c0 4.25-3.75 8-8 8h-16c-4.25 0-8-3.75-8-8v-16c0-4.25 3.75-8 8-8h16c4.25 0 8 3.75 8 8zM96 168v16c0 4.25-3.75 8-8 8h-16c-4.25 0-8-3.75-8-8v-16c0-4.25 3.75-8 8-8h16c4.25 0 8 3.75 8 8zM384 296v16c0 4.25-3.75 8-8 8h-240c-4.25 0-8-3.75-8-8v-16c0-4.25 3.75-8 8-8h240c4.25 0 8 3.75 8 8zM384 232v16c0 4.25-3.75 8-8 8h-240c-4.25 0-8-3.75-8-8v-16c0-4.25 3.75-8 8-8h240c4.25 0 8 3.75 8 8zM384 168v16c0 4.25-3.75 8-8 8h-240c-4.25 0-8-3.75-8-8v-16c0-4.25 3.75-8 8-8h240c4.25 0 8 3.75 8 8zM416 344v-208c0-4.25-3.75-8-8-8h-368c-4.25 0-8 3.75-8 8v208c0 4.25 3.75 8 8 8h368c4.25 0 8-3.75 8-8zM448 72v272c0 22-18 40-40 40h-368c-22 0-40-18-40-40v-272c0-22 18-40 40-40h368c22 0 40 18 40 40z"></path></svg>
+        </div>
+        企業業績の表示期数を拡大
+      </div>
+      <div class="flb_flex2">
+        <div class="flb_bg-ash">
+          <svg class="" width="24" height="24" aria-hidden="true" focusable="false" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><path fill="currentColor" d="M552 64H88c-13.255 0-24 10.745-24 24v8H24c-13.255 0-24 10.745-24 24v272c0 30.928 25.072 56 56 56h472c26.51 0 48-21.49 48-48V88c0-13.255-10.745-24-24-24zM56 400a8 8 0 0 1-8-8V144h16v248a8 8 0 0 1-8 8zm236-16H140c-6.627 0-12-5.373-12-12v-8c0-6.627 5.373-12 12-12h152c6.627 0 12 5.373 12 12v8c0 6.627-5.373 12-12 12zm208 0H348c-6.627 0-12-5.373-12-12v-8c0-6.627 5.373-12 12-12h152c6.627 0 12 5.373 12 12v8c0 6.627-5.373 12-12 12zm-208-96H140c-6.627 0-12-5.373-12-12v-8c0-6.627 5.373-12 12-12h152c6.627 0 12 5.373 12 12v8c0 6.627-5.373 12-12 12zm208 0H348c-6.627 0-12-5.373-12-12v-8c0-6.627 5.373-12 12-12h152c6.627 0 12 5.373 12 12v8c0 6.627-5.373 12-12 12zm0-96H140c-6.627 0-12-5.373-12-12v-40c0-6.627 5.373-12 12-12h360c6.627 0 12 5.373 12 12v40c0 6.627-5.373 12-12 12z"></path></svg>
+        </div>
+        限定コラムが読み放題
+      </div>
+    </div><!--/flb_desc-->
+            
+  </div><!--/flb_content_in-->
+    
+</div><!--/flb_content-->
+
+</div>
+</div>
+
+<div class="floatclear"></div>
+</div>
+<!--main end-->
+
+<!--sub start-->
+<div id="sub">
+<!-- 1201_tan_pc_primerectangle -->
+<div id='div-gpt-ad-1413891264102-1' style="min-height:250px; margin-bottom:10px;">
+<script type='text/javascript'>
+googletag.cmd.push(function() { googletag.display('div-gpt-ad-1413891264102-1'); });
+</script>
+</div>
+
+
+<div id="announce">
+<h3>株探からのお知らせ</h3>
+<ul></ul>
+</div>
+
+<script>
+$(function(){
+set_AnnounceBox({'mode':'free'});
+});
+</script>
+
+
+<script type="text/javascript" src="/js/ch/fav.js?v=2308181"></script>
+
+
+
+<link rel="stylesheet" crossorigin="anonymous" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css" integrity="sha512-MV7K8+y+gLIBoVD59lQIYicR65iaqukzvf/nwasF0nqhPay5w/9lJmVM2hMDcnK1OnMGCdVK+iQrJ7lzPJQd1w==" referrerpolicy="no-referrer" />
+
+<div id="toggle-my-favorite-modal" class="hidden absolute top-[35px] z-50 w-[225px]">
+  <div class="bg-white border border-slate-300 rounded-lg">
+    <div class="flex items-center h-12 px-3 border-b border-slate-300">
+      <input type="text"
+             id="group-search-input"
+             class="w-full text-sm leading-5 outline-none placeholder-slate-400 font-light"
+             placeholder="追加先グループ">
+      <img src="/images/cmn/favorite_group_search.svg" width="14" height="14">
+    </div>
+    <form id="toggle-favorite-to-group-form"
+          action=""
+          method="post">
+      <input type="hidden" name="stock_code" id="stock_code" value="6503" autocomplete="off" />
+      <input type="hidden" name="names[]" id="names_" autocomplete="off" />
+
+      <div class="h-[230px] overflow-y-auto border-b border-slate-300">
+        <div class="my-favorite-create-group-open-btn px-3 py-[8px] flex items-center cursor-pointer hover:bg-slate-50" on=tap:my-favorite-create-group-lightbox.open>
+          <img src="/images/cmn/favorite_group_plus.svg" width="14" height="14">
+          <span class="ml-3 text-sm text-slate-700 font-light leading-5">新規グループに追加</span>
+        </div>
+
+        <div id="group-items-container"></div>
+      </div>
+      <div class="h-12 p-2 flex items-center justify-between">
+        <div id="toggle-my-favorite-modal-close" class="flex items-center px-2.5 py-3 cursor-pointer">
+          <img src="/images/cmn/favorite_group_close.svg" width="14" height="14">
+          <span class="ml-2 text-sm text-slate-700 font-normal leading-5">閉じる</span>
+        </div>
+        <input type="submit" value="適用" id="toggle-favorite-to-group-submit" class="px-4 py-[8px] bg-slate-50 border border-gray-300 rounded text-sm text-slate-500 font-bold leading-5"  disabled="disabled">
+      </div>
+    </form>
+  </div>
+</div><!--#toggle-my-favorite-modal-->
+
+
+<div id="my-favorite-create-group-lightbox" layout="nodisplay" class="hidden fixed">
+  <div class="flex justify-center items-center px-4 text-left lightbox-bg-blue leading-normal h-full">
+    <div class="bg-white rounded p-6 shadow-2xl tracking-widest w-[500px]">
+      <form id="my-favorite-create-group-form"
+            action=""
+            method="post">
+        <input type="hidden" name="stock_code" id="stock_code" value="6503" autocomplete="off" />
+
+        <div class="text-center text-lg text-slate-700 font-bold leading-6 mb-4">グループ新規作成</div>
+
+        <div class="text-sm text-slate-700 font-bold leading-5 mb-2">
+          グループ名
+          <span class="ml-1 p-1 text-2xs font-light leading-4 text-red-bright bg-pale-red">必須</span>
+        </div>
+        <input type="text"
+              name="name"
+              class="w-full p-2 text-lg leading-6 outline-none text-slate-700 placeholder-slate-400 font-light border border-slate-400 rounded"
+              id="create-group-name-input"
+              placeholder="必須（12文字まで）">
+        <div id="error-name-text" class="mb-2 text-sm text-red-bright"></div>
+        <div class="text-2xs text-right text-slate-700 font-light leading-4 mb-4">
+          <span class="name-length">0</span><span> / 12</span>
+        </div>
+
+        <div class="text-sm text-slate-700 font-bold leading-5 mb-2">
+          メモ
+        </div>
+        <textarea type="text"
+                  name="memo"
+                  class="w-full h-24 p-2 text-lg leading-6 outline-none text-slate-700 placeholder-slate-400 font-light border border-slate-400 rounded"
+                  id="create-group-memo-textarea"
+                  placeholder="任意（40文字まで）"></textarea>
+        <div id="error-memo-text" class="mb-2 text-sm text-red-bright"></div>
+        <div class="text-2xs text-right text-slate-700 font-light leading-4 mt-2 mb-4">
+          <span class="memo-length">0</span><span> / 40</span>
+        </div>
+
+        <div class="flex justify-between mb-8 text-sm leading-5">
+          <label class="flex items-center renew-checkbox">
+            <input type="checkbox" name="priority" id="priority" value="true" class="invisible w-0 m-0 p-0 border-0" />
+            <span class="flex items-center text-sm text-slate-700 font-light leading-5">
+              <i class="fa-solid fa-square-check text-lg border border-slate-300 bg-white rounded text-white mr-2"></i>優先グループにする
+            </span>
+          </label>
+
+        </div>
+
+        <input type="submit" value="グループ作成" class="w-full text-lg leading-6 py-2.5 mb-6 bg-slate-50 border border-gray-300 rounded text-slate-500 font-bold shadow" id="my-favorite-create-group-submit" disabled="disabled">
+      </form>
+
+      <div on="tap:my-favorite-create-group-lightbox.close" class="modalwin_closebtn text-center text-lg text-slate-500 font-light leading-6 cursor-pointer">
+        キャンセル
+      </div>
+    </div>
+  </div>
+</div><!--#my-favorite-create-group-lightbox-->
+
+
+<div id="stock-updated" class="prompt-bar-pc hidden">
+  <div class="flex justify-between items-center prompt-bar favorite-added">
+    <div class="favorite-star"></div>
+    <div class="flex-1 ml-4">適用しました。</div>
+    <div id="stock-updated-close" class="close-btn">x</div>
+  </div>
+</div>
+
+
+<div id="stock-added" class="prompt-bar-pc" style="display:none;">
+  <div class="flex justify-between items-center prompt-bar favorite-added">
+    <div class="favorite-star"></div>
+    <div class="flex-1 ml-4">お気に入りに追加しました。</div>
+    <div id="stock-added-close" class="close-btn">x</div>
+  </div>
+</div>
+
+
+<div id="stock-removed" class="prompt-bar-pc" style="display:none;">
+  <div class="flex justify-between items-center prompt-bar">
+    <div class="favorite-star"></div>
+    <div class="flex-1 ml-4">お気に入りから削除しました。</div>
+    <div id="stock-removed-close" class="close-btn">x</div>
+  </div>
+</div>
+
+
+<div id="ovarlimit" class="modalwin_content" style="display: none;">
+	<div class="bg-white rounded p-6 text-center shadow-2xl tracking-widest max-w-[31.25rem]">
+		<div class="flex justify-center">
+			<img src="/images/header/top_kabutan_logo_premium_pc.png?v=220310" height="48" alt="かぶたん ロゴ" noloading="">
+		</div>
+		
+		<div class="text-left mt-4 mb-1 text-slate-700">
+			<div class="font-bold mb-1">
+				お気に入りがいっぱいです！
+			</div>
+			<div class="font-light">
+				有料サービス「株探プレミアム」へ登録するとお気に入り銘柄を無制限で登録することができます。初めてご登録の方には「30日間無料体験」実施中！
+			</div>
+		</div>
+		
+		<img src="/images/cmn/okiniiri_wall_free_img.svg" width="296" height="162">
+		
+		<a class="mt-4 flex flex-col justify-center items-center bg-navy py-[9px] rounded text-white hover:bg-navy-dark hover:text-white shadow-premium-button border border-slate-300" href="https://info.kabutan.jp/lp/?utm_source=kabutan&utm_medium=referral&utm_campaign=kabutan_pc&utm_content=stock__finance__6503" rel="nofollow">
+			株探プレミアムに申し込む(初回無料体験付き)
+		</a>
+		
+		<a class="text-sm font-light block mt-4 text-blue-bright" href="https://account.kabutan.jp/login" rel="nofollow">
+			<svg class="text-black inline mb-1 mr-2" width="8" height="16" aria-hidden="true" focusable="false" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 512"><path fill="currentColor" d="M224.3 273l-136 136c-9.4 9.4-24.6 9.4-33.9 0l-22.6-22.6c-9.4-9.4-9.4-24.6 0-33.9l96.4-96.4-96.4-96.4c-9.4-9.4-9.4-24.6 0-33.9L54.3 103c9.4-9.4 24.6-9.4 33.9 0l136 136c9.5 9.4 9.5 24.6.1 34z"></path></svg>プレミアム会員の方はこちらからログイン
+		</a>
+		<div class="mt-4 text-left text-slate-700 py-2 px-3 text-[0.75rem] font-light bg-soft-gray">
+			※無料体験終了後は、毎月の料金が発生します。
+			<br>
+			※過去に「30日間無料体験」をご利用になった方には無料体験は適用されません。
+		</div>
+	</div>
+</div><!--#overlimit-->
+
+
+<div id="needlogin" class="modalwin_content" style="display: none;">
+<div class="bg-white rounded p-6 text-center shadow-2xl tracking-widest max-w-[31.25rem]">
+	<div class="flex justify-center">
+		<img src="/images/header/top_kabutan_logo_premium_pc.png?v=220310" height="48" alt="かぶたん ロゴ" noloading="">
+	</div>
+	<div class="text-left mt-4 mb-1 font-light text-slate-700">
+		このアイコン<span class="font-bold">「★」</span>は利用者の皆さまの<span class="font-bold">「お気に入り銘柄」を登録もしくは削除する機能です。</span>株探プレミアムに登録すると、「お気に入り銘柄」機能を無制限でご利用いただけます。
+	</div>
+	<img src="/images/cmn/okiniiri_wall_img.png" width="368" height="201">
+	<a class="text-left text-sm font-light block mt-4 text-blue-bright" href="https://support.kabutan.jp/hc/ja/articles/12963164509209">
+	<svg class="text-black inline mb-1 mr-2" width="8" height="16" aria-hidden="true" focusable="false" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 512"><path fill="currentColor" d="M224.3 273l-136 136c-9.4 9.4-24.6 9.4-33.9 0l-22.6-22.6c-9.4-9.4-9.4-24.6 0-33.9l96.4-96.4-96.4-96.4c-9.4-9.4-9.4-24.6 0-33.9L54.3 103c9.4-9.4 24.6-9.4 33.9 0l136 136c9.5 9.4 9.5 24.6.1 34z"></path></svg> 「お気に入り銘柄」機能について詳しく</a>
+	<a class="mt-4 flex flex-col justify-center items-center bg-navy py-[9px] rounded text-white hover:bg-navy-dark hover:text-white shadow-premium-button border border-slate-300" href="https://info.kabutan.jp/lp/?utm_source=kabutan&utm_medium=referral&utm_campaign=kabutan_pc&utm_content=stock__finance__6503" rel="nofollow">
+		株探プレミアムに申し込む(初回無料体験付き)
+	</a>
+	<a class="text-sm font-light block mt-4 text-blue-bright" href="https://account.kabutan.jp/login" rel="nofollow">
+		<svg class="text-black inline mb-1 mr-2" width="8" height="16" aria-hidden="true" focusable="false" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 512"><path fill="currentColor" d="M224.3 273l-136 136c-9.4 9.4-24.6 9.4-33.9 0l-22.6-22.6c-9.4-9.4-9.4-24.6 0-33.9l96.4-96.4-96.4-96.4c-9.4-9.4-9.4-24.6 0-33.9L54.3 103c9.4-9.4 24.6-9.4 33.9 0l136 136c9.5 9.4 9.5 24.6.1 34z"></path></svg>プレミアム会員の方はこちらからログイン
+	</a>
+</div>
+</div><!--#needlogin-->
+
+
+
+<div class="box1">
+<div class="ch">
+<h3>日経平均</h3>
+<table>
+<tr><td rowspan="2">
+<div id="chc_1_1" class="ch_sz0" style="display:none;"></div>
+<div id="chc_1_2" class="ch_sz0" style="display:block;"><a href="/stock/chart?code=0000&ashi=1" target="_top"><img src="/chimg/?c=0000&amp;a=1&amp;s=0&v=1732775310" alt="" /></a></div>
+</td>
+<td id="chb_1_1" class="close" style="height:68px;" onclick="change_chimg(1,'/chimg/?c=0000&amp;a=5&amp;s=0&v=1732775310','chc_1_','chb_1_','/stock/chart?code=0000&ashi=4');">日<br>中<br>足</td></tr><tr>
+<td id="chb_1_2" class="open" style="height:68px;" onclick="change_chimg(2,'/chimg/?c=0000&amp;a=1&amp;s=0&v=1732775310','chc_1_','chb_1_','/stock/chart?code=0000&ashi=1');">日<br>　<br>足</td></tr>
+</table>
+</div><!--/ch-->
+
+</div><!--/box1-->
+
+<div class="sub_news_box">
+<img src="/images/news/topnews.gif" width="298" height="25" />
+<ul>
+<li>
+<a href="/news/marketnews/?b=n202411280720" target="_top">◎午後３時現在の値上がり値下がり銘柄数</a>
+<img src="/images/cmn/new.gif" title="new"/></li>
+<li>
+<a href="/news/marketnews/?b=n202411280719" target="_top">外為：1ドル151円52銭前後とドル安・円高で推移</a>
+<img src="/images/cmn/new.gif" title="new"/></li>
+<li>
+<a href="/news/marketnews/?b=n202411280515" target="_top">後場に注目すべき3つのポイント～半導体株の一角が上昇し切り返す展開に</a>
+</li>
+<li>
+<a href="/news/marketnews/?b=n202411280449" target="_top">話題株ピックアップ【昼刊】：住信ＳＢＩ銀、Ｔ＆Ｄ、東エレク</a>
+</li>
+<li>
+<a href="/news/marketnews/?b=n202411280707" target="_top">ウェルネット---大幅反発、本人認証付き電子マネー構築で日本通信と協業</a>
+<img src="/images/cmn/new.gif" title="new"/></li>
+<li>
+<a href="/news/marketnews/?b=n202411280697" target="_top">リコー---大幅反落、株価材料織り込まれたとして国内証券が格下げ</a>
+<img src="/images/cmn/new.gif" title="new"/></li>
+<li>
+<a href="/news/marketnews/?b=n202411271072" target="_top">デジタル経済安保の要衝担う「サイバーセキュリティー」に株高旋風 ＜株探トップ特集＞</a>
+</li>
+<li>
+<a href="/news/marketnews/?b=n202411271094" target="_top">【高配当利回り銘柄】ベスト30　＜割安株特集＞　11月27日版</a>
+</li>
+</ul>
+<p><img src="/images/top/top-news_mark.gif"><a href="/news/marketnews/" target="_top">【総合ニュース】を見る</a></p>
+</div><!--/sub_news_box-->
+
+
+<!--1203_tan_pc_middlerectangle -->
+<div id='div-gpt-ad-1413891264102-2' style="min-height:250px; margin-bottom:10px;">
+<script type='text/javascript'>
+googletag.cmd.push(function() { googletag.defineSlot('/94446337/1203_tan_pc_middlerectangle', [[300, 250],  [300, 600]], 'div-gpt-ad-1413891264102-2').addService(googletag.pubads()); });
+googletag.cmd.push(function() { googletag.display('div-gpt-ad-1413891264102-2'); });
+</script>
+</div>
+
+
+
+
+<div class="sub_news_box">
+<h3 class="ranknews">人気ニュース【ベスト5】</h3>
+<ul class="ranknews">
+<li class="ranknews1">
+<a href="/news/marketnews/?b=n202411280110" target="_top">今朝の注目ニュース！　★アーバネット、コクヨ、ＺＥＴＡなどに注目！</a>
+</li>
+<li class="ranknews2">
+<a href="/news/marketnews/?b=n202411280132" target="_top">伊藤智洋が読む「日経平均株価・短期シナリオ」　(11月28日記）</a>
+</li>
+<li class="ranknews3">
+<a href="/news/marketnews/?b=n202411280449" target="_top">話題株ピックアップ【昼刊】：住信ＳＢＩ銀、Ｔ＆Ｄ、東エレク</a>
+</li>
+<li class="ranknews4">
+<a href="/news/marketnews/?b=n202411271072" target="_top">デジタル経済安保の要衝担う「サイバーセキュリティー」に株高旋風 ＜株探トップ特集＞</a>
+</li>
+<li class="ranknews5">
+<a href="/news/marketnews/?b=n202411271094" target="_top">【高配当利回り銘柄】ベスト30　＜割安株特集＞　11月27日版</a>
+</li>
+</ul>
+<p><img src="/images/top/top-news_mark.gif"> <a href="/info/accessranking/2_1" target="_top">一覧を見る</a></p>
+</div><!--/sub_news_box-->
+
+
+<div class="sub_pm_column_box">
+<h3>プレミアム会員限定コラム</h3>
+<div><a id="sidebar_premium_sugoude" href="https://selection.kabutan.jp/%E4%BC%9A%E5%93%A1%E9%99%90%E5%AE%9A%E3%82%B3%E3%83%A9%E3%83%A0/%E3%81%99%E3%81%94%E8%85%95%E6%8A%95%E8%B3%87%E5%AE%B6/" target="_top">
+<img src="/images/adv/kb-pm_news-sugoude_190x100.gif" height="37"><span>すご腕投資家に聞く「銘柄選び」の技</span></a></div>
+<div><a id="sidebar_premium_kachiwaza" href="https://selection.kabutan.jp/%E4%BC%9A%E5%93%A1%E9%99%90%E5%AE%9A%E3%82%B3%E3%83%A9%E3%83%A0/24%E5%B9%B4%E5%80%8B%E4%BA%BA%E6%8A%95%E8%B3%87%E5%AE%B6%E5%A4%A7%E8%AA%BF%E6%9F%BB/" target="_top">
+<img src="/images/adv/kb_chosa_190x100_240516.png" height="37"><span>個人投資家大調査2024　日経平均4万円時代の勝ち技</span></a></div>
+<div><a id="sidebar_premium_okawa" href="https://selection.kabutan.jp/%E4%BC%9A%E5%93%A1%E9%99%90%E5%AE%9A%E3%82%B3%E3%83%A9%E3%83%A0/%E6%97%A5%E6%9C%AC%E6%A0%AA%E3%83%BB%E6%95%B0%E5%AD%97%E3%81%A7%E5%BE%B9%E5%BA%95%E8%A8%BA%E6%96%AD%EF%BC%81/" target="_top">
+<img src="/images/adv/kb-pm_ookawa_190x100_181004.png" height="37"><span>大川智宏の「日本株・数字で徹底診断！」</span></a></div>
+<div><a id="sidebar_premium_2024strategy" href="https://selection.kabutan.jp/%E4%BC%9A%E5%93%A1%E9%99%90%E5%AE%9A%E3%82%B3%E3%83%A9%E3%83%A0/24%E5%B9%B4%E3%81%AE%E6%97%A5%E6%9C%AC%E6%A0%AA%E6%88%A6%E7%95%A5%E3%81%AF%E3%81%93%E3%82%8C%E3%81%A0%EF%BC%81/" target="_top">
+<img src="/images/adv/2024_questionnaire_result_190x100.png" height="37"><span>24年の日本株戦略はこれだ！</span></a></div>
+<div><a id="sidebar_premium_buyandhold" href="https://selection.kabutan.jp/%E4%BC%9A%E5%93%A1%E9%99%90%E5%AE%9A%E3%82%B3%E3%83%A9%E3%83%A0/buy%EF%BC%86hold-stories/" target="_top">
+<img src="/images/adv/kb_pm_buyandhold_190×100_240118.png" height="37"><span>Buy&Hold STORIES 長期投資成功への道</span></a></div>
+<div><a id="sidebar_premium_okutore" href="https://selection.kabutan.jp/%E4%BC%9A%E5%93%A1%E9%99%90%E5%AE%9A%E3%82%B3%E3%83%A9%E3%83%A0/%E7%9B%AE%E6%8C%87%E3%81%9B%E5%84%84%E3%83%88%E3%83%AC%E3%80%81%E9%A0%91%E5%BC%B5%E3%82%8A%E6%8A%95%E8%B3%87%E5%AE%B6%E3%81%95%E3%82%93%E3%81%AE%E7%A8%BC%E3%81%8E%E6%8A%80/" target="_top">
+<img src="/images/adv/kb_pm_ganbari_190×100_200825.png" height="37"><span>目指せ億トレ、頑張り投資家さんの稼ぎ技</span></a></div>
+<div><a id="sidebar_premium_specialreport" href="https://selection.kabutan.jp/%E4%BC%9A%E5%93%A1%E9%99%90%E5%AE%9A%E3%82%B3%E3%83%A9%E3%83%A0/%E3%82%B9%E3%83%9A%E3%82%B7%E3%83%A3%E3%83%AB%E3%83%BB%E3%83%AA%E3%83%9D%E3%83%BC%E3%83%88/" target="_top">
+<img src="/images/adv/kb-pm_special-report_190x100.png" height="37"><span>スペシャルリポート</span></a></div>
+<div class="sub_pm_col_list"><a id="sidebar_premium_viewall" href="https://selection.kabutan.jp/%E4%BC%9A%E5%93%A1%E9%99%90%E5%AE%9A%E3%82%B3%E3%83%A9%E3%83%A0/" target="_top">
+<img src="/images/top/top-news_mark.gif"><span>プレミアム会員限定コラムの一覧を見る</span></a></div>
+</div><!--/sub_pm_column_box-->
+
+
+<div class="sub_news_box osusume_news">
+<h3 class="osusume_news">お薦めコラム・特集</h3>
+<ul class="osusume_news">
+<li>
+<a id="sidebar_recommend_column_num1" href="/news/marketnews/?b=n202411280132" target="_top">伊藤智洋が読む「日経平均株価・短期シナリオ」　(11月28日記）</a>
+</li>
+<li>
+<a id="sidebar_recommend_column_num2" href="/news/marketnews/?b=n202411271094" target="_top">【高配当利回り銘柄】ベスト30　＜割安株特集＞　11月27日版</a>
+</li>
+<li>
+<a id="sidebar_recommend_column_num3" href="/news/marketnews/?b=n202411271072" target="_top">デジタル経済安保の要衝担う「サイバーセキュリティー」に株高旋風 ＜株探トップ特集＞</a>
+</li>
+<li>
+<a id="sidebar_recommend_column_num4" href="/news/marketnews/?b=n202411270574" target="_top">来年は原油が供給過剰となるのか？ OPECプラスや米国需要が相場を左右へ ＜コモディティ特集＞</a>
+</li>
+<li>
+<img src="/images/cmn/premium_short.svg" class="vat pdr4" width="16" height="16" /><a id="sidebar_recommend_column_num5" href="/news/marketnews/?b=n202411270361" target="_top">深刻化する人手不足、それでも採用も業績も伸ばすのは</a>
+</li>
+</ul>
+<p><img src="/images/top/top-news_mark.gif"> <a id="sidebar_recommend_column_viewall" href="/news/marketnews/?category=-2" target="_top">一覧を見る</a></p>
+</div><!--/sub_news_box-->
+
+<div class="kanrensite1">
+<ul>
+<li><a id="sidebar_futures_minkabu" href="https://fu.minkabu.jp/beginner/column/1" target="_blank" title="初心者向け先物解説記事を公開中">初心者向け先物解説記事を公開中</a></li>
+</ul>
+</div>
+
+<div class="sub_column">
+<div><a id="sidebar_bannar_kbtntop" href="https://selection.kabutan.jp/category/kbtntop/" target="_top"><img src="/images/top/top-kbtntop-banner.png" /></a></div>
+<div><a id="sidebar_bannar_columnists" href="https://selection.kabutan.jp/columnists/" target="_top"><img src="/images/top/writer_corner_banner.png" /></a></div>
+<div><a id="sidebar_bannar_marketview" href="https://selection.kabutan.jp/category/marketview/" target="_top"><img src="/images/top/top-soubakan-banner.png" /></a></div>
+<div><a id="sidebar_bannar_usstocks" href="https://selection.kabutan.jp/category/usstocks/" target="_top"><img src="/images/top/top-usstocks-banner.png" /></a></div>
+<div><a id="sidebar_bannar_koaku" href="https://selection.kabutan.jp/category/koaku/?membership=1" target="_top"><img src="/images/top/top-kouaku-banner.png" /></a></div>
+<div><a id="sidebar_bannar_commodity" href="https://selection.kabutan.jp/category/commodity/" target="_top"><img src="/images/top/top-commodity-banner.png" /></a></div>
+<div><a id="sidebar_bannar_topinterview" href="https://selection.kabutan.jp/category/topinterview/" target="_top"><img src="/images/top/top-interview-banner.png" /></a></div>
+<div><a id="sidebar_bannar_otegami" href="https://selection.kabutan.jp/category/otegami/" target="_top"><img src="/images/top/top-mailmag-banner.png" /></a></div>
+</div>
+
+<div class="kanrensite1">
+<ul>
+<li><a id="sidebar_crowdfunding" href="https://selection.kabutan.jp/category/crowdfunding/" target="_top">クラファン（株式投資）ニュース</a></li>
+</ul>
+</div>
+
+<div class="kanrensite2">
+<h3>■関連サイト <span>※外部リンク</span></h3>
+<ul>
+<li><a href="https://fx.minkabu.jp/hikaku/?utm_source=kabutan&amp;utm_medium=navi&amp;utm_campaign=textlink" target="_blank" title="おすすめFX口座比較">おすすめFX口座比較ランキング</a></li>
+<li><a href="https://minkabu.jp/yutai" target="_blank" title="株主優待 | おすすめの優待情報">株主優待 | おすすめの優待情報</a></li>
+<li><a href="https://kabutan.jp/hikaku/" target="_blank" title="株探おすすめ証券会社比較">株探おすすめ証券会社比較</a></li>
+<li><a href="https://minkabu.jp/creditcard/" target="_blank" title="クレジットカードおすすめランキング">クレジットカードおすすめランキング｜人気クレカを徹底比較</a></li>
+<li><a href="https://minkabu.jp/cardloan/" target="_blank" title="カードローンおすすめランキング">カードローンおすすめランキング</a></li>
+</ul>
+</div>
+
+
+</div>
+<!--sub end-->
+
+<div class="floatclear"></div>
+</div>
+<!--container end-->
+
+<!--footer start-->
+<div id="footer">
+<p>当サイト「株探（かぶたん）」で提供する情報は投資勧誘または投資に関する助言をすることを目的としておりません。投資の決定は、ご自身の判断でなされますようお願いいたします。 当サイトにおけるデータは、東京証券取引所、大阪取引所、名古屋証券取引所、JPX総研、ジャパンネクスト証券、China Investment Information Services、CME Group Inc. 等からの情報の提供を受けております。日経平均株価の著作権は日本経済新聞社に帰属します。株探に掲載される株価チャートは、その銘柄の過去の株価推移を確認する用途で掲載しているものであり、その銘柄の将来の価値の動向を示唆あるいは保証するものではなく、また、売買を推奨するものではありません。決算を扱う記事における「サプライズ決算」とは、決算情報として注目に値するかという観点から、発表された決算のサプライズ度（当該会社の本決算か各四半期であるか、業績予想の修正か配当予想の修正であるか、及びそこで発表された決算結果ならびに当該会社が過去に公表した業績予想・配当予想との比較及び過去の決算との比較を数値化し判定）が高い銘柄であり、また「サプライズ順」はサプライズ度に基づいた順番で決算情報を掲載しているものであり、記事に掲載されている各銘柄の将来の価値の動向を示唆あるいは保証するものではなく、また、売買を推奨するものではありません。</p>
+<ul>
+<li class="footer_top"><a href="/info/thissite" target="_top">「株探」について</a></li>
+<li><a href="https://info.kabutan.jp/terms-all/" target="_blank">利用規約</a></li>
+<li><a href="https://minkabu.co.jp/privacy-policy/" target="_blank">プライバシーポリシー</a></li>
+<li><a href="https://info.kabutan.jp/specified-commercial-transaction-act/" target="_blank">特定商取引表示</a></li>
+<li><a href="https://hrmos.co/pages/minkabu" target="_blank">採用情報</a></li>
+<li><a href="https://info.kabutan.jp/company/" target="_blank">運営会社</a></li>
+<li><a href="/info/sitemap" target="_top">サイトマップ</a></li>
+<li><a href="https://support.kabutan.jp/hc/ja" target="_blank">ヘルプ</a></li>
+</ul>
+<div class="foot2">
+<ul>
+<li class="footer_top"><a href="/" target="_top">トップ</a></li>
+<li><a href="/news/marketnews/" target="_top">市場ニュース</a></li>
+<li><a href="/news/" target="_top">決算速報</a></li>
+<li><a href="/warning/" target="_top">株価注意報</a></li>
+<li><a href="/disclosures/" target="_top">会社開示情報</a></li>
+<li><a href="/tansaku/" target="_top">銘柄探検</a></li>
+<li><a href="/holder/" target="_top">日本の株主</a></li>
+<li><a href="/distribution-map/" target="_top">市場マップ</a></li>
+<li><a href="/hikaku/" target="_top">証券会社比較</a></li>
+</ul>
+</div>
+</div>
+<!--footer end-->
+</div>
+<!--wrapper_main end-->
+
+<footer>
+<div id="footer2">
+<div class="ly_container">
+<div class="copyright dptbl">
+<a href="https://minkabu.co.jp/" target="_top" class=" tal">
+<img src="/images/info/infonoid_logo_sub_white.svg">
+</a>
+<span class="dptblc tar vabt">(C)&nbsp;MINKABU&nbsp;THE&nbsp;INFONOID,&nbsp;Inc.</span>
+</div>
+</div>
+</div>
+</footer>
+</body>
+</html>

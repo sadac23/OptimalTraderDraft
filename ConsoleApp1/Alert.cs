@@ -22,14 +22,15 @@ internal class Alert
     internal void SaveFile(string alertFilePath)
     {
         //1928：積水ハウス(株)
-        //株価：2024/11/29：1234
-        //配当利回り：3.64％（50%, 5月, 11月）
-        //優待利回り：3.64％（QUOカード, 100株, 5月, 11月）
-        //通期予想：増収増益増配（+50%, +50%, +50）
+        //株価：1234（2024/11/29）
+        //市場業種：東証プライム,名証プレミア,建設業
+        //配当利回り：3.64％（50%,5月,11月）
+        //優待利回り：3.64％（QUOカード,100株,5月,11月）
+        //通期予想：増収増益増配（+50%,+50%,+50）
         //時価総額：2兆3,470億円
         //ROE：10.71
-        //PER：11.0倍
-        //PBR：1.18倍
+        //PER：11.0倍（14.2）
+        //PBR：1.18倍（1.1）
         //信用倍率：8.58倍
         //自己資本比率：40.0%
         //約定履歴：
@@ -54,15 +55,16 @@ internal class Alert
                 {
                     writer.WriteLine("");
                     writer.WriteLine($"{r.StockInfo.Code}：{r.StockInfo.Name}");
-                    writer.WriteLine($"株価：{r.StockInfo.Prices[0].Date.ToString("yyyy/MM/dd")}：{r.StockInfo.Prices[0].Close}");
+                    writer.WriteLine($"株価：{r.StockInfo.Prices[0].Close}（{r.StockInfo.Prices[0].Date.ToString("yyyy/MM/dd")}）");
+                    writer.WriteLine($"市場業種：東証プライム,名証プレミア,建設業");
                     writer.WriteLine($"配当利回り：{ConvertToPercentage(r.StockInfo.DividendYield)}（{ConvertToPercentage( r.StockInfo.DividendPayoutRatio)},{r.StockInfo.DividendRecordDateMonth}）");
                     if (!string.IsNullOrEmpty(r.StockInfo.ShareholderBenefitsDetails))
                         writer.WriteLine($"優待利回り：{ConvertToPercentage(r.StockInfo.ShareholderBenefitYield)}（{r.StockInfo.ShareholderBenefitsDetails},{r.StockInfo.NumberOfSharesRequiredForBenefits},{r.StockInfo.ShareholderBenefitRecordDateMonth}）");
                     writer.WriteLine($"通期予想：{r.StockInfo.FullYearPerformanceForcastSummary}");
                     writer.WriteLine($"時価総額：{ConvertToYenNotation(r.StockInfo.MarketCap)}");
                     writer.WriteLine($"ROE：{r.StockInfo.Roe}");
-                    writer.WriteLine($"PER：{ConvertToMultiplierString(r.StockInfo.Per)}");
-                    writer.WriteLine($"PBR：{ConvertToMultiplierString(r.StockInfo.Pbr)}");
+                    writer.WriteLine($"PER：{ConvertToMultiplierString(r.StockInfo.Per)}（99.9）");
+                    writer.WriteLine($"PBR：{ConvertToMultiplierString(r.StockInfo.Pbr)}（99.9）");
                     writer.WriteLine($"信用倍率：{r.StockInfo.MarginBalanceRatio}");
                     writer.WriteLine($"自己資本比率：{r.StockInfo.EquityRatio}");
 
