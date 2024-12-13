@@ -134,7 +134,8 @@ foreach (var watchStock in watchList)
             var startDate = GetStartDate(watchStock.Code);
 
             // 外部サイトの情報取得
-            if (lastTradingDay > startDate) await yahooScraper.ScrapeHistory(stockInfo, startDate, _currentDate);
+            //            if (lastTradingDay > startDate) 
+            await yahooScraper.ScrapeHistory(stockInfo, startDate, _currentDate);
             await yahooScraper.ScrapeProfile(stockInfo);
             await kabutanScraper.ScrapeFinance(stockInfo);
             await minkabuScraper.ScrapeDividend(stockInfo);
@@ -169,10 +170,10 @@ DateTime GetLastTradingDay(DateTime referenceDate)
     DateTime date = referenceDate.Date;
 
     // 土日または祝日の場合、前日を確認
-    while (IsHolidayOrWeekend(date))
-    {
-        date = date.AddDays(-1);
-    }
+    //while (IsHolidayOrWeekend(date))
+    //{
+    //    date = date.AddDays(-1);
+    //}
     return date;
 }
 
