@@ -72,7 +72,13 @@ internal class StockInfo
     /// お気に入りか？
     /// </summary>
     public bool IsFavorite { get; set; }
+    /// <summary>
+    /// ウォッチリストのメモ
+    /// </summary>
     public string Memo { get; private set; }
+    /// <summary>
+    /// 自己資本比率
+    /// </summary>
     public string EquityRatio { get; internal set; }
     /// <summary>
     /// 配当性向
@@ -100,6 +106,14 @@ internal class StockInfo
     /// 優待内容
     /// </summary>
     public string ShareholderBenefitsDetails { get; internal set; }
+    /// <summary>
+    /// 市場区分
+    /// </summary>
+    public string Section { get; internal set; }
+    /// <summary>
+    /// 業種
+    /// </summary>
+    public string Industry { get; internal set; }
 
     /// <summary>
     /// 現在、所有しているか？

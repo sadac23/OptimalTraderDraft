@@ -2,6 +2,7 @@
 
 using HtmlAgilityPack;
 using System.Globalization;
+using System.Security.Policy;
 using static WatchList;
 
 internal class YahooScraper
@@ -94,5 +95,40 @@ internal class YahooScraper
 
         return result;
 
+    }
+
+    internal async Task ScrapeProfile(StockInfo stockInfo)
+    {
+        var url = $"https://finance.yahoo.co.jp/quote/{stockInfo.Code}.T/profile";
+
+        using (HttpClient client = new HttpClient())
+        {
+            try
+            {
+                HttpResponseMessage response = await client.GetAsync(url);
+                response.EnsureSuccessStatusCode();
+                string pageContent = await response.Content.ReadAsStringAsync();
+
+                HtmlDocument document = new HtmlDocument();
+                document.LoadHtml(pageContent);
+
+                // 市場名を含むノードをXPathで選択
+                var marketNode = document.DocumentNode.SelectSingleNode("//th[text()='市場名']/following-sibling::td");
+                if (marketNode != null)
+                {
+                    stockInfo.Section = marketNode.InnerText.Trim();
+                }
+                // 業種分類を含むノードをXPathで選択
+                var industryNode = document.DocumentNode.SelectSingleNode("//th[text()='業種分類']/following-sibling::td");
+                if (industryNode != null)
+                {
+                    stockInfo.Industry = industryNode.InnerText.Trim();
+                }
+            }
+            catch (HttpRequestException e)
+            {
+                Console.WriteLine("リクエストエラー: " + e.Message);
+            }
+        }
     }
 }

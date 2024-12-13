@@ -21,9 +21,9 @@ internal class Alert
 
     internal void SaveFile(string alertFilePath)
     {
-        //1928：積水ハウス(株)
+        //1928：積水ハウス(株)（建設業）
         //株価：1234（2024/11/29）
-        //市場業種：東証プライム,名証プレミア,建設業
+        //市場業種：東証プライム,名証プレミア
         //配当利回り：3.64％（50%,5月,11月）
         //優待利回り：3.64％（QUOカード,100株,5月,11月）
         //通期予想：増収増益増配（+50%,+50%,+50）
@@ -54,9 +54,9 @@ internal class Alert
                 if (r.ShouldAlert())
                 {
                     writer.WriteLine("");
-                    writer.WriteLine($"{r.StockInfo.Code}：{r.StockInfo.Name}");
+                    writer.WriteLine($"{r.StockInfo.Code}：{r.StockInfo.Name}（{r.StockInfo.Industry}）");
                     writer.WriteLine($"株価：{r.StockInfo.Prices[0].Close}（{r.StockInfo.Prices[0].Date.ToString("yyyy/MM/dd")}）");
-                    writer.WriteLine($"市場業種：東証プライム,名証プレミア,建設業");
+                    writer.WriteLine($"市場：{r.StockInfo.Section}");
                     writer.WriteLine($"配当利回り：{ConvertToPercentage(r.StockInfo.DividendYield)}（{ConvertToPercentage( r.StockInfo.DividendPayoutRatio)},{r.StockInfo.DividendRecordDateMonth}）");
                     if (!string.IsNullOrEmpty(r.StockInfo.ShareholderBenefitsDetails))
                         writer.WriteLine($"優待利回り：{ConvertToPercentage(r.StockInfo.ShareholderBenefitYield)}（{r.StockInfo.ShareholderBenefitsDetails},{r.StockInfo.NumberOfSharesRequiredForBenefits},{r.StockInfo.ShareholderBenefitRecordDateMonth}）");

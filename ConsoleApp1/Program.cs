@@ -76,13 +76,13 @@ using System.Runtime.ConstrainedExecution;
  * ・済：配当増額値の丸め処理を入れる
  * ・済：配当性向が前年実績値になっている、通期予想値に変更
  * ・済：スクレイピング処理のリファクタリング
+ * ・済：市場、業種情報の取得
  * ・投信の処理追加
  * ・アラートのメール通知
  * ・ETFの株探取得がうまくできていない
  * ・DBはキャッシュ利用とし、なければ作成する処理を入れる
  * ・土日はyahooのスクレイピング不要（休場日の前日までの履歴取得が完了している場合は取得しない）
  * ・市場、業界毎のPER/PBRを表示する
- * ・市場、業種情報の取得
  */
 
 const string _mailAddress = "sadac23@gmail.com";
@@ -132,6 +132,7 @@ foreach (var watchStock in watchList)
             // 外部サイトの銘柄情報を取得
             //var stockInfo = scraper.GetStockInfo(watchStock, startDate, _currentDate).Result;
             await yahooScraper.ScrapeHistory(stockInfo, startDate, _currentDate);
+            await yahooScraper.ScrapeProfile(stockInfo);
             await kabutanScraper.ScrapeFinance(stockInfo);
             await minkabuScraper.ScrapeDividend(stockInfo);
             await minkabuScraper.ScrapeYutai(stockInfo);
