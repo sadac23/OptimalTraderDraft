@@ -100,6 +100,7 @@ internal class YahooScraper
     internal async Task ScrapeProfile(StockInfo stockInfo)
     {
         var url = $"https://finance.yahoo.co.jp/quote/{stockInfo.Code}.T/profile";
+        Console.WriteLine(url);
 
         using (HttpClient client = new HttpClient())
         {

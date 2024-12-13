@@ -32,6 +32,7 @@ using DocumentFormat.OpenXml.Drawing;
 using System.Linq.Expressions;
 using DocumentFormat.OpenXml.Wordprocessing;
 using System.Runtime.ConstrainedExecution;
+using Nager.Date;
 
 /* TODO
  * ・済：ETFの処理
@@ -81,7 +82,7 @@ using System.Runtime.ConstrainedExecution;
  * ・アラートのメール通知
  * ・ETFの株探取得がうまくできていない
  * ・DBはキャッシュ利用とし、なければ作成する処理を入れる
- * ・土日はyahooのスクレイピング不要（休場日の前日までの履歴取得が完了している場合は取得しない）
+ * ・土日はyahooのスクレイピング不要（カレントが休場日の場合、営業日まで遡って取得済であるかチェックする）
  * ・市場、業界毎のPER/PBRを表示する
  */
 
@@ -113,6 +114,9 @@ var executionList = ExecutionList.GetXlsxExecutionStockList(_xlsxExecutionFilePa
 // ウォッチリスト取得
 var watchList = WatchList.GetXlsxWatchStockList(_xlsxFilePath, executionList);
 
+// 直近の営業日を取得
+var lastTradingDay = GetLastTradingDay(_currentDate);
+
 // ウォッチ銘柄を処理
 foreach (var watchStock in watchList)
 {
@@ -129,9 +133,8 @@ foreach (var watchStock in watchList)
             // 株価更新開始日を取得（なければ基準開始日を取得）
             var startDate = GetStartDate(watchStock.Code);
 
-            // 外部サイトの銘柄情報を取得
-            //var stockInfo = scraper.GetStockInfo(watchStock, startDate, _currentDate).Result;
-            await yahooScraper.ScrapeHistory(stockInfo, startDate, _currentDate);
+            // 外部サイトの情報取得
+            if (lastTradingDay > startDate) await yahooScraper.ScrapeHistory(stockInfo, startDate, _currentDate);
             await yahooScraper.ScrapeProfile(stockInfo);
             await kabutanScraper.ScrapeFinance(stockInfo);
             await minkabuScraper.ScrapeDividend(stockInfo);
@@ -140,7 +143,7 @@ foreach (var watchStock in watchList)
             // 約定履歴を取得
             stockInfo.Executions = ExecutionList.GetExecutions(executionList, stockInfo.Code);
 
-            // 株価履歴更新
+            // 株価履歴キャッシュ更新
             UpdateMaster(stockInfo);
 
             // 分析
@@ -160,6 +163,35 @@ foreach (var watchStock in watchList)
 // アラート通知
 var alert = new Alert(results);
 alert.SaveFile(_alertFilePath);
+
+DateTime GetLastTradingDay(DateTime referenceDate)
+{
+    DateTime date = referenceDate.Date;
+
+    // 土日または祝日の場合、前日を確認
+    while (IsHolidayOrWeekend(date))
+    {
+        date = date.AddDays(-1);
+    }
+    return date;
+}
+
+bool IsHolidayOrWeekend(DateTime date)
+{
+    // 土日チェック
+    if (date.DayOfWeek == DayOfWeek.Saturday || date.DayOfWeek == DayOfWeek.Sunday)
+    {
+        return true;
+    }
+
+    // 日本の祝日チェック
+    if (HolidaySystem.IsPublicHoliday(date, CountryCode.JP))
+    {
+        return true;
+    }
+
+    return false;
+}
 
 string ReplacePlaceholder(string? input, string placeholder, string newValue)
 {
