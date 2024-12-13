@@ -75,12 +75,14 @@ using System.Runtime.ConstrainedExecution;
  * ・済：配当利回りとの合計でフィルター
  * ・済：配当増額値の丸め処理を入れる
  * ・済：配当性向が前年実績値になっている、通期予想値に変更
+ * ・済：スクレイピング処理のリファクタリング
  * ・投信の処理追加
  * ・アラートのメール通知
  * ・ETFの株探取得がうまくできていない
  * ・DBはキャッシュ利用とし、なければ作成する処理を入れる
  * ・土日はyahooのスクレイピング不要（休場日の前日までの履歴取得が完了している場合は取得しない）
  * ・市場、業界毎のPER/PBRを表示する
+ * ・市場、業種情報の取得
  */
 
 const string _mailAddress = "sadac23@gmail.com";
@@ -95,9 +97,13 @@ var _xlsxFilePath = ConfigurationManager.AppSettings["WatchListFilePath"];
 var _xlsxExecutionFilePath = ConfigurationManager.AppSettings["ExecutionListFilePath"];
 var _alertFilePath = ReplacePlaceholder(ConfigurationManager.AppSettings["AlertFilePath"], "{yyyyMMdd}", _currentDate.ToString("yyyyMMdd"));
 
-var scraper = new Scraper();
 var analyzer = new Analyzer(_connectionString);
 var results = new List<Analyzer.AnalysisResult>();
+
+//var scraper = new Scraper();
+var yahooScraper = new YahooScraper();
+var kabutanScraper = new KabutanScraper();
+var minkabuScraper = new MinkabuScraper();
 
 Console.WriteLine("Hello, World!");
 
@@ -118,11 +124,17 @@ foreach (var watchStock in watchList)
     {
         try
         {
+            var stockInfo = new StockInfo(watchStock);
+
             // 株価更新開始日を取得（なければ基準開始日を取得）
             var startDate = GetStartDate(watchStock.Code);
 
             // 外部サイトの銘柄情報を取得
-            var stockInfo = scraper.GetStockInfo(watchStock, startDate, _currentDate).Result;
+            //var stockInfo = scraper.GetStockInfo(watchStock, startDate, _currentDate).Result;
+            await yahooScraper.ScrapeHistory(stockInfo, startDate, _currentDate);
+            await kabutanScraper.ScrapeFinance(stockInfo);
+            await minkabuScraper.ScrapeDividend(stockInfo);
+            await minkabuScraper.ScrapeYutai(stockInfo);
 
             // 約定履歴を取得
             stockInfo.Executions = ExecutionList.GetExecutions(executionList, stockInfo.Code);
