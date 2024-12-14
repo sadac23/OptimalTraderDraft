@@ -15,131 +15,145 @@ internal class MinkabuScraper
 
     internal async Task ScrapeDividend(StockInfo stockInfo)
     {
-        var urlBaseMinkabuDividend = $"https://minkabu.jp/stock/{stockInfo.Code}/dividend";
-
-        var httpClient = new HttpClient();
-        var htmlDocument = new HtmlDocument();
-
-        var url = string.Empty;
-        var html = string.Empty;
-        HtmlNodeCollection rows = null;
-
-        /** みんかぶ（配当） */
-        url = urlBaseMinkabuDividend;
-        html = await httpClient.GetStringAsync(url);
-        htmlDocument.LoadHtml(html);
-        Console.WriteLine(url);
-
-        // 配当利回り/配当性向/配当権利確定月
-        rows = htmlDocument.DocumentNode.SelectNodes("//div[contains(@class, 'ly_col ly_colsize_6 pt10')]/table/tr");
-
-        if (rows != null && rows.Count != 0)
+        try
         {
-            short s = 0;
-            foreach (var row in rows)
-            {
-                var columns = row.SelectNodes("td|th");
+            var urlBaseMinkabuDividend = $"https://minkabu.jp/stock/{stockInfo.Code}/dividend";
 
-                // 配当利回り
-                if (s == 0)
+            var httpClient = new HttpClient();
+            var htmlDocument = new HtmlDocument();
+
+            var url = string.Empty;
+            var html = string.Empty;
+            HtmlNodeCollection rows = null;
+
+            /** みんかぶ（配当） */
+            url = urlBaseMinkabuDividend;
+            html = await httpClient.GetStringAsync(url);
+            htmlDocument.LoadHtml(html);
+            Console.WriteLine(url);
+
+            // 配当利回り/配当性向/配当権利確定月
+            rows = htmlDocument.DocumentNode.SelectNodes("//div[contains(@class, 'ly_col ly_colsize_6 pt10')]/table/tr");
+
+            if (rows != null && rows.Count != 0)
+            {
+                short s = 0;
+                foreach (var row in rows)
                 {
-                    if (columns != null && columns.Count >= 2)
+                    var columns = row.SelectNodes("td|th");
+
+                    // 配当利回り
+                    if (s == 0)
                     {
-                        var dividendYield = columns[1].InnerText.Trim();
-                        // みんかぶの利回りを利用しても良い
-                        //stockInfo.DividendYield = dividendYield;
+                        if (columns != null && columns.Count >= 2)
+                        {
+                            var dividendYield = columns[1].InnerText.Trim();
+                            // みんかぶの利回りを利用しても良い
+                            //stockInfo.DividendYield = dividendYield;
+                        }
                     }
-                }
-                // 配当性向
-                if (s == 1)
-                {
-                    if (columns != null && columns.Count >= 2)
+                    // 配当性向
+                    if (s == 1)
                     {
-                        var dividendPayoutRatio = columns[1].InnerText.Trim();
-                        // 前期の情報であるため採用しない
-                        //stockInfo.DividendPayoutRatio = dividendPayoutRatio;
+                        if (columns != null && columns.Count >= 2)
+                        {
+                            var dividendPayoutRatio = columns[1].InnerText.Trim();
+                            // 前期の情報であるため採用しない
+                            //stockInfo.DividendPayoutRatio = dividendPayoutRatio;
+                        }
                     }
-                }
-                // 配当権利確定月
-                if (s == 2)
-                {
-                    if (columns != null && columns.Count >= 2)
+                    // 配当権利確定月
+                    if (s == 2)
                     {
-                        var dividendRecordDateMonth = columns[1].InnerText.Trim();
-                        stockInfo.DividendRecordDateMonth = dividendRecordDateMonth.Replace(" ", "");
+                        if (columns != null && columns.Count >= 2)
+                        {
+                            var dividendRecordDateMonth = columns[1].InnerText.Trim();
+                            stockInfo.DividendRecordDateMonth = dividendRecordDateMonth.Replace(" ", "");
+                        }
                     }
+                    s++;
                 }
-                s++;
             }
         }
+        catch (Exception e)
+        {
+            Console.WriteLine("リクエストエラー: " + e.Message);
+        }
+
     }
 
     internal async Task ScrapeYutai(StockInfo stockInfo)
     {
-        var urlBaseMinkabuYutai = $"https://minkabu.jp/stock/{stockInfo.Code}/yutai";
-
-        var httpClient = new HttpClient();
-        var htmlDocument = new HtmlDocument();
-
-        var url = string.Empty;
-        var html = string.Empty;
-        HtmlNodeCollection rows = null;
-
-        /** みんかぶ（優待） */
-        url = urlBaseMinkabuYutai;
-        html = await httpClient.GetStringAsync(url);
-        htmlDocument.LoadHtml(html);
-        Console.WriteLine(url);
-
-        // 優待内容
-        rows = htmlDocument.DocumentNode.SelectNodes("//h3[contains(@class, 'category fwb fsl')]");
-
-        if (rows != null && rows.Count != 0)
+        try
         {
-            string shareholderBenefitsDetails = rows[0].InnerText.Trim();
-            stockInfo.ShareholderBenefitsDetails = shareholderBenefitsDetails;
-        }
+            var urlBaseMinkabuYutai = $"https://minkabu.jp/stock/{stockInfo.Code}/yutai";
 
-        // 優待利回り/優待発生株数/優待権利確定月
-        rows = htmlDocument.DocumentNode.SelectNodes("//table[contains(@class, 'md_table simple md_table_vertical')]/tbody/tr");
+            var httpClient = new HttpClient();
+            var htmlDocument = new HtmlDocument();
 
-        if (rows != null && rows.Count != 0)
-        {
-            short s = 0;
-            foreach (var row in rows)
+            var url = string.Empty;
+            var html = string.Empty;
+            HtmlNodeCollection rows = null;
+
+            /** みんかぶ（優待） */
+            url = urlBaseMinkabuYutai;
+            html = await httpClient.GetStringAsync(url);
+            htmlDocument.LoadHtml(html);
+            Console.WriteLine(url);
+
+            // 優待内容
+            rows = htmlDocument.DocumentNode.SelectNodes("//h3[contains(@class, 'category fwb fsl')]");
+
+            if (rows != null && rows.Count != 0)
             {
-                var columns = row.SelectNodes("td|th");
-
-                // 優待利回り
-                if (s == 0)
-                {
-                    if (columns != null && columns.Count >= 4)
-                    {
-                        var shareholderBenefitYield = columns[3].InnerText.Trim();
-                        //stockInfo.DividendYield = ConvertToDoubleForDividendYield(dividendYield);
-                        stockInfo.ShareholderBenefitYield = ConvertToDoubleForYield(shareholderBenefitYield);
-                    }
-                }
-                // 優待発生株数
-                if (s == 1)
-                {
-                    if (columns != null && columns.Count >= 4)
-                    {
-                        var numberOfSharesRequiredForBenefits = columns[3].InnerText.Trim();
-                        stockInfo.NumberOfSharesRequiredForBenefits = numberOfSharesRequiredForBenefits;
-                    }
-                }
-                // 優待権利確定月
-                if (s == 2)
-                {
-                    if (columns != null && columns.Count >= 4)
-                    {
-                        var shareholderBenefitRecordDateMonth = columns[1].InnerText.Trim();
-                        stockInfo.ShareholderBenefitRecordDateMonth = shareholderBenefitRecordDateMonth;
-                    }
-                }
-                s++;
+                string shareholderBenefitsDetails = rows[0].InnerText.Trim();
+                stockInfo.ShareholderBenefitsDetails = shareholderBenefitsDetails;
             }
+
+            // 優待利回り/優待発生株数/優待権利確定月
+            rows = htmlDocument.DocumentNode.SelectNodes("//table[contains(@class, 'md_table simple md_table_vertical')]/tbody/tr");
+
+            if (rows != null && rows.Count != 0)
+            {
+                short s = 0;
+                foreach (var row in rows)
+                {
+                    var columns = row.SelectNodes("td|th");
+
+                    // 優待利回り
+                    if (s == 0)
+                    {
+                        if (columns != null && columns.Count >= 4)
+                        {
+                            var shareholderBenefitYield = columns[3].InnerText.Trim();
+                            //stockInfo.DividendYield = ConvertToDoubleForDividendYield(dividendYield);
+                            stockInfo.ShareholderBenefitYield = ConvertToDoubleForYield(shareholderBenefitYield);
+                        }
+                    }
+                    // 優待発生株数
+                    if (s == 1)
+                    {
+                        if (columns != null && columns.Count >= 4)
+                        {
+                            var numberOfSharesRequiredForBenefits = columns[3].InnerText.Trim();
+                            stockInfo.NumberOfSharesRequiredForBenefits = numberOfSharesRequiredForBenefits;
+                        }
+                    }
+                    // 優待権利確定月
+                    if (s == 2)
+                    {
+                        if (columns != null && columns.Count >= 4)
+                        {
+                            var shareholderBenefitRecordDateMonth = columns[1].InnerText.Trim();
+                            stockInfo.ShareholderBenefitRecordDateMonth = shareholderBenefitRecordDateMonth;
+                        }
+                    }
+                    s++;
+                }
+            }
+        }
+        catch { 
+            // 無視
         }
     }
     private double ConvertToDoubleForYield(string percentString)

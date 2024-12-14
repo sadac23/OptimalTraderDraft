@@ -11,75 +11,81 @@ internal class YahooScraper
 
     internal async Task ScrapeHistory(StockInfo stockInfo, DateTime from, DateTime to)
     {
-        var httpClient = new HttpClient();
-        var htmlDocument = new HtmlDocument();
-
-        var url = string.Empty;
-        var html = string.Empty;
-        HtmlNodeCollection rows = null;
-
-        var urlBaseYahooFinance = $"https://finance.yahoo.co.jp/quote/{stockInfo.Code}.T/history?styl=stock&from={from.ToString("yyyyMMdd")}&to={to.ToString("yyyyMMdd")}&timeFrame=d";
-
-        /** Yahooファイナンス */
-        for (int i = 1; i < _pageCountMax; i++)
+        try
         {
-            url = urlBaseYahooFinance + $"&page={i}";
-            html = await httpClient.GetStringAsync(url);
+            var httpClient = new HttpClient();
+            var htmlDocument = new HtmlDocument();
 
-            Console.WriteLine(url);
+            var url = string.Empty;
+            var html = string.Empty;
+            HtmlNodeCollection rows = null;
 
-            // ページ内行カウント
-            short rowCount = 0;
+            var urlBaseYahooFinance = $"https://finance.yahoo.co.jp/quote/{stockInfo.Code}.T/history?styl=stock&from={from.ToString("yyyyMMdd")}&to={to.ToString("yyyyMMdd")}&timeFrame=d";
 
-            // 取得できない場合は終了
-            if (html.Contains("時系列情報がありません")) break;
-
-            // 他の処理
-            htmlDocument.LoadHtml(html);
-
-            if (string.IsNullOrEmpty(stockInfo.Name))
+            /** Yahooファイナンス */
+            for (int i = 1; i < _pageCountMax; i++)
             {
-                var title = htmlDocument.DocumentNode.SelectNodes("//title");
-                string[] parts = title[0].InnerText.Trim().Split('【');
-                stockInfo.Name = parts.Length > 0 ? parts[0] : stockInfo.Name;
-            }
+                url = urlBaseYahooFinance + $"&page={i}";
+                html = await httpClient.GetStringAsync(url);
 
-            rows = htmlDocument.DocumentNode.SelectNodes("//table[contains(@class, 'StocksEtfReitPriceHistory')]/tbody/tr");
+                Console.WriteLine(url);
 
-            if (rows != null && rows.Count != 0)
-            {
-                rowCount = 0;
+                // ページ内行カウント
+                short rowCount = 0;
 
-                foreach (var row in rows)
+                // 取得できない場合は終了
+                if (html.Contains("時系列情報がありません")) break;
+
+                // 他の処理
+                htmlDocument.LoadHtml(html);
+
+                if (string.IsNullOrEmpty(stockInfo.Name))
                 {
-                    var columns = row.SelectNodes("td|th");
-
-                    if (columns != null && columns.Count > 6)
-                    {
-                        var date = this.GetDate(columns[0].InnerText.Trim());
-                        var open = this.GetDouble(columns[1].InnerText.Trim());
-                        var high = this.GetDouble(columns[2].InnerText.Trim());
-                        var low = this.GetDouble(columns[3].InnerText.Trim());
-                        var close = this.GetDouble(columns[4].InnerText.Trim());
-                        var volume = this.GetDouble(columns[5].InnerText.Trim());
-
-                        stockInfo.Prices.Add(new StockInfo.Price
-                        {
-                            Date = date,
-                            DateYYYYMMDD = date.ToString("yyyyMMdd"),
-                            Open = open,
-                            High = high,
-                            Low = low,
-                            Close = close,
-                            Volume = volume
-                        });
-                    }
-                    rowCount++;
+                    var title = htmlDocument.DocumentNode.SelectNodes("//title");
+                    string[] parts = title[0].InnerText.Trim().Split('【');
+                    stockInfo.Name = parts.Length > 0 ? parts[0] : stockInfo.Name;
                 }
-            }
 
-            // ページ内行カウントが19件以下の時は終了
-            if (rowCount <= 19) break;
+                rows = htmlDocument.DocumentNode.SelectNodes("//table[contains(@class, 'StocksEtfReitPriceHistory')]/tbody/tr");
+
+                if (rows != null && rows.Count != 0)
+                {
+                    rowCount = 0;
+
+                    foreach (var row in rows)
+                    {
+                        var columns = row.SelectNodes("td|th");
+
+                        if (columns != null && columns.Count > 6)
+                        {
+                            var date = this.GetDate(columns[0].InnerText.Trim());
+                            var open = this.GetDouble(columns[1].InnerText.Trim());
+                            var high = this.GetDouble(columns[2].InnerText.Trim());
+                            var low = this.GetDouble(columns[3].InnerText.Trim());
+                            var close = this.GetDouble(columns[4].InnerText.Trim());
+                            var volume = this.GetDouble(columns[5].InnerText.Trim());
+
+                            stockInfo.Prices.Add(new StockInfo.Price
+                            {
+                                Date = date,
+                                DateYYYYMMDD = date.ToString("yyyyMMdd"),
+                                Open = open,
+                                High = high,
+                                Low = low,
+                                Close = close,
+                                Volume = volume
+                            });
+                        }
+                        rowCount++;
+                    }
+                }
+
+                // ページ内行カウントが19件以下の時は終了
+                if (rowCount <= 19) break;
+            }
+        }
+        catch (Exception ex) { 
+            // 無視
         }
     }
     internal DateTime GetDate(string v)
@@ -126,7 +132,7 @@ internal class YahooScraper
                     stockInfo.Industry = industryNode.InnerText.Trim();
                 }
             }
-            catch (HttpRequestException e)
+            catch (Exception e)
             {
                 Console.WriteLine("リクエストエラー: " + e.Message);
             }
