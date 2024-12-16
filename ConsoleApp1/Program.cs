@@ -101,10 +101,9 @@ var _xlsxFilePath = ConfigurationManager.AppSettings["WatchListFilePath"];
 var _xlsxExecutionFilePath = ConfigurationManager.AppSettings["ExecutionListFilePath"];
 var _alertFilePath = ReplacePlaceholder(ConfigurationManager.AppSettings["AlertFilePath"], "{yyyyMMdd}", _currentDate.ToString("yyyyMMdd"));
 
-var analyzer = new Analyzer(_connectionString);
+var analyzer = new Analyzer(_currentDate, _connectionString);
 var results = new List<Analyzer.AnalysisResult>();
 
-//var scraper = new Scraper();
 var yahooScraper = new YahooScraper();
 var kabutanScraper = new KabutanScraper();
 var minkabuScraper = new MinkabuScraper();

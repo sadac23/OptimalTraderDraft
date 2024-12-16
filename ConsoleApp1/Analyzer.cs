@@ -8,11 +8,13 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 
 internal class Analyzer
 {
+    DateTime _currentDate = DateTime.Today;
     string _connectionString = string.Empty;
     const int _volatilityTermMax = 12;
 
-    public Analyzer(string connectionString)
+    public Analyzer(DateTime currentDate, string connectionString)
     {
+        this._currentDate = currentDate;
         this._connectionString = connectionString;
     }
 
@@ -33,18 +35,18 @@ internal class Analyzer
     {
         double startindex = 0;
         double endIndex = 0;
-        DateTime startindexDate = DateTime.Now;
-        DateTime endIndexDate = DateTime.Now;
+        DateTime startindexDate = _currentDate;
+        DateTime endIndexDate = _currentDate;
         double lastFridayIndex = 0;
-        DateTime lastFridayIndexDate = DateTime.Now;
+        DateTime lastFridayIndexDate = _currentDate;
 
-        DateTime startDate = DateTime.Today;
-        DateTime endDate = DateTime.Today;
+        DateTime startDate = _currentDate;
+        DateTime endDate = _currentDate;
 
         // 実行日が土日の場合は、終了日を金とする
-        if (DateTime.Today.DayOfWeek == DayOfWeek.Saturday || DateTime.Today.DayOfWeek == DayOfWeek.Sunday)
+        if (_currentDate.DayOfWeek == DayOfWeek.Saturday || _currentDate.DayOfWeek == DayOfWeek.Sunday)
         {
-            endDate = GetLastFriday(DateTime.Today);
+            endDate = GetLastFriday(_currentDate);
         }
         startDate = GetLastFriday(endDate).AddDays((term - 1) * -7);
 
@@ -91,7 +93,7 @@ internal class Analyzer
                         endIndexDate = date;
 
                         // 実行日の前週金曜日の指数を取得しておく
-                        if (dateString == GetLastFriday(DateTime.Today).ToString("yyyyMMdd"))
+                        if (dateString == GetLastFriday(_currentDate).ToString("yyyyMMdd"))
                         {
                             lastFridayIndex = close;
                             lastFridayIndexDate = date;
@@ -103,8 +105,8 @@ internal class Analyzer
 
         AnalysisResult.PriceVolatility result = new()
         {
-            DateString = DateTime.Now.ToString("yyyyMMdd"),
-            Date = DateTime.Now,
+            DateString = _currentDate.ToString("yyyyMMdd"),
+            Date = _currentDate,
             VolatilityRate = (endIndex / startindex) - 1,
             VolatilityRateIndex1 = startindex,
             VolatilityRateIndex1Date = startindexDate,
@@ -248,6 +250,10 @@ internal class Analyzer
         /// </summary>
         public class PriceVolatility
         {
+            public PriceVolatility()
+            {
+                this.DateString = string.Empty;
+            }
             /// <summary>
             /// 分析日文字列
             /// </summary>
