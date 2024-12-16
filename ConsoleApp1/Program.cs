@@ -79,12 +79,12 @@ using Nager.Date;
  * ・済：スクレイピング処理のリファクタリング
  * ・済：市場、業種情報の取得
  * ・済：ROEの推移を表示
+ * ・済：市場、業界毎のPER/PBRを表示する
  * ・投信の処理追加
  * ・アラートのメール通知
  * ・ETFの株探取得がうまくできていない
  * ・DBはキャッシュ利用とし、なければ作成する処理を入れる
  * ・土日はyahooのスクレイピング不要（カレントが休場日の場合、営業日まで遡って取得済であるかチェックする）
- * ・市場、業界毎のPER/PBRを表示する
  * ・信用買い残と出来高を追加
  * ・基準値以下を●表示
  */
@@ -99,6 +99,7 @@ var _masterStartDate = DateTime.Parse("2023/01/01");
 var _connectionString = ConfigurationManager.ConnectionStrings["OTDB"].ConnectionString;
 var _xlsxFilePath = ConfigurationManager.AppSettings["WatchListFilePath"];
 var _xlsxExecutionFilePath = ConfigurationManager.AppSettings["ExecutionListFilePath"];
+var _xlsxAveragePerPbrListFilePath = ConfigurationManager.AppSettings["AveragePerPbrListFilePath"];
 var _alertFilePath = ReplacePlaceholder(ConfigurationManager.AppSettings["AlertFilePath"], "{yyyyMMdd}", _currentDate.ToString("yyyyMMdd"));
 
 var analyzer = new Analyzer(_currentDate, _connectionString);
@@ -115,6 +116,9 @@ var executionList = ExecutionList.GetXlsxExecutionStockList(_xlsxExecutionFilePa
 
 // ウォッチリスト取得
 var watchList = WatchList.GetXlsxWatchStockList(_xlsxFilePath, executionList);
+
+// マスタ取得
+var masterList = MasterList.GetXlsxAveragePerPbrList(_xlsxAveragePerPbrListFilePath);
 
 // 直近の営業日を取得
 var lastTradingDay = GetLastTradingDay(_currentDate);
@@ -143,8 +147,11 @@ foreach (var watchStock in watchList)
             await minkabuScraper.ScrapeDividend(stockInfo);
             await minkabuScraper.ScrapeYutai(stockInfo);
 
-            // 約定履歴を取得
-            stockInfo.Executions = ExecutionList.GetExecutions(executionList, stockInfo.Code);
+            // 約定履歴を設定
+            stockInfo.SetExecutions(executionList);
+
+            // マスタを設定
+            stockInfo.SetAveragePerPbr(masterList);
 
             // 株価履歴キャッシュ更新
             UpdateMaster(stockInfo);

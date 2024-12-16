@@ -72,8 +72,8 @@ internal class Alert
                     }
                     if (!string.IsNullOrEmpty(s)) writer.WriteLine($"ROE：{s}");
 
-                    writer.WriteLine($"PER：{ConvertToMultiplierString(r.StockInfo.Per)}（99.9）");
-                    writer.WriteLine($"PBR：{ConvertToMultiplierString(r.StockInfo.Pbr)}（99.9）");
+                    writer.WriteLine($"PER：{ConvertToMultiplierString(r.StockInfo.Per)}（{r.StockInfo.AveragePer}）");
+                    writer.WriteLine($"PBR：{ConvertToMultiplierString(r.StockInfo.Pbr)}（{r.StockInfo.AveragePbr}）");
                     writer.WriteLine($"信用倍率：{r.StockInfo.MarginBalanceRatio}");
                     writer.WriteLine($"自己資本比率：{r.StockInfo.EquityRatio}");
 
