@@ -6,6 +6,7 @@ using System.Net.Http;
 using System.Security.Policy;
 using static WatchList;
 using System.Globalization;
+using System.Data;
 
 internal class KabutanScraper
 {
@@ -41,11 +42,32 @@ internal class KabutanScraper
                 {
                     var columns = row.SelectNodes("td|th");
 
-                    if (columns != null && columns.Count > 6)
+                    if (columns != null && columns.Count >= 8)
                     {
-                        var roe = this.GetDouble(columns[4].InnerText.Trim());
 
-                        stockInfo.Roe = roe;
+                        var fiscalPeriod = columns[0].InnerText.Trim();
+                        var revenue = columns[1].InnerText.Trim();
+                        var operatingIncome = columns[2].InnerText.Trim();
+                        var operatingMargin = columns[3].InnerText.Trim();
+                        var roe = columns[4].InnerText.Trim();
+                        var roa = columns[5].InnerText.Trim();
+                        var totalAssetTurnover = columns[6].InnerText.Trim();
+                        var adjustedEarningsPerShare = columns[7].InnerText.Trim();
+
+                        FullYearProfit p = new FullYearProfit()
+                        {
+                            FiscalPeriod = fiscalPeriod,
+                            Revenue = revenue,
+                            OperatingIncome = operatingIncome,
+                            OperatingMargin = operatingMargin,
+                            Roe = roe,
+                            Roa = roa,
+                            TotalAssetTurnover = totalAssetTurnover,
+                            AdjustedEarningsPerShare = adjustedEarningsPerShare,
+                        };
+
+                        stockInfo.FullYearProfits.Add(p);
+                        stockInfo.Roe = this.GetDouble(roe);
                     }
                 }
             }
@@ -63,7 +85,7 @@ internal class KabutanScraper
                     // 1行目
                     if (s == 0)
                     {
-                        if (columns != null && columns.Count > 3)
+                        if (columns != null && columns.Count >= 4)
                         {
                             var per = columns[0].InnerText.Trim();
                             var pbr = columns[1].InnerText.Trim();

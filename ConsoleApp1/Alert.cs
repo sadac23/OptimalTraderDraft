@@ -8,10 +8,6 @@ using System.Runtime.ConstrainedExecution;
 
 internal class Alert
 {
-    public Alert()
-    {
-    }
-
     public Alert(List<Analyzer.AnalysisResult> results)
     {
         AnalysisResults = results;
@@ -28,7 +24,7 @@ internal class Alert
         //優待利回り：3.64％（QUOカード,100株,5月,11月）
         //通期予想：増収増益増配（+50%,+50%,+50）
         //時価総額：2兆3,470億円
-        //ROE：10.71
+        //ROE：9.99→9.99→10.71
         //PER：11.0倍（14.2）
         //PBR：1.18倍（1.1）
         //信用倍率：8.58倍
@@ -53,6 +49,9 @@ internal class Alert
             {
                 if (r.ShouldAlert())
                 {
+                    short count = 0;
+                    string s = string.Empty;
+
                     writer.WriteLine("");
                     writer.WriteLine($"{r.StockInfo.Code}：{r.StockInfo.Name}（{r.StockInfo.Industry}）");
                     writer.WriteLine($"株価：{r.StockInfo.Prices[0].Close}（{r.StockInfo.Prices[0].Date.ToString("yyyy/MM/dd")}）");
@@ -62,13 +61,23 @@ internal class Alert
                         writer.WriteLine($"優待利回り：{ConvertToPercentage(r.StockInfo.ShareholderBenefitYield)}（{r.StockInfo.ShareholderBenefitsDetails},{r.StockInfo.NumberOfSharesRequiredForBenefits},{r.StockInfo.ShareholderBenefitRecordDateMonth}）");
                     writer.WriteLine($"通期予想：{r.StockInfo.FullYearPerformanceForcastSummary}");
                     writer.WriteLine($"時価総額：{ConvertToYenNotation(r.StockInfo.MarketCap)}");
-                    writer.WriteLine($"ROE：{r.StockInfo.Roe}");
+
+                    count = 0;
+                    s = string.Empty;
+                    foreach (StockInfo.FullYearProfit p in r.StockInfo.FullYearProfits)
+                    {
+                        if (count > 0) s += "→";
+                        s += p.Roe;
+                        count++;
+                    }
+                    if (!string.IsNullOrEmpty(s)) writer.WriteLine($"ROE：{s}");
+
                     writer.WriteLine($"PER：{ConvertToMultiplierString(r.StockInfo.Per)}（99.9）");
                     writer.WriteLine($"PBR：{ConvertToMultiplierString(r.StockInfo.Pbr)}（99.9）");
                     writer.WriteLine($"信用倍率：{r.StockInfo.MarginBalanceRatio}");
                     writer.WriteLine($"自己資本比率：{r.StockInfo.EquityRatio}");
 
-                    short count = 0;
+                    count = 0;
                     foreach (ExecutionList.Execution e in r.StockInfo.Executions)
                     {
                         if (count == 0) writer.WriteLine($"約定履歴：");

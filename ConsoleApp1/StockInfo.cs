@@ -14,6 +14,7 @@ internal class StockInfo
         Memo = watchStock.Memo;
         Prices = new List<StockInfo.Price>();
         FullYearPerformances = new List<StockInfo.FullYearPerformance>();
+        FullYearProfits = new List<FullYearProfit>();
     }
     /// <summary>
     /// コード
@@ -64,6 +65,10 @@ internal class StockInfo
     /// 通期業績予想概要（例：増収増益増配（+50%,+50%,+50））
     /// </summary>
     public string FullYearPerformanceForcastSummary { get; internal set; }
+    /// <summary>
+    /// 通期収益履歴
+    /// </summary>
+    public List<FullYearProfit> FullYearProfits { get; internal set; }
     /// <summary>
     /// 約定履歴
     /// </summary>
@@ -390,5 +395,41 @@ internal class StockInfo
         /// 発表日
         /// </summary>
         public string AnnouncementDate { get; set; }
+    }
+
+    public class FullYearProfit
+    {
+        /// <summary>
+        /// 決算期
+        /// </summary>
+        public string FiscalPeriod { get; set; }
+        /// <summary>
+        /// 売上高
+        /// </summary>
+        public string Revenue { get; set; }
+        /// <summary>
+        /// 営業益
+        /// </summary>
+        public string OperatingIncome { get; set; }
+        /// <summary>
+        /// 売上営業利益率
+        /// </summary>
+        public string OperatingMargin { get; set; }
+        /// <summary>
+        /// ＲＯＥ
+        /// </summary>
+        public string Roe { get; set; }
+        /// <summary>
+        /// ＲＯＡ
+        /// </summary>
+        public string Roa { get; set; }
+        /// <summary>
+        /// 総資産回転率
+        /// </summary>
+        public string TotalAssetTurnover { get; set; }
+        /// <summary>
+        /// 修正1株益
+        /// </summary>
+        public string AdjustedEarningsPerShare { get; set; }
     }
 }
