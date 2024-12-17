@@ -80,13 +80,14 @@ using Nager.Date;
  * ・済：市場、業種情報の取得
  * ・済：ROEの推移を表示
  * ・済：市場、業界毎のPER/PBRを表示する
+ * ・済：土日はyahooのスクレイピング不要（カレントが休場日の場合、営業日まで遡って取得済であるかチェックする）
  * ・投信の処理追加
  * ・アラートのメール通知
  * ・ETFの株探取得がうまくできていない
  * ・DBはキャッシュ利用とし、なければ作成する処理を入れる
- * ・土日はyahooのスクレイピング不要（カレントが休場日の場合、営業日まで遡って取得済であるかチェックする）
  * ・信用買い残と出来高を追加
  * ・基準値以下を●表示
+ * ・次回決算日を表示
  */
 
 const string _mailAddress = "sadac23@gmail.com";
@@ -140,8 +141,8 @@ foreach (var watchStock in watchList)
             var startDate = GetStartDate(watchStock.Code);
 
             // 外部サイトの情報取得
-            //            if (lastTradingDay > startDate) 
-            await yahooScraper.ScrapeHistory(stockInfo, startDate, _currentDate);
+            if (lastTradingDay > startDate)
+                await yahooScraper.ScrapeHistory(stockInfo, startDate, _currentDate);
             await yahooScraper.ScrapeProfile(stockInfo);
             await kabutanScraper.ScrapeFinance(stockInfo);
             await minkabuScraper.ScrapeDividend(stockInfo);
@@ -179,10 +180,11 @@ DateTime GetLastTradingDay(DateTime referenceDate)
     DateTime date = referenceDate.Date;
 
     // 土日または祝日の場合、前日を確認
-    //while (IsHolidayOrWeekend(date))
-    //{
-    //    date = date.AddDays(-1);
-    //}
+    while (TSEHolidayChecker.IsTSEHoliday(date))
+    {
+        date = date.AddDays(-1);
+    }
+
     return date;
 }
 
