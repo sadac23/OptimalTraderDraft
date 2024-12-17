@@ -138,4 +138,33 @@ internal class YahooScraper
             }
         }
     }
+    internal async Task ScrapeTop(StockInfo stockInfo)
+    {
+        var url = $"https://finance.yahoo.co.jp/quote/{stockInfo.Code}.T";
+        Console.WriteLine(url);
+
+        using (HttpClient client = new HttpClient())
+        {
+            try
+            {
+                HttpResponseMessage response = await client.GetAsync(url);
+                response.EnsureSuccessStatusCode();
+                string pageContent = await response.Content.ReadAsStringAsync();
+
+                HtmlDocument document = new HtmlDocument();
+                document.LoadHtml(pageContent);
+
+                // ノードをXPathで選択
+                var node = document.DocumentNode.SelectSingleNode("//p[contains(@class, 'PressReleaseDate__message__3kiO')]");
+                if (node != null)
+                {
+                    stockInfo.PressReleaseDate = node.InnerText.Trim();
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("リクエストエラー: " + e.Message);
+            }
+        }
+    }
 }

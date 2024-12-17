@@ -119,8 +119,18 @@ internal class StockInfo
     /// 業種
     /// </summary>
     public string Industry { get; internal set; }
+    /// <summary>
+    /// 所属する業種の平均PER
+    /// </summary>
     public string AveragePer { get; private set; }
+    /// <summary>
+    /// 所属する業種の平均PBR
+    /// </summary>
     public string AveragePbr { get; private set; }
+    /// <summary>
+    /// 次回の決算日
+    /// </summary>
+    public string PressReleaseDate { get; internal set; }
 
     /// <summary>
     /// 現在、所有しているか？

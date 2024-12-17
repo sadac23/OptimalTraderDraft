@@ -19,7 +19,7 @@ internal class Alert
     {
         //1928：積水ハウス(株)（建設業）
         //株価：1234（2024/11/29）
-        //市場業種：東証プライム,名証プレミア
+        //市場：東証プライム,名証プレミア
         //配当利回り：3.64％（50%,5月,11月）
         //優待利回り：3.64％（QUOカード,100株,5月,11月）
         //通期予想：増収増益増配（+50%,+50%,+50）
@@ -37,6 +37,8 @@ internal class Alert
         //2024/10/04：3951：-10.40% (8)
         //2024/09/27：4119：-10.40% (9)
         //2024/09/20：3959：-10.40% (10)
+        //決算発表日：
+        //次回の決算発表日は未定です。
         //メモ：
         //ほげほげほげほげほげ。
 
@@ -96,7 +98,10 @@ internal class Alert
                         }
                     }
 
-                    if (r.StockInfo.Memo != string.Empty)
+                    writer.WriteLine($"決算発表日：");
+                    writer.WriteLine(r.StockInfo.PressReleaseDate);
+
+                    if (string.IsNullOrEmpty(r.StockInfo.Memo))
                     {
                         //メモ：
                         writer.WriteLine($"メモ：");
