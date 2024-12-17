@@ -91,6 +91,7 @@ using Nager.Date;
  * ・DBはキャッシュ利用とし、なければ作成する処理を入れる
  * ・信用買い残と出来高を追加
  * ・基準値以下を●表示
+ * ・PriceリストをDBキャッシュから作り直す
  */
 
 const string _mailAddress = "sadac23@gmail.com";
@@ -144,7 +145,7 @@ foreach (var watchStock in watchList)
             var startDate = GetStartDate(watchStock.Code);
 
             // 外部サイトの情報取得
-            if (lastTradingDay > startDate)
+//            if (lastTradingDay > startDate)
                 await yahooScraper.ScrapeHistory(stockInfo, startDate, _currentDate);
             await yahooScraper.ScrapeProfile(stockInfo);
             await yahooScraper.ScrapeTop(stockInfo);
