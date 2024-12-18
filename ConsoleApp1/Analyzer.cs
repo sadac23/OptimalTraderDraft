@@ -116,6 +116,10 @@ internal class Analyzer
             ShouldAlert = false,
         };
 
+        // 直近の株価を取得しておく
+        item.LatestPrice = endIndex;
+        item.LatestPriceDate = endIndexDate;
+
         // 個別
         if (item.Classification == "1")
         {

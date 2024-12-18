@@ -128,9 +128,17 @@ internal class StockInfo
     /// </summary>
     public string AveragePbr { get; private set; }
     /// <summary>
-    /// 次回の決算日
+    /// 決算日
     /// </summary>
     public string PressReleaseDate { get; internal set; }
+    /// <summary>
+    /// 直近の株価
+    /// </summary>
+    public double LatestPrice { get; internal set; }
+    /// <summary>
+    /// 直近の株価日付
+    /// </summary>
+    public DateTime LatestPriceDate { get; internal set; }
 
     /// <summary>
     /// 現在、所有しているか？
