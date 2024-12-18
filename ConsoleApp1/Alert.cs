@@ -17,7 +17,7 @@ internal class Alert
 
     internal void SaveFile(string alertFilePath)
     {
-        //1928：積水ハウス(株)（建設業）
+        //1928：積水ハウス(株)（建設業）☆
         //株価：1234（2024/11/29）
         //市場：東証プライム,名証プレミア
         //配当利回り：3.64％（50%,5月,11月）
@@ -55,7 +55,7 @@ internal class Alert
                     string s = string.Empty;
 
                     writer.WriteLine("");
-                    writer.WriteLine($"{r.StockInfo.Code}：{r.StockInfo.Name}（{r.StockInfo.Industry}）");
+                    writer.WriteLine($"{r.StockInfo.Code}：{r.StockInfo.Name}（{r.StockInfo.Industry}）{(r.StockInfo.IsFavorite ? "☆" : "")}");
                     writer.WriteLine($"株価：{r.StockInfo.LatestPrice}（{r.StockInfo.LatestPriceDate.ToString("yyyy/MM/dd")}）");
                     writer.WriteLine($"市場：{r.StockInfo.Section}");
                     writer.WriteLine($"配当利回り：{ConvertToPercentage(r.StockInfo.DividendYield)}（{ConvertToPercentage( r.StockInfo.DividendPayoutRatio)},{r.StockInfo.DividendRecordDateMonth}）");

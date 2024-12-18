@@ -2,6 +2,7 @@
 
 using DocumentFormat.OpenXml.Wordprocessing;
 using System.Data.SQLite;
+using System.Runtime.CompilerServices;
 using System.Runtime.ConstrainedExecution;
 using static Analyzer;
 using static System.Runtime.InteropServices.JavaScript.JSType;
@@ -223,7 +224,7 @@ internal class Analyzer
             }
             // 所有していなくてお気に入りでもない場合
             else
-                    {
+            {
                 // 通知すべき分析がある場合はtrue
                 if (hasAnalysisAlert) result = true;
 
@@ -233,8 +234,29 @@ internal class Analyzer
                 // 利回りが3.00%より低い場合はアラートしない
                 if ((this.StockInfo.DividendYield + this.StockInfo.ShareholderBenefitYield) < 0.0300) result = false;
 
-                // ROEが8.00%より低い場合はアラートしない
-                if (this.StockInfo.Roe < 8.00) result = false;
+                //// ROEが8.00%より低い場合はアラートしない
+                //if (this.StockInfo.Roe < 8.00) result = false;
+
+                // 直近のROE推移が向上していない場合はアラートしない
+                double roe = 0;
+                int count = this.StockInfo.FullYearProfits.Count;
+
+                for (int i = 0; i < count; i++)
+                {
+                    var p = this.StockInfo.FullYearProfits[i];
+
+                    // 0だったら無視
+                    if (p.Roa == 0) continue;
+
+                    // 末尾の2件をチェック
+                    if (i >= count - 2)
+                    {
+                        // 前年のほうが高い場合はアラートしない
+                        if (roe > p.Roe) result = false;
+                    }
+
+                    roe = p.Roe;
+                }
 
                 // PERが15倍より高い場合はアラートしない
                 //if (this.StockInfo.Per > 15.00) result = false;

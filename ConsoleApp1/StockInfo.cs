@@ -522,11 +522,11 @@ internal class StockInfo
         /// <summary>
         /// ＲＯＥ
         /// </summary>
-        public string Roe { get; set; }
+        public double Roe { get; set; }
         /// <summary>
         /// ＲＯＡ
         /// </summary>
-        public string Roa { get; set; }
+        public double Roa { get; set; }
         /// <summary>
         /// 総資産回転率
         /// </summary>

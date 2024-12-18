@@ -60,8 +60,8 @@ internal class KabutanScraper
                             Revenue = revenue,
                             OperatingIncome = operatingIncome,
                             OperatingMargin = operatingMargin,
-                            Roe = roe,
-                            Roa = roa,
+                            Roe = GetDouble(roe),
+                            Roa = GetDouble(roa),
                             TotalAssetTurnover = totalAssetTurnover,
                             AdjustedEarningsPerShare = adjustedEarningsPerShare,
                         };
@@ -227,10 +227,11 @@ internal class KabutanScraper
     }
     internal double GetDouble(string v)
     {
-        double.TryParse(v, NumberStyles.AllowThousands | NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out double result);
-
+        if (!double.TryParse(v, NumberStyles.AllowThousands | NumberStyles.AllowDecimalPoint | NumberStyles.AllowLeadingSign, CultureInfo.InvariantCulture, out double result))
+        {
+            Console.WriteLine("GetDoubleエラー: " + v);
+        }
         return result;
-
     }
     private double ConvertToDoubleForPerPbr(string multiplierString)
     {
