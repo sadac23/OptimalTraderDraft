@@ -128,7 +128,7 @@ internal class StockInfo
     /// </summary>
     public string AveragePbr { get; private set; }
     /// <summary>
-    /// 決算日
+    /// 決算発表
     /// </summary>
     public string PressReleaseDate { get; internal set; }
     /// <summary>

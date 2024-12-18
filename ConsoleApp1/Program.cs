@@ -136,45 +136,38 @@ foreach (var watchStock in watchList)
     // 削除日が入っていたらスキップ
     if (watchStock.DeleteDate != string.Empty) continue;
 
-    // 個別 or ETF
-    if (watchStock.Classification == "1" || watchStock.Classification == "2")
+    // 個別
+    if (watchStock.Classification == "1")
     {
-        try
-        {
-            var stockInfo = new StockInfo(watchStock);
+        var stockInfo = new StockInfo(watchStock);
 
-            // 株価更新開始日を取得（なければ基準開始日を取得）
-            var startDate = GetStartDate(watchStock.Code);
+        // 株価更新開始日を取得（なければ基準開始日を取得）
+        var startDate = GetStartDate(watchStock.Code);
 
-            // 外部サイトの情報取得
-//            if (lastTradingDay > startDate)
-                await yahooScraper.ScrapeHistory(stockInfo, startDate, _currentDate);
-            await yahooScraper.ScrapeProfile(stockInfo);
-            await yahooScraper.ScrapeTop(stockInfo);
-            await kabutanScraper.ScrapeFinance(stockInfo);
-            await minkabuScraper.ScrapeDividend(stockInfo);
-            await minkabuScraper.ScrapeYutai(stockInfo);
+        // 外部サイトの情報取得
+        if (lastTradingDay > startDate)
+            await yahooScraper.ScrapeHistory(stockInfo, startDate, _currentDate);
+        await yahooScraper.ScrapeProfile(stockInfo);
+        await yahooScraper.ScrapeTop(stockInfo);
+        await kabutanScraper.ScrapeFinance(stockInfo);
+        await minkabuScraper.ScrapeDividend(stockInfo);
+        await minkabuScraper.ScrapeYutai(stockInfo);
 
-            // 約定履歴を設定
-            stockInfo.SetExecutions(executionList);
+        // 約定履歴を設定
+        stockInfo.SetExecutions(executionList);
 
-            // マスタを設定
-            stockInfo.SetAveragePerPbr(masterList);
+        // マスタを設定
+        stockInfo.SetAveragePerPbr(masterList);
 
-            // 株価履歴キャッシュ更新
-            UpdateMaster(stockInfo);
+        // 株価履歴キャッシュ更新
+        UpdateMaster(stockInfo);
 
-            // 分析
-            var result = analyzer.Analize(stockInfo);
+        // 分析
+        var result = analyzer.Analize(stockInfo);
 
-            // 結果登録
-            results.Add(result);
-            ResisterResult(result);
-        }
-        catch (System.AggregateException ex)
-        {
-            // 504(Gatewayエラー)は無視する。
-        }
+        // 結果登録
+        results.Add(result);
+        ResisterResult(result);
     }
 }
 

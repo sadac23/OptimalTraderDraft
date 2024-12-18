@@ -154,12 +154,19 @@ internal class YahooScraper
                 HtmlDocument document = new HtmlDocument();
                 document.LoadHtml(pageContent);
 
-                // ノードをXPathで選択
+                // 決算発表
                 var node = document.DocumentNode.SelectSingleNode("//p[contains(@class, 'PressReleaseDate__message__3kiO')]");
                 if (node != null)
                 {
                     stockInfo.PressReleaseDate = node.InnerText.Trim();
                 }
+
+                // 出来高
+                // <section class="StocksEtfReitDataList__2FGO StocksContents__stocksEtfReitDataList__1cK2">
+
+                // 信用買残
+                // <section id="margin" class="MarginTransactionInformation__1kka">
+
             }
             catch (Exception e)
             {
