@@ -27,7 +27,8 @@ internal class Alert
         //ROE：9.99→9.99→10.71
         //PER：11.0倍（14.2）
         //PBR：1.18倍（1.1）
-        //信用倍率：8.58倍（12/13：2,020,600）
+        //信用倍率：8.58倍
+        //信用残：2,020,600/2,020,600（12/13）
         //出来高：2,020,600
         //自己資本比率：40.0%
         //約定履歴：
@@ -77,7 +78,11 @@ internal class Alert
 
                     writer.WriteLine($"PER：{ConvertToMultiplierString(r.StockInfo.Per)}（{r.StockInfo.AveragePer}）");
                     writer.WriteLine($"PBR：{ConvertToMultiplierString(r.StockInfo.Pbr)}（{r.StockInfo.AveragePbr}）");
-                    writer.WriteLine($"信用倍率：{r.StockInfo.MarginBalanceRatio}（{r.StockInfo.MarginBuyBalanceDate}：{r.StockInfo.MarginBuyBalance}）");
+                    //信用倍率：8.58倍
+                    //信用残：2,020,600/2,020,600（12/13）
+                    //出来高：2,020,600
+                    writer.WriteLine($"信用倍率：{r.StockInfo.MarginBalanceRatio}");
+                    writer.WriteLine($"信用残：{r.StockInfo.MarginBuyBalance}/{r.StockInfo.MarginSellBalance}（{r.StockInfo.MarginBalanceDate}）");
                     writer.WriteLine($"出来高：{r.StockInfo.LatestTradingVolume}");
                     writer.WriteLine($"自己資本比率：{r.StockInfo.EquityRatio}");
 

@@ -84,23 +84,9 @@ internal class YahooScraper
                 if (rowCount <= 19) break;
             }
         }
-        catch (Exception ex) { 
-            // 無視
+        catch (Exception e) {
+            Console.WriteLine("ScrapeHistory: " + e.Message);
         }
-    }
-    internal DateTime GetDate(string v)
-    {
-        string[] formats = { "yyyy年M月d日", "yyyy年MM月dd日", "yyyy年MM月d日", "yyyy年M月dd日" };
-        DateTime.TryParseExact(v, formats, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime date);
-
-        return date;
-    }
-    internal double GetDouble(string v)
-    {
-        double.TryParse(v, NumberStyles.AllowThousands | NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out double result);
-
-        return result;
-
     }
 
     internal async Task ScrapeProfile(StockInfo stockInfo)
@@ -134,7 +120,7 @@ internal class YahooScraper
             }
             catch (Exception e)
             {
-                Console.WriteLine("リクエストエラー: " + e.Message);
+                Console.WriteLine("ScrapeProfile: " + e.Message);
             }
         }
     }
@@ -167,8 +153,7 @@ internal class YahooScraper
                 }
 
                 // 出来高
-                // <section class="StocksEtfReitDataList__2FGO StocksContents__stocksEtfReitDataList__1cK2">
-                node = document.DocumentNode.SelectSingleNode("//section[contains(@class, 'StocksEtfReitDataList__2FGO StocksContents__stocksEtfReitDataList__1cK2')]/dt/span[contains(text(), '出来高')]/following-sibling::dd/span[@class='StyledNumber__value__3rXW DataListItem__value__11kV']");
+                node = document.DocumentNode.SelectSingleNode("//dt/span[text()='出来高']/ancestor::dt/following-sibling::dd//span[@class='StyledNumber__value__3rXW DataListItem__value__11kV']");
                 if (node != null)
                 {
                     stockInfo.LatestTradingVolume = node.InnerText.Trim();
@@ -176,14 +161,35 @@ internal class YahooScraper
 
                 // 信用買残
                 // <section id="margin" class="MarginTransactionInformation__1kka">
+                node = document.DocumentNode.SelectSingleNode("//dt[text()='信用買残']/following-sibling::dd/span[@class='StyledNumber__value__3rXW']");
+                if (node != null)
+                {
+                    stockInfo.MarginBuyBalance = node.InnerText.Trim();
+                }
 
-                // 信用買残日付
+                // 信用売残
+
+                // 信用残更新日付
 
             }
             catch (Exception e)
             {
-                Console.WriteLine("リクエストエラー: " + e.Message);
+                Console.WriteLine("ScrapeTop: " + e.Message);
             }
         }
+    }
+    internal DateTime GetDate(string v)
+    {
+        string[] formats = { "yyyy年M月d日", "yyyy年MM月dd日", "yyyy年MM月d日", "yyyy年M月dd日" };
+        DateTime.TryParseExact(v, formats, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime date);
+
+        return date;
+    }
+    internal double GetDouble(string v)
+    {
+        double.TryParse(v, NumberStyles.AllowThousands | NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out double result);
+
+        return result;
+
     }
 }

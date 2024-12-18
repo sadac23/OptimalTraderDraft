@@ -145,10 +145,10 @@ foreach (var watchStock in watchList)
         var startDate = GetStartDate(watchStock.Code);
 
         // 外部サイトの情報取得
+        await yahooScraper.ScrapeTop(stockInfo);
+        await yahooScraper.ScrapeProfile(stockInfo);
         if (lastTradingDay > startDate)
             await yahooScraper.ScrapeHistory(stockInfo, startDate, _currentDate);
-        await yahooScraper.ScrapeProfile(stockInfo);
-        await yahooScraper.ScrapeTop(stockInfo);
         await kabutanScraper.ScrapeFinance(stockInfo);
         await minkabuScraper.ScrapeDividend(stockInfo);
         await minkabuScraper.ScrapeYutai(stockInfo);
