@@ -39,12 +39,12 @@ internal class YahooScraper
                 // 他の処理
                 htmlDocument.LoadHtml(html);
 
-                if (string.IsNullOrEmpty(stockInfo.Name))
-                {
-                    var title = htmlDocument.DocumentNode.SelectNodes("//title");
-                    string[] parts = title[0].InnerText.Trim().Split('【');
-                    stockInfo.Name = parts.Length > 0 ? parts[0] : stockInfo.Name;
-                }
+                //if (string.IsNullOrEmpty(stockInfo.Name))
+                //{
+                //    var title = htmlDocument.DocumentNode.SelectNodes("//title");
+                //    string[] parts = title[0].InnerText.Trim().Split('【');
+                //    stockInfo.Name = parts.Length > 0 ? parts[0] : stockInfo.Name;
+                //}
 
                 rows = htmlDocument.DocumentNode.SelectNodes("//table[contains(@class, 'StocksEtfReitPriceHistory')]/tbody/tr");
 
@@ -154,6 +154,11 @@ internal class YahooScraper
                 HtmlDocument document = new HtmlDocument();
                 document.LoadHtml(pageContent);
 
+                // 名称
+                var title = document.DocumentNode.SelectNodes("//title");
+                string[] parts = title[0].InnerText.Trim().Split('【');
+                stockInfo.Name = parts.Length > 0 ? parts[0] : stockInfo.Name;
+
                 // 決算発表
                 var node = document.DocumentNode.SelectSingleNode("//p[contains(@class, 'PressReleaseDate__message__3kiO')]");
                 if (node != null)
@@ -163,9 +168,16 @@ internal class YahooScraper
 
                 // 出来高
                 // <section class="StocksEtfReitDataList__2FGO StocksContents__stocksEtfReitDataList__1cK2">
+                node = document.DocumentNode.SelectSingleNode("//section[contains(@class, 'StocksEtfReitDataList__2FGO StocksContents__stocksEtfReitDataList__1cK2')]/dt/span[contains(text(), '出来高')]/following-sibling::dd/span[@class='StyledNumber__value__3rXW DataListItem__value__11kV']");
+                if (node != null)
+                {
+                    stockInfo.LatestTradingVolume = node.InnerText.Trim();
+                }
 
                 // 信用買残
                 // <section id="margin" class="MarginTransactionInformation__1kka">
+
+                // 信用買残日付
 
             }
             catch (Exception e)

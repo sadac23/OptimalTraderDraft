@@ -139,6 +139,18 @@ internal class StockInfo
     /// 直近の株価日付
     /// </summary>
     public DateTime LatestPriceDate { get; internal set; }
+    /// <summary>
+    /// 信用買残日付
+    /// </summary>
+    public object MarginBuyBalanceDate { get; internal set; }
+    /// <summary>
+    /// 信用買残
+    /// </summary>
+    public object MarginBuyBalance { get; internal set; }
+    /// <summary>
+    /// 直近の出来高
+    /// </summary>
+    public object LatestTradingVolume { get; internal set; }
 
     /// <summary>
     /// 現在、所有しているか？
