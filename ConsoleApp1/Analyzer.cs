@@ -237,26 +237,26 @@ internal class Analyzer
                 //// ROEが8.00%より低い場合はアラートしない
                 //if (this.StockInfo.Roe < 8.00) result = false;
 
-                // 直近のROE推移が向上していない場合はアラートしない
-                double roe = 0;
-                int count = this.StockInfo.FullYearProfits.Count;
+                //// 直近のROE推移が向上していない場合はアラートしない
+                //double roe = 0;
+                //int count = this.StockInfo.FullYearProfits.Count;
 
-                for (int i = 0; i < count; i++)
-                {
-                    var p = this.StockInfo.FullYearProfits[i];
+                //for (int i = 0; i < count; i++)
+                //{
+                //    var p = this.StockInfo.FullYearProfits[i];
 
-                    // 0だったら無視
-                    if (p.Roa == 0) continue;
+                //    // 0だったら無視
+                //    if (p.Roa == 0) continue;
 
-                    // 末尾の2件をチェック
-                    if (i >= count - 2)
-                    {
-                        // 前年のほうが高い場合はアラートしない
-                        if (roe > p.Roe) result = false;
-                    }
+                //    // 末尾の2件をチェック
+                //    if (i >= count - 2)
+                //    {
+                //        // 前年のほうが高い場合はアラートしない
+                //        if (roe > p.Roe) result = false;
+                //    }
 
-                    roe = p.Roe;
-                }
+                //    roe = p.Roe;
+                //}
 
                 // PERが15倍より高い場合はアラートしない
                 //if (this.StockInfo.Per > 15.00) result = false;
