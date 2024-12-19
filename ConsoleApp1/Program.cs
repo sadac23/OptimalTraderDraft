@@ -32,7 +32,6 @@ using DocumentFormat.OpenXml.Drawing;
 using System.Linq.Expressions;
 using DocumentFormat.OpenXml.Wordprocessing;
 using System.Runtime.ConstrainedExecution;
-using Nager.Date;
 
 /* DONE
  * ・済：ETFの処理
@@ -188,23 +187,6 @@ DateTime GetLastTradingDay(DateTime referenceDate)
     }
 
     return date;
-}
-
-bool IsHolidayOrWeekend(DateTime date)
-{
-    // 土日チェック
-    if (date.DayOfWeek == DayOfWeek.Saturday || date.DayOfWeek == DayOfWeek.Sunday)
-    {
-        return true;
-    }
-
-    // 日本の祝日チェック
-    if (HolidaySystem.IsPublicHoliday(date, CountryCode.JP))
-    {
-        return true;
-    }
-
-    return false;
 }
 
 string ReplacePlaceholder(string? input, string placeholder, string newValue)
