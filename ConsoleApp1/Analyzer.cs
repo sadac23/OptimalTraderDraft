@@ -212,8 +212,8 @@ internal class Analyzer
                 // 通知すべき分析がある場合はtrue
                 if (hasAnalysisAlert) result = true;
 
-                // 直近の変動幅が0より大きい場合は通知しない
-                if (this.PriceVolatilities[0].VolatilityRate > 0) result = false;
+                //// 直近の変動幅が0より大きい場合は通知しない
+                //if (this.PriceVolatilities[0].VolatilityRate > 0) result = false;
             }
             // お気に入りの場合
             else if (this.StockInfo.IsFavorite)
@@ -228,11 +228,14 @@ internal class Analyzer
                 // 通知すべき分析がある場合はtrue
                 if (hasAnalysisAlert) result = true;
 
-                // 直近の変動幅が0より大きい場合は通知しない
-                if (this.PriceVolatilities[0].VolatilityRate > 0) result = false;
+                //// 直近の変動幅が0より大きい場合は通知しない
+                //if (this.PriceVolatilities[0].VolatilityRate > 0) result = false;
 
                 // 利回りが3.00%より低い場合はアラートしない
                 if ((this.StockInfo.DividendYield + this.StockInfo.ShareholderBenefitYield) < 0.0300) result = false;
+
+                // 時価総額が1000億より低い場合はアラートしない
+                if (this.StockInfo.MarketCap < 100000000000) result = false;
 
                 //// ROEが8.00%より低い場合はアラートしない
                 //if (this.StockInfo.Roe < 8.00) result = false;
@@ -264,8 +267,6 @@ internal class Analyzer
                 // PBRが2倍より高い場合はアラートしない
                 //if (this.StockInfo.Pbr > 2.00) result = false;
 
-                // 時価総額が1000億より低い場合はアラートしない
-                if (this.StockInfo.MarketCap < 100000000000) result = false;
             }
 
             return result;
