@@ -1,6 +1,7 @@
 ﻿// See https://aka.ms/new-console-template for more information
 using DocumentFormat.OpenXml.Bibliography;
 using DocumentFormat.OpenXml.Drawing.Diagrams;
+using System.Globalization;
 using System.Runtime.ConstrainedExecution;
 using System.Text.RegularExpressions;
 
@@ -122,11 +123,11 @@ internal class StockInfo
     /// <summary>
     /// 所属する業種の平均PER
     /// </summary>
-    public string AveragePer { get; private set; }
+    public double AveragePer { get; private set; }
     /// <summary>
     /// 所属する業種の平均PBR
     /// </summary>
-    public string AveragePbr { get; private set; }
+    public double AveragePbr { get; private set; }
     /// <summary>
     /// 決算発表
     /// </summary>
@@ -463,14 +464,84 @@ internal class StockInfo
 
                 if (sectionMatching && industryMatching)
                 {
-                    this.AveragePer = details.AveragePer;
-                    this.AveragePbr = details.AveragePbr;
+                    this.AveragePer = GetDouble(details.AveragePer);
+                    this.AveragePbr = GetDouble(details.AveragePbr);
                 }
             }
         }
         catch (Exception ex) { 
             Console.WriteLine(ex.Message);
         }
+    }
+    private double GetDouble(string v)
+    {
+        double.TryParse(v, NumberStyles.AllowThousands | NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out double result);
+        return result;
+    }
+    /// <summary>
+    /// 配当権利確定日が近いか？
+    /// </summary>
+    /// <remarks>配当権利確定日が2か月以内の場合にtrueを返す。</remarks>
+    internal bool IsRecordDateClose()
+    {
+        return IsWithinTwoMonths(this.DividendRecordDateMonth);
+    }
+
+    public static bool IsWithinTwoMonths(string monthsStr)
+    {
+        if (string.IsNullOrEmpty(monthsStr)) return false;
+
+        // 現在の月を取得
+        int currentMonth = DateTime.Now.Month;
+
+        // 月文字列を分割してリストに変換
+        var months = monthsStr.Split(',')
+                              .Select(m => ParseMonth(m.Trim()))
+                              .ToList();
+
+        // 当月から2か月以内の月をリストにする
+        var validMonths = Enumerable.Range(0, 3)
+                                    .Select(i => (currentMonth + i - 1) % 12 + 1)
+                                    .ToList();
+
+        // 指定された月が当月から2か月以内に含まれているかを判定
+        return months.Any(month => validMonths.Contains(month));
+    }
+
+    private static int ParseMonth(string monthStr)
+    {
+        // "3月"のような文字列から月を抽出
+        if (monthStr.EndsWith("月"))
+        {
+            monthStr = monthStr.Substring(0, monthStr.Length - 1);
+        }
+
+        // 月を整数に変換
+        return int.Parse(monthStr, CultureInfo.InvariantCulture);
+    }
+    /// <summary>
+    /// PERが割安か？
+    /// </summary>
+    internal bool IsPERUndervalued()
+    {
+        return (this.Per < this.AveragePer ? true : false);
+    }
+
+    /// <summary>
+    /// PBRが割安か？
+    /// </summary>
+    /// <returns></returns>
+    /// <exception cref="NotImplementedException"></exception>
+    internal bool IsPBRUndervalued()
+    {
+        return (this.Pbr < this.AveragePbr ? true : false);
+    }
+    /// <summary>
+    /// 最新のROE予想が基準値以上か？
+    /// </summary>
+    internal bool IsROEAboveThreshold()
+    {
+        return (this.FullYearProfits[this.FullYearProfits.Count - 1].Roe >= 8.00 ? true : false);
     }
 
     /// <summary>

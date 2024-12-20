@@ -222,7 +222,19 @@ internal class Analyzer
                 result = true;
 
             }
-            // 所有していなくてお気に入りでもない場合
+            // 権利確定月が近い場合
+            else if (this.StockInfo.IsRecordDateClose())
+            {
+                // 通知
+                result = true;
+
+                // 利回りが3.00%より低い場合はアラートしない
+                if ((this.StockInfo.DividendYield + this.StockInfo.ShareholderBenefitYield) < 0.0300) result = false;
+
+                // 時価総額が1000億より低い場合はアラートしない
+                if (this.StockInfo.MarketCap < 100000000000) result = false;
+            }
+            // それ以外
             else
             {
                 // 通知すべき分析がある場合はtrue
