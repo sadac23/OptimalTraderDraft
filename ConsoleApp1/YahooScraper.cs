@@ -161,15 +161,26 @@ internal class YahooScraper
 
                 // 信用買残
                 // <section id="margin" class="MarginTransactionInformation__1kka">
-                node = document.DocumentNode.SelectSingleNode("//dt[text()='信用買残']/following-sibling::dd/span[@class='StyledNumber__value__3rXW']");
+//                node = document.DocumentNode.SelectSingleNode("//dt[text()='信用買残']/following-sibling::dd/span[@class='StyledNumber__value__3rXW']");
+                node = document.DocumentNode.SelectSingleNode("//*[@id=\"margin\"]/div/ul/li[1]/dl/dd/span[1]/span/span[1]");
                 if (node != null)
                 {
                     stockInfo.MarginBuyBalance = node.InnerText.Trim();
                 }
 
                 // 信用売残
+                node = document.DocumentNode.SelectSingleNode("//*[@id=\"margin\"]/div/ul/li[4]/dl/dd/span[1]/span/span[1]");
+                if (node != null)
+                {
+                    stockInfo.MarginSellBalance = node.InnerText.Trim();
+                }
 
                 // 信用残更新日付
+                node = document.DocumentNode.SelectSingleNode("//*[@id=\"margin\"]/div/ul/li[1]/dl/dd/span[2]/text()[2]");
+                if (node != null)
+                {
+                    stockInfo.MarginBalanceDate = node.InnerText.Trim();
+                }
 
             }
             catch (Exception e)
