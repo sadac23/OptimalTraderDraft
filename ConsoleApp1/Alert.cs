@@ -97,18 +97,26 @@ internal class Alert
                     count = 0;
                     foreach(Analyzer.AnalysisResult.PriceVolatility p in r.PriceVolatilities)
                     {
-                        if (p.ShouldAlert)
+                        // 直近週は必ず表示
+                        if (count == 0)
                         {
-                            if (count == 0) writer.WriteLine($"変動履歴：");
+                            writer.WriteLine($"変動履歴：");
                             writer.WriteLine($"{p.VolatilityRateIndex1Date.ToString("yyyy/MM/dd")}：{p.VolatilityRateIndex1}：{ConvertToPercentage(p.VolatilityRate)}({p.VolatilityTerm})");
-                            count++;
                         }
+                        else
+                        {
+                            if (p.ShouldAlert)
+                            {
+                                writer.WriteLine($"{p.VolatilityRateIndex1Date.ToString("yyyy/MM/dd")}：{p.VolatilityRateIndex1}：{ConvertToPercentage(p.VolatilityRate)}({p.VolatilityTerm})");
+                            }
+                        }
+                        count++;
                     }
 
                     writer.WriteLine($"決算発表日：");
                     writer.WriteLine(r.StockInfo.PressReleaseDate);
 
-                    if (string.IsNullOrEmpty(r.StockInfo.Memo))
+                    if (!string.IsNullOrEmpty(r.StockInfo.Memo))
                     {
                         //メモ：
                         writer.WriteLine($"メモ：");

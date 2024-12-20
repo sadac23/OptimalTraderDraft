@@ -85,6 +85,9 @@ using System.Runtime.ConstrainedExecution;
  * ・済：直近のROE推移が向上しているものでフィルターする
  * ・済：お気に入りの場合はサインを表示する
  * ・済：下落幅、利回り、時価総額フィルター以外は解除する
+ * ・済：5桁コードで強制終了する
+ * ・済：メモが空で出る
+ * ・済：変動履歴、直近週は必ず表示する
  */
 
 /* TODO
@@ -95,6 +98,7 @@ using System.Runtime.ConstrainedExecution;
  * ・信用買い残と出来高を追加
  * ・基準値以下を●表示
  * ・配当月、優待月で強制通知
+ * ・当月もしくは翌月までの権利日でフィルター
  */
 
 const string _mailAddress = "sadac23@gmail.com";
