@@ -19,6 +19,7 @@ internal class Alert
 
     internal void SaveFile(string alertFilePath)
     {
+        //01
         //1928：積水ハウス(株)（建設業）☆
         //株価：1234（2024/11/29）
         //市場：東証プライム,名証プレミア
@@ -51,6 +52,8 @@ internal class Alert
             // ファイルヘッダー
             writer.WriteLine(DateTime.Today.ToString("yyyyMMdd"));
 
+            short alertCount = 0;
+
             foreach (Analyzer.AnalysisResult r in AnalysisResults)
             {
                 if (r.ShouldAlert())
@@ -58,7 +61,10 @@ internal class Alert
                     short count = 0;
                     string s = string.Empty;
 
+                    alertCount++;
+
                     writer.WriteLine("");
+                    writer.WriteLine($"{alertCount.ToString("D2")}");
                     writer.WriteLine($"{r.StockInfo.Code}：{r.StockInfo.Name}（{r.StockInfo.Industry}）{(r.StockInfo.IsFavorite ? Sign : string.Empty)}");
                     writer.WriteLine($"株価：{r.StockInfo.LatestPrice}（{r.StockInfo.LatestPriceDate.ToString("yyyy/MM/dd")}）");
                     writer.WriteLine($"市場：{r.StockInfo.Section}");

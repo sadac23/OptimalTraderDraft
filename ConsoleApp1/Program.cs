@@ -92,6 +92,8 @@ using System.Runtime.ConstrainedExecution;
  * ・済：基準値以下を●表示
  * ・済：配当月、優待月で強制通知
  * ・済：当月もしくは翌月までの権利日でフィルター
+ * ・済：通知に連番振る
+ * ・済：PER/PBRフィルターかける、0は出さない
  */
 
 /* TODO
@@ -100,6 +102,7 @@ using System.Runtime.ConstrainedExecution;
  * ・ETFの株探取得がうまくできていない
  * ・DBはキャッシュ利用とし、なければ作成する処理を入れる
  * ・前年マイナスでプラ転した場合の通期業績率がうまく算出できていない。（5214など）
+ * ・PER/PBRの閾値に10%の幅を持たせる
  */
 
 const string _mailAddress = "sadac23@gmail.com";

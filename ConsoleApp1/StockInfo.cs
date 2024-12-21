@@ -489,23 +489,47 @@ internal class StockInfo
 
     public static bool IsWithinTwoMonths(string monthsStr)
     {
-        if (string.IsNullOrEmpty(monthsStr)) return false;
+        try
+        {
+            if (string.IsNullOrEmpty(monthsStr)) return false;
 
-        // 現在の月を取得
-        int currentMonth = DateTime.Now.Month;
+            // 現在の月を取得
+            int currentMonth = DateTime.Now.Month;
 
-        // 月文字列を分割してリストに変換
-        var months = monthsStr.Split(',')
-                              .Select(m => ParseMonth(m.Trim()))
-                              .ToList();
+            // 月文字列を分割してリストに変換
+            string[] monthArray = monthsStr.Split(',');
+            List<int> months = new List<int>();
 
-        // 当月から2か月以内の月をリストにする
-        var validMonths = Enumerable.Range(0, 3)
-                                    .Select(i => (currentMonth + i - 1) % 12 + 1)
-                                    .ToList();
+            foreach (string monthStr in monthArray)
+            {
+                int month = ParseMonth(monthStr.Trim());
+                months.Add(month);
+            }
 
-        // 指定された月が当月から2か月以内に含まれているかを判定
-        return months.Any(month => validMonths.Contains(month));
+            // 当月から1か月以内の月をリストにする
+            List<int> validMonths = new List<int>();
+            for (int i = 0; i < 2; i++)
+            {
+                int validMonth = (currentMonth + i - 1) % 12 + 1;
+                validMonths.Add(validMonth);
+            }
+
+            // 指定された月が当月から1か月以内に含まれているかを判定
+            foreach (int month in months)
+            {
+                if (validMonths.Contains(month))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"IsWithinTwoMonthsエラー： {ex.ToString()}");
+            return false;
+        }
     }
 
     private static int ParseMonth(string monthStr)

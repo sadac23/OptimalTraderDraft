@@ -1,5 +1,6 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
+using DocumentFormat.OpenXml.Drawing.Charts;
 using DocumentFormat.OpenXml.Wordprocessing;
 using System.Data.SQLite;
 using System.Runtime.CompilerServices;
@@ -273,14 +274,15 @@ internal class Analyzer
                 //    roe = p.Roe;
                 //}
 
-                // PERが15倍より高い場合はアラートしない
-                //if (this.StockInfo.Per > 15.00) result = false;
+                // PERが平均より高い場合はアラートしない
+                if (this.StockInfo.Per <= 0) result = false;
+                if (this.StockInfo.Per > this.StockInfo.AveragePer) result = false;
 
-                // PBRが2倍より高い場合はアラートしない
-                //if (this.StockInfo.Pbr > 2.00) result = false;
+                // PBRが平均より高い場合はアラートしない
+                if (this.StockInfo.Pbr <= 0) result = false;
+                if (this.StockInfo.Pbr > this.StockInfo.AveragePbr) result = false;
 
             }
-
             return result;
         }
 
