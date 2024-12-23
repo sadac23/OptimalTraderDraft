@@ -150,6 +150,59 @@ internal class KabutanScraper
                 stockInfo.UpdateDividendPayoutRatio();
             }
 
+            // 実績
+            var node = htmlDocument.DocumentNode.SelectSingleNode("//*[@id=\"finance_box\"]/div[17]/div[1]/h3");
+            if (node != null)
+            {
+                stockInfo.LatestPerformanceQuarter = node.InnerText.Trim();
+            }
+            else {
+                node = htmlDocument.DocumentNode.SelectSingleNode("//*[@id=\"finance_box\"]/div[18]/div[1]/h3");
+                if (node != null)
+                {
+                    stockInfo.LatestPerformanceQuarter = node.InnerText.Trim();
+                }
+            }
+
+            rows = htmlDocument.DocumentNode.SelectNodes("//*[@id=\"finance_box\"]/table[3]/tbody/tr");
+
+            if (rows != null && rows.Count != 0)
+            {
+                foreach (var row in rows)
+                {
+                    var columns = row.SelectNodes("td|th");
+
+                    if (columns != null && columns.Count >= 8)
+                    {
+                        var fiscalPeriod = columns[0].InnerText.Trim();
+                        var revenue = columns[1].InnerText.Trim();
+                        var operatingIncome = columns[2].InnerText.Trim();
+                        var ordinaryProfit = columns[3].InnerText.Trim();
+                        var netIncome = columns[4].InnerText.Trim();
+                        var adjustedEarningsPerShare = columns[5].InnerText.Trim();
+                        var progressRate = columns[6].InnerText.Trim();
+                        var releaseDate = columns[7].InnerText.Trim();
+
+                        var p = new LatestPerformance()
+                        {
+                            FiscalPeriod = fiscalPeriod,
+                            Revenue = revenue,
+                            OperatingIncome = operatingIncome,
+                            OrdinaryIncome = GetDouble( ordinaryProfit),
+                            NetIncome = netIncome,
+                            AdjustedEarningsPerShare = adjustedEarningsPerShare,
+                            ProgressRate = progressRate,
+                            ReleaseDate = releaseDate,
+                        };
+
+                        stockInfo.LatestPerformances.Add(p);
+                    }
+                }
+                stockInfo.UpdateLatestProgress();
+            }
+
+
+
             // 自己資本比率
 
             // 指定されたヘッダータイトル

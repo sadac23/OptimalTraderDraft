@@ -1,6 +1,7 @@
 ﻿// See https://aka.ms/new-console-template for more information
 using DocumentFormat.OpenXml.Bibliography;
 using DocumentFormat.OpenXml.Drawing.Diagrams;
+using System.Data.Entity;
 using System.Globalization;
 using System.Runtime.ConstrainedExecution;
 using System.Text.RegularExpressions;
@@ -16,6 +17,7 @@ internal class StockInfo
         Prices = new List<StockInfo.Price>();
         FullYearPerformances = new List<StockInfo.FullYearPerformance>();
         FullYearProfits = new List<FullYearProfit>();
+        this.LatestPerformances = new List<StockInfo.LatestPerformance>();
     }
     /// <summary>
     /// コード
@@ -156,6 +158,19 @@ internal class StockInfo
     /// 信用残更新日付
     /// </summary>
     public object MarginBalanceDate { get; internal set; }
+    /// <summary>
+    /// 最新実績四半期
+    /// </summary>
+    public string LatestPerformanceQuarter { get; internal set; }
+    /// <summary>
+    /// 最新通期進捗率
+    /// </summary>
+    public double LatestFullyearProgressRate { get; internal set; }
+    /// <summary>
+    /// 最新実績発表日
+    /// </summary>
+    public DateTime LatestPerformanceReleaseDate { get; internal set; }
+    public List<LatestPerformance> LatestPerformances { get; internal set; }
 
     /// <summary>
     /// 現在、所有しているか？
@@ -568,6 +583,47 @@ internal class StockInfo
         return (this.FullYearProfits[this.FullYearProfits.Count - 1].Roe >= 8.00 ? true : false);
     }
 
+    internal void UpdateLatestProgress()
+    {
+
+        // 四半期の取得
+        if (this.LatestPerformanceQuarter.Contains("第１")) 
+        {
+            this.LatestPerformanceQuarter = "1Q";
+        }
+        else if (this.LatestPerformanceQuarter.Contains("第２"))
+        {
+            this.LatestPerformanceQuarter = "2Q";
+        }
+        else if (this.LatestPerformanceQuarter.Contains("第３"))
+        {
+            this.LatestPerformanceQuarter = "3Q";
+        }
+
+        // 発表日の取得
+        this.LatestPerformanceReleaseDate = ConvertToDateTime(this.LatestPerformances[this.LatestPerformances.Count - 2].ReleaseDate);
+
+        // 通期進捗率の算出
+        var fullYearOrdinaryIncome = GetDouble(this.FullYearPerformances[this.FullYearPerformances.Count - 2].OrdinaryIncome);
+        var latestOrdinaryIncome = this.LatestPerformances[this.LatestPerformances.Count - 2].OrdinaryIncome;
+        if (fullYearOrdinaryIncome > 0) {
+            this.LatestFullyearProgressRate = latestOrdinaryIncome / fullYearOrdinaryIncome;
+        }
+    }
+
+    private DateTime ConvertToDateTime(string releaseDate)
+    {
+        try
+        {
+            // DateTimeオブジェクトに変換
+            return DateTime.ParseExact(releaseDate, "yy/MM/dd", CultureInfo.InvariantCulture);
+        }
+        catch (Exception)
+        {
+            return DateTime.Now;
+        }
+    }
+
     /// <summary>
     /// 日次価格情報
     /// </summary>
@@ -653,4 +709,24 @@ internal class StockInfo
         /// </summary>
         public string AdjustedEarningsPerShare { get; set; }
     }
+    public class LatestPerformance
+    {
+        public LatestPerformance()
+        {
+        }
+
+        public string FiscalPeriod { get; set; }
+        public string Revenue { get; set; }
+        public string OperatingIncome { get; set; }
+        public string OperatingMargin { get; set; }
+        public double Roe { get; set; }
+        public double Roa { get; set; }
+        public string TotalAssetTurnover { get; set; }
+        public string AdjustedEarningsPerShare { get; set; }
+        public double OrdinaryIncome { get; internal set; }
+        public string NetIncome { get; internal set; }
+        public string ProgressRate { get; internal set; }
+        public string ReleaseDate { get; internal set; }
+    }
+
 }

@@ -21,11 +21,12 @@ internal class Alert
     {
         //01
         //1928：積水ハウス(株)（建設業）☆
-        //株価：1234（2024/11/29）
+        //株価：1,234.0（2024/11/29）
         //市場：東証プライム,名証プレミア
-        //配当利回り：3.64％（50%,5月,11月）☆
-        //優待利回り：3.64％（QUOカード,100株,5月,11月）
+        //配当利回り：3.64%（50%,5月,11月）☆
+        //優待利回り：3.64%（QUOカード,100株,5月,11月）
         //通期予想：増収増益増配（+50%,+50%,+50）
+        //通期進捗：3Q：80.0%（2024/12/23）
         //時価総額：2兆3,470億円
         //ROE：9.99→9.99→10.71☆
         //PER：11.0倍（14.2）☆
@@ -35,13 +36,13 @@ internal class Alert
         //出来高：2,020,600
         //自己資本比率：40.0%
         //約定履歴：
-        //買：2024/12/04：2068*300：-10.40%
-        //売：2024/12/05：2068*100：-10.40%
-        //買：2024/12/06：2060*100：-10.40%
+        //買：2024/12/04：2,068.0*300：-10.40%
+        //売：2024/12/05：2,068.0*100：-10.40%
+        //買：2024/12/06：2,060.0*100：-10.40%
         //変動履歴：
-        //2024/10/04：3951：-10.40% (8)
-        //2024/09/27：4119：-10.40% (9)
-        //2024/09/20：3959：-10.40% (10)
+        //2024/10/04：3,951.0：-10.40% (8)
+        //2024/09/27：4,119.0：-10.40% (9)
+        //2024/09/20：3,959.0：-10.40% (10)
         //決算発表日：
         //次回の決算発表日は未定です。
         //メモ：
@@ -72,6 +73,7 @@ internal class Alert
                     if (!string.IsNullOrEmpty(r.StockInfo.ShareholderBenefitsDetails))
                         writer.WriteLine($"優待利回り：{ConvertToPercentage(r.StockInfo.ShareholderBenefitYield)}（{r.StockInfo.ShareholderBenefitsDetails},{r.StockInfo.NumberOfSharesRequiredForBenefits},{r.StockInfo.ShareholderBenefitRecordDateMonth}）");
                     writer.WriteLine($"通期予想：{r.StockInfo.FullYearPerformanceForcastSummary}");
+                    writer.WriteLine($"通期進捗：{r.StockInfo.LatestPerformanceQuarter}：{ConvertToPercentage(r.StockInfo.LatestFullyearProgressRate)}（{r.StockInfo.LatestPerformanceReleaseDate.ToString("yyyy/MM/dd")}）");
                     writer.WriteLine($"時価総額：{ConvertToYenNotation(r.StockInfo.MarketCap)}");
 
                     count = 0;
