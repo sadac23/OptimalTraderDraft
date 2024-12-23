@@ -667,7 +667,7 @@ internal class StockInfo
     internal bool IsHighYield()
     {
         bool result = false;
-        if ((this.DividendYield + this.ShareholderBenefitYield) < 0.0300) result = true;
+        if ((this.DividendYield + this.ShareholderBenefitYield) > 0.0300) result = true;
         return result;
     }
 
@@ -678,7 +678,7 @@ internal class StockInfo
     internal bool IsHighMarketCap()
     {
         bool result = false;
-        if (this.MarketCap < 100000000000) result = true;
+        if (this.MarketCap > 100000000000) result = true;
         return result;
     }
 
