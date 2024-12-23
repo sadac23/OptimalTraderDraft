@@ -66,7 +66,7 @@ internal class Alert
                     writer.WriteLine("");
                     writer.WriteLine($"{alertCount.ToString("D2")}");
                     writer.WriteLine($"{r.StockInfo.Code}：{r.StockInfo.Name}（{r.StockInfo.Industry}）{(r.StockInfo.IsFavorite ? Sign : string.Empty)}");
-                    writer.WriteLine($"株価：{r.StockInfo.LatestPrice}（{r.StockInfo.LatestPriceDate.ToString("yyyy/MM/dd")}）");
+                    writer.WriteLine($"株価：{r.StockInfo.LatestPrice.ToString("N1")}（{r.StockInfo.LatestPriceDate.ToString("yyyy/MM/dd")}）");
                     writer.WriteLine($"市場：{r.StockInfo.Section}");
                     writer.WriteLine($"配当利回り：{ConvertToPercentage(r.StockInfo.DividendYield)}（{ConvertToPercentage( r.StockInfo.DividendPayoutRatio)},{r.StockInfo.DividendRecordDateMonth}）{(r.StockInfo.IsRecordDateClose() ? Sign : string.Empty)}");
                     if (!string.IsNullOrEmpty(r.StockInfo.ShareholderBenefitsDetails))
@@ -95,7 +95,7 @@ internal class Alert
                     foreach (ExecutionList.Execution e in r.StockInfo.Executions)
                     {
                         if (count == 0) writer.WriteLine($"約定履歴：");
-                        writer.WriteLine($"{e.BuyOrSell}：{e.Date.ToString("yyyy/MM/dd")}：{e.Price}*{e.Quantity}：{ConvertToPercentage((r.StockInfo.LatestPrice / e.Price) - 1)}");
+                        writer.WriteLine($"{e.BuyOrSell}：{e.Date.ToString("yyyy/MM/dd")}：{e.Price.ToString("N1")}*{e.Quantity}：{ConvertToPercentage((r.StockInfo.LatestPrice / e.Price) - 1)}");
                         count++;
                     }
 
@@ -106,13 +106,13 @@ internal class Alert
                         if (count == 0)
                         {
                             writer.WriteLine($"変動履歴：");
-                            writer.WriteLine($"{p.VolatilityRateIndex1Date.ToString("yyyy/MM/dd")}：{p.VolatilityRateIndex1}：{ConvertToPercentage(p.VolatilityRate)}({p.VolatilityTerm})");
+                            writer.WriteLine($"{p.VolatilityRateIndex1Date.ToString("yyyy/MM/dd")}：{p.VolatilityRateIndex1.ToString("N1")}：{ConvertToPercentage(p.VolatilityRate)}({p.VolatilityTerm})");
                         }
                         else
                         {
                             if (p.ShouldAlert)
                             {
-                                writer.WriteLine($"{p.VolatilityRateIndex1Date.ToString("yyyy/MM/dd")}：{p.VolatilityRateIndex1}：{ConvertToPercentage(p.VolatilityRate)}({p.VolatilityTerm})");
+                                writer.WriteLine($"{p.VolatilityRateIndex1Date.ToString("yyyy/MM/dd")}：{p.VolatilityRateIndex1.ToString("N1")}：{ConvertToPercentage(p.VolatilityRate)}({p.VolatilityTerm})");
                             }
                         }
                         count++;

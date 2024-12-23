@@ -481,13 +481,13 @@ internal class StockInfo
     /// <summary>
     /// 配当権利確定日が近いか？
     /// </summary>
-    /// <remarks>配当権利確定日が2か月以内の場合にtrueを返す。</remarks>
+    /// <remarks>配当権利確定日が当月より1か月以内の場合にtrueを返す。</remarks>
     internal bool IsRecordDateClose()
     {
-        return IsWithinTwoMonths(this.DividendRecordDateMonth);
+        return IsWithinMonths(this.DividendRecordDateMonth, 1);
     }
 
-    public static bool IsWithinTwoMonths(string monthsStr)
+    public static bool IsWithinMonths(string monthsStr, short m)
     {
         try
         {
@@ -506,9 +506,9 @@ internal class StockInfo
                 months.Add(month);
             }
 
-            // 当月から1か月以内の月をリストにする
+            // 当月から指定月数以内の月をリストにする
             List<int> validMonths = new List<int>();
-            for (int i = 0; i < 2; i++)
+            for (int i = 0; i <= m; i++)
             {
                 int validMonth = (currentMonth + i - 1) % 12 + 1;
                 validMonths.Add(validMonth);
@@ -527,7 +527,7 @@ internal class StockInfo
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"IsWithinTwoMonthsエラー： {ex.ToString()}");
+//            Console.WriteLine($"IsWithinTwoMonthsエラー： {ex.ToString()}");
             return false;
         }
     }
