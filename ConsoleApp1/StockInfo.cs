@@ -8,6 +8,10 @@ using System.Text.RegularExpressions;
 
 internal class StockInfo
 {
+    public const string QuarterString1 = "Q1";
+    public const string QuarterString2 = "Q2";
+    public const string QuarterString3 = "Q3";
+
     public StockInfo(WatchList.WatchStock watchStock)
     {
         Code = watchStock.Code;
@@ -564,7 +568,9 @@ internal class StockInfo
     /// </summary>
     internal bool IsPERUndervalued()
     {
-        return (this.Per < this.AveragePer ? true : false);
+        bool result = false;
+        if (this.Per > 0 && this.Per < this.AveragePer) result = true;
+        return result;
     }
 
     /// <summary>
@@ -574,7 +580,9 @@ internal class StockInfo
     /// <exception cref="NotImplementedException"></exception>
     internal bool IsPBRUndervalued()
     {
-        return (this.Pbr < this.AveragePbr ? true : false);
+        bool result = false;
+        if (this.Pbr > 0 && this.Pbr < this.AveragePbr) result = true;
+        return result;
     }
     /// <summary>
     /// 最新のROE予想が基準値以上か？
@@ -586,29 +594,35 @@ internal class StockInfo
 
     internal void UpdateLatestProgress()
     {
-
         // 四半期の取得
         if (this.LatestPerformanceQuarter.Contains("第１")) 
         {
-            this.LatestPerformanceQuarter = "1Q";
+            this.LatestPerformanceQuarter = QuarterString1;
         }
         else if (this.LatestPerformanceQuarter.Contains("第２"))
         {
-            this.LatestPerformanceQuarter = "2Q";
+            this.LatestPerformanceQuarter = QuarterString2;
         }
         else if (this.LatestPerformanceQuarter.Contains("第３"))
         {
-            this.LatestPerformanceQuarter = "3Q";
+            this.LatestPerformanceQuarter = QuarterString3;
         }
 
-        // 発表日の取得
-        this.LatestPerformanceReleaseDate = ConvertToDateTime(this.LatestPerformances[this.LatestPerformances.Count - 2].ReleaseDate);
+        if (this.LatestPerformances.Count >= 2)
+        {
+            // 発表日の取得
+            this.LatestPerformanceReleaseDate = ConvertToDateTime(this.LatestPerformances[this.LatestPerformances.Count - 2].ReleaseDate);
 
-        // 通期進捗率の算出
-        var fullYearOrdinaryIncome = GetDouble(this.FullYearPerformances[this.FullYearPerformances.Count - 2].OrdinaryIncome);
-        var latestOrdinaryIncome = this.LatestPerformances[this.LatestPerformances.Count - 2].OrdinaryIncome;
-        if (fullYearOrdinaryIncome > 0) {
-            this.LatestFullyearProgressRate = latestOrdinaryIncome / fullYearOrdinaryIncome;
+            // 通期進捗率の算出
+            if (this.FullYearPerformances.Count >= 2)
+            {
+                var fullYearOrdinaryIncome = GetDouble(this.FullYearPerformances[this.FullYearPerformances.Count - 2].OrdinaryIncome);
+                var latestOrdinaryIncome = this.LatestPerformances[this.LatestPerformances.Count - 2].OrdinaryIncome;
+                if (fullYearOrdinaryIncome > 0)
+                {
+                    this.LatestFullyearProgressRate = latestOrdinaryIncome / fullYearOrdinaryIncome;
+                }
+            }
         }
     }
 
@@ -623,6 +637,49 @@ internal class StockInfo
         {
             return DateTime.Now;
         }
+    }
+    /// <summary>
+    /// 通期進捗が順調か？
+    /// </summary>
+    /// <returns></returns>
+    internal bool IsAnnualProgressOnTrack()
+    {
+        bool result = false;
+
+        if (this.LatestPerformanceQuarter == QuarterString1)
+        {
+            if (this.LatestFullyearProgressRate >= 0.25) result = true;
+        }
+        else if (this.LatestPerformanceQuarter == QuarterString2)
+        {
+            if (this.LatestFullyearProgressRate >= 0.50) result = true;
+        }
+        else if (this.LatestPerformanceQuarter == QuarterString3)
+        {
+            if (this.LatestFullyearProgressRate >= 0.75) result = true;
+        }
+        return result;
+    }
+    /// <summary>
+    /// 利回りが高いか？
+    /// </summary>
+    /// <returns></returns>
+    internal bool IsHighYield()
+    {
+        bool result = false;
+        if ((this.DividendYield + this.ShareholderBenefitYield) < 0.0300) result = true;
+        return result;
+    }
+
+    /// <summary>
+    /// 時価総額が高いか？
+    /// </summary>
+    /// <returns></returns>
+    internal bool IsHighMarketCap()
+    {
+        bool result = false;
+        if (this.MarketCap < 100000000000) result = true;
+        return result;
     }
 
     /// <summary>

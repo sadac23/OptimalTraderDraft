@@ -210,8 +210,10 @@ internal class Analyzer
             // 所有している場合
             if (this.StockInfo.IsOwnedNow())
             {
+                result = true;
+
                 // 通知すべき分析がある場合はtrue
-                if (hasAnalysisAlert) result = true;
+                //if (hasAnalysisAlert) result = true;
 
                 //// 直近の変動幅が0より大きい場合は通知しない
                 //if (this.PriceVolatilities[0].VolatilityRate > 0) result = false;
@@ -219,36 +221,47 @@ internal class Analyzer
             // お気に入りの場合
             else if (this.StockInfo.IsFavorite)
             {
-                // 強制通知
                 result = true;
-
             }
             // 権利確定月が近い場合
             else if (this.StockInfo.IsRecordDateClose())
             {
-                // 通知
                 result = true;
 
-                // 利回りが3.00%より低い場合はアラートしない
-                if ((this.StockInfo.DividendYield + this.StockInfo.ShareholderBenefitYield) < 0.0300) result = false;
+                // 利回りが低い場合はアラートしない
+                if (!this.StockInfo.IsHighYield()) result = false;
 
-                // 時価総額が1000億より低い場合はアラートしない
-                if (this.StockInfo.MarketCap < 100000000000) result = false;
+                // 時価総額が低い場合はアラートしない
+                if (!this.StockInfo.IsHighMarketCap()) result = false;
+
+                // 進捗が悪い場合はアラートしない
+                if (!this.StockInfo.IsAnnualProgressOnTrack()) result = false;
             }
             // それ以外
             else
             {
+                result = true;
+
                 // 通知すべき分析がある場合はtrue
-                if (hasAnalysisAlert) result = true;
+                //if (hasAnalysisAlert) result = true;
 
                 //// 直近の変動幅が0より大きい場合は通知しない
                 //if (this.PriceVolatilities[0].VolatilityRate > 0) result = false;
 
-                // 利回りが3.00%より低い場合はアラートしない
-                if ((this.StockInfo.DividendYield + this.StockInfo.ShareholderBenefitYield) < 0.0300) result = false;
+                // 利回りが低い場合はアラートしない
+                if (!this.StockInfo.IsHighYield()) result = false;
 
-                // 時価総額が1000億より低い場合はアラートしない
-                if (this.StockInfo.MarketCap < 100000000000) result = false;
+                // 時価総額が低い場合はアラートしない
+                if (!this.StockInfo.IsHighMarketCap()) result = false;
+
+                // 進捗が悪い場合はアラートしない
+                if (!this.StockInfo.IsAnnualProgressOnTrack()) result = false;
+
+                // PERが割安でない場合はアラートしない
+                if (!this.StockInfo.IsPERUndervalued()) result = false;
+
+                // PBRが割安でない場合はアラートしない
+                if (!this.StockInfo.IsPBRUndervalued()) result = false;
 
                 //// ROEが8.00%より低い場合はアラートしない
                 //if (this.StockInfo.Roe < 8.00) result = false;
@@ -273,14 +286,6 @@ internal class Analyzer
 
                 //    roe = p.Roe;
                 //}
-
-                // PERが平均より高い場合はアラートしない
-                if (this.StockInfo.Per <= 0) result = false;
-                if (this.StockInfo.Per > this.StockInfo.AveragePer) result = false;
-
-                // PBRが平均より高い場合はアラートしない
-                if (this.StockInfo.Pbr <= 0) result = false;
-                if (this.StockInfo.Pbr > this.StockInfo.AveragePbr) result = false;
 
             }
             return result;

@@ -8,7 +8,7 @@ using System.Runtime.ConstrainedExecution;
 
 internal class Alert
 {
-    const string Sign = "☆";
+    const string Sign = "★";
 
     public Alert(List<Analyzer.AnalysisResult> results)
     {
@@ -26,7 +26,7 @@ internal class Alert
         //配当利回り：3.64%（50%,5月,11月）☆
         //優待利回り：3.64%（QUOカード,100株,5月,11月）
         //通期予想：増収増益増配（+50%,+50%,+50）
-        //通期進捗：3Q：80.0%（2024/12/23）
+        //通期進捗：3Q：80.0%（2024/12/23）☆
         //時価総額：2兆3,470億円
         //ROE：9.99→9.99→10.71☆
         //PER：11.0倍（14.2）☆
@@ -73,7 +73,7 @@ internal class Alert
                     if (!string.IsNullOrEmpty(r.StockInfo.ShareholderBenefitsDetails))
                         writer.WriteLine($"優待利回り：{ConvertToPercentage(r.StockInfo.ShareholderBenefitYield)}（{r.StockInfo.ShareholderBenefitsDetails},{r.StockInfo.NumberOfSharesRequiredForBenefits},{r.StockInfo.ShareholderBenefitRecordDateMonth}）");
                     writer.WriteLine($"通期予想：{r.StockInfo.FullYearPerformanceForcastSummary}");
-                    writer.WriteLine($"通期進捗：{r.StockInfo.LatestPerformanceQuarter}：{ConvertToPercentage(r.StockInfo.LatestFullyearProgressRate)}（{r.StockInfo.LatestPerformanceReleaseDate.ToString("yyyy/MM/dd")}）");
+                    writer.WriteLine($"通期進捗：{r.StockInfo.LatestPerformanceQuarter}：{ConvertToPercentage(r.StockInfo.LatestFullyearProgressRate)}（{r.StockInfo.LatestPerformanceReleaseDate.ToString("yyyy/MM/dd")}）{(r.StockInfo.IsAnnualProgressOnTrack() ? Sign : string.Empty)}");
                     writer.WriteLine($"時価総額：{ConvertToYenNotation(r.StockInfo.MarketCap)}");
 
                     count = 0;

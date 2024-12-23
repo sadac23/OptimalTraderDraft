@@ -97,6 +97,7 @@ using System.Runtime.ConstrainedExecution;
  * ・済：価格をカンマ表記にする
  * ・済：実績を取得して通期目標に対しての進捗率を算出する
  * ・済：約定履歴を日付でソートする
+ * ・済：PER/PBR、時価総額、進捗率でフィルタする
  */
 
 /* TODO
@@ -106,7 +107,6 @@ using System.Runtime.ConstrainedExecution;
  * ・DBはキャッシュ利用とし、なければ作成する処理を入れる
  * ・前年マイナスでプラ転した場合の通期業績率がうまく算出できていない。（5214など）
  * ・PER/PBRの閾値に10%の幅を持たせる
- * ・PER/PBR、時価総額、進捗率、価格でフィルタする
  */
 
 const string _mailAddress = "sadac23@gmail.com";
