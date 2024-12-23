@@ -401,7 +401,8 @@ internal class StockInfo
 
     internal void SetExecutions(List<ExecutionList.ListDetail> executionList)
     {
-        this.Executions = ExecutionList.GetExecutions(executionList, this.Code);
+        // 日付でソートして約定履歴を格納
+        this.Executions = ExecutionList.GetExecutions(executionList, this.Code).OrderBy(e => e.Date).ToList();
     }
 
     internal void SetAveragePerPbr(List<MasterList.AveragePerPbrDetails> masterList)
