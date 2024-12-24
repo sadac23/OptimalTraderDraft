@@ -144,8 +144,10 @@ internal class MinkabuScraper
                     {
                         if (columns != null && columns.Count >= 4)
                         {
-                            var shareholderBenefitRecordDateMonth = columns[1].InnerText.Trim();
-                            stockInfo.ShareholderBenefitRecordDateMonth = shareholderBenefitRecordDateMonth;
+                            var shareholderBenefitRecordMonth = columns[1].InnerText.Trim();
+                            var shareholderBenefitRecordDay = columns[3].InnerText.Trim();
+                            stockInfo.ShareholderBenefitRecordMonth = shareholderBenefitRecordMonth;
+                            stockInfo.ShareholderBenefitRecordDay = shareholderBenefitRecordDay;
                         }
                     }
                     s++;

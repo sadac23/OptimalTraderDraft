@@ -113,7 +113,7 @@ internal class StockInfo
     /// <summary>
     /// 優待権利確定月
     /// </summary>
-    public string ShareholderBenefitRecordDateMonth { get; internal set; }
+    public string ShareholderBenefitRecordMonth { get; internal set; }
     /// <summary>
     /// 優待内容
     /// </summary>
@@ -175,6 +175,10 @@ internal class StockInfo
     /// </summary>
     public DateTime LatestPerformanceReleaseDate { get; internal set; }
     public List<LatestPerformance> LatestPerformances { get; internal set; }
+    /// <summary>
+    /// 優待権利確定日
+    /// </summary>
+    public object ShareholderBenefitRecordDay { get; internal set; }
 
     /// <summary>
     /// 現在、所有しているか？

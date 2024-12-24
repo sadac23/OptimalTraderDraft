@@ -98,6 +98,7 @@ using System.Runtime.ConstrainedExecution;
  * ・済：実績を取得して通期目標に対しての進捗率を算出する
  * ・済：約定履歴を日付でソートする
  * ・済：PER/PBR、時価総額、進捗率でフィルタする
+ * ・済：権利確定日を取得する
  */
 
 /* TODO
@@ -108,11 +109,13 @@ using System.Runtime.ConstrainedExecution;
  * ・前年マイナスでプラ転した場合の通期業績率がうまく算出できていない。（5214など）
  * ・PER/PBRの閾値に10%の幅を持たせる
  * ・前期の進捗を追加する
- * ・権利確定日を取得する
  */
 
-var analyzer = new Analyzer();
+// 分析結果
 var results = new List<Analyzer.AnalysisResult>();
+
+// インスタンス生成
+var analyzer = new Analyzer();
 var yahooScraper = new YahooScraper();
 var kabutanScraper = new KabutanScraper();
 var minkabuScraper = new MinkabuScraper();
@@ -129,13 +132,13 @@ var watchList = WatchList.GetXlsxWatchStockList(executionList);
 var masterList = MasterList.GetXlsxAveragePerPbrList();
 
 // 直近の営業日を取得
-var lastTradingDay = GetLastTradingDay(AppConstants.Instance.ExecusionDate);
+var lastTradingDay = GetLastTradingDay();
 
 // ウォッチ銘柄を処理
 foreach (var watchStock in watchList)
 {
     // 削除日が入っていたらスキップ
-    if (watchStock.DeleteDate != string.Empty) continue;
+    if (!string.IsNullOrEmpty(watchStock.DeleteDate)) continue;
 
     // 個別
     if (watchStock.Classification == "1")
@@ -176,9 +179,9 @@ foreach (var watchStock in watchList)
 var alert = new Alert(results);
 alert.SaveFile();
 
-DateTime GetLastTradingDay(DateTime referenceDate)
+DateTime GetLastTradingDay()
 {
-    DateTime date = referenceDate.Date;
+    DateTime date = AppConstants.Instance.ExecusionDate.Date;
 
     // 土日または祝日の場合、前日を確認
     while (TSEHolidayChecker.IsTSEHoliday(date))
