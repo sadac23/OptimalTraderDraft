@@ -107,22 +107,21 @@ using System.Runtime.ConstrainedExecution;
  * ・DBはキャッシュ利用とし、なければ作成する処理を入れる
  * ・前年マイナスでプラ転した場合の通期業績率がうまく算出できていない。（5214など）
  * ・PER/PBRの閾値に10%の幅を持たせる
+ * ・前期の進捗を追加する
+ * ・権利確定日を取得する
  */
 
 const string _mailAddress = "sadac23@gmail.com";
 const string _password = "1qaz2WSX3edc";
 string _refreshtoken = string.Empty;
 
-var _currentDate = DateTime.Today;
-var _masterStartDate = DateTime.Parse("2023/01/01");
-
 var _connectionString = ConfigurationManager.ConnectionStrings["OTDB"].ConnectionString;
 var _xlsxFilePath = ConfigurationManager.AppSettings["WatchListFilePath"];
 var _xlsxExecutionFilePath = ConfigurationManager.AppSettings["ExecutionListFilePath"];
 var _xlsxAveragePerPbrListFilePath = ConfigurationManager.AppSettings["AveragePerPbrListFilePath"];
-var _alertFilePath = ReplacePlaceholder(ConfigurationManager.AppSettings["AlertFilePath"], "{yyyyMMdd}", _currentDate.ToString("yyyyMMdd"));
+var _alertFilePath = ReplacePlaceholder(ConfigurationManager.AppSettings["AlertFilePath"], "{yyyyMMdd}", AppConstants.Instance.ExecusionDate.ToString("yyyyMMdd"));
 
-var analyzer = new Analyzer(_currentDate, _connectionString);
+var analyzer = new Analyzer(_connectionString);
 var results = new List<Analyzer.AnalysisResult>();
 
 var yahooScraper = new YahooScraper();
@@ -141,7 +140,7 @@ var watchList = WatchList.GetXlsxWatchStockList(_xlsxFilePath, executionList);
 var masterList = MasterList.GetXlsxAveragePerPbrList(_xlsxAveragePerPbrListFilePath);
 
 // 直近の営業日を取得
-var lastTradingDay = GetLastTradingDay(_currentDate);
+var lastTradingDay = GetLastTradingDay(AppConstants.Instance.ExecusionDate);
 
 // ウォッチ銘柄を処理
 foreach (var watchStock in watchList)
@@ -161,7 +160,7 @@ foreach (var watchStock in watchList)
         await yahooScraper.ScrapeTop(stockInfo);
         await yahooScraper.ScrapeProfile(stockInfo);
         if (lastTradingDay > startDate)
-            await yahooScraper.ScrapeHistory(stockInfo, startDate, _currentDate);
+            await yahooScraper.ScrapeHistory(stockInfo, startDate, AppConstants.Instance.ExecusionDate);
         await kabutanScraper.ScrapeFinance(stockInfo);
         await minkabuScraper.ScrapeDividend(stockInfo);
         await minkabuScraper.ScrapeYutai(stockInfo);
@@ -225,7 +224,7 @@ void ResisterResult(Analyzer.AnalysisResult result)
             {
                 // パラメータを設定
                 command.Parameters.AddWithValue("@code", result.StockInfo.Code);
-                command.Parameters.AddWithValue("@date_string", _currentDate.ToString("yyyyMMdd"));
+                command.Parameters.AddWithValue("@date_string", AppConstants.Instance.ExecusionDate.ToString("yyyyMMdd"));
                 command.Parameters.AddWithValue("@volatility_term", r.VolatilityTerm);
 
                 // クエリを実行
@@ -288,8 +287,8 @@ void ResisterResult(Analyzer.AnalysisResult result)
             {
                 // パラメータを設定
                 command.Parameters.AddWithValue("@code", result.StockInfo.Code);
-                command.Parameters.AddWithValue("@date_string", _currentDate.ToString("yyyyMMdd"));
-                command.Parameters.AddWithValue("@date", _currentDate);
+                command.Parameters.AddWithValue("@date_string", AppConstants.Instance.ExecusionDate.ToString("yyyyMMdd"));
+                command.Parameters.AddWithValue("@date",AppConstants.Instance.ExecusionDate);
                 command.Parameters.AddWithValue("@name", result.StockInfo.Name);
                 command.Parameters.AddWithValue("@volatility_rate", r.VolatilityRate);
                 command.Parameters.AddWithValue("@volatility_rate_index1", r.VolatilityRateIndex1);
@@ -322,7 +321,7 @@ void ResisterResult(Analyzer.AnalysisResult result)
 
 DateTime GetStartDate(string code)
 {
-    DateTime result = _masterStartDate;
+    DateTime result = AppConstants.Instance.MasterStartDate;
 
     using (SQLiteConnection connection = new SQLiteConnection(_connectionString))
     {
@@ -335,7 +334,7 @@ DateTime GetStartDate(string code)
         {
             // パラメータを設定
             command.Parameters.AddWithValue("@code", code);
-            command.Parameters.AddWithValue("@max_date", _masterStartDate);
+            command.Parameters.AddWithValue("@max_date", AppConstants.Instance.MasterStartDate);
 
             // データリーダーを使用して結果を取得
             using (SQLiteDataReader reader = command.ExecuteReader())

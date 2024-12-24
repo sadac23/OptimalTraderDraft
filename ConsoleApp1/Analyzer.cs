@@ -14,9 +14,9 @@ internal class Analyzer
     string _connectionString = string.Empty;
     const int _volatilityTermMax = 12;
 
-    public Analyzer(DateTime currentDate, string connectionString)
+    public Analyzer(string connectionString)
     {
-        this._currentDate = currentDate;
+        this._currentDate = AppConstants.Instance.ExecusionDate;
         this._connectionString = connectionString;
     }
 
