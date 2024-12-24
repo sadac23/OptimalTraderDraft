@@ -45,7 +45,7 @@ internal class ExecutionList
         return list;
     }
 
-    internal static List<ListDetail> GetXlsxExecutionStockList(string? xlsxExecutionFilePath)
+    internal static List<ListDetail> GetXlsxExecutionStockList()
     {
         List<ListDetail> results = new List<ListDetail>();
 
@@ -56,7 +56,7 @@ internal class ExecutionList
         int startRowIndex = 5;
 
         // Excelファイルを読み込む
-        using (var workbook = new XLWorkbook(xlsxExecutionFilePath))
+        using (var workbook = new XLWorkbook(AppConstants.Instance.FilepathOfExecutionList))
         {
             // 指定したワークシートを取得
             var worksheet = workbook.Worksheet(sheetName);

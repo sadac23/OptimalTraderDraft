@@ -14,10 +14,10 @@ internal class Analyzer
     string _connectionString = string.Empty;
     const int _volatilityTermMax = 12;
 
-    public Analyzer(string connectionString)
+    public Analyzer()
     {
         this._currentDate = AppConstants.Instance.ExecusionDate;
-        this._connectionString = connectionString;
+        this._connectionString = AppConstants.Instance.ConnectionString;
     }
 
     internal AnalysisResult Analize(StockInfo item)

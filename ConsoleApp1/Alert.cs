@@ -17,7 +17,7 @@ internal class Alert
 
     public List<Analyzer.AnalysisResult> AnalysisResults { get; }
 
-    internal void SaveFile(string alertFilePath)
+    internal void SaveFile()
     {
         //01
         //1928：積水ハウス(株)（建設業）☆
@@ -47,6 +47,8 @@ internal class Alert
         //次回の決算発表日は未定です。
         //メモ：
         //ほげほげほげほげほげ。
+
+        var alertFilePath = AppConstants.ReplacePlaceholder(AppConstants.Instance.FilepathOfAlert, "{yyyyMMdd}", AppConstants.Instance.ExecusionDate.ToString("yyyyMMdd"));
 
         using (StreamWriter writer = new StreamWriter(alertFilePath))
         {

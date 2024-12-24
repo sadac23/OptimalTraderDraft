@@ -85,9 +85,9 @@ internal class WatchList
         return results;
     }
 
-    internal static List<WatchStock> GetXlsxWatchStockList(string? xlsxFilePath, List<ExecutionList.ListDetail> executionList)
+    internal static List<WatchStock> GetXlsxWatchStockList(List<ExecutionList.ListDetail> executionList)
     {
-        List<WatchStock> watchStocks = GetXlsxWatchStockList(xlsxFilePath);
+        List<WatchStock> watchStocks = GetXlsxWatchStockList(AppConstants.Instance.FilepathOfWatchList);
 
         foreach (ExecutionList.ListDetail detail in executionList)
         {

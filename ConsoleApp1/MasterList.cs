@@ -6,7 +6,7 @@ using static WatchList;
 
 internal class MasterList
 {
-    internal static List<AveragePerPbrDetails> GetXlsxAveragePerPbrList(string xlsxAveragePerPbrListFilePath)
+    internal static List<AveragePerPbrDetails> GetXlsxAveragePerPbrList()
     {
         List<AveragePerPbrDetails> results = new List<AveragePerPbrDetails>();
 
@@ -20,7 +20,7 @@ internal class MasterList
         int startRowIndex = 5;
 
         // Excelファイルを読み込む
-        using (var workbook = new XLWorkbook(xlsxAveragePerPbrListFilePath))
+        using (var workbook = new XLWorkbook(AppConstants.Instance.FilepathOfAveragePerPbrList))
         {
             // 指定したワークシートを取得
             var worksheet = workbook.Worksheet(sheetName);

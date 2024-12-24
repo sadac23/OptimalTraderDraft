@@ -111,19 +111,8 @@ using System.Runtime.ConstrainedExecution;
  * ・権利確定日を取得する
  */
 
-const string _mailAddress = "sadac23@gmail.com";
-const string _password = "1qaz2WSX3edc";
-string _refreshtoken = string.Empty;
-
-var _connectionString = ConfigurationManager.ConnectionStrings["OTDB"].ConnectionString;
-var _xlsxFilePath = ConfigurationManager.AppSettings["WatchListFilePath"];
-var _xlsxExecutionFilePath = ConfigurationManager.AppSettings["ExecutionListFilePath"];
-var _xlsxAveragePerPbrListFilePath = ConfigurationManager.AppSettings["AveragePerPbrListFilePath"];
-var _alertFilePath = ReplacePlaceholder(ConfigurationManager.AppSettings["AlertFilePath"], "{yyyyMMdd}", AppConstants.Instance.ExecusionDate.ToString("yyyyMMdd"));
-
-var analyzer = new Analyzer(_connectionString);
+var analyzer = new Analyzer();
 var results = new List<Analyzer.AnalysisResult>();
-
 var yahooScraper = new YahooScraper();
 var kabutanScraper = new KabutanScraper();
 var minkabuScraper = new MinkabuScraper();
@@ -131,13 +120,13 @@ var minkabuScraper = new MinkabuScraper();
 Console.WriteLine("Hello, World!");
 
 // 約定履歴取得
-var executionList = ExecutionList.GetXlsxExecutionStockList(_xlsxExecutionFilePath);
+var executionList = ExecutionList.GetXlsxExecutionStockList();
 
 // ウォッチリスト取得
-var watchList = WatchList.GetXlsxWatchStockList(_xlsxFilePath, executionList);
+var watchList = WatchList.GetXlsxWatchStockList(executionList);
 
 // マスタ取得
-var masterList = MasterList.GetXlsxAveragePerPbrList(_xlsxAveragePerPbrListFilePath);
+var masterList = MasterList.GetXlsxAveragePerPbrList();
 
 // 直近の営業日を取得
 var lastTradingDay = GetLastTradingDay(AppConstants.Instance.ExecusionDate);
@@ -185,7 +174,7 @@ foreach (var watchStock in watchList)
 
 // アラート通知
 var alert = new Alert(results);
-alert.SaveFile(_alertFilePath);
+alert.SaveFile();
 
 DateTime GetLastTradingDay(DateTime referenceDate)
 {
@@ -211,7 +200,7 @@ string ReplacePlaceholder(string? input, string placeholder, string newValue)
 
 void ResisterResult(Analyzer.AnalysisResult result)
 {
-    using (SQLiteConnection connection = new SQLiteConnection(_connectionString))
+    using (SQLiteConnection connection = new SQLiteConnection(AppConstants.Instance.ConnectionString))
     {
         connection.Open();
 
@@ -323,7 +312,7 @@ DateTime GetStartDate(string code)
 {
     DateTime result = AppConstants.Instance.MasterStartDate;
 
-    using (SQLiteConnection connection = new SQLiteConnection(_connectionString))
+    using (SQLiteConnection connection = new SQLiteConnection(AppConstants.Instance.ConnectionString))
     {
         connection.Open();
 
@@ -363,7 +352,7 @@ void UpdateMaster(StockInfo stockInfo)
 
 void InsertMaster(string code, StockInfo.Price p)
 {
-    using (SQLiteConnection connection = new SQLiteConnection(_connectionString))
+    using (SQLiteConnection connection = new SQLiteConnection(AppConstants.Instance.ConnectionString))
     {
         connection.Open();
 
@@ -411,7 +400,7 @@ void InsertMaster(string code, StockInfo.Price p)
 
 bool IsExist(string code, StockInfo.Price p)
 {
-    using (SQLiteConnection connection = new SQLiteConnection(_connectionString))
+    using (SQLiteConnection connection = new SQLiteConnection(AppConstants.Instance.ConnectionString))
     {
         connection.Open();
 
@@ -432,6 +421,10 @@ bool IsExist(string code, StockInfo.Price p)
         }
     }
 }
+
+const string _mailAddress = "sadac23@gmail.com";
+const string _password = "1qaz2WSX3edc";
+string _refreshtoken = string.Empty;
 
 //string stockCode = "9432";
 //string url = $"https://finance.yahoo.co.jp/quote/{stockCode}.T/history";
