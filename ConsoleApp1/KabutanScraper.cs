@@ -198,7 +198,7 @@ internal class KabutanScraper
                         stockInfo.LatestPerformances.Add(p);
                     }
                 }
-                stockInfo.UpdateLatestProgress();
+                stockInfo.UpdateProgress();
             }
 
 

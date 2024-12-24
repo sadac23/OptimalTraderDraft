@@ -179,6 +179,18 @@ internal class StockInfo
     /// 優待権利確定日
     /// </summary>
     public object ShareholderBenefitRecordDay { get; internal set; }
+    /// <summary>
+    /// 前期実績四半期
+    /// </summary>
+    public string PreviousPerformanceQuarter { get; internal set; }
+    /// <summary>
+    /// 前期通期進捗率
+    /// </summary>
+    public double PreviousFullyearProgressRate { get; internal set; }
+    /// <summary>
+    /// 前期実績発表日
+    /// </summary>
+    public DateTime PreviousPerformanceReleaseDate { get; internal set; }
 
     /// <summary>
     /// 現在、所有しているか？
@@ -595,23 +607,18 @@ internal class StockInfo
     {
         return (this.FullYearProfits[this.FullYearProfits.Count - 1].Roe >= 8.00 ? true : false);
     }
-
-    internal void UpdateLatestProgress()
+    internal void UpdateProgress()
     {
         // 四半期の取得
-        if (this.LatestPerformanceQuarter.Contains("第１")) 
+        this.LatestPerformanceQuarter = this.LatestPerformanceQuarter switch
         {
-            this.LatestPerformanceQuarter = QuarterString1;
-        }
-        else if (this.LatestPerformanceQuarter.Contains("第２"))
-        {
-            this.LatestPerformanceQuarter = QuarterString2;
-        }
-        else if (this.LatestPerformanceQuarter.Contains("第３"))
-        {
-            this.LatestPerformanceQuarter = QuarterString3;
-        }
+            string s when s.Contains("第１") => QuarterString1,
+            string s when s.Contains("第２") => QuarterString2,
+            string s when s.Contains("第３") => QuarterString3,
+            _ => this.LatestPerformanceQuarter // デフォルト値（変更しない場合）
+        };
 
+        // 当期
         if (this.LatestPerformances.Count >= 2)
         {
             // 発表日の取得
@@ -628,6 +635,25 @@ internal class StockInfo
                 }
             }
         }
+
+        // 前期
+        if (this.LatestPerformances.Count >= 3)
+        {
+            // 発表日の取得
+            this.PreviousPerformanceReleaseDate = ConvertToDateTime(this.LatestPerformances[this.LatestPerformances.Count - 3].ReleaseDate);
+
+            // 通期進捗率の算出
+            if (this.FullYearPerformances.Count >= 3)
+            {
+                var fullYearOrdinaryIncome = GetDouble(this.FullYearPerformances[this.FullYearPerformances.Count - 3].OrdinaryIncome);
+                var previousOrdinaryIncome = this.LatestPerformances[this.LatestPerformances.Count - 3].OrdinaryIncome;
+                if (fullYearOrdinaryIncome > 0)
+                {
+                    this.PreviousFullyearProgressRate = previousOrdinaryIncome / fullYearOrdinaryIncome;
+                }
+            }
+        }
+
     }
 
     private DateTime ConvertToDateTime(string releaseDate)
@@ -650,18 +676,23 @@ internal class StockInfo
     {
         bool result = false;
 
-        if (this.LatestPerformanceQuarter == QuarterString1)
+        // 前期以上かつ、案分値以上か？
+        if (this.LatestFullyearProgressRate >= this.PreviousFullyearProgressRate)
         {
-            if (this.LatestFullyearProgressRate >= 0.25) result = true;
+            if (this.LatestPerformanceQuarter == QuarterString1)
+            {
+                if (this.LatestFullyearProgressRate >= 0.25) result = true;
+            }
+            else if (this.LatestPerformanceQuarter == QuarterString2)
+            {
+                if (this.LatestFullyearProgressRate >= 0.50) result = true;
+            }
+            else if (this.LatestPerformanceQuarter == QuarterString3)
+            {
+                if (this.LatestFullyearProgressRate >= 0.75) result = true;
+            }
         }
-        else if (this.LatestPerformanceQuarter == QuarterString2)
-        {
-            if (this.LatestFullyearProgressRate >= 0.50) result = true;
-        }
-        else if (this.LatestPerformanceQuarter == QuarterString3)
-        {
-            if (this.LatestFullyearProgressRate >= 0.75) result = true;
-        }
+
         return result;
     }
     /// <summary>

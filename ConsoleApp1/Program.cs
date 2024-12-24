@@ -99,6 +99,7 @@ using System.Runtime.ConstrainedExecution;
  * ・済：約定履歴を日付でソートする
  * ・済：PER/PBR、時価総額、進捗率でフィルタする
  * ・済：権利確定日を取得する
+ * ・済：前期の進捗を追加する
  */
 
 /* TODO
@@ -108,7 +109,6 @@ using System.Runtime.ConstrainedExecution;
  * ・DBはキャッシュ利用とし、なければ作成する処理を入れる
  * ・前年マイナスでプラ転した場合の通期業績率がうまく算出できていない。（5214など）
  * ・PER/PBRの閾値に10%の幅を持たせる
- * ・前期の進捗を追加する
  */
 
 // 分析結果
