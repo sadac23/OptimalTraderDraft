@@ -518,7 +518,7 @@ internal class StockInfo
     /// 配当権利確定日が近いか？
     /// </summary>
     /// <remarks>配当権利確定日が当月より1か月以内の場合にtrueを返す。</remarks>
-    internal bool IsRecordDateClose()
+    internal bool IsDividendRecordDateClose()
     {
         return IsWithinMonths(this.DividendRecordDateMonth, 1);
     }
@@ -720,6 +720,34 @@ internal class StockInfo
         bool result = false;
         if (this.MarketCap > 100000000000) result = true;
         return result;
+    }
+
+    internal bool IsShareholderBenefitRecordDateClose()
+    {
+        return IsWithinMonths(this.ShareholderBenefitRecordMonth, 1);
+    }
+
+    internal bool ExtractAndValidateDateWithinOneMonth()
+    {
+        // 正規表現を使用して日付を抽出
+        var datePattern = @"\d{4}年\d{1,2}月\d{1,2}日";
+        var match = Regex.Match(this.PressReleaseDate, datePattern);
+
+        if (match.Success)
+        {
+            // 抽出した日付をDateTimeに変換
+            if (DateTime.TryParseExact(match.Value, "yyyy年M月d日", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime extractedDate))
+            {
+                // 指定日付から前後1か月以内かを判定
+                var oneMonthBefore = AppConstants.Instance.ExecusionDate.AddMonths(-1);
+                var oneMonthAfter = AppConstants.Instance.ExecusionDate.AddMonths(1);
+
+                return extractedDate >= oneMonthBefore && extractedDate <= oneMonthAfter;
+            }
+        }
+
+        // 日付が抽出できなかった場合、または変換に失敗した場合はfalseを返す
+        return false;
     }
 
     /// <summary>

@@ -224,7 +224,7 @@ internal class Analyzer
                 result = true;
             }
             // 権利確定月が近い場合
-            else if (this.StockInfo.IsRecordDateClose())
+            else if (this.StockInfo.IsDividendRecordDateClose())
             {
                 result = true;
 

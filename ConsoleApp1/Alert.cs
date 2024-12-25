@@ -45,7 +45,7 @@ internal class Alert
         //2024/09/27：4,119.0：-10.40% (9)
         //2024/09/20：3,959.0：-10.40% (10)
         //決算発表日：
-        //次回の決算発表日は未定です。
+        //次回の決算発表日は2025年1月14日の予定です。★
         //メモ：
         //ほげほげほげほげほげ。
 
@@ -72,9 +72,9 @@ internal class Alert
                     writer.WriteLine($"{r.StockInfo.Code}：{r.StockInfo.Name}（{r.StockInfo.Industry}）{(r.StockInfo.IsFavorite ? Sign : string.Empty)}");
                     writer.WriteLine($"株価：{r.StockInfo.LatestPrice.ToString("N1")}（{r.StockInfo.LatestPriceDate.ToString("yyyy/MM/dd")}）");
                     writer.WriteLine($"市場：{r.StockInfo.Section}");
-                    writer.WriteLine($"配当利回り：{ConvertToPercentage(r.StockInfo.DividendYield)}（{ConvertToPercentage( r.StockInfo.DividendPayoutRatio)},{r.StockInfo.DividendRecordDateMonth}）{(r.StockInfo.IsRecordDateClose() ? Sign : string.Empty)}");
+                    writer.WriteLine($"配当利回り：{ConvertToPercentage(r.StockInfo.DividendYield)}（{ConvertToPercentage( r.StockInfo.DividendPayoutRatio)},{r.StockInfo.DividendRecordDateMonth}）{(r.StockInfo.IsDividendRecordDateClose() ? Sign : string.Empty)}");
                     if (!string.IsNullOrEmpty(r.StockInfo.ShareholderBenefitsDetails))
-                        writer.WriteLine($"優待利回り：{ConvertToPercentage(r.StockInfo.ShareholderBenefitYield)}（{r.StockInfo.ShareholderBenefitsDetails},{r.StockInfo.NumberOfSharesRequiredForBenefits},{r.StockInfo.ShareholderBenefitRecordMonth},{r.StockInfo.ShareholderBenefitRecordDay}）");
+                        writer.WriteLine($"優待利回り：{ConvertToPercentage(r.StockInfo.ShareholderBenefitYield)}（{r.StockInfo.ShareholderBenefitsDetails},{r.StockInfo.NumberOfSharesRequiredForBenefits},{r.StockInfo.ShareholderBenefitRecordMonth},{r.StockInfo.ShareholderBenefitRecordDay}）{(r.StockInfo.IsShareholderBenefitRecordDateClose() ? Sign : string.Empty)}");
                     writer.WriteLine($"通期予想：{r.StockInfo.FullYearPerformanceForcastSummary}");
                     writer.WriteLine($"通期進捗：{r.StockInfo.QuarterlyPerformancePeriod}：{ConvertToPercentage(r.StockInfo.QuarterlyFullyearProgressRate)}（{r.StockInfo.QuarterlyPerformanceReleaseDate.ToString("yyyy/MM/dd")}）{(r.StockInfo.IsAnnualProgressOnTrack() ? Sign : string.Empty)}");
                     writer.WriteLine($"前期進捗：{r.StockInfo.QuarterlyPerformancePeriod}：{ConvertToPercentage(r.StockInfo.PreviousFullyearProgressRate)}（{r.StockInfo.PreviousPerformanceReleaseDate.ToString("yyyy/MM/dd")}）");
@@ -125,7 +125,7 @@ internal class Alert
                     }
 
                     writer.WriteLine($"決算発表日：");
-                    writer.WriteLine(r.StockInfo.PressReleaseDate);
+                    writer.WriteLine($"{ r.StockInfo.PressReleaseDate}{(r.StockInfo.ExtractAndValidateDateWithinOneMonth() ? Sign : string.Empty)}");
 
                     if (!string.IsNullOrEmpty(r.StockInfo.Memo))
                     {
