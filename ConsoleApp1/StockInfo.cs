@@ -755,6 +755,25 @@ internal class StockInfo
     }
 
     /// <summary>
+    /// ナンピンするべきか？
+    /// </summary>
+    internal bool ShouldAverageDown()
+    {
+        var result = false;
+
+        // TODO
+        // 最終購入よりナンピン基準を下回る下落の場合
+        //if (this.Executions.IndexOf(e) == this.Executions.Count - 1)
+        //{
+        //    if (e.BuyOrSell == "買" && (this.LatestPrice / e.Price) - 1 <= -0.05)
+        //    {
+        //        result = true;
+        //    }
+        //}
+        return result;
+    }
+
+    /// <summary>
     /// 日次価格情報
     /// </summary>
     public class Price
