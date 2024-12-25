@@ -154,13 +154,13 @@ internal class KabutanScraper
             var node = htmlDocument.DocumentNode.SelectSingleNode("//*[@id=\"finance_box\"]/div[17]/div[1]/h3");
             if (node != null)
             {
-                stockInfo.LatestPerformanceQuarter = node.InnerText.Trim();
+                stockInfo.QuarterlyPerformancePeriod = node.InnerText.Trim();
             }
             else {
                 node = htmlDocument.DocumentNode.SelectSingleNode("//*[@id=\"finance_box\"]/div[18]/div[1]/h3");
                 if (node != null)
                 {
-                    stockInfo.LatestPerformanceQuarter = node.InnerText.Trim();
+                    stockInfo.QuarterlyPerformancePeriod = node.InnerText.Trim();
                 }
             }
 
@@ -183,7 +183,7 @@ internal class KabutanScraper
                         var progressRate = columns[6].InnerText.Trim();
                         var releaseDate = columns[7].InnerText.Trim();
 
-                        var p = new LatestPerformance()
+                        var p = new QuarterlyPerformance()
                         {
                             FiscalPeriod = fiscalPeriod,
                             Revenue = revenue,
@@ -195,7 +195,7 @@ internal class KabutanScraper
                             ReleaseDate = releaseDate,
                         };
 
-                        stockInfo.LatestPerformances.Add(p);
+                        stockInfo.QuarterlyPerformances.Add(p);
                     }
                 }
                 stockInfo.UpdateProgress();
@@ -282,7 +282,7 @@ internal class KabutanScraper
     {
         if (!double.TryParse(v, NumberStyles.AllowThousands | NumberStyles.AllowDecimalPoint | NumberStyles.AllowLeadingSign, CultureInfo.InvariantCulture, out double result))
         {
-            Console.WriteLine("GetDoubleエラー: " + v);
+//            Console.WriteLine("GetDoubleエラー: " + v);
         }
         return result;
     }

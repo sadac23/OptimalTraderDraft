@@ -76,8 +76,8 @@ internal class Alert
                     if (!string.IsNullOrEmpty(r.StockInfo.ShareholderBenefitsDetails))
                         writer.WriteLine($"優待利回り：{ConvertToPercentage(r.StockInfo.ShareholderBenefitYield)}（{r.StockInfo.ShareholderBenefitsDetails},{r.StockInfo.NumberOfSharesRequiredForBenefits},{r.StockInfo.ShareholderBenefitRecordMonth},{r.StockInfo.ShareholderBenefitRecordDay}）");
                     writer.WriteLine($"通期予想：{r.StockInfo.FullYearPerformanceForcastSummary}");
-                    writer.WriteLine($"通期進捗：{r.StockInfo.LatestPerformanceQuarter}：{ConvertToPercentage(r.StockInfo.LatestFullyearProgressRate)}（{r.StockInfo.LatestPerformanceReleaseDate.ToString("yyyy/MM/dd")}）{(r.StockInfo.IsAnnualProgressOnTrack() ? Sign : string.Empty)}");
-                    writer.WriteLine($"前期進捗：{r.StockInfo.LatestPerformanceQuarter}：{ConvertToPercentage(r.StockInfo.PreviousFullyearProgressRate)}（{r.StockInfo.PreviousPerformanceReleaseDate.ToString("yyyy/MM/dd")}）");
+                    writer.WriteLine($"通期進捗：{r.StockInfo.QuarterlyPerformancePeriod}：{ConvertToPercentage(r.StockInfo.QuarterlyFullyearProgressRate)}（{r.StockInfo.QuarterlyPerformanceReleaseDate.ToString("yyyy/MM/dd")}）{(r.StockInfo.IsAnnualProgressOnTrack() ? Sign : string.Empty)}");
+                    writer.WriteLine($"前期進捗：{r.StockInfo.QuarterlyPerformancePeriod}：{ConvertToPercentage(r.StockInfo.PreviousFullyearProgressRate)}（{r.StockInfo.PreviousPerformanceReleaseDate.ToString("yyyy/MM/dd")}）");
                     writer.WriteLine($"時価総額：{ConvertToYenNotation(r.StockInfo.MarketCap)}");
 
                     count = 0;
