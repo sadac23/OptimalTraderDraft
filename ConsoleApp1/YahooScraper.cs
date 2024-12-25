@@ -117,6 +117,12 @@ internal class YahooScraper
                 {
                     stockInfo.Industry = industryNode.InnerText.Trim();
                 }
+                // 決算を含むノードをXPathで選択
+                var earningsPeriod = document.DocumentNode.SelectSingleNode("//th[text()='決算']/following-sibling::td");
+                if (earningsPeriod != null)
+                {
+                    stockInfo.EarningsPeriod = earningsPeriod.InnerText.Trim();
+                }
             }
             catch (Exception e)
             {

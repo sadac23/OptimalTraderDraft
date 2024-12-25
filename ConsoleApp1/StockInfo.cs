@@ -191,6 +191,10 @@ internal class StockInfo
     /// 前期実績発表日
     /// </summary>
     public DateTime PreviousPerformanceReleaseDate { get; internal set; }
+    /// <summary>
+    /// 決算時期
+    /// </summary>
+    public string EarningsPeriod { get; internal set; }
 
     /// <summary>
     /// 現在、所有しているか？

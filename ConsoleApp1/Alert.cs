@@ -44,8 +44,8 @@ internal class Alert
         //2024/10/04：3,951.0：-10.40% (8)
         //2024/09/27：4,119.0：-10.40% (9)
         //2024/09/20：3,959.0：-10.40% (10)
-        //決算発表日：
-        //次回の決算発表日は2025年1月14日の予定です。★
+        //決算：3月末
+        //次回の決算発表日は2025年1月14日の予定です。
         //メモ：
         //ほげほげほげほげほげ。
 
@@ -124,7 +124,7 @@ internal class Alert
                         count++;
                     }
 
-                    writer.WriteLine($"決算発表日：");
+                    writer.WriteLine($"決算：{r.StockInfo.EarningsPeriod}");
                     writer.WriteLine($"{ r.StockInfo.PressReleaseDate}{(r.StockInfo.ExtractAndValidateDateWithinOneMonth() ? Sign : string.Empty)}");
 
                     if (!string.IsNullOrEmpty(r.StockInfo.Memo))

@@ -103,6 +103,7 @@ using System.Runtime.ConstrainedExecution;
  * ・済：4Qの判定ができていない（良品計画）
  * ・済：決算日の前後1か月はマーク
  * ・済：配当なし、優待のみのケースの権利日マーク（楽天）
+ * ・済：期末決算日を追加
  */
 
 /* TODO
@@ -114,7 +115,6 @@ using System.Runtime.ConstrainedExecution;
  * ・PER/PBRの閾値に10%の幅を持たせる
  * ・かぶたん修正履歴は取得可能か？
  * ・ナンピン基準内はマーク
- * ・期末決算日を追加
  */
 
 // 分析結果
