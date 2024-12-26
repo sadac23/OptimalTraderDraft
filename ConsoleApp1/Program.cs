@@ -105,6 +105,7 @@ using System.Runtime.ConstrainedExecution;
  * ・済：配当なし、優待のみのケースの権利日マーク（楽天）
  * ・済：期末決算日を追加
  * ・済：ナンピン基準内はマーク（最終購入日より5%以上下落している場合）
+ * ・済：日本ETFの処理追加
  */
 
 /* TODO
@@ -114,7 +115,6 @@ using System.Runtime.ConstrainedExecution;
  * ・DBはキャッシュ利用とし、なければ作成する処理を入れる
  * ・前年マイナスでプラ転した場合の通期業績率がうまく算出できていない。（5214など）
  * ・PER/PBRの閾値に10%の幅を持たせる
- * ・かぶたん修正履歴は取得可能か？
  */
 
 // 分析結果
@@ -146,14 +146,14 @@ foreach (var watchStock in watchList)
     // 削除日が入っていたらスキップ
     if (!string.IsNullOrEmpty(watchStock.DeleteDate)) continue;
 
+    var stockInfo = new StockInfo(watchStock);
+
+    // 株価更新開始日を取得（なければ基準開始日を取得）
+    var startDate = GetStartDate(watchStock.Code);
+
     // 個別のとき
     if (watchStock.Classification == CommonUtils.Instance.AssetClassification.JapaneseIndividualStocks)
     {
-        var stockInfo = new StockInfo(watchStock);
-
-        // 株価更新開始日を取得（なければ基準開始日を取得）
-        var startDate = GetStartDate(watchStock.Code);
-
         // 外部サイトの情報取得
         await yahooScraper.ScrapeTop(stockInfo);
         await yahooScraper.ScrapeProfile(stockInfo);
@@ -168,6 +168,31 @@ foreach (var watchStock in watchList)
 
         // マスタを設定
         stockInfo.SetAveragePerPbr(masterList);
+
+        // 株価履歴キャッシュ更新
+        UpdateMaster(stockInfo);
+
+        // 分析
+        var result = analyzer.Analize(stockInfo);
+
+        // 結果登録
+        results.Add(result);
+        ResisterResult(result);
+    }
+    // 日本ETFのとき
+    else if (watchStock.Classification == CommonUtils.Instance.AssetClassification.JapaneseETFs)
+    {
+        // 外部サイトの情報取得
+        await yahooScraper.ScrapeTop(stockInfo);
+        await yahooScraper.ScrapeProfile(stockInfo);
+        if (lastTradingDay > startDate)
+            await yahooScraper.ScrapeHistory(stockInfo, startDate, CommonUtils.Instance.ExecusionDate);
+        await kabutanScraper.ScrapeFinance(stockInfo);
+        await minkabuScraper.ScrapeDividend(stockInfo);
+        await minkabuScraper.ScrapeYutai(stockInfo);
+
+        // 約定履歴を設定
+        stockInfo.SetExecutions(executionList);
 
         // 株価履歴キャッシュ更新
         UpdateMaster(stockInfo);

@@ -123,7 +123,7 @@ internal class Analyzer
         item.LatestPriceDate = endIndexDate;
 
         // 個別
-        if (item.Classification == "1")
+        if (item.Classification == CommonUtils.Instance.AssetClassification.JapaneseIndividualStocks)
         {
             // -10.0%以下（10week以内の下落幅）
             if (!result.ShouldAlert && result.VolatilityRate <= -0.100) { result.ShouldAlert = true; }
@@ -145,7 +145,7 @@ internal class Analyzer
             //if (!result.ShouldAlert && result.VolatilityRate >= 0.100) { result.ShouldAlert = true; }
         }
         // ETF
-        if (item.Classification == "2")
+        if (item.Classification == CommonUtils.Instance.AssetClassification.JapaneseETFs)
         {
             // -5.0%以下（10week以内の下落幅）
             if (!result.ShouldAlert && result.VolatilityRate <= -0.050) { result.ShouldAlert = true; }

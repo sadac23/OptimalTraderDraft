@@ -53,7 +53,15 @@ internal class CommonUtils
         //日本ETF: Japanese ETFs
         //日本投資信託: Japanese Mutual Funds
         //米国ETF: U.S.ETFs
-        public string JapaneseIndividualStocks { get; set; } = "1";
+
+        /// <summary>
+        /// 日本個別株
+        /// </summary>
+        public string JapaneseIndividualStocks { get; } = "1";
+        /// <summary>
+        /// 日本ETF
+        /// </summary>
+        public string JapaneseETFs { get; } = "2";
     }
 
     public AssetClassificationClass AssetClassification {  get; set; } = new AssetClassificationClass();
@@ -74,7 +82,11 @@ internal class CommonUtils
     /// <summary>
     /// ナンピン閾値
     /// </summary>
-    public double AverageDownThreshold { get; internal set; } = -0.05;
+    public double AverageDownThreshold { get; } = -0.05;
+    /// <summary>
+    /// 注目マーク
+    /// </summary>
+    public string WatchMark { get; } = "★";
 
     public static string ReplacePlaceholder(string? input, string placeholder, string newValue)
     {

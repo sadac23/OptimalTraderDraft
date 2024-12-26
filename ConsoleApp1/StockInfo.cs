@@ -733,6 +733,8 @@ internal class StockInfo
 
     internal bool ExtractAndValidateDateWithinOneMonth()
     {
+        if (string.IsNullOrEmpty(this.PressReleaseDate)) return false;
+
         // 正規表現を使用して日付を抽出
         var datePattern = @"\d{4}年\d{1,2}月\d{1,2}日";
         var match = Regex.Match(this.PressReleaseDate, datePattern);

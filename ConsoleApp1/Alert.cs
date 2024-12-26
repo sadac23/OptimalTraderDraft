@@ -8,7 +8,7 @@ using System.Runtime.ConstrainedExecution;
 
 internal class Alert
 {
-    const string Sign = "★";
+    public string Sign { get; set; } = CommonUtils.Instance.WatchMark;
 
     public Alert(List<Analyzer.AnalysisResult> results)
     {
@@ -127,7 +127,10 @@ internal class Alert
                     }
 
                     writer.WriteLine($"決算：{r.StockInfo.EarningsPeriod}");
-                    writer.WriteLine($"{ r.StockInfo.PressReleaseDate}{(r.StockInfo.ExtractAndValidateDateWithinOneMonth() ? Sign : string.Empty)}");
+                    if (!string.IsNullOrEmpty(r.StockInfo.PressReleaseDate))
+                    {
+                        writer.WriteLine($"{r.StockInfo.PressReleaseDate}{(r.StockInfo.ExtractAndValidateDateWithinOneMonth() ? Sign : string.Empty)}");
+                    }
 
                     if (!string.IsNullOrEmpty(r.StockInfo.Memo))
                     {
