@@ -53,7 +53,7 @@ internal class TSEHolidayChecker
         holidays.Add(new DateTime(year, 11, 23));
 
         // 天皇誕生日
-//        holidays.Add(new DateTime(year, 12, 23));
+        holidays.Add(new DateTime(year, 2, 23));
 
         return holidays;
     }
