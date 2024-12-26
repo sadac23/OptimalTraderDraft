@@ -107,23 +107,29 @@ internal class Alert
                         count++;
                     }
 
-                    count = 0;
-                    foreach(Analyzer.AnalysisResult.PriceVolatility p in r.PriceVolatilities)
+                    //count = 0;
+                    //foreach(Analyzer.AnalysisResult.PriceVolatility p in r.PriceVolatilities)
+                    //{
+                    //    // 直近週は必ず表示
+                    //    if (count == 0)
+                    //    {
+                    //        writer.WriteLine($"変動履歴：");
+                    //        writer.WriteLine($"{p.VolatilityRateIndex1Date.ToString("yyyy/MM/dd")}：{p.VolatilityRateIndex1.ToString("N1")}：{ConvertToPercentage(p.VolatilityRate)}({p.VolatilityTerm})");
+                    //    }
+                    //    else
+                    //    {
+                    //        if (p.ShouldAlert)
+                    //        {
+                    //            writer.WriteLine($"{p.VolatilityRateIndex1Date.ToString("yyyy/MM/dd")}：{p.VolatilityRateIndex1.ToString("N1")}：{ConvertToPercentage(p.VolatilityRate)}({p.VolatilityTerm})");
+                    //        }
+                    //    }
+                    //    count++;
+                    //}
+
+                    writer.WriteLine($"変動履歴：");
+                    foreach (Analyzer.AnalysisResult.PriceVolatility p in r.PriceVolatilities)
                     {
-                        // 直近週は必ず表示
-                        if (count == 0)
-                        {
-                            writer.WriteLine($"変動履歴：");
-                            writer.WriteLine($"{p.VolatilityRateIndex1Date.ToString("yyyy/MM/dd")}：{p.VolatilityRateIndex1.ToString("N1")}：{ConvertToPercentage(p.VolatilityRate)}({p.VolatilityTerm})");
-                        }
-                        else
-                        {
-                            if (p.ShouldAlert)
-                            {
-                                writer.WriteLine($"{p.VolatilityRateIndex1Date.ToString("yyyy/MM/dd")}：{p.VolatilityRateIndex1.ToString("N1")}：{ConvertToPercentage(p.VolatilityRate)}({p.VolatilityTerm})");
-                            }
-                        }
-                        count++;
+                        writer.WriteLine($"{p.VolatilityRateIndex1Date.ToString("yyyy/MM/dd")}：{p.VolatilityRateIndex1.ToString("N1")}：{ConvertToPercentage(p.VolatilityRate)}({p.VolatilityTerm}){(p.ShouldAlert ? CommonUtils.Instance.WatchMark : string.Empty)}");
                     }
 
                     writer.WriteLine($"決算：{r.StockInfo.EarningsPeriod}");
