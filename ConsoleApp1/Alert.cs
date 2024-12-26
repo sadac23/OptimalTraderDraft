@@ -72,13 +72,13 @@ internal class Alert
                     writer.WriteLine($"{r.StockInfo.Code}：{r.StockInfo.Name}（{r.StockInfo.Industry}）{(r.StockInfo.IsFavorite ? Sign : string.Empty)}");
                     writer.WriteLine($"株価：{r.StockInfo.LatestPrice.ToString("N1")}（{r.StockInfo.LatestPriceDate.ToString("yyyy/MM/dd")}）");
                     writer.WriteLine($"市場：{r.StockInfo.Section}");
-                    writer.WriteLine($"配当利回り：{ConvertToPercentage(r.StockInfo.DividendYield)}（{ConvertToPercentage( r.StockInfo.DividendPayoutRatio)},{r.StockInfo.DividendRecordDateMonth}）{(r.StockInfo.IsDividendRecordDateClose() ? Sign : string.Empty)}");
+                    writer.WriteLine($"配当利回り：{CommonUtils.Instance.ConvertToPercentage(r.StockInfo.DividendYield)}（{CommonUtils.Instance.ConvertToPercentage( r.StockInfo.DividendPayoutRatio)},{r.StockInfo.DividendRecordDateMonth}）{(r.StockInfo.IsDividendRecordDateClose() ? Sign : string.Empty)}");
                     if (!string.IsNullOrEmpty(r.StockInfo.ShareholderBenefitsDetails))
-                        writer.WriteLine($"優待利回り：{ConvertToPercentage(r.StockInfo.ShareholderBenefitYield)}（{r.StockInfo.ShareholderBenefitsDetails},{r.StockInfo.NumberOfSharesRequiredForBenefits},{r.StockInfo.ShareholderBenefitRecordMonth},{r.StockInfo.ShareholderBenefitRecordDay}）{(r.StockInfo.IsShareholderBenefitRecordDateClose() ? Sign : string.Empty)}");
+                        writer.WriteLine($"優待利回り：{CommonUtils.Instance.ConvertToPercentage(r.StockInfo.ShareholderBenefitYield)}（{r.StockInfo.ShareholderBenefitsDetails},{r.StockInfo.NumberOfSharesRequiredForBenefits},{r.StockInfo.ShareholderBenefitRecordMonth},{r.StockInfo.ShareholderBenefitRecordDay}）{(r.StockInfo.IsShareholderBenefitRecordDateClose() ? Sign : string.Empty)}");
                     writer.WriteLine($"通期予想：{r.StockInfo.FullYearPerformanceForcastSummary}");
-                    writer.WriteLine($"通期進捗：{r.StockInfo.QuarterlyPerformancePeriod}：{ConvertToPercentage(r.StockInfo.QuarterlyFullyearProgressRate)}（{r.StockInfo.QuarterlyPerformanceReleaseDate.ToString("yyyy/MM/dd")}）{(r.StockInfo.IsAnnualProgressOnTrack() ? Sign : string.Empty)}");
-                    writer.WriteLine($"前期進捗：{r.StockInfo.QuarterlyPerformancePeriod}：{ConvertToPercentage(r.StockInfo.PreviousFullyearProgressRate)}（{r.StockInfo.PreviousPerformanceReleaseDate.ToString("yyyy/MM/dd")}）");
-                    writer.WriteLine($"時価総額：{ConvertToYenNotation(r.StockInfo.MarketCap)}");
+                    writer.WriteLine($"通期進捗：{r.StockInfo.QuarterlyPerformancePeriod}：{CommonUtils.Instance.ConvertToPercentage(r.StockInfo.QuarterlyFullyearProgressRate)}（{r.StockInfo.QuarterlyPerformanceReleaseDate.ToString("yyyy/MM/dd")}）{(r.StockInfo.IsAnnualProgressOnTrack() ? Sign : string.Empty)}");
+                    writer.WriteLine($"前期進捗：{r.StockInfo.QuarterlyPerformancePeriod}：{CommonUtils.Instance.ConvertToPercentage(r.StockInfo.PreviousFullyearProgressRate)}（{r.StockInfo.PreviousPerformanceReleaseDate.ToString("yyyy/MM/dd")}）");
+                    writer.WriteLine($"時価総額：{CommonUtils.Instance.ConvertToYenNotation(r.StockInfo.MarketCap)}");
 
                     count = 0;
                     s = string.Empty;
@@ -90,8 +90,8 @@ internal class Alert
                     }
                     if (!string.IsNullOrEmpty(s)) writer.WriteLine($"ROE：{s}{(r.StockInfo.IsROEAboveThreshold() ? Sign : string.Empty)}");
 
-                    writer.WriteLine($"PER：{ConvertToMultiplierString(r.StockInfo.Per)}（{r.StockInfo.AveragePer}）{(r.StockInfo.IsPERUndervalued() ? Sign : string.Empty)}");
-                    writer.WriteLine($"PBR：{ConvertToMultiplierString(r.StockInfo.Pbr)}（{r.StockInfo.AveragePbr}）{(r.StockInfo.IsPBRUndervalued() ? Sign : string.Empty)}");
+                    writer.WriteLine($"PER：{CommonUtils.Instance.ConvertToMultiplierString(r.StockInfo.Per)}（{r.StockInfo.AveragePer}）{(r.StockInfo.IsPERUndervalued() ? Sign : string.Empty)}");
+                    writer.WriteLine($"PBR：{CommonUtils.Instance.ConvertToMultiplierString(r.StockInfo.Pbr)}（{r.StockInfo.AveragePbr}）{(r.StockInfo.IsPBRUndervalued() ? Sign : string.Empty)}");
                     writer.WriteLine($"信用倍率：{r.StockInfo.MarginBalanceRatio}");
                     writer.WriteLine($"信用残：{r.StockInfo.MarginBuyBalance}/{r.StockInfo.MarginSellBalance}（{r.StockInfo.MarginBalanceDate}）");
                     writer.WriteLine($"出来高：{r.StockInfo.LatestTradingVolume}");
@@ -103,7 +103,7 @@ internal class Alert
                     foreach (ExecutionList.Execution e in r.StockInfo.Executions)
                     {
                         if (count == 0) writer.WriteLine($"約定履歴：{(b ? Sign : string.Empty)}");
-                        writer.WriteLine($"{e.BuyOrSell}：{e.Date.ToString("yyyy/MM/dd")}：{e.Price.ToString("N1")}*{e.Quantity}：{ConvertToPercentage((r.StockInfo.LatestPrice / e.Price) - 1)}");
+                        writer.WriteLine($"{e.BuyOrSell}：{e.Date.ToString("yyyy/MM/dd")}：{e.Price.ToString("N1")}*{e.Quantity}：{CommonUtils.Instance.ConvertToPercentage((r.StockInfo.LatestPrice / e.Price) - 1)}");
                         count++;
                     }
 
@@ -129,7 +129,7 @@ internal class Alert
                     writer.WriteLine($"変動履歴：");
                     foreach (Analyzer.AnalysisResult.PriceVolatility p in r.PriceVolatilities)
                     {
-                        writer.WriteLine($"{p.VolatilityRateIndex1Date.ToString("yyyy/MM/dd")}：{p.VolatilityRateIndex1.ToString("N1")}：{ConvertToPercentage(p.VolatilityRate)}({p.VolatilityTerm}){(p.ShouldAlert ? CommonUtils.Instance.WatchMark : string.Empty)}");
+                        writer.WriteLine($"{p.VolatilityRateIndex1Date.ToString("yyyy/MM/dd")}：{p.VolatilityRateIndex1.ToString("N1")}：{CommonUtils.Instance.ConvertToPercentage(p.VolatilityRate)}({p.VolatilityTerm}){(p.ShouldAlert ? CommonUtils.Instance.WatchMark : string.Empty)}");
                     }
 
                     writer.WriteLine($"決算：{r.StockInfo.EarningsPeriod}");
@@ -148,41 +148,4 @@ internal class Alert
             }
         }
     }
-
-    private string ConvertToMultiplierString(double value)
-    {
-        // 小数点以下2桁までの文字列に変換し、"倍"を追加
-        return value.ToString("F2", CultureInfo.InvariantCulture) + "倍";
-    }
-
-    private string ConvertToPercentage(double value)
-    {
-        // パーセント形式の文字列に変換
-        return (value * 100).ToString("F2", CultureInfo.InvariantCulture) + "%";
-    }
-
-    private string ConvertToYenNotation(double value)
-    {
-        if (value >= 1_000_000_000_000)
-        {
-            double trillions = Math.Floor(value / 1_000_000_000_000);
-            double billions = (value % 1_000_000_000_000) / 100_000_000;
-            return $"{trillions.ToString("N0", CultureInfo.InvariantCulture)}兆{billions.ToString("N0", CultureInfo.InvariantCulture)}億円";
-        }
-        else if (value >= 100_000_000)
-        {
-            double billions = value / 100_000_000;
-            return $"{billions.ToString("N0", CultureInfo.InvariantCulture)}億円";
-        }
-        else if (value >= 10_000)
-        {
-            return $"{value.ToString("N0", CultureInfo.InvariantCulture)}円";
-        }
-        else
-        {
-            return value.ToString("N0", CultureInfo.InvariantCulture) + "円";
-        }
-    }
-
-    
 }

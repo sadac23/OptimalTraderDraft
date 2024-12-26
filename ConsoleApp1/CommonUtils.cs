@@ -1,5 +1,6 @@
 ﻿// See https://aka.ms/new-console-template for more information
 using System.Configuration;
+using System.Globalization;
 
 internal class CommonUtils
 {
@@ -88,12 +89,46 @@ internal class CommonUtils
     /// </summary>
     public string WatchMark { get; } = "★";
 
-    public static string ReplacePlaceholder(string? input, string placeholder, string newValue)
+    internal static string ReplacePlaceholder(string? input, string placeholder, string newValue)
     {
         if (string.IsNullOrEmpty(input))
         {
             throw new ArgumentException("Input cannot be null or empty.", nameof(input));
         }
         return input.Replace(placeholder, newValue);
+    }
+    internal string ConvertToPercentage(double value)
+    {
+        // パーセント形式の文字列に変換
+        return (value * 100).ToString("F2", CultureInfo.InvariantCulture) + "%";
+    }
+
+    internal string ConvertToYenNotation(double value)
+    {
+        if (value >= 1_000_000_000_000)
+        {
+            double trillions = Math.Floor(value / 1_000_000_000_000);
+            double billions = (value % 1_000_000_000_000) / 100_000_000;
+            return $"{trillions.ToString("N0", CultureInfo.InvariantCulture)}兆{billions.ToString("N0", CultureInfo.InvariantCulture)}億円";
+        }
+        else if (value >= 100_000_000)
+        {
+            double billions = value / 100_000_000;
+            return $"{billions.ToString("N0", CultureInfo.InvariantCulture)}億円";
+        }
+        else if (value >= 10_000)
+        {
+            return $"{value.ToString("N0", CultureInfo.InvariantCulture)}円";
+        }
+        else
+        {
+            return value.ToString("N0", CultureInfo.InvariantCulture) + "円";
+        }
+    }
+
+    internal string ConvertToMultiplierString(double value)
+    {
+        // 小数点以下2桁までの文字列に変換し、"倍"を追加
+        return value.ToString("F2", CultureInfo.InvariantCulture) + "倍";
     }
 }
