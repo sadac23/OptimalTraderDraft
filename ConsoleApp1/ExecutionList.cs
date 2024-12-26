@@ -18,7 +18,7 @@ internal class ExecutionList
                     {
                         Code = detail.Code,
                         Name = detail.Name,
-                        BuyOrSell = "買",
+                        BuyOrSell = CommonUtils.Instance.BuyOrSellString.Buy,
                         Date = DateTime.Parse(detail.BuyDate),
                         Price = double.Parse(detail.BuyPrice),
                         Quantity = double.Parse(detail.BuyQuantity),
@@ -33,7 +33,7 @@ internal class ExecutionList
                         No = detail.No,
                         Code = detail.Code,
                         Name = detail.Name,
-                        BuyOrSell = "売",
+                        BuyOrSell = CommonUtils.Instance.BuyOrSellString.Sell,
                         Date = DateTime.Parse(detail.SellDate),
                         Price = double.Parse(detail.SellPrice),
                         Quantity= double.Parse(detail.SellQuantity),

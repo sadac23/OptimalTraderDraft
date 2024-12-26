@@ -8,11 +8,6 @@ using System.Text.RegularExpressions;
 
 internal class StockInfo
 {
-    public const string QuarterString1 = "Q1";
-    public const string QuarterString2 = "Q2";
-    public const string QuarterString3 = "Q3";
-    public const string QuarterString4 = "Q4";
-
     public StockInfo(WatchList.WatchStock watchStock)
     {
         Code = watchStock.Code;
@@ -208,8 +203,8 @@ internal class StockInfo
 
         foreach (var execution in Executions)
         {
-            if (execution.BuyOrSell == "買") buy += execution.Quantity;
-            if (execution.BuyOrSell == "売") sell += execution.Quantity;
+            if (execution.BuyOrSell == CommonUtils.Instance.BuyOrSellString.Buy) buy += execution.Quantity;
+            if (execution.BuyOrSell == CommonUtils.Instance.BuyOrSellString.Sell) sell += execution.Quantity;
         }
         if (buy > sell) result = true;
 
@@ -604,17 +599,17 @@ internal class StockInfo
     /// </summary>
     internal bool IsROEAboveThreshold()
     {
-        return (this.FullYearProfits[this.FullYearProfits.Count - 1].Roe >= 8.00 ? true : false);
+        return (this.FullYearProfits[this.FullYearProfits.Count - 1].Roe >= CommonUtils.Instance.ThresholdOfROE ? true : false);
     }
     internal void UpdateProgress()
     {
         // 期間の取得
         this.QuarterlyPerformancePeriod = this.QuarterlyPerformancePeriod switch
         {
-            string s when s.Contains("第１") => QuarterString1,
-            string s when s.Contains("第２") => QuarterString2,
-            string s when s.Contains("第３") => QuarterString3,
-            string s when s.Contains("前期") => QuarterString4,
+            string s when s.Contains("第１") => CommonUtils.Instance.QuarterString.Quarter1,
+            string s when s.Contains("第２") => CommonUtils.Instance.QuarterString.Quarter2,
+            string s when s.Contains("第３") => CommonUtils.Instance.QuarterString.Quarter3,
+            string s when s.Contains("前期") => CommonUtils.Instance.QuarterString.Quarter4,
             _ => this.QuarterlyPerformancePeriod // デフォルト値（変更しない場合）
         };
 
@@ -679,19 +674,19 @@ internal class StockInfo
         // 前期以上かつ、案分値以上か？
         if (this.QuarterlyFullyearProgressRate >= this.PreviousFullyearProgressRate)
         {
-            if (this.QuarterlyPerformancePeriod == QuarterString1)
+            if (this.QuarterlyPerformancePeriod == CommonUtils.Instance.QuarterString.Quarter1)
             {
                 if (this.QuarterlyFullyearProgressRate >= 0.25) result = true;
             }
-            else if (this.QuarterlyPerformancePeriod == QuarterString2)
+            else if (this.QuarterlyPerformancePeriod == CommonUtils.Instance.QuarterString.Quarter2)
             {
                 if (this.QuarterlyFullyearProgressRate >= 0.50) result = true;
             }
-            else if (this.QuarterlyPerformancePeriod == QuarterString3)
+            else if (this.QuarterlyPerformancePeriod == CommonUtils.Instance.QuarterString.Quarter3)
             {
                 if (this.QuarterlyFullyearProgressRate >= 0.75) result = true;
             }
-            else if (this.QuarterlyPerformancePeriod == QuarterString4)
+            else if (this.QuarterlyPerformancePeriod == CommonUtils.Instance.QuarterString.Quarter4)
             {
                 if (this.QuarterlyFullyearProgressRate >= 1.00) result = true;
             }
@@ -706,7 +701,7 @@ internal class StockInfo
     internal bool IsHighYield()
     {
         bool result = false;
-        if ((this.DividendYield + this.ShareholderBenefitYield) > 0.0300) result = true;
+        if ((this.DividendYield + this.ShareholderBenefitYield) > CommonUtils.Instance.ThresholdOfYield) result = true;
         return result;
     }
 
@@ -717,7 +712,7 @@ internal class StockInfo
     internal bool IsHighMarketCap()
     {
         bool result = false;
-        if (this.MarketCap > 100000000000) result = true;
+        if (this.MarketCap > CommonUtils.Instance.ThresholdOfMarketCap) result = true;
         return result;
     }
 
@@ -764,24 +759,17 @@ internal class StockInfo
             double p = 0;
             foreach (var item in this.Executions)
             {
-                if (item.BuyOrSell == "買")
+                if (item.BuyOrSell == CommonUtils.Instance.BuyOrSellString.Buy)
                 {
                     p = item.Price;
                 }
             }
-            if (((this.LatestPrice / p) - 1) <= CommonUtils.Instance.AverageDownThreshold)
+            if (((this.LatestPrice / p) - 1) <= CommonUtils.Instance.ThresholdOfAverageDown)
             {
                 result = true;
             }
         }
 
-        //if (this.Executions.IndexOf(e) == this.Executions.Count - 1)
-        //{
-        //    if (e.BuyOrSell == "買" && (this.LatestPrice / e.Price) - 1 <= -0.05)
-        //    {
-        //        result = true;
-        //    }
-        //}
         return result;
     }
 

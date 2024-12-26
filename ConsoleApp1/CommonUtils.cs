@@ -64,6 +64,18 @@ internal class CommonUtils
         /// </summary>
         public string JapaneseETFs { get; } = "2";
     }
+    public class BuyOrSellStringClass
+    {
+        public string Buy { get; } = "買";
+        public string Sell { get; } = "売";
+    }
+    public class QuarterStringClass
+    {
+        public string Quarter1 { get; } = "Q1";
+        public string Quarter2 { get; } = "Q2";
+        public string Quarter3 { get; } = "Q3";
+        public string Quarter4 { get; } = "Q4";
+    }
 
     public AssetClassificationClass AssetClassification {  get; set; } = new AssetClassificationClass();
 
@@ -83,11 +95,29 @@ internal class CommonUtils
     /// <summary>
     /// ナンピン閾値
     /// </summary>
-    public double AverageDownThreshold { get; } = -0.05;
+    public double ThresholdOfAverageDown { get; } = -0.05;
     /// <summary>
     /// 注目マーク
     /// </summary>
     public string WatchMark { get; } = "★";
+    /// <summary>
+    /// 利回り閾値
+    /// </summary>
+    public double ThresholdOfYield { get; } = 0.0300;
+    /// <summary>
+    /// 時価総額閾値
+    /// </summary>
+    public double ThresholdOfMarketCap { get; } = 100000000000;
+    /// <summary>
+    /// ROE閾値
+    /// </summary>
+    public double ThresholdOfROE { get; } = 8.00;
+    /// <summary>
+    /// 売買文字列
+    /// </summary>
+    public BuyOrSellStringClass BuyOrSellString { get; } = new BuyOrSellStringClass();
+
+    public QuarterStringClass QuarterString { get; } = new QuarterStringClass();
 
     internal static string ReplacePlaceholder(string? input, string placeholder, string newValue)
     {
