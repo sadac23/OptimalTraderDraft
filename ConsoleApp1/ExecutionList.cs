@@ -56,7 +56,7 @@ internal class ExecutionList
         int startRowIndex = 5;
 
         // Excelファイルを読み込む
-        using (var workbook = new XLWorkbook(AppConstants.Instance.FilepathOfExecutionList))
+        using (var workbook = new XLWorkbook(CommonUtils.Instance.FilepathOfExecutionList))
         {
             // 指定したワークシートを取得
             var worksheet = workbook.Worksheet(sheetName);

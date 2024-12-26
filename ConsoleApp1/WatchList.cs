@@ -87,7 +87,7 @@ internal class WatchList
 
     internal static List<WatchStock> GetXlsxWatchStockList(List<ExecutionList.ListDetail> executionList)
     {
-        List<WatchStock> watchStocks = GetXlsxWatchStockList(AppConstants.Instance.FilepathOfWatchList);
+        List<WatchStock> watchStocks = GetXlsxWatchStockList(CommonUtils.Instance.FilepathOfWatchList);
 
         foreach (ExecutionList.ListDetail detail in executionList)
         {

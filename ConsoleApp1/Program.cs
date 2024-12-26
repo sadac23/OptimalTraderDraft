@@ -104,6 +104,7 @@ using System.Runtime.ConstrainedExecution;
  * ・済：決算日の前後1か月はマーク
  * ・済：配当なし、優待のみのケースの権利日マーク（楽天）
  * ・済：期末決算日を追加
+ * ・済：ナンピン基準内はマーク（最終購入日より5%以上下落している場合）
  */
 
 /* TODO
@@ -114,7 +115,6 @@ using System.Runtime.ConstrainedExecution;
  * ・前年マイナスでプラ転した場合の通期業績率がうまく算出できていない。（5214など）
  * ・PER/PBRの閾値に10%の幅を持たせる
  * ・かぶたん修正履歴は取得可能か？
- * ・ナンピン基準内はマーク（最終購入日より5%以上下落している場合）
  */
 
 // 分析結果
@@ -158,7 +158,7 @@ foreach (var watchStock in watchList)
         await yahooScraper.ScrapeTop(stockInfo);
         await yahooScraper.ScrapeProfile(stockInfo);
         if (lastTradingDay > startDate)
-            await yahooScraper.ScrapeHistory(stockInfo, startDate, AppConstants.Instance.ExecusionDate);
+            await yahooScraper.ScrapeHistory(stockInfo, startDate, CommonUtils.Instance.ExecusionDate);
         await kabutanScraper.ScrapeFinance(stockInfo);
         await minkabuScraper.ScrapeDividend(stockInfo);
         await minkabuScraper.ScrapeYutai(stockInfo);
@@ -187,7 +187,7 @@ alert.SaveFile();
 
 DateTime GetLastTradingDay()
 {
-    DateTime date = AppConstants.Instance.ExecusionDate.Date;
+    DateTime date = CommonUtils.Instance.ExecusionDate.Date;
 
     // 土日または祝日の場合、前日を確認
     while (TSEHolidayChecker.IsTSEHoliday(date))
@@ -209,7 +209,7 @@ string ReplacePlaceholder(string? input, string placeholder, string newValue)
 
 void ResisterResult(Analyzer.AnalysisResult result)
 {
-    using (SQLiteConnection connection = new SQLiteConnection(AppConstants.Instance.ConnectionString))
+    using (SQLiteConnection connection = new SQLiteConnection(CommonUtils.Instance.ConnectionString))
     {
         connection.Open();
 
@@ -222,7 +222,7 @@ void ResisterResult(Analyzer.AnalysisResult result)
             {
                 // パラメータを設定
                 command.Parameters.AddWithValue("@code", result.StockInfo.Code);
-                command.Parameters.AddWithValue("@date_string", AppConstants.Instance.ExecusionDate.ToString("yyyyMMdd"));
+                command.Parameters.AddWithValue("@date_string", CommonUtils.Instance.ExecusionDate.ToString("yyyyMMdd"));
                 command.Parameters.AddWithValue("@volatility_term", r.VolatilityTerm);
 
                 // クエリを実行
@@ -285,8 +285,8 @@ void ResisterResult(Analyzer.AnalysisResult result)
             {
                 // パラメータを設定
                 command.Parameters.AddWithValue("@code", result.StockInfo.Code);
-                command.Parameters.AddWithValue("@date_string", AppConstants.Instance.ExecusionDate.ToString("yyyyMMdd"));
-                command.Parameters.AddWithValue("@date",AppConstants.Instance.ExecusionDate);
+                command.Parameters.AddWithValue("@date_string", CommonUtils.Instance.ExecusionDate.ToString("yyyyMMdd"));
+                command.Parameters.AddWithValue("@date",CommonUtils.Instance.ExecusionDate);
                 command.Parameters.AddWithValue("@name", result.StockInfo.Name);
                 command.Parameters.AddWithValue("@volatility_rate", r.VolatilityRate);
                 command.Parameters.AddWithValue("@volatility_rate_index1", r.VolatilityRateIndex1);
@@ -319,9 +319,9 @@ void ResisterResult(Analyzer.AnalysisResult result)
 
 DateTime GetStartDate(string code)
 {
-    DateTime result = AppConstants.Instance.MasterStartDate;
+    DateTime result = CommonUtils.Instance.MasterStartDate;
 
-    using (SQLiteConnection connection = new SQLiteConnection(AppConstants.Instance.ConnectionString))
+    using (SQLiteConnection connection = new SQLiteConnection(CommonUtils.Instance.ConnectionString))
     {
         connection.Open();
 
@@ -332,7 +332,7 @@ DateTime GetStartDate(string code)
         {
             // パラメータを設定
             command.Parameters.AddWithValue("@code", code);
-            command.Parameters.AddWithValue("@max_date", AppConstants.Instance.MasterStartDate);
+            command.Parameters.AddWithValue("@max_date", CommonUtils.Instance.MasterStartDate);
 
             // データリーダーを使用して結果を取得
             using (SQLiteDataReader reader = command.ExecuteReader())
@@ -361,7 +361,7 @@ void UpdateMaster(StockInfo stockInfo)
 
 void InsertMaster(string code, StockInfo.Price p)
 {
-    using (SQLiteConnection connection = new SQLiteConnection(AppConstants.Instance.ConnectionString))
+    using (SQLiteConnection connection = new SQLiteConnection(CommonUtils.Instance.ConnectionString))
     {
         connection.Open();
 
@@ -409,7 +409,7 @@ void InsertMaster(string code, StockInfo.Price p)
 
 bool IsExist(string code, StockInfo.Price p)
 {
-    using (SQLiteConnection connection = new SQLiteConnection(AppConstants.Instance.ConnectionString))
+    using (SQLiteConnection connection = new SQLiteConnection(CommonUtils.Instance.ConnectionString))
     {
         connection.Open();
 

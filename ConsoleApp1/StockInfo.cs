@@ -743,8 +743,8 @@ internal class StockInfo
             if (DateTime.TryParseExact(match.Value, "yyyy年M月d日", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime extractedDate))
             {
                 // 指定日付から前後1か月以内かを判定
-                var oneMonthBefore = AppConstants.Instance.ExecusionDate.AddMonths(-1);
-                var oneMonthAfter = AppConstants.Instance.ExecusionDate.AddMonths(1);
+                var oneMonthBefore = CommonUtils.Instance.ExecusionDate.AddMonths(-1);
+                var oneMonthAfter = CommonUtils.Instance.ExecusionDate.AddMonths(1);
 
                 return extractedDate >= oneMonthBefore && extractedDate <= oneMonthAfter;
             }
@@ -761,8 +761,23 @@ internal class StockInfo
     {
         var result = false;
 
-        // TODO
-        // 最終購入よりナンピン基準を下回る下落の場合
+        // 所有中かつ、最終購入よりナンピン基準を下回る下落の場合
+        if (this.IsOwnedNow())
+        {
+            double p = 0;
+            foreach (var item in this.Executions)
+            {
+                if (item.BuyOrSell == "買")
+                {
+                    p = item.Price;
+                }
+            }
+            if (((this.LatestPrice / p) - 1) <= CommonUtils.Instance.AverageDownThreshold)
+            {
+                result = true;
+            }
+        }
+
         //if (this.Executions.IndexOf(e) == this.Executions.Count - 1)
         //{
         //    if (e.BuyOrSell == "買" && (this.LatestPrice / e.Price) - 1 <= -0.05)

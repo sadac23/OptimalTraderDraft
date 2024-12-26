@@ -20,7 +20,7 @@ internal class MasterList
         int startRowIndex = 5;
 
         // Excelファイルを読み込む
-        using (var workbook = new XLWorkbook(AppConstants.Instance.FilepathOfAveragePerPbrList))
+        using (var workbook = new XLWorkbook(CommonUtils.Instance.FilepathOfAveragePerPbrList))
         {
             // 指定したワークシートを取得
             var worksheet = workbook.Worksheet(sheetName);

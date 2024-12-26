@@ -49,7 +49,7 @@ internal class Alert
         //メモ：
         //ほげほげほげほげほげ。
 
-        var alertFilePath = AppConstants.ReplacePlaceholder(AppConstants.Instance.FilepathOfAlert, "{yyyyMMdd}", AppConstants.Instance.ExecusionDate.ToString("yyyyMMdd"));
+        var alertFilePath = CommonUtils.ReplacePlaceholder(CommonUtils.Instance.FilepathOfAlert, "{yyyyMMdd}", CommonUtils.Instance.ExecusionDate.ToString("yyyyMMdd"));
 
         using (StreamWriter writer = new StreamWriter(alertFilePath))
         {

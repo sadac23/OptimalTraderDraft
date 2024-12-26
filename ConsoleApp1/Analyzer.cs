@@ -16,8 +16,8 @@ internal class Analyzer
 
     public Analyzer()
     {
-        this._currentDate = AppConstants.Instance.ExecusionDate;
-        this._connectionString = AppConstants.Instance.ConnectionString;
+        this._currentDate = CommonUtils.Instance.ExecusionDate;
+        this._connectionString = CommonUtils.Instance.ConnectionString;
     }
 
     internal AnalysisResult Analize(StockInfo item)
