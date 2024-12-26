@@ -209,6 +209,7 @@ foreach (var watchStock in watchList)
 
 // アラート通知
 Alert.SaveFile(results);
+//Alert.SendMail(results);
 
 Console.WriteLine(CommonUtils.Instance.MessageAtApplicationEnd);
 

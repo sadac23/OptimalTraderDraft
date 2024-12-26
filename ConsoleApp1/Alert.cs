@@ -4,10 +4,52 @@
 using DocumentFormat.OpenXml.Wordprocessing;
 using System.Configuration;
 using System.Globalization;
+using System.Net.Mail;
+using System.Net;
 using System.Runtime.ConstrainedExecution;
 
 internal class Alert
 {
+    internal static void SendMail(List<Analyzer.AnalysisResult> results)
+    {
+        // YahooメールのSMTPサーバー情報
+        string smtpServer = "smtp.mail.yahoo.com";
+        int smtpPort = 587;
+
+        // Yahooメールのアカウント情報
+        string fromEmail = "your_yahoo_email@yahoo.com";
+        string appPassword = "your_app_password"; // アプリパスワードを使用
+
+        // 送信先のメールアドレス
+        string toEmail = "recipient@example.com";
+
+        // メールの件名と本文
+        string subject = "Test Email from C#";
+        string body = "This is a test email sent from a C# application using Yahoo Mail.";
+
+        try
+        {
+            // メールメッセージの作成
+            MailMessage mail = new MailMessage();
+            mail.From = new MailAddress(fromEmail);
+            mail.To.Add(toEmail);
+            mail.Subject = subject;
+            mail.Body = body;
+
+            // SMTPクライアントの設定
+            SmtpClient smtpClient = new SmtpClient(smtpServer, smtpPort);
+            smtpClient.Credentials = new NetworkCredential(fromEmail, appPassword);
+            smtpClient.EnableSsl = true;
+
+            // メールの送信
+            smtpClient.Send(mail);
+            Console.WriteLine("Email sent successfully.");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Failed to send email. Error: " + ex.Message);
+        }
+    }
     internal static void SaveFile(List<Analyzer.AnalysisResult> results)
     {
         //01
