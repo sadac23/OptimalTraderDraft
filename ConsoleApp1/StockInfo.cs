@@ -504,19 +504,14 @@ internal class StockInfo
 
                 if (sectionMatching && industryMatching)
                 {
-                    this.AveragePer = GetDouble(details.AveragePer);
-                    this.AveragePbr = GetDouble(details.AveragePbr);
+                    this.AveragePer = CommonUtils.Instance.GetDouble(details.AveragePer);
+                    this.AveragePbr = CommonUtils.Instance.GetDouble(details.AveragePbr);
                 }
             }
         }
         catch (Exception ex) { 
             Console.WriteLine(ex.Message);
         }
-    }
-    private double GetDouble(string v)
-    {
-        double.TryParse(v, NumberStyles.AllowThousands | NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out double result);
-        return result;
     }
     /// <summary>
     /// 配当権利確定日が近いか？
@@ -632,7 +627,7 @@ internal class StockInfo
             // 通期進捗率の算出
             if (this.FullYearPerformances.Count >= 2)
             {
-                var fullYearOrdinaryIncome = GetDouble(this.FullYearPerformances[this.FullYearPerformances.Count - 2].OrdinaryIncome);
+                var fullYearOrdinaryIncome = CommonUtils.Instance.GetDouble(this.FullYearPerformances[this.FullYearPerformances.Count - 2].OrdinaryIncome);
                 var latestOrdinaryIncome = this.QuarterlyPerformances[this.QuarterlyPerformances.Count - 2].OrdinaryIncome;
                 if (fullYearOrdinaryIncome > 0)
                 {
@@ -650,7 +645,7 @@ internal class StockInfo
             // 通期進捗率の算出
             if (this.FullYearPerformances.Count >= 3)
             {
-                var fullYearOrdinaryIncome = GetDouble(this.FullYearPerformances[this.FullYearPerformances.Count - 3].OrdinaryIncome);
+                var fullYearOrdinaryIncome = CommonUtils.Instance.GetDouble(this.FullYearPerformances[this.FullYearPerformances.Count - 3].OrdinaryIncome);
                 var previousOrdinaryIncome = this.QuarterlyPerformances[this.QuarterlyPerformances.Count - 3].OrdinaryIncome;
                 if (fullYearOrdinaryIncome > 0)
                 {

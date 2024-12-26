@@ -59,11 +59,11 @@ internal class YahooScraper
                         if (columns != null && columns.Count > 6)
                         {
                             var date = this.GetDate(columns[0].InnerText.Trim());
-                            var open = this.GetDouble(columns[1].InnerText.Trim());
-                            var high = this.GetDouble(columns[2].InnerText.Trim());
-                            var low = this.GetDouble(columns[3].InnerText.Trim());
-                            var close = this.GetDouble(columns[4].InnerText.Trim());
-                            var volume = this.GetDouble(columns[5].InnerText.Trim());
+                            var open = CommonUtils.Instance.GetDouble(columns[1].InnerText.Trim());
+                            var high = CommonUtils.Instance.GetDouble(columns[2].InnerText.Trim());
+                            var low = CommonUtils.Instance.GetDouble(columns[3].InnerText.Trim());
+                            var close = CommonUtils.Instance.GetDouble(columns[4].InnerText.Trim());
+                            var volume = CommonUtils.Instance.GetDouble(columns[5].InnerText.Trim());
 
                             stockInfo.Prices.Add(new StockInfo.Price
                             {
@@ -195,18 +195,11 @@ internal class YahooScraper
             }
         }
     }
-    internal DateTime GetDate(string v)
+    private DateTime GetDate(string v)
     {
         string[] formats = { "yyyy年M月d日", "yyyy年MM月dd日", "yyyy年MM月d日", "yyyy年M月dd日" };
         DateTime.TryParseExact(v, formats, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime date);
 
         return date;
-    }
-    internal double GetDouble(string v)
-    {
-        double.TryParse(v, NumberStyles.AllowThousands | NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out double result);
-
-        return result;
-
     }
 }

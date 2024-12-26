@@ -131,4 +131,10 @@ internal class CommonUtils
         // 小数点以下2桁までの文字列に変換し、"倍"を追加
         return value.ToString("F2", CultureInfo.InvariantCulture) + "倍";
     }
+    internal double GetDouble(string v)
+    {
+        double.TryParse(v, NumberStyles.AllowThousands | NumberStyles.AllowDecimalPoint | NumberStyles.AllowLeadingSign, CultureInfo.InvariantCulture, out double result);
+        return result;
+    }
+
 }
