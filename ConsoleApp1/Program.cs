@@ -126,7 +126,7 @@ var yahooScraper = new YahooScraper();
 var kabutanScraper = new KabutanScraper();
 var minkabuScraper = new MinkabuScraper();
 
-Console.WriteLine("Hello, World!");
+Console.WriteLine(CommonUtils.Instance.MessageAtApplicationStartup);
 
 // 約定履歴取得
 var executionList = ExecutionList.GetXlsxExecutionStockList();
@@ -146,8 +146,8 @@ foreach (var watchStock in watchList)
     // 削除日が入っていたらスキップ
     if (!string.IsNullOrEmpty(watchStock.DeleteDate)) continue;
 
-    // 個別
-    if (watchStock.Classification == "1")
+    // 個別のとき
+    if (watchStock.Classification == CommonUtils.Instance.AssetClassification.JapaneseIndividualStocks)
     {
         var stockInfo = new StockInfo(watchStock);
 
@@ -184,6 +184,8 @@ foreach (var watchStock in watchList)
 // アラート通知
 var alert = new Alert(results);
 alert.SaveFile();
+
+Console.WriteLine(CommonUtils.Instance.MessageAtApplicationEnd);
 
 DateTime GetLastTradingDay()
 {
