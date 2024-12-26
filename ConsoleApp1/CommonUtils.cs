@@ -38,11 +38,11 @@ internal class CommonUtils
     /// <summary>
     /// アプリケーション開始時のメッセージ
     /// </summary>
-    public string MessageAtApplicationStartup { get; set; } = "Hello, World!";
+    public string MessageAtApplicationStartup { get; set; } = "*** Start ***";
     /// <summary>
     /// アプリケーション終了時のメッセージ
     /// </summary>
-    public string MessageAtApplicationEnd { get; set; } = "End.";
+    public string MessageAtApplicationEnd { get; set; } = "*** End ***";
 
     // プライベートコンストラクタにより、外部からのインスタンス化を防ぐ
     private CommonUtils()

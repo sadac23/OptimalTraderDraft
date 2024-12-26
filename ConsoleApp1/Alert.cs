@@ -8,16 +8,7 @@ using System.Runtime.ConstrainedExecution;
 
 internal class Alert
 {
-    public string Sign { get; set; } = CommonUtils.Instance.WatchMark;
-
-    public Alert(List<Analyzer.AnalysisResult> results)
-    {
-        AnalysisResults = results;
-    }
-
-    public List<Analyzer.AnalysisResult> AnalysisResults { get; }
-
-    internal void SaveFile()
+    internal static void SaveFile(List<Analyzer.AnalysisResult> results)
     {
         //01
         //1928：積水ハウス(株)（建設業）★
@@ -50,6 +41,7 @@ internal class Alert
         //ほげほげほげほげほげ。
 
         var alertFilePath = CommonUtils.ReplacePlaceholder(CommonUtils.Instance.FilepathOfAlert, "{yyyyMMdd}", CommonUtils.Instance.ExecusionDate.ToString("yyyyMMdd"));
+        var mark = CommonUtils.Instance.WatchMark;
 
         using (StreamWriter writer = new StreamWriter(alertFilePath))
         {
@@ -58,7 +50,7 @@ internal class Alert
 
             short alertCount = 0;
 
-            foreach (Analyzer.AnalysisResult r in AnalysisResults)
+            foreach (Analyzer.AnalysisResult r in results)
             {
                 if (r.ShouldAlert())
                 {
@@ -69,14 +61,14 @@ internal class Alert
 
                     writer.WriteLine("");
                     writer.WriteLine($"{alertCount.ToString("D2")}");
-                    writer.WriteLine($"{r.StockInfo.Code}：{r.StockInfo.Name}（{r.StockInfo.Industry}）{(r.StockInfo.IsFavorite ? Sign : string.Empty)}");
+                    writer.WriteLine($"{r.StockInfo.Code}：{r.StockInfo.Name}（{r.StockInfo.Industry}）{(r.StockInfo.IsFavorite ? mark : string.Empty)}");
                     writer.WriteLine($"株価：{r.StockInfo.LatestPrice.ToString("N1")}（{r.StockInfo.LatestPriceDate.ToString("yyyy/MM/dd")}）");
                     writer.WriteLine($"市場：{r.StockInfo.Section}");
-                    writer.WriteLine($"配当利回り：{CommonUtils.Instance.ConvertToPercentage(r.StockInfo.DividendYield)}（{CommonUtils.Instance.ConvertToPercentage( r.StockInfo.DividendPayoutRatio)},{r.StockInfo.DividendRecordDateMonth}）{(r.StockInfo.IsDividendRecordDateClose() ? Sign : string.Empty)}");
+                    writer.WriteLine($"配当利回り：{CommonUtils.Instance.ConvertToPercentage(r.StockInfo.DividendYield)}（{CommonUtils.Instance.ConvertToPercentage(r.StockInfo.DividendPayoutRatio)},{r.StockInfo.DividendRecordDateMonth}）{(r.StockInfo.IsDividendRecordDateClose() ? mark : string.Empty)}");
                     if (!string.IsNullOrEmpty(r.StockInfo.ShareholderBenefitsDetails))
-                        writer.WriteLine($"優待利回り：{CommonUtils.Instance.ConvertToPercentage(r.StockInfo.ShareholderBenefitYield)}（{r.StockInfo.ShareholderBenefitsDetails},{r.StockInfo.NumberOfSharesRequiredForBenefits},{r.StockInfo.ShareholderBenefitRecordMonth},{r.StockInfo.ShareholderBenefitRecordDay}）{(r.StockInfo.IsShareholderBenefitRecordDateClose() ? Sign : string.Empty)}");
+                        writer.WriteLine($"優待利回り：{CommonUtils.Instance.ConvertToPercentage(r.StockInfo.ShareholderBenefitYield)}（{r.StockInfo.ShareholderBenefitsDetails},{r.StockInfo.NumberOfSharesRequiredForBenefits},{r.StockInfo.ShareholderBenefitRecordMonth},{r.StockInfo.ShareholderBenefitRecordDay}）{(r.StockInfo.IsShareholderBenefitRecordDateClose() ? mark : string.Empty)}");
                     writer.WriteLine($"通期予想：{r.StockInfo.FullYearPerformanceForcastSummary}");
-                    writer.WriteLine($"通期進捗：{r.StockInfo.QuarterlyPerformancePeriod}：{CommonUtils.Instance.ConvertToPercentage(r.StockInfo.QuarterlyFullyearProgressRate)}（{r.StockInfo.QuarterlyPerformanceReleaseDate.ToString("yyyy/MM/dd")}）{(r.StockInfo.IsAnnualProgressOnTrack() ? Sign : string.Empty)}");
+                    writer.WriteLine($"通期進捗：{r.StockInfo.QuarterlyPerformancePeriod}：{CommonUtils.Instance.ConvertToPercentage(r.StockInfo.QuarterlyFullyearProgressRate)}（{r.StockInfo.QuarterlyPerformanceReleaseDate.ToString("yyyy/MM/dd")}）{(r.StockInfo.IsAnnualProgressOnTrack() ? mark : string.Empty)}");
                     writer.WriteLine($"前期進捗：{r.StockInfo.QuarterlyPerformancePeriod}：{CommonUtils.Instance.ConvertToPercentage(r.StockInfo.PreviousFullyearProgressRate)}（{r.StockInfo.PreviousPerformanceReleaseDate.ToString("yyyy/MM/dd")}）");
                     writer.WriteLine($"時価総額：{CommonUtils.Instance.ConvertToYenNotation(r.StockInfo.MarketCap)}");
 
@@ -88,10 +80,10 @@ internal class Alert
                         s += p.Roe;
                         count++;
                     }
-                    if (!string.IsNullOrEmpty(s)) writer.WriteLine($"ROE：{s}{(r.StockInfo.IsROEAboveThreshold() ? Sign : string.Empty)}");
+                    if (!string.IsNullOrEmpty(s)) writer.WriteLine($"ROE：{s}{(r.StockInfo.IsROEAboveThreshold() ? mark : string.Empty)}");
 
-                    writer.WriteLine($"PER：{CommonUtils.Instance.ConvertToMultiplierString(r.StockInfo.Per)}（{r.StockInfo.AveragePer}）{(r.StockInfo.IsPERUndervalued() ? Sign : string.Empty)}");
-                    writer.WriteLine($"PBR：{CommonUtils.Instance.ConvertToMultiplierString(r.StockInfo.Pbr)}（{r.StockInfo.AveragePbr}）{(r.StockInfo.IsPBRUndervalued() ? Sign : string.Empty)}");
+                    writer.WriteLine($"PER：{CommonUtils.Instance.ConvertToMultiplierString(r.StockInfo.Per)}（{r.StockInfo.AveragePer}）{(r.StockInfo.IsPERUndervalued() ? mark : string.Empty)}");
+                    writer.WriteLine($"PBR：{CommonUtils.Instance.ConvertToMultiplierString(r.StockInfo.Pbr)}（{r.StockInfo.AveragePbr}）{(r.StockInfo.IsPBRUndervalued() ? mark : string.Empty)}");
                     writer.WriteLine($"信用倍率：{r.StockInfo.MarginBalanceRatio}");
                     writer.WriteLine($"信用残：{r.StockInfo.MarginBuyBalance}/{r.StockInfo.MarginSellBalance}（{r.StockInfo.MarginBalanceDate}）");
                     writer.WriteLine($"出来高：{r.StockInfo.LatestTradingVolume}");
@@ -102,7 +94,7 @@ internal class Alert
                     var b = r.StockInfo.ShouldAverageDown();
                     foreach (ExecutionList.Execution e in r.StockInfo.Executions)
                     {
-                        if (count == 0) writer.WriteLine($"約定履歴：{(b ? Sign : string.Empty)}");
+                        if (count == 0) writer.WriteLine($"約定履歴：{(b ? mark : string.Empty)}");
                         writer.WriteLine($"{e.BuyOrSell}：{e.Date.ToString("yyyy/MM/dd")}：{e.Price.ToString("N1")}*{e.Quantity}：{CommonUtils.Instance.ConvertToPercentage((r.StockInfo.LatestPrice / e.Price) - 1)}");
                         count++;
                     }
@@ -135,7 +127,7 @@ internal class Alert
                     writer.WriteLine($"決算：{r.StockInfo.EarningsPeriod}");
                     if (!string.IsNullOrEmpty(r.StockInfo.PressReleaseDate))
                     {
-                        writer.WriteLine($"{r.StockInfo.PressReleaseDate}{(r.StockInfo.ExtractAndValidateDateWithinOneMonth() ? Sign : string.Empty)}");
+                        writer.WriteLine($"{r.StockInfo.PressReleaseDate}{(r.StockInfo.ExtractAndValidateDateWithinOneMonth() ? mark : string.Empty)}");
                     }
 
                     if (!string.IsNullOrEmpty(r.StockInfo.Memo))

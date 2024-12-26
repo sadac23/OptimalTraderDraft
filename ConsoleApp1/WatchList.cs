@@ -40,7 +40,7 @@ internal class WatchList
         return results;
     }
 
-    internal static List<WatchStock> GetXlsxWatchStockList(string filePath)
+    internal static List<WatchStock> GetXlsxWatchStockList()
     {
         List<WatchStock> results = new List<WatchStock>();
 
@@ -51,7 +51,7 @@ internal class WatchList
         int startRowIndex = 3;
 
         // Excelファイルを読み込む
-        using (var workbook = new XLWorkbook(filePath))
+        using (var workbook = new XLWorkbook(CommonUtils.Instance.FilepathOfWatchList))
         {
             // 指定したワークシートを取得
             var worksheet = workbook.Worksheet(sheetName);
@@ -83,34 +83,6 @@ internal class WatchList
         }
 
         return results;
-    }
-
-    internal static List<WatchStock> GetXlsxWatchStockList(List<ExecutionList.ListDetail> executionList)
-    {
-        List<WatchStock> watchStocks = GetXlsxWatchStockList(CommonUtils.Instance.FilepathOfWatchList);
-
-        foreach (ExecutionList.ListDetail detail in executionList)
-        {
-            // ウォッチリストに存在していないか
-            if (!watchStocks.Any(watchStocks => watchStocks.Code == detail.Code))
-            {
-                // 所有しているか
-                if (detail.Code != string.Empty 
-                    && detail.BuyDate != string.Empty 
-                    && detail.SellDate == string.Empty)
-                {
-                    var w = new WatchStock()
-                    {
-                        Code = detail.Code,
-                        Name = detail.Name,
-                    };
-
-                    watchStocks.Add(w);
-                }
-            }
-        }
-
-        return watchStocks;
     }
 
     internal class WatchStock

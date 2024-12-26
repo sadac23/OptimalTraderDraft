@@ -133,7 +133,7 @@ Console.WriteLine(CommonUtils.Instance.MessageAtApplicationStartup);
 var executionList = ExecutionList.GetXlsxExecutionStockList();
 
 // ウォッチリスト取得
-var watchList = WatchList.GetXlsxWatchStockList(executionList);
+var watchList = WatchList.GetXlsxWatchStockList();
 
 // マスタ取得
 var masterList = MasterList.GetXlsxAveragePerPbrList();
@@ -208,8 +208,7 @@ foreach (var watchStock in watchList)
 }
 
 // アラート通知
-var alert = new Alert(results);
-alert.SaveFile();
+Alert.SaveFile(results);
 
 Console.WriteLine(CommonUtils.Instance.MessageAtApplicationEnd);
 
