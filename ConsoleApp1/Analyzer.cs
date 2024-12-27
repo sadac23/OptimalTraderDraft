@@ -199,44 +199,45 @@ internal class Analyzer
         /// </summary>
         internal bool ShouldAlert()
         {
-            bool result = false;
+            // 初期値は通知
+            bool result = true;
 
             // 所有している場合
             if (this.StockInfo.IsOwnedNow())
             {
-                result = true;
+                // 強制通知
             }
             // お気に入りの場合
             else if (this.StockInfo.IsFavorite)
             {
-                result = true;
+                // 強制通知
             }
             // 権利確定月が近い場合
             else if (this.StockInfo.IsDividendRecordDateClose())
             {
-                // 利回りが高い場合
-                if (this.StockInfo.IsHighYield()) result = true;
+                // 利回りが低い場合
+                if (!this.StockInfo.IsHighYield()) result = false;
 
-                // 時価総額が高い場合
-                if (this.StockInfo.IsHighMarketCap()) result = true;
+                // 時価総額が低い場合
+                if (!this.StockInfo.IsHighMarketCap()) result = false;
             }
             // それ以外
             else
             {
-                // 利回りが高い場合
-                if (this.StockInfo.IsHighYield()) result = true;
+                // 利回りが低い場合
+                if (!this.StockInfo.IsHighYield()) result = false;
 
-                // 時価総額が高い場合
-                if (this.StockInfo.IsHighMarketCap()) result = true;
+                // 時価総額が低い場合
+                if (!this.StockInfo.IsHighMarketCap()) result = false;
 
-                // 進捗が良い場合
-                if (this.StockInfo.IsAnnualProgressOnTrack()) result = true;
+                // 進捗が良くない場合
+                if (!this.StockInfo.IsAnnualProgressOnTrack()) result = false;
 
-                // PERが割安の場合
-                if (this.StockInfo.IsPERUndervalued()) result = true;
+                // PERが割高の場合
+                if (!this.StockInfo.IsPERUndervalued()) result = false;
 
-                // PBRが割安の場合
-                if (this.StockInfo.IsPBRUndervalued()) result = true;
+                // PBRが割高の場合
+                if (!this.StockInfo.IsPBRUndervalued()) result = false;
             }
 
             return result;

@@ -52,7 +52,7 @@ internal class Alert
     }
     internal static void SaveFile(List<Analyzer.AnalysisResult> results)
     {
-        //01
+        //No.01
         //1928：積水ハウス(株)（建設業）★
         //株価：1,234.0（2024/11/29）
         //市場：東証プライム,名証プレミア
@@ -102,7 +102,7 @@ internal class Alert
                     alertCount++;
 
                     writer.WriteLine("");
-                    writer.WriteLine($"{alertCount.ToString("D2")}");
+                    writer.WriteLine($"No.{alertCount.ToString("D2")}");
                     writer.WriteLine($"{r.StockInfo.Code}：{r.StockInfo.Name}（{r.StockInfo.Industry}）{(r.StockInfo.IsFavorite ? mark : string.Empty)}");
                     writer.WriteLine($"株価：{r.StockInfo.LatestPrice.ToString("N1")}（{r.StockInfo.LatestPriceDate.ToString("yyyy/MM/dd")}）");
                     writer.WriteLine($"市場：{r.StockInfo.Section}");
