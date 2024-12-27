@@ -220,6 +220,9 @@ internal class Analyzer
 
                 // 時価総額が低い場合
                 if (!this.StockInfo.IsHighMarketCap()) result = false;
+
+                // 進捗が良くない場合
+                if (!this.StockInfo.IsAnnualProgressOnTrack()) result = false;
             }
             // それ以外
             else
