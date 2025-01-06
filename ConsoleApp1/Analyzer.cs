@@ -10,7 +10,7 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 
 internal class Analyzer
 {
-    DateTime _currentDate = DateTime.Today;
+    DateTime _currentDate = CommonUtils.Instance.ExecusionDate;
     string _connectionString = string.Empty;
     const int _volatilityTermMax = 12;
 
@@ -39,6 +39,8 @@ internal class Analyzer
         double endIndex = 0;
         DateTime startindexDate = _currentDate;
         DateTime endIndexDate = _currentDate;
+        double endIndexRS14 = 0;
+        double endIndexRS5 = 0;
         double lastFridayIndex = 0;
         DateTime lastFridayIndexDate = _currentDate;
 
@@ -105,6 +107,10 @@ internal class Analyzer
             }
         }
 
+        // RSIの算出
+        endIndexRS5 = GetCutlerRSI(5, endDate, item.Code);
+        endIndexRS14 = GetCutlerRSI(14, endDate, item.Code);
+
         AnalysisResult.PriceVolatility result = new()
         {
             DateString = _currentDate.ToString("yyyyMMdd"),
@@ -116,11 +122,18 @@ internal class Analyzer
             VolatilityRateIndex2Date = endIndexDate,
             VolatilityTerm = term,
             ShouldAlert = false,
+            VolatilityRateIndex1RSI5 = endIndexRS5,
+            VolatilityRateIndex1RSI14 = endIndexRS14,
         };
 
-        // 直近の株価を取得しておく
-        item.LatestPrice = endIndex;
-        item.LatestPriceDate = endIndexDate;
+        if (term == 1)
+        {
+            // 直近の株価を取得しておく
+            item.LatestPrice = endIndex;
+            item.LatestPriceDate = endIndexDate;
+            item.LatestPriceRSI5 = endIndexRS5;
+            item.LatestPriceRSI14 = endIndexRS14;
+        }
 
         // 個別
         if (item.Classification == CommonUtils.Instance.AssetClassification.JapaneseIndividualStocks)
@@ -150,6 +163,84 @@ internal class Analyzer
             // -5.0%以下（10week以内の下落幅）
             if (!result.ShouldAlert && result.VolatilityRate <= -0.050) { result.ShouldAlert = true; }
         }
+
+        return result;
+    }
+    /// <summary>
+    /// カトラー方式RSIの取得
+    /// </summary>
+    /// <param name="v"></param>
+    /// <param name="endDate"></param>
+    /// <param name="code"></param>
+    /// <returns></returns>
+    /// <remarks>
+    /// https://kabu.com/investment/guide/technical/08.html
+    /// https://ad-van.co.jp/technical/article/rsi-calculation/
+    /// </remarks>
+    private double GetCutlerRSI(int v, DateTime endDate, string code)
+    {
+        double result = 0;
+        double plus = 0;
+        double minus = 0;
+
+        using (SQLiteConnection connection = new SQLiteConnection(_connectionString))
+        {
+            connection.Open();
+
+            // プライマリーキーに条件を設定したクエリ
+            string query =
+                "SELECT date, close FROM (" +
+                " SELECT date, close" +
+                " FROM history" +
+                " WHERE date <= @date and code = @code" +
+                " ORDER BY date DESC" +
+                " LIMIT @limit)" +
+                " ORDER BY date ASC;";
+
+            using (SQLiteCommand command = new SQLiteCommand(query, connection))
+            {
+                // パラメータを設定
+                command.Parameters.AddWithValue("@date", endDate.ToString("yyyy-MM-dd 23:59:59"));
+                command.Parameters.AddWithValue("@code", code);
+                command.Parameters.AddWithValue("@limit", v + 1);
+
+                // データリーダーを使用して結果を取得
+                using (SQLiteDataReader reader = command.ExecuteReader())
+                {
+                    double close = 0;
+                    short count = 0;
+
+                    // 結果を読み取り
+                    while (reader.Read())
+                    {
+                        if (count > 0) 
+                        {
+                            // 値上りした場合
+                            if (reader.GetDouble(reader.GetOrdinal("close")) >= close)
+                            {
+                                plus += reader.GetDouble(reader.GetOrdinal("close")) - close;
+                            }
+                            // 値下りした場合
+                            else
+                            {
+                                minus += close - reader.GetDouble(reader.GetOrdinal("close"));
+                            }
+                        }
+
+                        // カラム名を指定してデータを取得
+                        DateTime date = reader.GetDateTime(reader.GetOrdinal("date"));
+                        close = reader.GetDouble(reader.GetOrdinal("close"));
+
+                        count++;
+                    }
+                }
+            }
+        }
+
+        double A = plus / v;
+        double B = minus / v;
+
+        result = (A / (A + B)) * 100;
 
         return result;
     }
@@ -291,6 +382,14 @@ internal class Analyzer
             /// 通知すべきか
             /// </summary>
             public bool ShouldAlert { get; internal set; }
+            /// <summary>
+            /// 変動指数1のRSI（14日）
+            /// </summary>
+            public double VolatilityRateIndex1RSI14 { get; internal set; }
+            /// <summary>
+            /// 変動指数1のRSI（5日）
+            /// </summary>
+            public double VolatilityRateIndex1RSI5 { get; internal set; }
         }
     }
 

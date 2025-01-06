@@ -190,6 +190,14 @@ internal class StockInfo
     /// 決算時期
     /// </summary>
     public string EarningsPeriod { get; internal set; }
+    /// <summary>
+    /// 直近の株価RSI（14日）
+    /// </summary>
+    public double LatestPriceRSI14 { get; internal set; }
+    /// <summary>
+    /// 直近の株価RSI（5日）
+    /// </summary>
+    public double LatestPriceRSI5 { get; internal set; }
 
     /// <summary>
     /// 現在、所有しているか？

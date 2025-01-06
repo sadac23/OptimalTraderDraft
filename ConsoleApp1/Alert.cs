@@ -54,7 +54,7 @@ internal class Alert
     {
         //No.01
         //1928：積水ハウス(株)（建設業）★
-        //株価：1,234.0（2024/11/29）
+        //株価：1,234.0（2024/11/29：99.99）
         //市場：東証プライム,名証プレミア
         //配当利回り：3.64%（50%,5月,11月）★
         //優待利回り：3.64%（QUOカード,100株,5月,11月,月末）★
@@ -74,9 +74,9 @@ internal class Alert
         //売：2024/12/05：2,068.0*100：-10.40%
         //買：2024/12/06：2,060.0*100：-10.40%★
         //変動履歴：
-        //2024/10/04：3,951.0：-10.40% (8)
-        //2024/09/27：4,119.0：-10.40% (9)
-        //2024/09/20：3,959.0：-10.40% (10)
+        //2024/10/04：3,951.0：99.99：-10.40% (8)
+        //2024/09/27：4,119.0：99.99：-10.40% (9)
+        //2024/09/20：3,959.0：99.99：-10.40% (10)
         //決算：3月末
         //次回の決算発表日は2025年1月14日の予定です。★
         //メモ：
@@ -104,7 +104,7 @@ internal class Alert
                     writer.WriteLine("");
                     writer.WriteLine($"No.{alertCount.ToString("D2")}");
                     writer.WriteLine($"{r.StockInfo.Code}：{r.StockInfo.Name}（{r.StockInfo.Industry}）{(r.StockInfo.IsFavorite ? mark : string.Empty)}");
-                    writer.WriteLine($"株価：{r.StockInfo.LatestPrice.ToString("N1")}（{r.StockInfo.LatestPriceDate.ToString("yyyy/MM/dd")}）");
+                    writer.WriteLine($"株価：{r.StockInfo.LatestPrice.ToString("N1")}（{r.StockInfo.LatestPriceDate.ToString("yyyy/MM/dd")}：{r.StockInfo.LatestPriceRSI14.ToString("N2")}）");
                     writer.WriteLine($"市場：{r.StockInfo.Section}");
                     writer.WriteLine($"配当利回り：{CommonUtils.Instance.ConvertToPercentage(r.StockInfo.DividendYield)}（{CommonUtils.Instance.ConvertToPercentage(r.StockInfo.DividendPayoutRatio)},{r.StockInfo.DividendRecordDateMonth}）{(r.StockInfo.IsDividendRecordDateClose() ? mark : string.Empty)}");
                     if (!string.IsNullOrEmpty(r.StockInfo.ShareholderBenefitsDetails))
