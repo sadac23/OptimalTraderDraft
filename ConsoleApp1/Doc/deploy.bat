@@ -24,7 +24,14 @@ REM ③Aフォルダ内のDファイル（exeファイル）を実行する。
 set D_FILE="%DEST_FOLDER%\net8.0\ConsoleApp1.exe"
 
 echo %D_FILE% を実行中...
-start "" %D_FILE%
+start "" /wait %D_FILE%
 
 echo バッチ処理が完了しました。
+
+REM 30秒後にシャットダウンする（必要に応じて時間を調整）
+shutdown /s /t 30
+
+REM シャットダウンの通知
+echo コンピュータは30秒後にシャットダウンします。
+
 pause

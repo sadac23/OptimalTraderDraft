@@ -110,6 +110,7 @@ using System.Runtime.ConstrainedExecution;
  * ・済：ETFの株探取得がうまくできていない
  * ・済：RSI追加
  * ・済：RSI（14日）30以下で強制通知
+ * ・済：実行後にシャットダウン
  */
 
 /* TODO
