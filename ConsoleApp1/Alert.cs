@@ -54,7 +54,7 @@ internal class Alert
     {
         //No.01
         //1928：積水ハウス(株)（建設業）★
-        //株価：1,234.0（2024/11/29：99.99）
+        //株価：1,234.0（2024/11/29：99.99）★
         //市場：東証プライム,名証プレミア
         //配当利回り：3.64%（50%,5月,11月）★
         //優待利回り：3.64%（QUOカード,100株,5月,11月,月末）★
@@ -104,7 +104,7 @@ internal class Alert
                     writer.WriteLine("");
                     writer.WriteLine($"No.{alertCount.ToString("D2")}");
                     writer.WriteLine($"{r.StockInfo.Code}：{r.StockInfo.Name}（{r.StockInfo.Industry}）{(r.StockInfo.IsFavorite ? mark : string.Empty)}");
-                    writer.WriteLine($"株価：{r.StockInfo.LatestPrice.ToString("N1")}（{r.StockInfo.LatestPriceDate.ToString("yyyy/MM/dd")}：{r.StockInfo.LatestPriceRSI14.ToString("N2")}）");
+                    writer.WriteLine($"株価：{r.StockInfo.LatestPrice.ToString("N1")}（{r.StockInfo.LatestPriceDate.ToString("yyyy/MM/dd")}：{r.StockInfo.LatestPriceRSI14.ToString("N2")}）{(r.StockInfo.OversoldIndicator() ? mark : string.Empty)}");
                     writer.WriteLine($"市場：{r.StockInfo.Section}");
                     writer.WriteLine($"配当利回り：{CommonUtils.Instance.ConvertToPercentage(r.StockInfo.DividendYield)}（{CommonUtils.Instance.ConvertToPercentage(r.StockInfo.DividendPayoutRatio)},{r.StockInfo.DividendRecordDateMonth}）{(r.StockInfo.IsDividendRecordDateClose() ? mark : string.Empty)}");
                     if (!string.IsNullOrEmpty(r.StockInfo.ShareholderBenefitsDetails))

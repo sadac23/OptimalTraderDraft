@@ -782,6 +782,19 @@ internal class StockInfo
     }
 
     /// <summary>
+    /// 下げすぎ判定
+    /// </summary>
+    internal bool OversoldIndicator()
+    {
+        bool result = false;
+
+        // RSI14が閾値以下の場合
+        if (this.LatestPriceRSI14 <= CommonUtils.Instance.ThresholdOfRSI) result = true;
+
+        return result;
+    }
+
+    /// <summary>
     /// 日次価格情報
     /// </summary>
     public class Price

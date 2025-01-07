@@ -109,6 +109,7 @@ using System.Runtime.ConstrainedExecution;
  * ・済：変動履歴は常に表示して、閾値以上はマークする
  * ・済：ETFの株探取得がうまくできていない
  * ・済：RSI追加
+ * ・済：RSI（14日）30以下で強制通知
  */
 
 /* TODO
@@ -124,7 +125,6 @@ using System.Runtime.ConstrainedExecution;
  * ・最終購入より下げてた場合はマーク
  * ・買残が出来高の何倍残っているか？
  * ・毎日実行して、5日分ローテ
- * ・RSI（14日）30以下で強制通知
  */
 
 // 分析結果

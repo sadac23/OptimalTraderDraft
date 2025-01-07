@@ -113,6 +113,10 @@ internal class CommonUtils
     /// </summary>
     public double ThresholdOfROE { get; } = 8.00;
     /// <summary>
+    /// RSI閾値
+    /// </summary>
+    public double ThresholdOfRSI { get; } = 30.00;
+    /// <summary>
     /// 売買文字列
     /// </summary>
     public BuyOrSellStringClass BuyOrSellString { get; } = new BuyOrSellStringClass();
