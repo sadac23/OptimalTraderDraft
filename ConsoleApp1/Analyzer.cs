@@ -303,11 +303,11 @@ internal class Analyzer
             {
                 // 強制通知
             }
-            // 下げすぎの場合
-            else if (this.StockInfo.OversoldIndicator())
-            {
-                // 強制通知
-            }
+            //// 下げすぎの場合
+            //else if (this.StockInfo.OversoldIndicator())
+            //{
+            //    // 強制通知
+            //}
             // 権利確定月が近い場合
             else if (this.StockInfo.IsDividendRecordDateClose())
             {
