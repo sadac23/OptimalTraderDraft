@@ -308,7 +308,12 @@ internal class Analyzer
             //{
             //    // 強制通知
             //}
-            // 権利確定月が近い場合
+            // 優待権利確定月が近い場合
+            else if (this.StockInfo.IsShareholderBenefitRecordDateClose())
+            {
+                // 強制通知
+            }
+            // 配当権利確定月が近い場合
             else if (this.StockInfo.IsDividendRecordDateClose())
             {
                 // 利回りが低い場合

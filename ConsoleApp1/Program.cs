@@ -111,6 +111,9 @@ using System.Runtime.ConstrainedExecution;
  * ・済：RSI追加
  * ・済：RSI（14日）30以下で強制通知
  * ・済：実行後にシャットダウン
+ * ・済：RegisterResult削除
+ * ・済：決算情報表示を上に
+ * ・済：翌月までの優待権利日は強制通知
  */
 
 /* TODO
@@ -125,7 +128,13 @@ using System.Runtime.ConstrainedExecution;
  * ・DOE追加
  * ・最終購入より下げてた場合はマーク
  * ・買残が出来高の何倍残っているか？
- * ・毎日実行して、5日分ローテ
+ * ・毎日実行して5日分ローテ
+ * ・グロースの市場名称取得できていない
+ * ・性能改善
+ * ・総件数を追加
+ * ・前回予想の追加
+ * ・4Qは通期予想の1件前と比較必要
+ * ・ビルドジョブ追加
  */
 
 // 分析結果
@@ -188,7 +197,7 @@ foreach (var watchStock in watchList)
 
         // 結果登録
         results.Add(result);
-        ResisterResult(result);
+        //ResisterResult(result);
     }
     // 日本ETFのとき
     else if (watchStock.Classification == CommonUtils.Instance.AssetClassification.JapaneseETFs)
@@ -213,7 +222,7 @@ foreach (var watchStock in watchList)
 
         // 結果登録
         results.Add(result);
-        ResisterResult(result);
+        //ResisterResult(result);
     }
 }
 

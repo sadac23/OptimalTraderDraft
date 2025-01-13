@@ -724,6 +724,10 @@ internal class StockInfo
         return result;
     }
 
+    /// <summary>
+    /// 優待権利確定日が近いか？
+    /// </summary>
+    /// <remarks>優待権利確定日が当月より1か月以内の場合にtrueを返す。</remarks>
     internal bool IsShareholderBenefitRecordDateClose()
     {
         return IsWithinMonths(this.ShareholderBenefitRecordMonth, 1);

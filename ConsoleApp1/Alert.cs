@@ -69,6 +69,7 @@ internal class Alert
         //信用残：2,020,600/2,020,600（12/13）
         //出来高：2,020,600
         //自己資本比率：40.0%
+        //決算：3月末,次回の決算発表日は2025年1月14日の予定です。★
         //約定履歴：
         //買：2024/12/04：2,068.0*300：-10.40%
         //売：2024/12/05：2,068.0*100：-10.40%
@@ -77,8 +78,6 @@ internal class Alert
         //2024/10/04：3,951.0：99.99：-10.40% (8)
         //2024/09/27：4,119.0：99.99：-10.40% (9)
         //2024/09/20：3,959.0：99.99：-10.40% (10)
-        //決算：3月末
-        //次回の決算発表日は2025年1月14日の予定です。★
         //メモ：
         //ほげほげほげほげほげ。
 
@@ -131,6 +130,16 @@ internal class Alert
                     writer.WriteLine($"出来高：{r.StockInfo.LatestTradingVolume}");
                     writer.WriteLine($"自己資本比率：{r.StockInfo.EquityRatio}");
 
+                    //決算：3月末,次回の決算発表日は2025年1月14日の予定です。★
+                    s = string.Empty;
+                    if (!string.IsNullOrEmpty(r.StockInfo.PressReleaseDate))
+                    {
+                        s += ",";
+                        s += r.StockInfo.PressReleaseDate;
+                        s += r.StockInfo.ExtractAndValidateDateWithinOneMonth() ? mark : string.Empty;
+                    }
+                    writer.WriteLine($"決算：{r.StockInfo.EarningsPeriod}{s}");
+
                     count = 0;
                     s = string.Empty;
                     var b = r.StockInfo.ShouldAverageDown();
@@ -164,12 +173,6 @@ internal class Alert
                     foreach (Analyzer.AnalysisResult.PriceVolatility p in r.PriceVolatilities)
                     {
                         writer.WriteLine($"{p.VolatilityRateIndex1Date.ToString("yyyy/MM/dd")}：{p.VolatilityRateIndex1.ToString("N1")}：{CommonUtils.Instance.ConvertToPercentage(p.VolatilityRate)}({p.VolatilityTerm}){(p.ShouldAlert ? CommonUtils.Instance.WatchMark : string.Empty)}");
-                    }
-
-                    writer.WriteLine($"決算：{r.StockInfo.EarningsPeriod}");
-                    if (!string.IsNullOrEmpty(r.StockInfo.PressReleaseDate))
-                    {
-                        writer.WriteLine($"{r.StockInfo.PressReleaseDate}{(r.StockInfo.ExtractAndValidateDateWithinOneMonth() ? mark : string.Empty)}");
                     }
 
                     if (!string.IsNullOrEmpty(r.StockInfo.Memo))
