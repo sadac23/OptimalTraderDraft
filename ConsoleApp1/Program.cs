@@ -114,6 +114,7 @@ using System.Runtime.ConstrainedExecution;
  * ・済：RegisterResult削除
  * ・済：決算情報表示を上に
  * ・済：翌月までの優待権利日は強制通知
+ * ・済：4か月より前の株価履歴は削除
  */
 
 /* TODO
@@ -130,7 +131,6 @@ using System.Runtime.ConstrainedExecution;
  * ・買残が出来高の何倍残っているか？
  * ・毎日実行して5日分ローテ
  * ・グロースの市場名称取得できていない
- * ・性能改善
  * ・総件数を追加
  * ・前回予想の追加
  * ・4Qは通期予想の1件前と比較必要
@@ -159,6 +159,9 @@ var masterList = MasterList.GetXlsxAveragePerPbrList();
 
 // 直近の営業日を取得
 var lastTradingDay = GetLastTradingDay();
+
+// 過去の株価履歴キャッシュを削除
+DeleteHistoryCache();
 
 // ウォッチ銘柄を処理
 foreach (var watchStock in watchList)
@@ -231,6 +234,29 @@ Alert.SaveFile(results);
 //Alert.SendMail(results);
 
 Console.WriteLine(CommonUtils.Instance.MessageAtApplicationEnd);
+
+void DeleteHistoryCache()
+{
+    using (SQLiteConnection connection = new SQLiteConnection(CommonUtils.Instance.ConnectionString))
+    {
+        connection.Open();
+
+        // 挿入クエリ
+        string query = "DELETE FROM history WHERE date <= @date";
+
+        using (SQLiteCommand command = new SQLiteCommand(query, connection))
+        {
+            // パラメータを設定
+            command.Parameters.AddWithValue("@date", CommonUtils.Instance.ExecusionDate.AddMonths(-1 * CommonUtils.Instance.StockPriceHistoryMonths));
+
+            // クエリを実行
+            int rowsAffected = command.ExecuteNonQuery();
+
+            // 結果を表示
+            Console.WriteLine("History Rows deleted: " + rowsAffected);
+        }
+    }
+}
 
 DateTime GetLastTradingDay()
 {

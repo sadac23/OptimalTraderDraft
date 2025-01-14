@@ -1,4 +1,5 @@
 ﻿// See https://aka.ms/new-console-template for more information
+using DocumentFormat.OpenXml.Bibliography;
 using System.Configuration;
 using System.Globalization;
 
@@ -43,6 +44,11 @@ internal class CommonUtils
     /// アプリケーション終了時のメッセージ
     /// </summary>
     public string MessageAtApplicationEnd { get; set; } = "*** End ***";
+
+    /// <summary>
+    /// 株価履歴を保持しておく月数
+    /// </summary>
+    public short StockPriceHistoryMonths { get; } = 4;
 
     // プライベートコンストラクタにより、外部からのインスタンス化を防ぐ
     private CommonUtils()
