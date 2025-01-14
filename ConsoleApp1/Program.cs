@@ -116,6 +116,7 @@ using System.Runtime.ConstrainedExecution;
  * ・済：翌月までの優待権利日は強制通知
  * ・済：4か月より前の株価履歴は削除
  * ・済：グロースの市場名称取得できていない　→　"135A"はyahooファイナンスのバグぽい
+ * ・済：ビルドジョブ追加
  */
 
 /* TODO
@@ -134,7 +135,6 @@ using System.Runtime.ConstrainedExecution;
  * ・総件数を追加
  * ・前回予想の追加
  * ・4Qは通期予想の1件前と比較必要
- * ・ビルドジョブ追加
  */
 
 // 分析結果

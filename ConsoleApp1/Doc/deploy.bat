@@ -1,8 +1,25 @@
 @echo off
 
+REM GitHubリポジトリのローカルパスを指定
+set "repoPath=C:\repos\OptimalTraderDraft"
+
+REM リポジトリのディレクトリに移動
+cd /d "%repoPath%"
+
+REM 最新のコードをプル
+echo 最新のコードをプルしています...
+git pull
+
+REM プロジェクトをリビルド
+echo プロジェクトをリビルドしています...
+dotnet build
+
+REM ビルドが完了したことを通知
+echo ビルドが完了しました。
+
 REM ①AフォルダをBフォルダ配下にコピーする。
 REM コピー前にBフォルダ配下にAフォルダが存在する場合は削除する。
-set SOURCE_FOLDER="C:\repos\OptimalTraderDraft\ConsoleApp1\bin\Debug\net8.0"
+set SOURCE_FOLDER="%repoPath%\ConsoleApp1\bin\Debug\net8.0"
 set DEST_FOLDER="C:\works\OptimalTrader"
 
 if exist "%DEST_FOLDER%\net8.0" (
