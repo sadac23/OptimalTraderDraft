@@ -18,6 +18,7 @@ internal class StockInfo
         FullYearPerformances = new List<StockInfo.FullYearPerformance>();
         FullYearProfits = new List<FullYearProfit>();
         this.QuarterlyPerformances = new List<StockInfo.QuarterlyPerformance>();
+        this.FullYearPerformancesForcasts = new List<FullYearPerformanceForcast>();
     }
     /// <summary>
     /// コード
@@ -68,6 +69,10 @@ internal class StockInfo
     /// 通期業績予想概要（例：増収増益増配（+50%,+50%,+50））
     /// </summary>
     public string FullYearPerformanceForcastSummary { get; internal set; }
+    /// <summary>
+    /// 通期業績予想履歴
+    /// </summary>
+    public List<FullYearPerformanceForcast> FullYearPerformancesForcasts { get; internal set; }
     /// <summary>
     /// 通期収益履歴
     /// </summary>
@@ -903,4 +908,44 @@ internal class StockInfo
         public string ReleaseDate { get; internal set; }
     }
 
+    public class FullYearPerformanceForcast
+    {
+        /// <summary>
+        /// 決算期
+        /// </summary>
+        public string FiscalPeriod { get; internal set; }
+        /// <summary>
+        /// 修正日
+        /// </summary>
+        public string RevisionDate { get; internal set; }
+        /// <summary>
+        /// 区分
+        /// </summary>
+        public string Category { get; internal set; }
+        /// <summary>
+        /// 修正方向
+        /// </summary>
+        public string RevisionDirection { get; internal set; }
+        /// <summary>
+        /// 売上高
+        /// </summary>
+        public string Revenue { get; internal set; }
+        /// <summary>
+        /// 営業益
+        /// </summary>
+        public string OperatingProfit { get; internal set; }
+        /// <summary>
+        /// 経常益
+        /// </summary>
+        public string OrdinaryProfit { get; internal set; }
+        /// <summary>
+        /// 最終益
+        /// </summary>
+        public string NetProfit { get; internal set; }
+        /// <summary>
+        /// 修正配当
+        /// </summary>
+        public string RevisedDividend { get; internal set; }
+        public object Summary { get; internal set; }
+    }
 }

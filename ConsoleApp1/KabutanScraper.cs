@@ -7,6 +7,7 @@ using System.Security.Policy;
 using static WatchList;
 using System.Globalization;
 using System.Data;
+using DocumentFormat.OpenXml.Office2016.Excel;
 
 internal class KabutanScraper
 {
@@ -150,6 +151,78 @@ internal class KabutanScraper
                 stockInfo.UpdateDividendPayoutRatio();
             }
 
+            // 修正履歴
+            rows = htmlDocument.DocumentNode.SelectNodes("//*[@id=\"finance_box\"]/div[6]/table/tbody/tr");
+
+            if (rows != null && rows.Count != 0)
+            {
+                var countHeader = 0;
+
+                foreach (var row in rows)
+                {
+                    var columns = row.SelectNodes("td|th");
+
+                    var fiscalPeriod = string.Empty;
+                    var revisionDate = string.Empty;
+                    var category = string.Empty;
+                    var revisionDirection = string.Empty;
+                    var revenue = string.Empty;
+                    var operatingProfit = string.Empty;
+                    var ordinaryProfit = string.Empty;
+                    var netProfit = string.Empty;
+                    var revisedDividend = string.Empty;
+
+                    // ヘッダ行
+                    if (columns != null && columns.Count >= 10)
+                    {
+                        countHeader++;
+
+                        fiscalPeriod = columns[1].InnerText.Trim();
+                        revisionDate = columns[2].InnerText.Trim();
+                        category = columns[3].InnerText.Trim();
+                        revisionDirection = string.Empty;
+                        revenue = columns[5].InnerText.Trim();
+                        operatingProfit = columns[6].InnerText.Trim();
+                        ordinaryProfit = columns[7].InnerText.Trim();
+                        netProfit = columns[8].InnerText.Trim();
+                        revisedDividend = columns[9].InnerText.Trim();
+                    }
+                    // 明細行
+                    else if (columns != null && columns.Count >= 9)
+                    {
+                        fiscalPeriod = string.Empty;
+                        revisionDate = columns[1].InnerText.Trim();
+                        category = columns[2].InnerText.Trim();
+                        revisionDirection = string.Empty;
+                        revenue = columns[4].InnerText.Trim();
+                        operatingProfit = columns[5].InnerText.Trim();
+                        ordinaryProfit = columns[6].InnerText.Trim();
+                        netProfit = columns[7].InnerText.Trim();
+                        revisedDividend = columns[8].InnerText.Trim();
+                    }
+                    else
+                    {
+                        // ヘッダと明細行以外はマスク行と判断してスキップ
+                        continue;
+                    }
+
+                    // ヘッダ取得回数が2件未満は過去履歴なのでスキップ
+                    if (countHeader < 2) continue;
+
+                    FullYearPerformanceForcast p = new FullYearPerformanceForcast()
+                    {
+                        FiscalPeriod = fiscalPeriod,
+                        RevisionDate = revisionDate,
+                        Category = category,
+                        RevisionDirection = revisionDirection,
+                        Revenue = revenue,
+                        OperatingProfit = operatingProfit,
+                        OrdinaryProfit = ordinaryProfit,
+                        NetProfit = netProfit,
+                        RevisedDividend = revisedDividend
+                    };
+                }
+            }
             // 実績
             var node = htmlDocument.DocumentNode.SelectSingleNode("//*[@id=\"finance_box\"]/div[17]/div[1]/h3");
             if (node != null)
