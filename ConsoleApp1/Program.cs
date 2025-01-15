@@ -119,6 +119,7 @@ using System.Runtime.ConstrainedExecution;
  * ・済：ビルドジョブ追加
  * ・済：通期予想修正履歴の追加
  * ・済：RSI短期値（9日）の追加
+ * ・済：総件数を追加
  */
 
 /* TODO
@@ -134,11 +135,9 @@ using System.Runtime.ConstrainedExecution;
  * ・最終購入より下げてた場合はマーク
  * ・買残が出来高の何倍残っているか？
  * ・毎日実行して5日分ローテ
- * ・総件数を追加
  * ・4Qは通期予想の1件前と比較必要
  * ・ラインに通知する
  * ・RSI上昇の閾値
- * ・
  */
 
 // 分析結果

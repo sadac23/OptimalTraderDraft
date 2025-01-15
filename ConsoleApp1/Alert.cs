@@ -91,7 +91,7 @@ internal class Alert
         using (StreamWriter writer = new StreamWriter(alertFilePath))
         {
             // ファイルヘッダー
-            writer.WriteLine(DateTime.Today.ToString("yyyyMMdd"));
+            writer.WriteLine($"{DateTime.Today.ToString("yyyyMMdd")}：{results.Count}件");
 
             short alertCount = 0;
 
