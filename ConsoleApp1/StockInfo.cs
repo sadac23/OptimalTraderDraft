@@ -197,13 +197,13 @@ internal class StockInfo
     /// </summary>
     public string EarningsPeriod { get; internal set; }
     /// <summary>
-    /// 直近の株価RSI（14日）
+    /// 直近の株価RSI（長期）
     /// </summary>
-    public double LatestPriceRSI14 { get; internal set; }
+    public double LatestPriceRSIL { get; internal set; }
     /// <summary>
-    /// 直近の株価RSI（5日）
+    /// 直近の株価RSI（短期）
     /// </summary>
-    public double LatestPriceRSI5 { get; internal set; }
+    public double LatestPriceRSIS { get; internal set; }
 
     /// <summary>
     /// 現在、所有しているか？
@@ -814,8 +814,9 @@ internal class StockInfo
     {
         bool result = false;
 
-        // RSI14が閾値以下の場合
-        if (this.LatestPriceRSI14 <= CommonUtils.Instance.ThresholdOfRSI) result = true;
+        // RSIが閾値以下の場合
+        if (this.LatestPriceRSIL <= CommonUtils.Instance.ThresholdOfRSI) result = true;
+        if (this.LatestPriceRSIS <= CommonUtils.Instance.ThresholdOfRSI) result = true;
 
         return result;
     }

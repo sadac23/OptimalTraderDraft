@@ -54,7 +54,7 @@ internal class Alert
     {
         //No.01
         //1928：積水ハウス(株)（建設業）★
-        //株価：1,234.0（2024/11/29：99.99）★
+        //株価：1,234.0（2024/11/29：L99.99,S99.99）★
         //市場：東証プライム,名証プレミア
         //配当利回り：3.64%（50%,5月,11月）★
         //優待利回り：3.64%（QUOカード,100株,5月,11月,月末）★
@@ -72,7 +72,8 @@ internal class Alert
         //信用残：2,020,600/2,020,600（12/13）
         //出来高：2,020,600
         //自己資本比率：40.0%
-        //決算：3月末,次回の決算発表日は2025年1月14日の予定です。★
+        //決算：3月末
+        //次回の決算発表日は2025年1月14日の予定です。★
         //約定履歴：
         //買：2024/12/04：2,068.0*300：-10.40%
         //売：2024/12/05：2,068.0*100：-10.40%
@@ -106,7 +107,7 @@ internal class Alert
                     writer.WriteLine("");
                     writer.WriteLine($"No.{alertCount.ToString("D2")}");
                     writer.WriteLine($"{r.StockInfo.Code}：{r.StockInfo.Name}（{r.StockInfo.Industry}）{(r.StockInfo.IsFavorite ? mark : string.Empty)}");
-                    writer.WriteLine($"株価：{r.StockInfo.LatestPrice.ToString("N1")}（{r.StockInfo.LatestPriceDate.ToString("yyyy/MM/dd")}：{r.StockInfo.LatestPriceRSI14.ToString("N2")}）{(r.StockInfo.OversoldIndicator() ? mark : string.Empty)}");
+                    writer.WriteLine($"株価：{r.StockInfo.LatestPrice.ToString("N1")}（{r.StockInfo.LatestPriceDate.ToString("yyyy/MM/dd")}：L{r.StockInfo.LatestPriceRSIL.ToString("N2")},S{r.StockInfo.LatestPriceRSIS.ToString("N2")}）{(r.StockInfo.OversoldIndicator() ? mark : string.Empty)}");
                     writer.WriteLine($"市場：{r.StockInfo.Section}");
                     writer.WriteLine($"配当利回り：{CommonUtils.Instance.ConvertToPercentage(r.StockInfo.DividendYield)}（{CommonUtils.Instance.ConvertToPercentage(r.StockInfo.DividendPayoutRatio)},{r.StockInfo.DividendRecordDateMonth}）{(r.StockInfo.IsDividendRecordDateClose() ? mark : string.Empty)}");
                     if (!string.IsNullOrEmpty(r.StockInfo.ShareholderBenefitsDetails))
@@ -145,11 +146,11 @@ internal class Alert
                     s = string.Empty;
                     if (!string.IsNullOrEmpty(r.StockInfo.PressReleaseDate))
                     {
-                        s += ",";
                         s += r.StockInfo.PressReleaseDate;
                         s += r.StockInfo.ExtractAndValidateDateWithinOneMonth() ? mark : string.Empty;
                     }
-                    writer.WriteLine($"決算：{r.StockInfo.EarningsPeriod}{s}");
+                    writer.WriteLine($"決算：{r.StockInfo.EarningsPeriod}");
+                    writer.WriteLine($"{s}");
 
                     count = 0;
                     s = string.Empty;

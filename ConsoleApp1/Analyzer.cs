@@ -39,8 +39,8 @@ internal class Analyzer
         double endIndex = 0;
         DateTime startindexDate = _currentDate;
         DateTime endIndexDate = _currentDate;
-        double endIndexRS14 = 0;
-        double endIndexRS5 = 0;
+        double endIndexRS1L = 0;
+        double endIndexRSIS = 0;
         double lastFridayIndex = 0;
         DateTime lastFridayIndexDate = _currentDate;
 
@@ -108,8 +108,8 @@ internal class Analyzer
         }
 
         // RSIの算出
-        endIndexRS5 = GetCutlerRSI(5, endDate, item.Code);
-        endIndexRS14 = GetCutlerRSI(14, endDate, item.Code);
+        endIndexRSIS = GetCutlerRSI(CommonUtils.Instance.RSIShortPeriodDays, endDate, item.Code);
+        endIndexRS1L = GetCutlerRSI(CommonUtils.Instance.RSILongPeriodDays, endDate, item.Code);
 
         AnalysisResult.PriceVolatility result = new()
         {
@@ -122,8 +122,8 @@ internal class Analyzer
             VolatilityRateIndex2Date = endIndexDate,
             VolatilityTerm = term,
             ShouldAlert = false,
-            VolatilityRateIndex1RSI5 = endIndexRS5,
-            VolatilityRateIndex1RSI14 = endIndexRS14,
+            VolatilityRateIndex1RSI5 = endIndexRSIS,
+            VolatilityRateIndex1RSI14 = endIndexRS1L,
         };
 
         if (term == 1)
@@ -131,8 +131,8 @@ internal class Analyzer
             // 直近の株価を取得しておく
             item.LatestPrice = endIndex;
             item.LatestPriceDate = endIndexDate;
-            item.LatestPriceRSI5 = endIndexRS5;
-            item.LatestPriceRSI14 = endIndexRS14;
+            item.LatestPriceRSIS = endIndexRSIS;
+            item.LatestPriceRSIL = endIndexRS1L;
         }
 
         // 個別

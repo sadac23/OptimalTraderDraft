@@ -50,6 +50,16 @@ internal class CommonUtils
     /// </summary>
     public short StockPriceHistoryMonths { get; } = 4;
 
+    /// <summary>
+    /// 長期RSIの日数
+    /// </summary>
+    public short RSILongPeriodDays { get; } = 14;
+
+    /// <summary>
+    /// 短期RSIの日数
+    /// </summary>
+    public short RSIShortPeriodDays { get; } = 9;
+
     // プライベートコンストラクタにより、外部からのインスタンス化を防ぐ
     private CommonUtils()
     {
