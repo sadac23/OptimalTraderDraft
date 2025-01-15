@@ -58,11 +58,10 @@ internal class Alert
         //市場：東証プライム,名証プレミア
         //配当利回り：3.64%（50%,5月,11月）★
         //優待利回り：3.64%（QUOカード,100株,5月,11月,月末）★
-        //通期予想：増収増益増配（+50%,+50%,+50）
-        //通期予想履歴：
-        //初：24/04/26：+50%,+50%,+50
-        //修：24/07/31：+50%,+50%,+50
-        //修：24/10/31：+50%,+50%,+50
+        //通期予想（前期比）：
+        //初：24/04/26：増収増益増配（+50%,+50%,+50）
+        //修：24/07/31：増収増益増配（+50%,+50%,+50）
+        //修：24/10/31：増収増益増配（+50%,+50%,+50）
         //通期進捗：3Q：80.0%（2024/12/23）★
         //前期進捗：3Q：80.0%（2024/12/23）
         //時価総額：2兆3,470億円
@@ -112,19 +111,16 @@ internal class Alert
                     writer.WriteLine($"配当利回り：{CommonUtils.Instance.ConvertToPercentage(r.StockInfo.DividendYield)}（{CommonUtils.Instance.ConvertToPercentage(r.StockInfo.DividendPayoutRatio)},{r.StockInfo.DividendRecordDateMonth}）{(r.StockInfo.IsDividendRecordDateClose() ? mark : string.Empty)}");
                     if (!string.IsNullOrEmpty(r.StockInfo.ShareholderBenefitsDetails))
                         writer.WriteLine($"優待利回り：{CommonUtils.Instance.ConvertToPercentage(r.StockInfo.ShareholderBenefitYield)}（{r.StockInfo.ShareholderBenefitsDetails},{r.StockInfo.NumberOfSharesRequiredForBenefits},{r.StockInfo.ShareholderBenefitRecordMonth},{r.StockInfo.ShareholderBenefitRecordDay}）{(r.StockInfo.IsShareholderBenefitRecordDateClose() ? mark : string.Empty)}");
-                    writer.WriteLine($"通期予想：{r.StockInfo.FullYearPerformanceForcastSummary}");
 
-                    // 修正履歴がある場合
-                    if (r.StockInfo.FullYearPerformancesForcasts.Count >= 2)
+                    // 通期予想履歴
+                    count = 0;
+                    foreach (var p in r.StockInfo.FullYearPerformancesForcasts)
                     {
-                        count = 0;
-                        foreach( var p in r.StockInfo.FullYearPerformancesForcasts)
-                        {
-                            count++;
-                            if (count == 0) writer.WriteLine($"通期予想履歴：");
-                            writer.WriteLine($"{p.Category}：{p.RevisionDate}：{p.Summary}");
-                        }
+                        if (count == 0) writer.WriteLine($"通期予想（前期比）：");
+                        writer.WriteLine($"{p.Category}：{p.RevisionDate}：{p.Summary}");
+                        count++;
                     }
+
                     writer.WriteLine($"通期進捗：{r.StockInfo.QuarterlyPerformancePeriod}：{CommonUtils.Instance.ConvertToPercentage(r.StockInfo.QuarterlyFullyearProgressRate)}（{r.StockInfo.QuarterlyPerformanceReleaseDate.ToString("yyyy/MM/dd")}）{(r.StockInfo.IsAnnualProgressOnTrack() ? mark : string.Empty)}");
                     writer.WriteLine($"前期進捗：{r.StockInfo.QuarterlyPerformancePeriod}：{CommonUtils.Instance.ConvertToPercentage(r.StockInfo.PreviousFullyearProgressRate)}（{r.StockInfo.PreviousPerformanceReleaseDate.ToString("yyyy/MM/dd")}）");
                     writer.WriteLine($"時価総額：{CommonUtils.Instance.ConvertToYenNotation(r.StockInfo.MarketCap)}");
@@ -146,7 +142,6 @@ internal class Alert
                     writer.WriteLine($"出来高：{r.StockInfo.LatestTradingVolume}");
                     writer.WriteLine($"自己資本比率：{r.StockInfo.EquityRatio}");
 
-                    //決算：3月末,次回の決算発表日は2025年1月14日の予定です。★
                     s = string.Empty;
                     if (!string.IsNullOrEmpty(r.StockInfo.PressReleaseDate))
                     {

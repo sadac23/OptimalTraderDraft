@@ -1,4 +1,5 @@
 ﻿// See https://aka.ms/new-console-template for more information
+using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Bibliography;
 using DocumentFormat.OpenXml.Drawing.Diagrams;
 using System.Data.Entity;
@@ -224,6 +225,9 @@ internal class StockInfo
         return result;
     }
 
+    /// <summary>
+    /// 通期予想のサマリを更新する
+    /// </summary>
     internal void UpdateFullYearPerformanceForcastSummary()
     {
         this.FullYearPerformanceForcastSummary = string.Empty;
@@ -243,6 +247,19 @@ internal class StockInfo
             this.FullYearPerformanceForcastSummary += $"（{GetIncreasedRate(lastValue.Revenue, secondLastValue.Revenue)}";
             this.FullYearPerformanceForcastSummary += $",{GetIncreasedRate(lastValue.OrdinaryIncome, secondLastValue.OrdinaryIncome)}";
             this.FullYearPerformanceForcastSummary += $",{GetDividendPerShareIncreased(lastValue.AdjustedDividendPerShare, secondLastValue.AdjustedDividendPerShare)}）";
+        }
+
+        // 最後から3件前の値（前期）
+        var secondLast = this.FullYearPerformances[this.FullYearPerformances.Count - 3];
+
+        foreach (var p in this.FullYearPerformancesForcasts)
+        {
+            p.Summary += GetRevenueIncreasedSummary(p.Revenue, secondLast.Revenue);
+            p.Summary += GetOrdinaryIncomeIncreasedSummary(p.OrdinaryIncome, secondLast.OrdinaryIncome);
+            p.Summary += GetDividendPerShareIncreasedSummary(p.RevisedDividend, secondLast.AdjustedDividendPerShare);
+            p.Summary += $"（{GetIncreasedRate(p.Revenue, secondLast.Revenue)}";
+            p.Summary += $",{GetIncreasedRate(p.OrdinaryIncome, secondLast.OrdinaryIncome)}";
+            p.Summary += $",{GetDividendPerShareIncreased(p.RevisedDividend, secondLast.AdjustedDividendPerShare)}）";
         }
     }
 
@@ -937,7 +954,7 @@ internal class StockInfo
         /// <summary>
         /// 経常益
         /// </summary>
-        public string OrdinaryProfit { get; internal set; }
+        public string OrdinaryIncome { get; internal set; }
         /// <summary>
         /// 最終益
         /// </summary>

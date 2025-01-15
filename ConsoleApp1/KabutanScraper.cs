@@ -147,7 +147,7 @@ internal class KabutanScraper
                         stockInfo.FullYearPerformances.Add(p);
                     }
                 }
-                stockInfo.UpdateFullYearPerformanceForcastSummary();
+                //stockInfo.UpdateFullYearPerformanceForcastSummary();
                 stockInfo.UpdateDividendPayoutRatio();
             }
 
@@ -217,12 +217,18 @@ internal class KabutanScraper
                         RevisionDirection = revisionDirection,
                         Revenue = revenue,
                         OperatingProfit = operatingProfit,
-                        OrdinaryProfit = ordinaryProfit,
+                        OrdinaryIncome = ordinaryProfit,
                         NetProfit = netProfit,
                         RevisedDividend = revisedDividend
                     };
+
+                    stockInfo.FullYearPerformancesForcasts.Add(p);
                 }
             }
+
+            // 通期予想のサマリを更新
+            stockInfo.UpdateFullYearPerformanceForcastSummary();
+
             // 実績
             var node = htmlDocument.DocumentNode.SelectSingleNode("//*[@id=\"finance_box\"]/div[17]/div[1]/h3");
             if (node != null)
