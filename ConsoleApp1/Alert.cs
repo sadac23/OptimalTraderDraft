@@ -91,7 +91,7 @@ internal class Alert
         using (StreamWriter writer = new StreamWriter(alertFilePath))
         {
             // ファイルヘッダー
-            writer.WriteLine($"{DateTime.Today.ToString("yyyyMMdd")}：{results.Count}件");
+            writer.WriteLine($"{DateTime.Today.ToString("yyyyMMdd")}");
 
             short alertCount = 0;
 
@@ -195,6 +195,10 @@ internal class Alert
                     }
                 }
             }
+
+            // ファイルフッター
+            writer.WriteLine();
+            writer.WriteLine($"出力件数：{alertCount}件");
         }
     }
 }
