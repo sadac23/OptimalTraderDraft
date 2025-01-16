@@ -60,7 +60,7 @@ internal class Alert
         //優待利回り：3.64%（QUOカード,100株,5月,11月,月末）★
         //通期予想（前期比）：
         //初：24/04/26：増収増益増配（+50%,+50%,+50）
-        //修：24/07/31：増収増益増配（+50%,+50%,+50）
+        //修：24/07/31：増収増益増配（+50%,+50%,+50）★
         //修：24/10/31：増収増益増配（+50%,+50%,+50）
         //通期進捗：3Q：80.0%（2024/12/23）★
         //前期進捗：3Q：80.0%（2024/12/23）
@@ -118,7 +118,7 @@ internal class Alert
                     foreach (var p in r.StockInfo.FullYearPerformancesForcasts)
                     {
                         if (count == 0) writer.WriteLine($"通期予想（前期比）：");
-                        writer.WriteLine($"{p.Category}：{p.RevisionDate}：{p.Summary}");
+                        writer.WriteLine($"{p.Category}：{p.RevisionDate}：{p.Summary}{(p.HasDownwardRevision() ? mark : string.Empty)}");
                         count++;
                     }
 

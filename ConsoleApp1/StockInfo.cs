@@ -941,7 +941,10 @@ internal class StockInfo
         public string ReleaseDate { get; internal set; }
     }
 
-    public class FullYearPerformanceForcast
+    /// <summary>
+    /// 通期予想
+    /// </summary>
+    public class FullYearPerformanceForcast : ICloneable
     {
         /// <summary>
         /// 決算期
@@ -979,6 +982,38 @@ internal class StockInfo
         /// 修正配当
         /// </summary>
         public string RevisedDividend { get; internal set; }
+        /// <summary>
+        /// 予想概要
+        /// </summary>
         public object Summary { get; internal set; }
+        /// <summary>
+        /// 前回の予想
+        /// </summary>
+        public FullYearPerformanceForcast PreviousForcast { get; internal set; }
+
+        public object Clone()
+        {
+            // 浅いコピー（メンバーコピー）を返す
+            return this.MemberwiseClone();
+        }
+
+        /// <summary>
+        /// 下方修正を含むか？
+        /// </summary>
+        internal bool HasDownwardRevision()
+        {
+            bool result = false;
+
+            if (this.Category != "初") {
+                // 売上
+                if (CommonUtils.Instance.GetDouble(this.Revenue) < CommonUtils.Instance.GetDouble(this.PreviousForcast.Revenue)) result = true;
+                // 経常利益
+                if (CommonUtils.Instance.GetDouble(this.OrdinaryIncome) < CommonUtils.Instance.GetDouble(this.PreviousForcast.OrdinaryIncome)) result = true;
+                // 配当
+                if (CommonUtils.Instance.GetDouble(this.RevisedDividend) < CommonUtils.Instance.GetDouble(this.PreviousForcast.RevisedDividend)) result = true;
+            }
+
+            return result;
+        }
     }
 }

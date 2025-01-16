@@ -157,6 +157,7 @@ internal class KabutanScraper
             if (rows != null && rows.Count != 0)
             {
                 var countHeader = 0;
+                FullYearPerformanceForcast cloneP = null;
 
                 foreach (var row in rows)
                 {
@@ -219,8 +220,12 @@ internal class KabutanScraper
                         OperatingProfit = operatingProfit,
                         OrdinaryIncome = ordinaryProfit,
                         NetProfit = netProfit,
-                        RevisedDividend = revisedDividend
+                        RevisedDividend = revisedDividend,
+                        PreviousForcast = cloneP
                     };
+
+                    // 前回分の保持
+                    cloneP = (FullYearPerformanceForcast)p.Clone();
 
                     stockInfo.FullYearPerformancesForcasts.Add(p);
                 }
