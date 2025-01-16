@@ -121,6 +121,7 @@ using System.Runtime.ConstrainedExecution;
  * ・済：RSI短期値（9日）の追加
  * ・済：総件数を追加
  * ・済：総件数がバグっている
+ * ・済：RSI上昇の閾値
  */
 
 /* TODO
@@ -138,7 +139,6 @@ using System.Runtime.ConstrainedExecution;
  * ・毎日実行して5日分ローテ
  * ・4Qは通期予想の1件前と比較必要
  * ・ラインに通知する
- * ・RSI上昇の閾値
  * ・下方修正はマーク
  */
 

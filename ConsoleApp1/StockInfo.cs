@@ -815,8 +815,23 @@ internal class StockInfo
         bool result = false;
 
         // RSIが閾値以下の場合
-        if (this.LatestPriceRSIL <= CommonUtils.Instance.ThresholdOfRSI) result = true;
-        if (this.LatestPriceRSIS <= CommonUtils.Instance.ThresholdOfRSI) result = true;
+        if (this.LatestPriceRSIL <= CommonUtils.Instance.ThresholdOfOversoldRSI) result = true;
+        if (this.LatestPriceRSIS <= CommonUtils.Instance.ThresholdOfOversoldRSI) result = true;
+
+        return result;
+    }
+
+    /// <summary>
+    /// 上げすぎ判定
+    /// </summary>
+    /// <returns></returns>
+    internal bool OverboughtIndicator()
+    {
+        bool result = false;
+
+        // RSIが閾値以下の場合
+        if (this.LatestPriceRSIL >= CommonUtils.Instance.ThresholdOfOverboughtRSI) result = true;
+        if (this.LatestPriceRSIS >= CommonUtils.Instance.ThresholdOfOverboughtRSI) result = true;
 
         return result;
     }

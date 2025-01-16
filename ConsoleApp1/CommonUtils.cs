@@ -129,15 +129,21 @@ internal class CommonUtils
     /// </summary>
     public double ThresholdOfROE { get; } = 8.00;
     /// <summary>
-    /// RSI閾値
+    /// 下げすぎRSI閾値
     /// </summary>
-    public double ThresholdOfRSI { get; } = 30.00;
+    public double ThresholdOfOversoldRSI { get; } = 30.00;
     /// <summary>
     /// 売買文字列
     /// </summary>
     public BuyOrSellStringClass BuyOrSellString { get; } = new BuyOrSellStringClass();
-
+    /// <summary>
+    /// 四半期文字列
+    /// </summary>
     public QuarterStringClass QuarterString { get; } = new QuarterStringClass();
+    /// <summary>
+    /// 上げすぎRSI閾値
+    /// </summary>
+    public double ThresholdOfOverboughtRSI { get; } = 65.00;
 
     internal static string ReplacePlaceholder(string? input, string placeholder, string newValue)
     {
