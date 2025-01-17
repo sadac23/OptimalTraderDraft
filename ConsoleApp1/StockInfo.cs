@@ -1015,5 +1015,25 @@ internal class StockInfo
 
             return result;
         }
+
+        /// <summary>
+        /// 上方修正を含むか？
+        /// </summary>
+        internal bool HasUpwardRevision()
+        {
+            bool result = false;
+
+            if (this.Category != "初")
+            {
+                // 売上
+                if (CommonUtils.Instance.GetDouble(this.Revenue) > CommonUtils.Instance.GetDouble(this.PreviousForcast.Revenue)) result = true;
+                // 経常利益
+                if (CommonUtils.Instance.GetDouble(this.OrdinaryIncome) > CommonUtils.Instance.GetDouble(this.PreviousForcast.OrdinaryIncome)) result = true;
+                // 配当
+                if (CommonUtils.Instance.GetDouble(this.RevisedDividend) > CommonUtils.Instance.GetDouble(this.PreviousForcast.RevisedDividend)) result = true;
+            }
+
+            return result;
+        }
     }
 }

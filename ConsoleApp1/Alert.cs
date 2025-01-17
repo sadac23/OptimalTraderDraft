@@ -118,7 +118,7 @@ internal class Alert
                     foreach (var p in r.StockInfo.FullYearPerformancesForcasts)
                     {
                         if (count == 0) writer.WriteLine($"通期予想（前期比）：");
-                        writer.WriteLine($"{p.Category}：{p.RevisionDate}：{p.Summary}{(p.HasDownwardRevision() ? mark : string.Empty)}");
+                        writer.WriteLine($"{p.Category}：{p.RevisionDate}：{p.Summary}{(p.HasUpwardRevision() ? mark : string.Empty)}");
                         count++;
                     }
 
