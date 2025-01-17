@@ -210,6 +210,10 @@ internal class KabutanScraper
                     // ヘッダ取得回数が2件未満は過去履歴なのでスキップ
                     if (countHeader < 2) continue;
 
+                    // 修正配当値の不要文字列を除去
+                    revisedDividend = revisedDividend.Replace("*", string.Empty);
+                    revisedDividend = revisedDividend.Replace("#", string.Empty);
+
                     FullYearPerformanceForcast p = new FullYearPerformanceForcast()
                     {
                         FiscalPeriod = fiscalPeriod,
