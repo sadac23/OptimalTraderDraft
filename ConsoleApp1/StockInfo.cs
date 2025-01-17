@@ -541,10 +541,10 @@ internal class StockInfo
     /// <summary>
     /// 配当権利確定日が近いか？
     /// </summary>
-    /// <remarks>配当権利確定日が当月より1か月以内の場合にtrueを返す。</remarks>
+    /// <remarks>配当権利確定日が当月以内の場合にtrueを返す。</remarks>
     internal bool IsDividendRecordDateClose()
     {
-        return IsWithinMonths(this.DividendRecordDateMonth, 1);
+        return IsWithinMonths(this.DividendRecordDateMonth, 0);
     }
 
     public static bool IsWithinMonths(string monthsStr, short m)
@@ -749,10 +749,10 @@ internal class StockInfo
     /// <summary>
     /// 優待権利確定日が近いか？
     /// </summary>
-    /// <remarks>優待権利確定日が当月より1か月以内の場合にtrueを返す。</remarks>
+    /// <remarks>優待権利確定日が当月以内の場合にtrueを返す。</remarks>
     internal bool IsShareholderBenefitRecordDateClose()
     {
-        return IsWithinMonths(this.ShareholderBenefitRecordMonth, 1);
+        return IsWithinMonths(this.ShareholderBenefitRecordMonth, 0);
     }
 
     internal bool ExtractAndValidateDateWithinOneMonth()

@@ -288,6 +288,13 @@ internal class Analyzer
         /// <summary>
         /// 通知すべきか？
         /// </summary>
+        /// <remarks>
+        /// ・通知仕様
+        /// 所有しているもの：強制通知
+        /// お気に入り：強制通知
+        /// 当月権利銘柄：高利回り、直近暴落
+        /// その他：高利回り、直近暴落、時価総額高い、進捗良い、割安
+        /// </remarks>
         internal bool ShouldAlert()
         {
             // 初期値は通知
@@ -303,33 +310,23 @@ internal class Analyzer
             {
                 // 強制通知
             }
-            //// 下げすぎの場合
-            //else if (this.StockInfo.OversoldIndicator())
-            //{
-            //    // 強制通知
-            //}
-            // 優待権利確定月が近い場合
-            else if (this.StockInfo.IsShareholderBenefitRecordDateClose())
-            {
-                // 強制通知
-            }
-            // 配当権利確定月が近い場合
-            else if (this.StockInfo.IsDividendRecordDateClose())
+            // 配当/優待権利確定月が近い場合
+            else if (this.StockInfo.IsDividendRecordDateClose() || this.StockInfo.IsShareholderBenefitRecordDateClose())
             {
                 // 利回りが低い場合
                 if (!this.StockInfo.IsHighYield()) result = false;
 
-                // 時価総額が低い場合
-                if (!this.StockInfo.IsHighMarketCap()) result = false;
-
-                // 進捗が良くない場合
-                if (!this.StockInfo.IsAnnualProgressOnTrack()) result = false;
+                // 直近で暴落していない場合
+                if (!this.StockInfo.OversoldIndicator()) result = false; 
             }
             // それ以外
             else
             {
                 // 利回りが低い場合
                 if (!this.StockInfo.IsHighYield()) result = false;
+
+                // 直近で暴落していない場合
+                if (!this.StockInfo.OversoldIndicator()) result = false;
 
                 // 時価総額が低い場合
                 if (!this.StockInfo.IsHighMarketCap()) result = false;
