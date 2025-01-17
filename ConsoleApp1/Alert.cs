@@ -52,8 +52,8 @@ internal class Alert
     }
     internal static void SaveFile(List<Analyzer.AnalysisResult> results)
     {
-        //No.01
-        //1928：積水ハウス(株)（建設業）★
+        //No.01【持】【権】【お】
+        //1928：積水ハウス(株)（建設業）
         //株価：1,234.0（2024/11/29：L99.99,S99.99）★
         //市場：東証プライム,名証プレミア
         //配当利回り：3.64%（50%,5月,11月）★
@@ -86,7 +86,7 @@ internal class Alert
         //ほげほげほげほげほげ。
 
         var alertFilePath = CommonUtils.ReplacePlaceholder(CommonUtils.Instance.FilepathOfAlert, "{yyyyMMdd}", CommonUtils.Instance.ExecusionDate.ToString("yyyyMMdd"));
-        var mark = CommonUtils.Instance.WatchMark;
+        var mark = CommonUtils.Instance.BadgeString.ShouldWatch;
 
         using (StreamWriter writer = new StreamWriter(alertFilePath))
         {
@@ -104,9 +104,15 @@ internal class Alert
 
                     alertCount++;
 
+                    // バッジの取得
+                    string badge = string.Empty;
+                    if (r.StockInfo.IsOwnedNow()) badge += CommonUtils.Instance.BadgeString.IsOwned;
+                    if (r.StockInfo.IsDividendRecordDateClose() || r.StockInfo.IsShareholderBenefitRecordDateClose()) badge += CommonUtils.Instance.BadgeString.IsRecordDateClose;
+                    if (r.StockInfo.IsFavorite) badge += CommonUtils.Instance.BadgeString.IsFavorite;
+
                     writer.WriteLine("");
-                    writer.WriteLine($"No.{alertCount.ToString("D2")}");
-                    writer.WriteLine($"{r.StockInfo.Code}：{r.StockInfo.Name}（{r.StockInfo.Industry}）{(r.StockInfo.IsFavorite ? mark : string.Empty)}");
+                    writer.WriteLine($"No.{alertCount.ToString("D2")}{badge}");
+                    writer.WriteLine($"{r.StockInfo.Code}：{r.StockInfo.Name}（{r.StockInfo.Industry}）");
                     writer.WriteLine($"株価：{r.StockInfo.LatestPrice.ToString("N1")}（{r.StockInfo.LatestPriceDate.ToString("yyyy/MM/dd")}：L{r.StockInfo.LatestPriceRSIL.ToString("N2")},S{r.StockInfo.LatestPriceRSIS.ToString("N2")}）{(r.StockInfo.OversoldIndicator() || r.StockInfo.OverboughtIndicator() ? mark : string.Empty)}");
                     writer.WriteLine($"市場：{r.StockInfo.Section}");
                     writer.WriteLine($"配当利回り：{CommonUtils.Instance.ConvertToPercentage(r.StockInfo.DividendYield)}（{CommonUtils.Instance.ConvertToPercentage(r.StockInfo.DividendPayoutRatio)},{r.StockInfo.DividendRecordDateMonth}）{(r.StockInfo.IsDividendRecordDateClose() ? mark : string.Empty)}");

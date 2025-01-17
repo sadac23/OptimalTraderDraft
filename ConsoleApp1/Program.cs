@@ -128,6 +128,7 @@ using System.Runtime.ConstrainedExecution;
  * ・済：上方修正でマーク
  * ・済：通期予想配当に*がついてるケースへの対応（7740）
  * ・済：4Qは通期予想の1件前と比較必要
+ * ・済：バッジ表示の追加
  */
 
 /* TODO

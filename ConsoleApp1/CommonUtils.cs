@@ -144,6 +144,10 @@ internal class CommonUtils
     /// 上げすぎRSI閾値
     /// </summary>
     public double ThresholdOfOverboughtRSI { get; } = 65.00;
+    /// <summary>
+    /// バッジ文字列
+    /// </summary>
+    public BadgeStringClass BadgeString { get; } = new BadgeStringClass();
 
     internal static string ReplacePlaceholder(string? input, string placeholder, string newValue)
     {
@@ -193,4 +197,11 @@ internal class CommonUtils
         return result;
     }
 
+    public class BadgeStringClass
+    {
+        public string ShouldWatch { get; } = "★";
+        public string IsOwned { get; } = "【持】";
+        public string IsRecordDateClose { get; } = "【権】";
+        public string IsFavorite { get; } = "【注】";
+    }
 }
