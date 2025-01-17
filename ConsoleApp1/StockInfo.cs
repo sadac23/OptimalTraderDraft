@@ -652,7 +652,10 @@ internal class StockInfo
             // 通期進捗率の算出
             if (this.FullYearPerformances.Count >= 2)
             {
-                var fullYearOrdinaryIncome = CommonUtils.Instance.GetDouble(this.FullYearPerformances[this.FullYearPerformances.Count - 2].OrdinaryIncome);
+                // Q4の時は既に来期の予想が存在するため、2件前を参照する
+                var refCount = this.QuarterlyPerformancePeriod == CommonUtils.Instance.QuarterString.Quarter4 ? 3 : 2;
+
+                var fullYearOrdinaryIncome = CommonUtils.Instance.GetDouble(this.FullYearPerformances[this.FullYearPerformances.Count - refCount].OrdinaryIncome);
                 var latestOrdinaryIncome = this.QuarterlyPerformances[this.QuarterlyPerformances.Count - 2].OrdinaryIncome;
                 if (fullYearOrdinaryIncome > 0)
                 {
@@ -670,7 +673,10 @@ internal class StockInfo
             // 通期進捗率の算出
             if (this.FullYearPerformances.Count >= 3)
             {
-                var fullYearOrdinaryIncome = CommonUtils.Instance.GetDouble(this.FullYearPerformances[this.FullYearPerformances.Count - 3].OrdinaryIncome);
+                // Q4の時は既に来期の予想が存在するため、2件前を参照する
+                var refCount = this.QuarterlyPerformancePeriod == CommonUtils.Instance.QuarterString.Quarter4 ? 4 : 3;
+
+                var fullYearOrdinaryIncome = CommonUtils.Instance.GetDouble(this.FullYearPerformances[this.FullYearPerformances.Count - refCount].OrdinaryIncome);
                 var previousOrdinaryIncome = this.QuarterlyPerformances[this.QuarterlyPerformances.Count - 3].OrdinaryIncome;
                 if (fullYearOrdinaryIncome > 0)
                 {
