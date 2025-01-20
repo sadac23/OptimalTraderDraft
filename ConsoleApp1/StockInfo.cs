@@ -3,6 +3,7 @@ using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Bibliography;
 using DocumentFormat.OpenXml.Drawing.Diagrams;
 using System.Data.Entity;
+using System.Data.Entity.Core.Metadata.Edm;
 using System.Globalization;
 using System.Runtime.ConstrainedExecution;
 using System.Text.RegularExpressions;
@@ -20,6 +21,7 @@ internal class StockInfo
         FullYearProfits = new List<FullYearProfit>();
         this.QuarterlyPerformances = new List<StockInfo.QuarterlyPerformance>();
         this.FullYearPerformancesForcasts = new List<FullYearPerformanceForcast>();
+        this.ChartPrices = new List<StockInfo.ChartPrice>();
     }
     /// <summary>
     /// コード
@@ -204,6 +206,10 @@ internal class StockInfo
     /// 直近の株価RSI（短期）
     /// </summary>
     public double LatestPriceRSIS { get; internal set; }
+    /// <summary>
+    /// チャート価格
+    /// </summary>
+    public List<ChartPrice> ChartPrices { get; internal set; }
 
     /// <summary>
     /// 現在、所有しているか？
@@ -842,6 +848,12 @@ internal class StockInfo
         return result;
     }
 
+    internal List<ChartPrice> GetAlertPrices()
+    {
+        List<ChartPrice> result = new List<ChartPrice>();
+        return result;
+    }
+
     /// <summary>
     /// 日次価格情報
     /// </summary>
@@ -1041,5 +1053,15 @@ internal class StockInfo
 
             return result;
         }
+    }
+
+    internal class ChartPrice
+    {
+        public DateTime Date { get; internal set; }
+        public double Price { get; internal set; }
+        public double Volatility { get; internal set; }
+        public double RSIL { get; internal set; }
+        public double RSIS { get; internal set; }
+        public ChartPrice PreviousPrice { get; set; }
     }
 }

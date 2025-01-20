@@ -82,6 +82,21 @@ internal class Alert
         //2024/10/04：3,951.0：99.99：-10.40% (8)
         //2024/09/27：4,119.0：99.99：-10.40% (9)
         //2024/09/20：3,959.0：99.99：-10.40% (10)
+        //チャート：
+        //2024/10/14：3,951.0：+99.99%：L99.99,S99.99
+        //2024/10/13：3,951.0：-99.99%：L99.99,S99.99
+        //2024/10/12：3,951.0：+99.99%：L99.99,S99.99
+        //2024/10/11：3,951.0：-99.99%：L99.99,S99.99
+        //2024/10/10：3,951.0：+99.99%：L99.99,S99.99
+        //2024/10/09：3,951.0：+99.99%：L99.99,S99.99
+        //2024/10/08：3,951.0：+99.99%：L99.99,S99.99
+        //2024/10/07：3,951.0：+99.99%：L99.99,S99.99
+        //2024/10/06：3,951.0：+99.99%：L99.99,S99.99
+        //2024/10/05：3,951.0：+99.99%：L99.99,S99.99
+        //2024/10/04：3,951.0：+99.99%：L99.99,S99.99
+        //2024/10/03：3,951.0：+99.99%：L99.99,S99.99
+        //2024/10/02：3,951.0：+99.99%：L99.99,S99.99
+        //2024/10/01：3,951.0：+99.99%：L99.99,S99.99
         //メモ：
         //ほげほげほげほげほげ。
 
@@ -168,29 +183,18 @@ internal class Alert
                         count++;
                     }
 
-                    //count = 0;
-                    //foreach(Analyzer.AnalysisResult.PriceVolatility p in r.PriceVolatilities)
-                    //{
-                    //    // 直近週は必ず表示
-                    //    if (count == 0)
-                    //    {
-                    //        writer.WriteLine($"変動履歴：");
-                    //        writer.WriteLine($"{p.VolatilityRateIndex1Date.ToString("yyyy/MM/dd")}：{p.VolatilityRateIndex1.ToString("N1")}：{ConvertToPercentage(p.VolatilityRate)}({p.VolatilityTerm})");
-                    //    }
-                    //    else
-                    //    {
-                    //        if (p.ShouldAlert)
-                    //        {
-                    //            writer.WriteLine($"{p.VolatilityRateIndex1Date.ToString("yyyy/MM/dd")}：{p.VolatilityRateIndex1.ToString("N1")}：{ConvertToPercentage(p.VolatilityRate)}({p.VolatilityTerm})");
-                    //        }
-                    //    }
-                    //    count++;
-                    //}
-
                     writer.WriteLine($"変動履歴：");
                     foreach (Analyzer.AnalysisResult.PriceVolatility p in r.PriceVolatilities)
                     {
                         writer.WriteLine($"{p.VolatilityRateIndex1Date.ToString("yyyy/MM/dd")}：{p.VolatilityRateIndex1.ToString("N1")}：{CommonUtils.Instance.ConvertToPercentage(p.VolatilityRate)}({p.VolatilityTerm}){(p.ShouldAlert ? CommonUtils.Instance.WatchMark : string.Empty)}");
+                    }
+
+                    //チャート：
+                    //2024/10/14：3,951.0：+99.99%：L99.99,S99.99
+                    writer.WriteLine($"チャート：");
+                    foreach (var p in r.StockInfo.ChartPrices)
+                    {
+                        writer.WriteLine($"{p.Date.ToString("yyyy/MM/dd")}：{p.Price.ToString("N1")}：{CommonUtils.Instance.ConvertToPercentage(p.Volatility)}：L{p.RSIL},S{p.RSIS}");
                     }
 
                     if (!string.IsNullOrEmpty(r.StockInfo.Memo))
