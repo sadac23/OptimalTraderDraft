@@ -32,6 +32,7 @@ using DocumentFormat.OpenXml.Drawing;
 using System.Linq.Expressions;
 using DocumentFormat.OpenXml.Wordprocessing;
 using System.Runtime.ConstrainedExecution;
+using System.Diagnostics;
 
 /* DONE
  * ・済：ETFの処理
@@ -151,6 +152,7 @@ using System.Runtime.ConstrainedExecution;
  * 　修正履歴も前期分は見れないため、取得不可。
  * 　4Q発表前に通期予想をキャッシュしておいて、それと比較する仕組みが必要。
  * 　若しくは、株探以外のサイトから取得する。
+ * ・処理前にOneDriveをリフレッシュする。
  */
 
 // 分析結果
@@ -163,6 +165,9 @@ var kabutanScraper = new KabutanScraper();
 var minkabuScraper = new MinkabuScraper();
 
 Console.WriteLine(CommonUtils.Instance.MessageAtApplicationStartup);
+
+// OneDriveリフレッシュ
+OneDriveRefresh();
 
 // 約定履歴取得
 var executionList = ExecutionList.GetXlsxExecutionStockList();
@@ -222,6 +227,42 @@ foreach (var watchStock in watchList)
 Alert.SaveFile(results);
 
 Console.WriteLine(CommonUtils.Instance.MessageAtApplicationEnd);
+
+void OneDriveRefresh()
+{
+    // 判定したいファイルのパスを指定
+    string filePath = @"%localappdata%\Microsoft\OneDrive\OneDrive.exe";
+
+    // OneDriveの同期をトリガーするコマンド
+    string command = "cmd.exe";
+    string arguments = @"/c %localappdata%\Microsoft\OneDrive\OneDrive.exe /background";
+
+    try
+    {
+        // ファイルの存在を確認
+        if (!File.Exists(filePath)) return;
+        
+        // プロセスを開始
+        ProcessStartInfo processStartInfo = new ProcessStartInfo(command, arguments)
+        {
+            RedirectStandardOutput = true,
+            UseShellExecute = false,
+            CreateNoWindow = true
+        };
+
+        using (Process process = Process.Start(processStartInfo))
+        {
+            // 出力を読み取る
+            string output = process.StandardOutput.ReadToEnd();
+            process.WaitForExit();
+            Console.WriteLine(output);
+        }
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Error: {ex.Message}");
+    }
+}
 
 void DeleteHistoryCache()
 {
