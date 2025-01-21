@@ -52,7 +52,7 @@ internal class Alert
     }
     internal static void SaveFile(List<Analyzer.AnalysisResult> results)
     {
-        //No.01【持】【権】【お】
+        //No.01【持】【権】【注】
         //1928：積水ハウス(株)（建設業）
         //株価：1,234.0（2024/11/29：L99.99,S99.99）★
         //市場：東証プライム,名証プレミア
@@ -183,18 +183,23 @@ internal class Alert
                         count++;
                     }
 
-                    writer.WriteLine($"変動履歴：");
-                    foreach (Analyzer.AnalysisResult.PriceVolatility p in r.PriceVolatilities)
-                    {
-                        writer.WriteLine($"{p.VolatilityRateIndex1Date.ToString("yyyy/MM/dd")}：{p.VolatilityRateIndex1.ToString("N1")}：{CommonUtils.Instance.ConvertToPercentage(p.VolatilityRate)}({p.VolatilityTerm}){(p.ShouldAlert ? CommonUtils.Instance.WatchMark : string.Empty)}");
-                    }
+                    //writer.WriteLine($"変動履歴：");
+                    //foreach (Analyzer.AnalysisResult.PriceVolatility p in r.PriceVolatilities)
+                    //{
+                    //    writer.WriteLine($"{p.VolatilityRateIndex1Date.ToString("yyyy/MM/dd")}" +
+                    //        $"：{p.VolatilityRateIndex1.ToString("N1")}" +
+                    //        $"：{CommonUtils.Instance.ConvertToPercentage(p.VolatilityRate)}" +
+                    //        $"({p.VolatilityTerm}){(p.ShouldAlert ? CommonUtils.Instance.WatchMark : string.Empty)}");
+                    //}
 
-                    //チャート：
-                    //2024/10/14：3,951.0：+99.99%：L99.99,S99.99
                     writer.WriteLine($"チャート：");
                     foreach (var p in r.StockInfo.ChartPrices)
                     {
-                        writer.WriteLine($"{p.Date.ToString("yyyy/MM/dd")}：{p.Price.ToString("N1")}：{CommonUtils.Instance.ConvertToPercentage(p.Volatility)}：L{p.RSIL},S{p.RSIS}");
+                        writer.WriteLine($"{p.Date.ToString("yyyy/MM/dd")}" +
+                            $"：{p.Price.ToString("N1")}" +
+                            $"：{CommonUtils.Instance.ConvertToPercentage(p.Volatility)}" +
+                            $"：L{p.RSIL.ToString("N2")}" +
+                            $",S{p.RSIS.ToString("N2")}");
                     }
 
                     if (!string.IsNullOrEmpty(r.StockInfo.Memo))

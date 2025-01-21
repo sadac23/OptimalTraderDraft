@@ -129,6 +129,7 @@ using System.Runtime.ConstrainedExecution;
  * ・済：通期予想配当に*がついてるケースへの対応（7740）
  * ・済：4Qは通期予想の1件前と比較必要
  * ・済：バッジ表示の追加
+ * ・済：変動履歴の刷新。RSIの明細を出力する。
  */
 
 /* TODO
@@ -150,7 +151,6 @@ using System.Runtime.ConstrainedExecution;
  * 　修正履歴も前期分は見れないため、取得不可。
  * 　4Q発表前に通期予想をキャッシュしておいて、それと比較する仕組みが必要。
  * 　若しくは、株探以外のサイトから取得する。
- * ・変動履歴の刷新。RSIの明細を出力する。
  */
 
 // 分析結果
@@ -190,64 +190,36 @@ foreach (var watchStock in watchList)
     // 株価更新開始日を取得（なければ基準開始日を取得）
     var startDate = GetStartDate(watchStock.Code);
 
-    // 個別のとき
-    if (watchStock.Classification == CommonUtils.Instance.AssetClassification.JapaneseIndividualStocks)
-    {
-        // 外部サイトの情報取得
-        await yahooScraper.ScrapeTop(stockInfo);
-        await yahooScraper.ScrapeProfile(stockInfo);
-        if (lastTradingDay > startDate)
-            await yahooScraper.ScrapeHistory(stockInfo, startDate, CommonUtils.Instance.ExecusionDate);
-        await kabutanScraper.ScrapeFinance(stockInfo);
-        await minkabuScraper.ScrapeDividend(stockInfo);
-        await minkabuScraper.ScrapeYutai(stockInfo);
+    // 外部サイトの情報取得
+    await yahooScraper.ScrapeTop(stockInfo);
+    await yahooScraper.ScrapeProfile(stockInfo);
+    if (lastTradingDay > startDate)
+        await yahooScraper.ScrapeHistory(stockInfo, startDate, CommonUtils.Instance.ExecusionDate);
+    await kabutanScraper.ScrapeFinance(stockInfo);
+    await minkabuScraper.ScrapeDividend(stockInfo);
+    await minkabuScraper.ScrapeYutai(stockInfo);
 
-        // 約定履歴を設定
-        stockInfo.SetExecutions(executionList);
+    // 約定履歴を設定
+    stockInfo.SetExecutions(executionList);
 
-        // マスタを設定
-        stockInfo.SetAveragePerPbr(masterList);
+    // マスタを設定
+    stockInfo.SetAveragePerPbr(masterList);
 
-        // 株価履歴キャッシュ更新
-        UpdateMaster(stockInfo);
+    // キャッシュ更新
+    UpdateMaster(stockInfo);
 
-        // 分析
-        var result = analyzer.Analize(stockInfo);
+    // チャート価格を更新
+    stockInfo.UpdateChartPrices();
 
-        // 結果登録
-        results.Add(result);
-        //ResisterResult(result);
-    }
-    // 日本ETFのとき
-    else if (watchStock.Classification == CommonUtils.Instance.AssetClassification.JapaneseETFs)
-    {
-        // 外部サイトの情報取得
-        await yahooScraper.ScrapeTop(stockInfo);
-        await yahooScraper.ScrapeProfile(stockInfo);
-        if (lastTradingDay > startDate)
-            await yahooScraper.ScrapeHistory(stockInfo, startDate, CommonUtils.Instance.ExecusionDate);
-        await kabutanScraper.ScrapeFinance(stockInfo);
-        await minkabuScraper.ScrapeDividend(stockInfo);
-        await minkabuScraper.ScrapeYutai(stockInfo);
+    // 分析
+    var result = analyzer.Analize(stockInfo);
 
-        // 約定履歴を設定
-        stockInfo.SetExecutions(executionList);
-
-        // 株価履歴キャッシュ更新
-        UpdateMaster(stockInfo);
-
-        // 分析
-        var result = analyzer.Analize(stockInfo);
-
-        // 結果登録
-        results.Add(result);
-        //ResisterResult(result);
-    }
+    // 結果登録
+    results.Add(result);
 }
 
 // アラート通知
 Alert.SaveFile(results);
-//Alert.SendMail(results);
 
 Console.WriteLine(CommonUtils.Instance.MessageAtApplicationEnd);
 

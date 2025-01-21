@@ -177,13 +177,13 @@ internal class Analyzer
     /// https://kabu.com/investment/guide/technical/08.html
     /// https://ad-van.co.jp/technical/article/rsi-calculation/
     /// </remarks>
-    private double GetCutlerRSI(int v, DateTime endDate, string code)
+    public static double GetCutlerRSI(int v, DateTime endDate, string code)
     {
         double result = 0;
         double plus = 0;
         double minus = 0;
 
-        using (SQLiteConnection connection = new SQLiteConnection(_connectionString))
+        using (SQLiteConnection connection = new SQLiteConnection(CommonUtils.Instance.ConnectionString))
         {
             connection.Open();
 

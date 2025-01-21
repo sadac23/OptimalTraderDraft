@@ -4,9 +4,12 @@ using DocumentFormat.OpenXml.Bibliography;
 using DocumentFormat.OpenXml.Drawing.Diagrams;
 using System.Data.Entity;
 using System.Data.Entity.Core.Metadata.Edm;
+using System.Data.SQLite;
 using System.Globalization;
 using System.Runtime.ConstrainedExecution;
+using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
+using static StockInfo;
 
 internal class StockInfo
 {
@@ -854,6 +857,64 @@ internal class StockInfo
         return result;
     }
 
+    internal void UpdateChartPrices()
+    {
+        using (SQLiteConnection connection = new SQLiteConnection(CommonUtils.Instance.ConnectionString))
+        {
+            connection.Open();
+
+            // プライマリーキーに条件を設定したクエリ
+            string query =
+                "SELECT * FROM (" +
+                "SELECT * FROM history WHERE code = @code ORDER BY date DESC LIMIT @limit" +
+                ") ORDER BY date ASC;";
+
+            using (SQLiteCommand command = new SQLiteCommand(query, connection))
+            {
+                // パラメータを設定
+                command.Parameters.AddWithValue("@code", this.Code);
+                command.Parameters.AddWithValue("@limit", CommonUtils.Instance.ChartDays + 1);
+
+                using (SQLiteDataReader reader = command.ExecuteReader())
+                {
+                    ChartPrice previousPrice = null;
+                    List<ChartPrice> prices = new List<ChartPrice>();
+
+                    // 結果を読み取り
+                    while (reader.Read())
+                    {
+                        // カラム名を指定してデータを取得
+                        string code = reader.GetString(reader.GetOrdinal("code"));
+                        DateTime date = reader.GetDateTime(reader.GetOrdinal("date"));
+                        string dateString = date.ToString("yyyyMMdd");
+                        double open = reader.GetDouble(reader.GetOrdinal("open"));
+                        double high = reader.GetDouble(reader.GetOrdinal("high"));
+                        double low = reader.GetDouble(reader.GetOrdinal("low"));
+                        double close = reader.GetDouble(reader.GetOrdinal("close"));
+                        double volume = reader.GetDouble(reader.GetOrdinal("volume"));
+
+                        ChartPrice price = new ChartPrice()
+                        {
+                            Date = date,
+                            Price = close,
+                            Volatility = previousPrice != null ? (close / previousPrice.Price) - 1 : 0,
+                            RSIL = Analyzer.GetCutlerRSI(CommonUtils.Instance.RSILongPeriodDays,date,this.Code),
+                            RSIS = Analyzer.GetCutlerRSI(CommonUtils.Instance.RSIShortPeriodDays, date, this.Code),
+                        };
+
+                        prices.Add(price);
+
+                        // 前回分の保持
+                        previousPrice = (ChartPrice)price.Clone();
+                    }
+
+                    // 件数を絞って日付降順でソート
+                    this.ChartPrices = prices.OrderByDescending(p => p.Date).Take(CommonUtils.Instance.ChartDays).ToList();
+                }
+            }
+        }
+    }
+
     /// <summary>
     /// 日次価格情報
     /// </summary>
@@ -1055,13 +1116,17 @@ internal class StockInfo
         }
     }
 
-    internal class ChartPrice
+    internal class ChartPrice : ICloneable
     {
         public DateTime Date { get; internal set; }
         public double Price { get; internal set; }
         public double Volatility { get; internal set; }
         public double RSIL { get; internal set; }
         public double RSIS { get; internal set; }
-        public ChartPrice PreviousPrice { get; set; }
+        public object Clone()
+        {
+            // 浅いコピー（メンバーコピー）を返す
+            return this.MemberwiseClone();
+        }
     }
 }

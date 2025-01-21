@@ -95,6 +95,11 @@ internal class CommonUtils
 
     public AssetClassificationClass AssetClassification {  get; set; } = new AssetClassificationClass();
 
+    /// <summary>
+    /// チャートの表示日数
+    /// </summary>
+    public short ChartDays { get; } = 14;
+
     // 唯一のインスタンスを取得するための静的メソッド
     public static CommonUtils Instance
     {
@@ -159,8 +164,16 @@ internal class CommonUtils
     }
     internal string ConvertToPercentage(double value)
     {
-        // パーセント形式の文字列に変換
-        return (value * 100).ToString("F2", CultureInfo.InvariantCulture) + "%";
+        // パーセント形式の文字列に変換し、プラスの場合は"+"を付ける
+        string formattedValue = (value * 100).ToString("F2", CultureInfo.InvariantCulture);
+        if (value >= 0)
+        {
+            return "+" + formattedValue + "%";
+        }
+        else
+        {
+            return formattedValue + "%";
+        }
     }
 
     internal string ConvertToYenNotation(double value)
