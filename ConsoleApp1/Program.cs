@@ -230,38 +230,40 @@ Console.WriteLine(CommonUtils.Instance.MessageAtApplicationEnd);
 
 void OneDriveRefresh()
 {
-    // 判定したいファイルのパスを指定
-    string filePath = @"%localappdata%\Microsoft\OneDrive\OneDrive.exe";
+    //TODO：ダミーファイルを作成して削除する。
 
-    // OneDriveの同期をトリガーするコマンド
-    string command = "cmd.exe";
-    string arguments = @"/c %localappdata%\Microsoft\OneDrive\OneDrive.exe /background";
+    //// 判定したいファイルのパスを指定
+    //string filePath = @"C:\Program Files\Microsoft OneDrive\OneDrive.exe";
 
-    try
-    {
-        // ファイルの存在を確認
-        if (!File.Exists(filePath)) return;
+    //// OneDriveの同期をトリガーするコマンド
+    //string command = "cmd.exe";
+    //string arguments = $"\"{filePath}\" /background";
+
+    //try
+    //{
+    //    // ファイルの存在を確認
+    //    if (!File.Exists(filePath)) return;
         
-        // プロセスを開始
-        ProcessStartInfo processStartInfo = new ProcessStartInfo(command, arguments)
-        {
-            RedirectStandardOutput = true,
-            UseShellExecute = false,
-            CreateNoWindow = true
-        };
+    //    // プロセスを開始
+    //    ProcessStartInfo processStartInfo = new ProcessStartInfo(command, arguments)
+    //    {
+    //        RedirectStandardOutput = true,
+    //        UseShellExecute = false,
+    //        CreateNoWindow = true
+    //    };
 
-        using (Process process = Process.Start(processStartInfo))
-        {
-            // 出力を読み取る
-            string output = process.StandardOutput.ReadToEnd();
-            process.WaitForExit();
-            Console.WriteLine(output);
-        }
-    }
-    catch (Exception ex)
-    {
-        Console.WriteLine($"Error: {ex.Message}");
-    }
+    //    using (Process process = Process.Start(processStartInfo))
+    //    {
+    //        // 出力を読み取る
+    //        string output = process.StandardOutput.ReadToEnd();
+    //        process.WaitForExit();
+    //        Console.WriteLine(output);
+    //    }
+    //}
+    //catch (Exception ex)
+    //{
+    //    Console.WriteLine($"Error: {ex.Message}");
+    //}
 }
 
 void DeleteHistoryCache()
