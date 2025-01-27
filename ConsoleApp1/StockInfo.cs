@@ -217,19 +217,28 @@ internal class StockInfo
     /// <summary>
     /// 現在、所有しているか？
     /// </summary>
+    /// <remarks>
+    /// 買売の株数比較で判定すると、分割時にうまく判定できない。
+    /// 約定リストで売り約定が存在していない買い約定が存在しているか否かで判定する。
+    /// </remarks>
     internal bool IsOwnedNow()
     {
         var result = false;
 
-        double buy = 0;
-        double sell = 0;
+        //double buy = 0;
+        //double sell = 0;
 
-        foreach (var execution in Executions)
+        //foreach (var execution in Executions)
+        //{
+        //    if (execution.BuyOrSell == CommonUtils.Instance.BuyOrSellString.Buy) buy += execution.Quantity;
+        //    if (execution.BuyOrSell == CommonUtils.Instance.BuyOrSellString.Sell) sell += execution.Quantity;
+        //}
+        //if (buy > sell) result = true;
+
+        foreach (var e in this.Executions)
         {
-            if (execution.BuyOrSell == CommonUtils.Instance.BuyOrSellString.Buy) buy += execution.Quantity;
-            if (execution.BuyOrSell == CommonUtils.Instance.BuyOrSellString.Sell) sell += execution.Quantity;
+            if (e.BuyOrSell == CommonUtils.Instance.BuyOrSellString.Buy && !e.HasSellExecuted) result = true;
         }
-        if (buy > sell) result = true;
 
         return result;
     }

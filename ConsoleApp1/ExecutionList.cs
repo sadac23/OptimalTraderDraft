@@ -12,21 +12,23 @@ internal class ExecutionList
         {
             if (detail.Code == code)
             {
-                if (detail.BuyDate != string.Empty)
+                if (!string.IsNullOrEmpty(detail.BuyDate))
                 {
                     Execution execution = new Execution()
                     {
+                        No = detail.No,
                         Code = detail.Code,
                         Name = detail.Name,
                         BuyOrSell = CommonUtils.Instance.BuyOrSellString.Buy,
                         Date = DateTime.Parse(detail.BuyDate),
                         Price = double.Parse(detail.BuyPrice),
                         Quantity = double.Parse(detail.BuyQuantity),
+                        HasSellExecuted = !string.IsNullOrEmpty(detail.SellDate) ? true : false,
                     };
                     list.Add(execution);
                 }
 
-                if (detail.SellDate != string.Empty)
+                if (!string.IsNullOrEmpty(detail.SellDate))
                 {
                     Execution executionS = new Execution()
                     {
@@ -37,6 +39,7 @@ internal class ExecutionList
                         Date = DateTime.Parse(detail.SellDate),
                         Price = double.Parse(detail.SellPrice),
                         Quantity= double.Parse(detail.SellQuantity),
+                        HasSellExecuted = false
                     };
                     list.Add(executionS);
                 }
@@ -133,6 +136,15 @@ internal class ExecutionList
         /// 数量
         /// </summary>
         public double Quantity { get; set; }
+        /// <summary>
+        /// 約定リストのNo
+        /// </summary>
         public string No { get; internal set; }
+        /// <summary>
+        /// 売り約定があるか？
+        /// </summary>
+        /// <remarks>
+        /// 売り約定の場合はfalse固定</remarks>
+        public bool HasSellExecuted { get; set; }
     }
 }
