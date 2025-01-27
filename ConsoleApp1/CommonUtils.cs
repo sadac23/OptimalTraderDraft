@@ -146,6 +146,10 @@ internal class CommonUtils
     /// </summary>
     public QuarterStringClass QuarterString { get; } = new QuarterStringClass();
     /// <summary>
+    /// 進捗良好の判定基準値
+    /// </summary>
+    public ThresholdOfProgressSuccessClass ThresholdOfProgressSuccess { get; } = new ThresholdOfProgressSuccessClass();
+    /// <summary>
     /// 上げすぎRSI閾値
     /// </summary>
     public double ThresholdOfOverboughtRSI { get; } = 65.00;
@@ -216,5 +220,13 @@ internal class CommonUtils
         public string IsOwned { get; } = "【持】";
         public string IsRecordDateClose { get; } = "【権】";
         public string IsFavorite { get; } = "【注】";
+    }
+
+    public class ThresholdOfProgressSuccessClass
+    {
+        public double Q1 { get; } = 0.30;
+        public double Q2 { get; } = 0.55;
+        public double Q3 { get; } = 0.80;
+        public double Q4 { get; } = 1.05;
     }
 }

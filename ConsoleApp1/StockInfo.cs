@@ -725,24 +725,24 @@ internal class StockInfo
     {
         bool result = false;
 
-        // 前期以上かつ、案分値以上か？
+        // 前期以上かつ、進捗良好の判定基準値以上か？
         if (this.QuarterlyFullyearProgressRate >= this.PreviousFullyearProgressRate)
         {
             if (this.QuarterlyPerformancePeriod == CommonUtils.Instance.QuarterString.Quarter1)
             {
-                if (this.QuarterlyFullyearProgressRate >= 0.25) result = true;
+                if (this.QuarterlyFullyearProgressRate >= CommonUtils.Instance.ThresholdOfProgressSuccess.Q1) result = true;
             }
             else if (this.QuarterlyPerformancePeriod == CommonUtils.Instance.QuarterString.Quarter2)
             {
-                if (this.QuarterlyFullyearProgressRate >= 0.50) result = true;
+                if (this.QuarterlyFullyearProgressRate >= CommonUtils.Instance.ThresholdOfProgressSuccess.Q2) result = true;
             }
             else if (this.QuarterlyPerformancePeriod == CommonUtils.Instance.QuarterString.Quarter3)
             {
-                if (this.QuarterlyFullyearProgressRate >= 0.75) result = true;
+                if (this.QuarterlyFullyearProgressRate >= CommonUtils.Instance.ThresholdOfProgressSuccess.Q3) result = true;
             }
             else if (this.QuarterlyPerformancePeriod == CommonUtils.Instance.QuarterString.Quarter4)
             {
-                if (this.QuarterlyFullyearProgressRate >= 1.00) result = true;
+                if (this.QuarterlyFullyearProgressRate >= CommonUtils.Instance.ThresholdOfProgressSuccess.Q4) result = true;
             }
         }
 
