@@ -1,6 +1,7 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
 using ClosedXML.Excel;
+using Microsoft.Extensions.Logging;
 
 internal class ExecutionList
 {
@@ -89,7 +90,7 @@ internal class ExecutionList
             }
             else
             {
-                Console.WriteLine($"ワークシート '{sheetName}' が見つかりません。");
+                CommonUtils.Instance.Logger.LogError($"ワークシート '{sheetName}' が見つかりません。");
             }
         }
 

@@ -1,9 +1,16 @@
 ﻿// See https://aka.ms/new-console-template for more information
 using DocumentFormat.OpenXml.Bibliography;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using NLog.Config;
+using NLog.Targets;
+using NLog;
+using NLog.Extensions.Logging;
 using System.Configuration;
 using System.Globalization;
+using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
 
-internal class CommonUtils
+internal class CommonUtils : IDisposable
 {
     // 唯一のインスタンスを保持するための静的フィールド
     private static CommonUtils instance = null;
@@ -32,6 +39,10 @@ internal class CommonUtils
     /// PER/PBRの平均リスト
     /// </summary>
     public string FilepathOfAveragePerPbrList { get; set; } = ConfigurationManager.AppSettings["AveragePerPbrListFilePath"];
+    /// <summary>
+    /// ファイルログのファイルパス
+    /// </summary>
+    public string FilepathOfFilelog { get; set; } = ConfigurationManager.AppSettings["FilelogFilePath"];
     /// <summary>
     /// 通知ファイルパス
     /// </summary>
@@ -63,7 +74,55 @@ internal class CommonUtils
     // プライベートコンストラクタにより、外部からのインスタンス化を防ぐ
     private CommonUtils()
     {
+        // NLogの設定をコード内で行う
+        var config = new LoggingConfiguration();
+
+        // ファイルターゲットを作成
+        var logfile = new FileTarget("logfile")
+        {
+            FileName = FilepathOfFilelog,
+            Layout = "${longdate} ${uppercase:${level}} ${message}"
+        };
+
+        // コンソールターゲットを作成（オプション）
+        var logconsole = new ConsoleTarget("logconsole")
+        {
+            Layout = "${longdate} ${uppercase:${level}} ${message}"
+        };
+
+        // ターゲットを設定に追加
+        config.AddTarget(logfile);
+        config.AddTarget(logconsole);
+
+        // ルールを設定に追加
+        config.AddRule(NLog.LogLevel.Info, NLog.LogLevel.Fatal, logconsole);
+        config.AddRule(NLog.LogLevel.Debug, NLog.LogLevel.Fatal, logfile);
+
+        // NLogの設定を適用
+        LogManager.Configuration = config;
+
+        // サービスコレクションを作成し、ロギングサービスを追加
+        var serviceCollection = new ServiceCollection();
+        ConfigureServices(serviceCollection);
+
+        // サービスプロバイダーを作成
+        var serviceProvider = serviceCollection.BuildServiceProvider();
+
+        // ロガーを取得
+        this.Logger = serviceProvider.GetService<ILogger<Program>>();
     }
+
+    private void ConfigureServices(ServiceCollection services)
+    {
+        // NLogを使用するようにロギングを設定
+        services.AddLogging(loggingBuilder =>
+        {
+            loggingBuilder.ClearProviders();
+            loggingBuilder.SetMinimumLevel(Microsoft.Extensions.Logging.LogLevel.Trace);
+            loggingBuilder.AddNLog();
+        });
+    }
+
     public class AssetClassificationClass
     {
         //日本個別株: JapaneseIndividualStocks
@@ -157,6 +216,10 @@ internal class CommonUtils
     /// バッジ文字列
     /// </summary>
     public BadgeStringClass BadgeString { get; } = new BadgeStringClass();
+    /// <summary>
+    /// ロガー
+    /// </summary>
+    public ILogger<Program> Logger { get; private set; }
 
     internal static string ReplacePlaceholder(string? input, string placeholder, string newValue)
     {
@@ -212,6 +275,12 @@ internal class CommonUtils
     {
         double.TryParse(v, NumberStyles.AllowThousands | NumberStyles.AllowDecimalPoint | NumberStyles.AllowLeadingSign, CultureInfo.InvariantCulture, out double result);
         return result;
+    }
+
+    public void Dispose()
+    {
+        // NLogのシャットダウン
+        LogManager.Shutdown();
     }
 
     public class BadgeStringClass

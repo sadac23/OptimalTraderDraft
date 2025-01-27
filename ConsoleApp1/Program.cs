@@ -33,6 +33,7 @@ using System.Linq.Expressions;
 using DocumentFormat.OpenXml.Wordprocessing;
 using System.Runtime.ConstrainedExecution;
 using System.Diagnostics;
+using Microsoft.Extensions.Logging;
 
 /* DONE
  * ・済：ETFの処理
@@ -133,6 +134,7 @@ using System.Diagnostics;
  * ・済：変動履歴の刷新。RSIの明細を出力する。
  * ・済：所有株の判定にバグがある。（7630など、分割されたもの）
  * ・済：進捗良好判定の基準値を厳しくする。
+ * ・済：実行ログの実装
  */
 
 /* TODO
@@ -141,21 +143,23 @@ using System.Diagnostics;
  * ・DBはキャッシュ利用とし、なければ作成する処理を入れる
  * ・前年マイナスでプラ転した場合の通期業績率がうまく算出できていない。（5214など）
  * ・PER/PBRの閾値に10%の幅を持たせる
- * ・実行ログの追加
  * ・ユニットテスト実装
  * ・前年よりも極端に利益減予想の場合はマーク
  * ・DOE追加
  * ・最終購入より下げてた場合はマーク
  * ・買残が出来高の何倍残っているか？
  * ・毎日実行して5日分ローテ
- * ・ラインに通知する
+ * ・ラインに通知する（会社PCからは開発できない）
  * ・株価履歴のスクレイピング基準開始日は、3か月前でそろえる
  * ・4Q発表のタイミングで株探の通期予想が実績に置き換えられてしまうため、4Qの予実が算出できない。（常に100%になる。）
  * 　修正履歴も前期分は見れないため、取得不可。
  * 　4Q発表前に通期予想をキャッシュしておいて、それと比較する仕組みが必要。
  * 　若しくは、株探以外のサイトから取得する。
  * ・処理前にOneDriveをリフレッシュする。
+ * ・バッジ種類でまとめて出力する。
  */
+
+var logger = CommonUtils.Instance.Logger;
 
 // 分析結果
 var results = new List<Analyzer.AnalysisResult>();
@@ -166,7 +170,7 @@ var yahooScraper = new YahooScraper();
 var kabutanScraper = new KabutanScraper();
 var minkabuScraper = new MinkabuScraper();
 
-Console.WriteLine(CommonUtils.Instance.MessageAtApplicationStartup);
+logger.LogInformation(CommonUtils.Instance.MessageAtApplicationStartup);
 
 // OneDriveリフレッシュ
 OneDriveRefresh();
@@ -228,7 +232,7 @@ foreach (var watchStock in watchList)
 // アラート通知
 Alert.SaveFile(results);
 
-Console.WriteLine(CommonUtils.Instance.MessageAtApplicationEnd);
+logger.LogInformation(CommonUtils.Instance.MessageAtApplicationEnd);
 
 void OneDriveRefresh()
 {
@@ -286,7 +290,7 @@ void DeleteHistoryCache()
             int rowsAffected = command.ExecuteNonQuery();
 
             // 結果を表示
-            Console.WriteLine("History Rows deleted: " + rowsAffected);
+            logger.LogInformation($"History Rows deleted: {rowsAffected}");
         }
     }
 }
@@ -341,7 +345,7 @@ void UpdateMaster(StockInfo stockInfo)
     {
         if (!IsExist(stockInfo.Code, p)) {
             InsertMaster(stockInfo.Code, p);
-            Console.WriteLine($"Date: {p.Date}, DateYYYYMMDD: {p.DateYYYYMMDD}, Open: {p.Open}, High: {p.High}, Low: {p.Low}, Close: {p.Close}, Volume: {p.Volume}");
+            logger.LogInformation($"Date: {p.Date}, DateYYYYMMDD: {p.DateYYYYMMDD}, Open: {p.Open}, High: {p.High}, Low: {p.Low}, Close: {p.Close}, Volume: {p.Volume}");
         }
     }
 }
@@ -389,7 +393,7 @@ void InsertMaster(string code, StockInfo.Price p)
             int rowsAffected = command.ExecuteNonQuery();
 
             // 結果を表示
-            Console.WriteLine("Rows inserted: " + rowsAffected);
+            logger.LogInformation("Rows inserted: " + rowsAffected);
         }
     }
 }

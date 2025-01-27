@@ -8,6 +8,7 @@ using static WatchList;
 using System.Globalization;
 using System.Data;
 using DocumentFormat.OpenXml.Office2016.Excel;
+using Microsoft.Extensions.Logging;
 
 internal class KabutanScraper
 {
@@ -32,7 +33,8 @@ internal class KabutanScraper
             url = urlBaseKabutanFinance;
             html = await httpClient.GetStringAsync(url);
             htmlDocument.LoadHtml(html);
-            Console.WriteLine(url);
+
+            CommonUtils.Instance.Logger.LogInformation(url);
 
             // ROE
             rows = htmlDocument.DocumentNode.SelectNodes("//div[contains(@class, 'fin_year_t0_d fin_year_profit_d dispnone')]/table/tbody/tr");

@@ -1,6 +1,7 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
 using HtmlAgilityPack;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Globalization;
 using System.Net.Http;
@@ -30,7 +31,8 @@ internal class MinkabuScraper
             url = urlBaseMinkabuDividend;
             html = await httpClient.GetStringAsync(url);
             htmlDocument.LoadHtml(html);
-            Console.WriteLine(url);
+
+            CommonUtils.Instance.Logger.LogInformation(url);
 
             // 配当利回り/配当性向/配当権利確定月
             rows = htmlDocument.DocumentNode.SelectNodes("//div[contains(@class, 'ly_col ly_colsize_6 pt10')]/table/tr");
@@ -99,7 +101,8 @@ internal class MinkabuScraper
             url = urlBaseMinkabuYutai;
             html = await httpClient.GetStringAsync(url);
             htmlDocument.LoadHtml(html);
-            Console.WriteLine(url);
+
+            CommonUtils.Instance.Logger.LogInformation(url);
 
             // 優待内容
             rows = htmlDocument.DocumentNode.SelectNodes("//h3[contains(@class, 'category fwb fsl')]");

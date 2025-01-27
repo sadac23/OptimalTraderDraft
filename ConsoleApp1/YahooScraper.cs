@@ -1,6 +1,7 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
 using HtmlAgilityPack;
+using Microsoft.Extensions.Logging;
 using System.Globalization;
 using System.Security.Policy;
 using static WatchList;
@@ -28,7 +29,7 @@ internal class YahooScraper
                 url = urlBaseYahooFinance + $"&page={i}";
                 html = await httpClient.GetStringAsync(url);
 
-                Console.WriteLine(url);
+                CommonUtils.Instance.Logger.LogInformation(url);
 
                 // ページ内行カウント
                 short rowCount = 0;
@@ -92,7 +93,8 @@ internal class YahooScraper
     internal async Task ScrapeProfile(StockInfo stockInfo)
     {
         var url = $"https://finance.yahoo.co.jp/quote/{stockInfo.Code}.T/profile";
-        Console.WriteLine(url);
+
+        CommonUtils.Instance.Logger.LogInformation(url);
 
         using (HttpClient client = new HttpClient())
         {
@@ -133,7 +135,8 @@ internal class YahooScraper
     internal async Task ScrapeTop(StockInfo stockInfo)
     {
         var url = $"https://finance.yahoo.co.jp/quote/{stockInfo.Code}.T";
-        Console.WriteLine(url);
+
+        CommonUtils.Instance.Logger.LogInformation(url);
 
         using (HttpClient client = new HttpClient())
         {
