@@ -135,6 +135,7 @@ using Microsoft.Extensions.Logging;
  * ・済：所有株の判定にバグがある。（7630など、分割されたもの）
  * ・済：進捗良好判定の基準値を厳しくする。
  * ・済：実行ログの実装
+ * ・済：処理前にOneDriveをリフレッシュする。
  */
 
 /* TODO
@@ -155,8 +156,8 @@ using Microsoft.Extensions.Logging;
  * 　修正履歴も前期分は見れないため、取得不可。
  * 　4Q発表前に通期予想をキャッシュしておいて、それと比較する仕組みが必要。
  * 　若しくは、株探以外のサイトから取得する。
- * ・処理前にOneDriveをリフレッシュする。
  * ・バッジ種類でまとめて出力する。
+ * ・約定リストの自動更新。
  */
 
 var logger = CommonUtils.Instance.Logger;
@@ -236,40 +237,29 @@ logger.LogInformation(CommonUtils.Instance.MessageAtApplicationEnd);
 
 void OneDriveRefresh()
 {
-    //TODO：ダミーファイルを作成して削除する。
+    string oneDrivePath = @"C:\Program Files\Microsoft OneDrive\onedrive.exe"; // OneDriveの実行ファイルのパス
 
-    //// 判定したいファイルのパスを指定
-    //string filePath = @"C:\Program Files\Microsoft OneDrive\OneDrive.exe";
+    if (File.Exists(oneDrivePath))
+    {
+        ProcessStartInfo startInfo = new ProcessStartInfo
+        {
+            FileName = oneDrivePath,
+            Arguments = "/sync", // 同期をトリガーする引数
+            RedirectStandardOutput = true,
+            UseShellExecute = false,
+            CreateNoWindow = true
+        };
 
-    //// OneDriveの同期をトリガーするコマンド
-    //string command = "cmd.exe";
-    //string arguments = $"\"{filePath}\" /background";
-
-    //try
-    //{
-    //    // ファイルの存在を確認
-    //    if (!File.Exists(filePath)) return;
-        
-    //    // プロセスを開始
-    //    ProcessStartInfo processStartInfo = new ProcessStartInfo(command, arguments)
-    //    {
-    //        RedirectStandardOutput = true,
-    //        UseShellExecute = false,
-    //        CreateNoWindow = true
-    //    };
-
-    //    using (Process process = Process.Start(processStartInfo))
-    //    {
-    //        // 出力を読み取る
-    //        string output = process.StandardOutput.ReadToEnd();
-    //        process.WaitForExit();
-    //        Console.WriteLine(output);
-    //    }
-    //}
-    //catch (Exception ex)
-    //{
-    //    Console.WriteLine($"Error: {ex.Message}");
-    //}
+        using (Process process = Process.Start(startInfo))
+        {
+            process.WaitForExit();
+            logger.LogInformation("OneDrive sync triggered.");
+        }
+    }
+    else
+    {
+        logger.LogInformation("OneDrive executable not found.");
+    }
 }
 
 void DeleteHistoryCache()

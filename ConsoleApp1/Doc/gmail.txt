@@ -1,0 +1,92 @@
+﻿Gmail APIを使用してC#でメールの検索を行うには、GoogleのGmail APIクライアントライブラリを使用するのが一般的です。以下にその手順を示します。
+
+前提条件
+Google Cloud Platformでプロジェクトを作成:
+
+Google Cloud Consoleにアクセスし、新しいプロジェクトを作成します。
+Gmail APIを有効にします。
+
+OAuth 2.0クライアントIDを作成し、クライアントIDとクライアントシークレットを取得します。
+必要なNuGetパッケージをインストール:
+
+Google.Apis.Gmail.v1
+Google.Apis.Auth
+Google.Apis.OAuth2.v2
+コード例
+以下に、Gmail APIを使用してメールを検索するC#のサンプルコードを示します。
+
+using Google.Apis.Auth.OAuth2;
+using Google.Apis.Gmail.v1;
+using Google.Apis.Gmail.v1.Data;
+using Google.Apis.Services;
+using Google.Apis.Util.Store;
+using System;
+using System.IO;
+using System.Threading;
+
+class Program
+{
+    static string[] Scopes = { GmailService.Scope.GmailReadonly };
+    static string ApplicationName = "Gmail API .NET Quickstart";
+
+    static void Main(string[] args)
+    {
+        UserCredential credential;
+
+        using (var stream =
+            new FileStream("credentials.json", FileMode.Open, FileAccess.Read))
+        {
+            // The file token.json stores the user's access and refresh tokens, and is created
+            // automatically when the authorization flow completes for the first time.
+            string credPath = "token.json";
+            credential = GoogleWebAuthorizationBroker.AuthorizeAsync(
+                GoogleClientSecrets.Load(stream).Secrets,
+                Scopes,
+                "user",
+                CancellationToken.None,
+                new FileDataStore(credPath, true)).Result;
+            Console.WriteLine("Credential file saved to: " + credPath);
+        }
+
+        // Create Gmail API service.
+        var service = new GmailService(new BaseClientService.Initializer()
+        {
+            HttpClientInitializer = credential,
+            ApplicationName = ApplicationName,
+        });
+
+        // Define parameters of request.
+        UsersResource.MessagesResource.ListRequest request = service.Users.Messages.List("me");
+        request.Q = "subject:your_subject"; // 検索クエリを指定
+
+        // List messages.
+        IList<Message> messages = request.Execute().Messages;
+        Console.WriteLine("Messages:");
+        if (messages != null && messages.Count > 0)
+        {
+            foreach (var messageItem in messages)
+            {
+                var message = service.Users.Messages.Get("me", messageItem.Id).Execute();
+                Console.WriteLine($"- {message.Snippet}");
+            }
+        }
+        else
+        {
+            Console.WriteLine("No messages found.");
+        }
+    }
+}
+説明
+認証:
+
+credentials.jsonファイルには、Google Cloud Consoleで取得したクライアントIDとクライアントシークレットが含まれています。
+token.jsonファイルは、ユーザーのアクセストークンとリフレッシュトークンを保存します。
+Gmail APIサービスの作成:
+
+GmailServiceオブジェクトを作成し、認証情報を初期化します。
+メールの検索:
+
+UsersResource.MessagesResource.ListRequestオブジェクトを作成し、検索クエリを指定します（例：subject:your_subject）。
+request.Execute()メソッドを呼び出して、検索結果を取得します。
+各メールの詳細を取得し、コンソールに表示します。
+このコードを実行することで、指定した検索クエリに一致するメールを取得し、その内容を表示することができます。
