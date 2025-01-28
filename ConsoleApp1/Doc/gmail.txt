@@ -7,6 +7,7 @@ Google Cloud Consoleにアクセスし、新しいプロジェクトを作成し
 Gmail APIを有効にします。
 
 OAuth 2.0クライアントIDを作成し、クライアントIDとクライアントシークレットを取得します。
+
 必要なNuGetパッケージをインストール:
 
 Google.Apis.Gmail.v1
@@ -90,3 +91,134 @@ UsersResource.MessagesResource.ListRequestオブジェクトを作成し、検�
 request.Execute()メソッドを呼び出して、検索結果を取得します。
 各メールの詳細を取得し、コンソールに表示します。
 このコードを実行することで、指定した検索クエリに一致するメールを取得し、その内容を表示することができます。
+
+---
+もちろんです。C#でGmail APIを使用するための手順を説明します。以下の手順に従って、credentials.jsonとtoken.jsonファイルを取得し、Gmail APIを使用する方法を示します。
+
+前提条件
+Googleアカウント
+Google Cloud Platformへのアクセス
+.NET Core SDKがインストールされていること
+手順
+1. Google Cloud Platformでプロジェクトを作成
+Google Cloud Consoleにアクセスし、Googleアカウントでサインインします。
+左上のプロジェクトドロップダウンメニューから「新しいプロジェクト」を選択します。
+プロジェクト名を入力し、「作成」をクリックします。
+2. Gmail APIを有効にする
+作成したプロジェクトを選択した状態で、左側のナビゲーションメニューから「APIとサービス」 > 「ライブラリ」を選択します。
+「Gmail API」を検索し、選択します。
+「有効にする」をクリックします。
+3. OAuth 2.0クライアントIDを作成
+左側のナビゲーションメニューから「APIとサービス」 > 「認証情報」を選択します。
+「認証情報を作成」ボタンをクリックし、「OAuth クライアントID」を選択します。
+「同意画面の構成」をクリックし、必要な情報を入力して保存します。
+「アプリケーションの種類」で「デスクトップアプリ」を選択し、名前を入力して「作成」をクリックします。
+作成されたクライアントIDとクライアントシークレットが表示されるので、「OK」をクリックします。
+4. credentials.jsonのダウンロード
+「認証情報」ページで、先ほど作成したOAuth 2.0クライアントIDの「ダウンロード」アイコンをクリックします。
+credentials.jsonファイルがダウンロードされます。このファイルは後で使用します。
+5. token.jsonの取得
+token.jsonファイルは、OAuth 2.0の認証フローを通じて取得されます。以下の手順で取得します。
+
+6. C#プロジェクトの作成
+新しいC#コンソールアプリケーションプロジェクトを作成します。
+dotnet new console -n GmailAPIExample
+cd GmailAPIExample
+必要なNuGetパッケージをインストールします。
+dotnet add package Google.Apis.Gmail.v1
+dotnet add package Google.Apis.Auth
+dotnet add package Google.Apis.Oauth2.v2
+以下のコードをProgram.csに追加します。
+using Google.Apis.Auth.OAuth2;
+using Google.Apis.Gmail.v1;
+using Google.Apis.Services;
+using Google.Apis.Util.Store;
+using System;
+using System.IO;
+using System.Threading;
+
+class Program
+{
+    static string[] Scopes = { GmailService.Scope.GmailReadonly };
+    static string ApplicationName = "Gmail API .NET Quickstart";
+
+    static void Main(string[] args)
+    {
+        UserCredential credential;
+
+        using (var stream =
+            new FileStream("credentials.json", FileMode.Open, FileAccess.Read))
+        {
+            string credPath = "token.json";
+            credential = GoogleWebAuthorizationBroker.AuthorizeAsync(
+                GoogleClientSecrets.Load(stream).Secrets,
+                Scopes,
+                "user",
+                CancellationToken.None,
+                new FileDataStore(credPath, true)).Result;
+            Console.WriteLine("Credential file saved to: " + credPath);
+        }
+
+        // Create Gmail API service.
+        var service = new GmailService(new BaseClientService.Initializer()
+        {
+            HttpClientInitializer = credential,
+            ApplicationName = ApplicationName,
+        });
+
+        // Define parameters of request.
+        UsersResource.LabelsResource.ListRequest request = service.Users.Labels.List("me");
+
+        // List labels.
+        var labels = request.Execute().Labels;
+        Console.WriteLine("Labels:");
+        if (labels != null && labels.Count > 0)
+        {
+            foreach (var labelItem in labels)
+            {
+                Console.WriteLine("{0}", labelItem.Name);
+            }
+        }
+        else
+        {
+            Console.WriteLine("No labels found.");
+        }
+    }
+}
+credentials.jsonファイルをプロジェクトのルートディレクトリに配置します。
+
+プロジェクトをビルドして実行します。
+
+dotnet run
+ブラウザが開き、Googleアカウントへのアクセス許可を求められます。許可を与えると、認証情報がtoken.jsonファイルに保存されます。
+注意点
+credentials.jsonとtoken.jsonファイルは機密情報を含むため、安全な場所に保管してください。
+トークンの有効期限が切れた場合は、リフレッシュトークンを使用して新しいアクセストークンを取得する必要があります。
+これで、credentials.jsonとtoken.jsonファイルを取得し、C#でGmail APIを使用する準備が整います。
+
+---
+このエラーメッセージは、GoogleのOAuth 2.0認証フローを使用しているアプリケーションが、Googleの審査プロセスを完了していないために発生します。
+具体的には、アプリケーションが「未公開」状態であり、特定のスコープ（特に機密性の高いスコープ）にアクセスしようとしている場合に発生します。
+
+解決方法
+1. OAuth同意画面の設定を確認する
+Google Cloud Consoleにアクセスし、プロジェクトを選択します。
+左側のナビゲーションメニューから「APIとサービス」 > 「OAuth同意画面」を選択します。
+「アプリケーションの種類」が「外部」に設定されていることを確認します。
+必要な情報（アプリケーション名、サポートメール、開発者の連絡先情報など）を入力し、保存します。
+2. テストユーザーを追加する
+同じ「OAuth同意画面」ページで、「テストユーザー」セクションに移動します。
+「テストユーザーを追加」ボタンをクリックし、Gmail APIをテストするために使用するGoogleアカウントのメールアドレスを追加します。
+追加したテストユーザーは、審査プロセスを完了する前にアプリケーションをテストすることができます。
+3. スコープの確認と設定
+「OAuth同意画面」ページで、「スコープ」セクションに移動します。
+必要なスコープ（例：https://www.googleapis.com/auth/gmail.readonly）が追加されていることを確認します。
+4. 認証情報の再作成
+「APIとサービス」 > 「認証情報」に移動します。
+既存のOAuth 2.0クライアントIDを削除し、新しいクライアントIDを作成します。
+新しいcredentials.jsonファイルをダウンロードし、プロジェクトのルートディレクトリに配置します。
+5. アプリケーションの再実行
+プロジェクトを再度ビルドして実行します。
+dotnet run
+ブラウザが開き、Googleアカウントへのアクセス許可を求められます。今回は、テストユーザーとして追加したアカウントを使用してログインします。
+これで、アプリケーションがGoogleの審査プロセスを完了していなくても、テストユーザーとしてGmail APIにアクセスできるようになります。

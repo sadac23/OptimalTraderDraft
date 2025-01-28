@@ -48,6 +48,10 @@ internal class CommonUtils : IDisposable
     /// </summary>
     public string FilepathOfAlert { get; set; } = ConfigurationManager.AppSettings["AlertFilePath"];
     /// <summary>
+    /// GmailAPIのCredentialファイルパス
+    /// </summary>
+    public string FilepathOfGmailAPICredential { get; set; } = ConfigurationManager.AppSettings["GmailAPICredentialFilePath"];
+    /// <summary>
     /// アプリケーション開始時のメッセージ
     /// </summary>
     public string MessageAtApplicationStartup { get; set; } = "*** Start ***";

@@ -34,6 +34,12 @@ using DocumentFormat.OpenXml.Wordprocessing;
 using System.Runtime.ConstrainedExecution;
 using System.Diagnostics;
 using Microsoft.Extensions.Logging;
+using Google.Apis.Auth.OAuth2;
+using Google.Apis.Gmail.v1;
+using Google.Apis.Gmail.v1.Data;
+using Google.Apis.Services;
+using Google.Apis.Util.Store;
+
 
 /* DONE
  * ・済：ETFの処理
@@ -175,6 +181,9 @@ logger.LogInformation(CommonUtils.Instance.MessageAtApplicationStartup);
 
 // OneDriveリフレッシュ
 OneDriveRefresh();
+
+// 約定履歴リストを更新
+UpdateXlsxExecutionStockList();
 
 // 約定履歴取得
 var executionList = ExecutionList.GetXlsxExecutionStockList();
@@ -409,5 +418,61 @@ bool IsExist(string code, StockInfo.Price p)
 
             return count > 0;
         }
+    }
+}
+
+void UpdateXlsxExecutionStockList()
+{
+    string[] Scopes = { GmailService.Scope.GmailReadonly };
+    string ApplicationName = "Gmail API .NET Quickstart";
+
+    UserCredential credential;
+
+    string credentialFilepath = CommonUtils.Instance.FilepathOfGmailAPICredential;
+
+    if (string.IsNullOrEmpty(credentialFilepath)) return;
+
+    using (var stream =
+        new FileStream(credentialFilepath, FileMode.Open, FileAccess.Read))
+    {
+        // The file token.json stores the user's access and refresh tokens, and is created
+        // automatically when the authorization flow completes for the first time.
+        string credPath = "token.json";
+        credential = GoogleWebAuthorizationBroker.AuthorizeAsync(
+            GoogleClientSecrets.FromStream(stream).Secrets,
+            Scopes,
+            "sadac23@gmail.com",
+            CancellationToken.None,
+            new FileDataStore(credPath, true)).Result;
+
+        logger.LogInformation("Credential file saved to: " + credPath);
+    }
+
+    // Create Gmail API service.
+    var service = new GmailService(new BaseClientService.Initializer()
+    {
+        HttpClientInitializer = credential,
+        ApplicationName = ApplicationName,
+    });
+
+    // Define parameters of request.
+    UsersResource.MessagesResource.ListRequest request = service.Users.Messages.List("me");
+    request.Q = "subject:国内株式の注文が約定しました"; // 検索クエリを指定
+
+    // List messages.
+    IList<Message> messages = request.Execute().Messages;
+
+    logger.LogInformation("Messages:");
+    if (messages != null && messages.Count > 0)
+    {
+        foreach (var messageItem in messages)
+        {
+            var message = service.Users.Messages.Get("me", messageItem.Id).Execute();
+            logger.LogInformation($"- {message.Snippet}");
+        }
+    }
+    else
+    {
+        logger.LogInformation("No messages found.");
     }
 }
