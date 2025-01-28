@@ -430,7 +430,9 @@ void UpdateXlsxExecutionStockList()
 
     string credentialFilepath = CommonUtils.Instance.FilepathOfGmailAPICredential;
 
+    // クレデンシャルが存在しない場合は無視
     if (string.IsNullOrEmpty(credentialFilepath)) return;
+    if (!File.Exists(credentialFilepath)) return;
 
     using (var stream =
         new FileStream(credentialFilepath, FileMode.Open, FileAccess.Read))
