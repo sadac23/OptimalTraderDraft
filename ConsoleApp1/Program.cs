@@ -164,6 +164,7 @@ using Google.Apis.Util.Store;
  * 　若しくは、株探以外のサイトから取得する。
  * ・バッジ種類でまとめて出力する。
  * ・約定リストの自動更新。
+ * ・メール通知する
  */
 
 var logger = CommonUtils.Instance.Logger;
@@ -182,8 +183,8 @@ logger.LogInformation(CommonUtils.Instance.MessageAtApplicationStartup);
 // OneDriveリフレッシュ
 OneDriveRefresh();
 
-// 約定履歴リストを更新
-UpdateXlsxExecutionStockList();
+// TODO: 約定履歴リストを更新
+// UpdateXlsxExecutionStockList();
 
 // 約定履歴取得
 var executionList = ExecutionList.GetXlsxExecutionStockList();
@@ -239,8 +240,11 @@ foreach (var watchStock in watchList)
     results.Add(result);
 }
 
-// アラート通知
+// ファイル保存
 Alert.SaveFile(results);
+
+// TODO: メール送信
+//Alert.SendMail();
 
 logger.LogInformation(CommonUtils.Instance.MessageAtApplicationEnd);
 

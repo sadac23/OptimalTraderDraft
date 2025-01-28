@@ -7,10 +7,18 @@ using System.Globalization;
 using System.Net.Mail;
 using System.Net;
 using System.Runtime.ConstrainedExecution;
+using DocumentFormat.OpenXml.Vml;
+using Google.Apis.Auth.OAuth2;
+using Google.Apis.Gmail.v1.Data;
+using Google.Apis.Gmail.v1;
+using Google.Apis.Services;
+using Google.Apis.Util.Store;
+using MimeKit;
+using Microsoft.Extensions.Logging;
 
 internal class Alert
 {
-    internal static void SendMail(List<Analyzer.AnalysisResult> results)
+    internal static void SendMail_sample(List<Analyzer.AnalysisResult> results)
     {
         // YahooメールのSMTPサーバー情報
         string smtpServer = "smtp.mail.yahoo.com";
@@ -215,5 +223,63 @@ internal class Alert
             writer.WriteLine();
             writer.WriteLine($"出力件数：{alertCount}件");
         }
+    }
+
+    internal static void SendMail()
+    {
+        string[] Scopes = { GmailService.Scope.GmailSend, GmailService.ScopeConstants.GmailSend };
+        string ApplicationName = "Gmail API .NET Quickstart";
+
+        UserCredential credential;
+
+        string credentialFilepath = CommonUtils.Instance.FilepathOfGmailAPICredential;
+
+        using (var stream =
+            new FileStream(credentialFilepath, FileMode.Open, FileAccess.Read))
+        {
+            string credPath = "token.json";
+            credential = GoogleWebAuthorizationBroker.AuthorizeAsync(
+                GoogleClientSecrets.FromStream(stream).Secrets,
+                Scopes,
+                "sadac23@gmail.com",
+                CancellationToken.None,
+                new FileDataStore(credPath, true)).Result;
+            CommonUtils.Instance.Logger.LogInformation("Credential file saved to: " + credPath);
+        }
+
+        // Create Gmail API service.
+        var service = new GmailService(new BaseClientService.Initializer()
+        {
+            HttpClientInitializer = credential,
+            ApplicationName = ApplicationName,
+        });
+
+        // Create the email content
+        var emailMessage = new MimeMessage();
+        emailMessage.From.Add(new MailboxAddress("Your Name", "sadac23@gmail.com"));
+        emailMessage.To.Add(new MailboxAddress("Recipient Name", "sadac23@gmail.com"));
+        emailMessage.Subject = "Test Email";
+        emailMessage.Body = new TextPart("plain")
+        {
+            Text = "This is a test email sent from C# using Gmail API."
+        };
+
+        // Encode the email content
+        var message = new Message
+        {
+            Raw = Base64UrlEncode(emailMessage.ToString())
+        };
+
+        // Send the email
+        service.Users.Messages.Send(message, "sadac23@gmail.com").Execute();
+        CommonUtils.Instance.Logger.LogInformation("Email sent successfully!");
+    }
+    private static string Base64UrlEncode(string input)
+    {
+        var inputBytes = System.Text.Encoding.UTF8.GetBytes(input);
+        return Convert.ToBase64String(inputBytes)
+            .Replace('+', '-')
+            .Replace('/', '_')
+            .Replace("=", "");
     }
 }

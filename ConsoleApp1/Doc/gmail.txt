@@ -222,3 +222,115 @@ Google Cloud Consoleにアクセスし、プロジェクトを選択します。
 dotnet run
 ブラウザが開き、Googleアカウントへのアクセス許可を求められます。今回は、テストユーザーとして追加したアカウントを使用してログインします。
 これで、アプリケーションがGoogleの審査プロセスを完了していなくても、テストユーザーとしてGmail APIにアクセスできるようになります。
+
+---
+C#でGmail APIを利用してメールを送信するには、Googleの公式ライブラリであるGoogle.Apis.Gmail.v1を使用します。
+以下に、Gmail APIを利用してメールを送信するための基本的な手順とコード例を示します。
+
+前提条件
+Google Cloud Platform (GCP) プロジェクトの作成:
+
+Google Cloud Consoleにアクセスし、新しいプロジェクトを作成します。
+Gmail APIを有効にします。
+OAuth 2.0 クライアントIDの作成:
+
+APIとサービス > 認証情報に移動し、OAuth 2.0 クライアントIDを作成します。
+クライアントIDとクライアントシークレットをダウンロードします。
+必要なNuGetパッケージのインストール:
+
+Google.Apis.Gmail.v1
+Google.Apis.Auth
+Google.Apis.Oauth2.v2
+コード例
+以下は、C#でGmail APIを使用してメールを送信するコード例です。
+
+using Google.Apis.Auth.OAuth2;
+using Google.Apis.Gmail.v1;
+using Google.Apis.Gmail.v1.Data;
+using Google.Apis.Services;
+using Google.Apis.Util.Store;
+using MimeKit;
+using System;
+using System.IO;
+using System.Threading;
+
+class Program
+{
+    static string[] Scopes = { GmailService.Scope.GmailSend };
+    static string ApplicationName = "Gmail API .NET Quickstart";
+
+    static void Main(string[] args)
+    {
+        UserCredential credential;
+
+        using (var stream =
+            new FileStream("credentials.json", FileMode.Open, FileAccess.Read))
+        {
+            string credPath = "token.json";
+            credential = GoogleWebAuthorizationBroker.AuthorizeAsync(
+                GoogleClientSecrets.Load(stream).Secrets,
+                Scopes,
+                "user",
+                CancellationToken.None,
+                new FileDataStore(credPath, true)).Result;
+            Console.WriteLine("Credential file saved to: " + credPath);
+        }
+
+        // Create Gmail API service.
+        var service = new GmailService(new BaseClientService.Initializer()
+        {
+            HttpClientInitializer = credential,
+            ApplicationName = ApplicationName,
+        });
+
+        // Create the email content
+        var emailMessage = new MimeMessage();
+        emailMessage.From.Add(new MailboxAddress("Your Name", "your-email@gmail.com"));
+        emailMessage.To.Add(new MailboxAddress("Recipient Name", "recipient-email@gmail.com"));
+        emailMessage.Subject = "Test Email";
+        emailMessage.Body = new TextPart("plain")
+        {
+            Text = "This is a test email sent from C# using Gmail API."
+        };
+
+        // Encode the email content
+        var message = new Message
+        {
+            Raw = Base64UrlEncode(emailMessage.ToString())
+        };
+
+        // Send the email
+        service.Users.Messages.Send(message, "me").Execute();
+        Console.WriteLine("Email sent successfully!");
+    }
+
+    private static string Base64UrlEncode(string input)
+    {
+        var inputBytes = System.Text.Encoding.UTF8.GetBytes(input);
+        return Convert.ToBase64String(inputBytes)
+            .Replace('+', '-')
+            .Replace('/', '_')
+            .Replace("=", "");
+    }
+}
+説明
+認証:
+
+credentials.jsonファイルを使用してOAuth 2.0認証を行います。このファイルはGoogle Cloud Consoleからダウンロードしたものです。
+認証情報はtoken.jsonに保存され、次回以降の実行時に再認証を省略できます。
+Gmail APIサービスの作成:
+
+認証情報を使用してGmail APIサービスを初期化します。
+メールの作成:
+
+MimeKitライブラリを使用してメールの内容を作成します。
+メールのエンコード:
+
+メールの内容をBase64URLエンコードします。
+メールの送信:
+
+Gmail APIを使用してメールを送信します。
+注意点
+credentials.jsonファイルとtoken.jsonファイルのパスは適宜変更してください。
+MimeKitライブラリを使用するために、NuGetパッケージMimeKitをインストールする必要があります。
+これで、C#でGmail APIを利用してメールを送信することができます。
