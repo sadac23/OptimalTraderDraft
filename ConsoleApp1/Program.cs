@@ -250,7 +250,7 @@ logger.LogInformation(CommonUtils.Instance.MessageAtApplicationEnd);
 
 void OneDriveRefresh()
 {
-    string oneDrivePath = @"C:\Program Files\Microsoft OneDrive\onedrive.exe"; // OneDriveの実行ファイルのパス
+    string oneDrivePath = @"C:\Program Files\Microsoft OneDrive\OneDrive.exe"; // OneDriveの実行ファイルのパス
 
     if (File.Exists(oneDrivePath))
     {

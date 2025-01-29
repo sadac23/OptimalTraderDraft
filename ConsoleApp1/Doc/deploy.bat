@@ -31,7 +31,7 @@ echo %SOURCE_FOLDER% を %DEST_FOLDER% にコピー中...
 xcopy /e /i /y "%SOURCE_FOLDER%" "%DEST_FOLDER%\net8.0"
 
 REM ②コピー完了後、CファイルをAフォルダ内にコピーする。
-set C_FILE="C:\works\OptimalTrader\ConsoleApp1.dll.config"
+set C_FILE="%repoPath%\ConsoleApp1\Doc\ConsoleApp1.dll.config"
 set DEST_FILE_PATH="%DEST_FOLDER%\net8.0\ConsoleApp1.dll.config"
 
 echo %C_FILE% を %DEST_FOLDER%\net8.0 にコピー中...
