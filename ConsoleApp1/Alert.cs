@@ -136,7 +136,11 @@ internal class Alert
                     writer.WriteLine("");
                     writer.WriteLine($"No.{alertCount.ToString("D2")}{badge}");
                     writer.WriteLine($"{r.StockInfo.Code}：{r.StockInfo.Name}（{r.StockInfo.Industry}）");
-                    writer.WriteLine($"株価：{r.StockInfo.LatestPrice.ToString("N1")}（{r.StockInfo.LatestPriceDate.ToString("yyyy/MM/dd")}：L{r.StockInfo.LatestPriceRSIL.ToString("N2")},S{r.StockInfo.LatestPriceRSIS.ToString("N2")}）{(r.StockInfo.OversoldIndicator() || r.StockInfo.OverboughtIndicator() ? mark : string.Empty)}");
+                    writer.WriteLine($"株価：{r.StockInfo.LatestPrice.ToString("N1")}" +
+                        $"（{r.StockInfo.LatestPriceDate.ToString("yyyy/MM/dd")}" +
+                        $"：L{r.StockInfo.LatestPriceRSIL.ToString("N2")}" +
+                        $",S{r.StockInfo.LatestPriceRSIS.ToString("N2")}" +
+                        $"）{(r.StockInfo.OversoldIndicator() || (r.StockInfo.IsOwnedNow() && r.StockInfo.OverboughtIndicator()) ? mark : string.Empty)}");
                     writer.WriteLine($"市場：{r.StockInfo.Section}");
                     writer.WriteLine($"配当利回り：{CommonUtils.Instance.ConvertToPercentage(r.StockInfo.DividendYield)}（{CommonUtils.Instance.ConvertToPercentage(r.StockInfo.DividendPayoutRatio)},{r.StockInfo.DividendRecordDateMonth}）{(r.StockInfo.IsDividendRecordDateClose() ? mark : string.Empty)}");
                     if (!string.IsNullOrEmpty(r.StockInfo.ShareholderBenefitsDetails))
