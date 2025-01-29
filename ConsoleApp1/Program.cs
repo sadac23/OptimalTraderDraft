@@ -142,6 +142,8 @@ using Google.Apis.Util.Store;
  * ・済：進捗良好判定の基準値を厳しくする。
  * ・済：実行ログの実装
  * ・済：処理前にOneDriveをリフレッシュする。
+ * ・約定リストの自動更新。
+ * ・メール通知する
  */
 
 /* TODO
@@ -184,7 +186,7 @@ logger.LogInformation(CommonUtils.Instance.MessageAtApplicationStartup);
 OneDriveRefresh();
 
 // TODO: 約定履歴リストを更新
-// UpdateXlsxExecutionStockList();
+UpdateXlsxExecutionStockList();
 
 // 約定履歴取得
 var executionList = ExecutionList.GetXlsxExecutionStockList();
@@ -244,7 +246,7 @@ foreach (var watchStock in watchList)
 Alert.SaveFile(results);
 
 // TODO: メール送信
-//Alert.SendMail();
+Alert.SendMail();
 
 logger.LogInformation(CommonUtils.Instance.MessageAtApplicationEnd);
 
@@ -436,7 +438,11 @@ void UpdateXlsxExecutionStockList()
 
     // クレデンシャルが存在しない場合は無視
     if (string.IsNullOrEmpty(credentialFilepath)) return;
-    if (!File.Exists(credentialFilepath)) return;
+    if (!File.Exists(credentialFilepath))
+    {
+        CommonUtils.Instance.Logger.LogInformation($"約定リスト更新（Gmail検索）スキップ：APICredentialFileなし({credentialFilepath})");
+        return;
+    }
 
     using (var stream =
         new FileStream(credentialFilepath, FileMode.Open, FileAccess.Read))

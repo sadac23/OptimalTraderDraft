@@ -191,15 +191,6 @@ internal class Alert
                         count++;
                     }
 
-                    //writer.WriteLine($"変動履歴：");
-                    //foreach (Analyzer.AnalysisResult.PriceVolatility p in r.PriceVolatilities)
-                    //{
-                    //    writer.WriteLine($"{p.VolatilityRateIndex1Date.ToString("yyyy/MM/dd")}" +
-                    //        $"：{p.VolatilityRateIndex1.ToString("N1")}" +
-                    //        $"：{CommonUtils.Instance.ConvertToPercentage(p.VolatilityRate)}" +
-                    //        $"({p.VolatilityTerm}){(p.ShouldAlert ? CommonUtils.Instance.WatchMark : string.Empty)}");
-                    //}
-
                     writer.WriteLine($"チャート：");
                     foreach (var p in r.StockInfo.ChartPrices)
                     {
@@ -233,6 +224,11 @@ internal class Alert
         UserCredential credential;
 
         string credentialFilepath = CommonUtils.Instance.FilepathOfGmailAPICredential;
+        if (!File.Exists(credentialFilepath))
+        {
+            CommonUtils.Instance.Logger.LogInformation($"Gmail送信スキップ：APICredentialFileなし({credentialFilepath})");
+            return;
+        }
 
         using (var stream =
             new FileStream(credentialFilepath, FileMode.Open, FileAccess.Read))
