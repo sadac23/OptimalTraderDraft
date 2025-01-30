@@ -201,6 +201,10 @@ internal class CommonUtils : IDisposable
     /// </summary>
     public double ThresholdOfOversoldRSI { get; } = 30.00;
     /// <summary>
+    /// 四半期決算日が近いかを判定する日数の閾値
+    /// </summary>
+    public short ThresholdOfDaysToQuarterEnd { get; } = 14;
+    /// <summary>
     /// 売買文字列
     /// </summary>
     public BuyOrSellStringClass BuyOrSellString { get; } = new BuyOrSellStringClass();
@@ -291,8 +295,9 @@ internal class CommonUtils : IDisposable
     {
         public string ShouldWatch { get; } = "★";
         public string IsOwned { get; } = "【持】";
-        public string IsRecordDateClose { get; } = "【権】";
+        public string IsCloseToRecordDate { get; } = "【権】";
         public string IsFavorite { get; } = "【注】";
+        public string IsCloseToQuarterEnd { get; } = "【決】";
     }
 
     public class ThresholdOfProgressSuccessClass

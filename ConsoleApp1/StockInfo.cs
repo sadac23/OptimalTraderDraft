@@ -1,6 +1,7 @@
 ﻿// See https://aka.ms/new-console-template for more information
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Bibliography;
+using DocumentFormat.OpenXml.Drawing;
 using DocumentFormat.OpenXml.Drawing.Diagrams;
 using System.Data.Entity;
 using System.Data.Entity.Core.Metadata.Edm;
@@ -560,7 +561,7 @@ internal class StockInfo
     /// 配当権利確定日が近いか？
     /// </summary>
     /// <remarks>配当権利確定日が当月以内の場合にtrueを返す。</remarks>
-    internal bool IsDividendRecordDateClose()
+    internal bool IsCloseToDividendRecordDate()
     {
         return IsWithinMonths(this.DividendRecordDateMonth, 0);
     }
@@ -774,7 +775,7 @@ internal class StockInfo
     /// 優待権利確定日が近いか？
     /// </summary>
     /// <remarks>優待権利確定日が当月以内の場合にtrueを返す。</remarks>
-    internal bool IsShareholderBenefitRecordDateClose()
+    internal bool IsCloseToShareholderBenefitRecordDate()
     {
         return IsWithinMonths(this.ShareholderBenefitRecordMonth, 0);
     }
@@ -922,6 +923,36 @@ internal class StockInfo
                 }
             }
         }
+    }
+
+    /// <summary>
+    /// 四半期決算日が近いか？
+    /// </summary>
+    /// <returns></returns>
+    /// <exception cref="NotImplementedException"></exception>
+    internal bool IsCloseToQuarterEnd()
+    {
+        bool result = false;
+
+        if (string.IsNullOrEmpty(this.PressReleaseDate)) return result;
+
+        // 正規表現を使用して日付を抽出
+        var datePattern = @"\d{4}年\d{1,2}月\d{1,2}日";
+        var match = Regex.Match(this.PressReleaseDate, datePattern);
+
+        if (match.Success)
+        {
+            // 抽出した日付をDateTimeに変換
+            if (DateTime.TryParseExact(match.Value, "yyyy年M月d日", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime extractedDate))
+            {
+                // 指定日付から閾値日数以内かを判定
+                var oneMonthBefore = CommonUtils.Instance.ExecusionDate;
+                var oneMonthAfter = CommonUtils.Instance.ExecusionDate.AddDays(CommonUtils.Instance.ThresholdOfDaysToQuarterEnd);
+                result = extractedDate >= oneMonthBefore && extractedDate <= oneMonthAfter;
+            }
+        }
+
+        return result;
     }
 
     /// <summary>

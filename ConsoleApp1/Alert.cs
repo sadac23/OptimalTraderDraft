@@ -60,7 +60,7 @@ internal class Alert
     }
     internal static void SaveFile(List<Analyzer.AnalysisResult> results)
     {
-        //No.01【持】【権】【注】
+        //No.01【持】【権】【注】【決】
         //1928：積水ハウス(株)（建設業）
         //株価：1,234.0（2024/11/29：L99.99,S99.99）★
         //市場：東証プライム,名証プレミア
@@ -130,8 +130,9 @@ internal class Alert
                     // バッジの取得
                     string badge = string.Empty;
                     if (r.StockInfo.IsOwnedNow()) badge += CommonUtils.Instance.BadgeString.IsOwned;
-                    if (r.StockInfo.IsDividendRecordDateClose() || r.StockInfo.IsShareholderBenefitRecordDateClose()) badge += CommonUtils.Instance.BadgeString.IsRecordDateClose;
+                    if (r.StockInfo.IsCloseToDividendRecordDate() || r.StockInfo.IsCloseToShareholderBenefitRecordDate()) badge += CommonUtils.Instance.BadgeString.IsCloseToRecordDate;
                     if (r.StockInfo.IsFavorite) badge += CommonUtils.Instance.BadgeString.IsFavorite;
+                    if (r.StockInfo.IsCloseToQuarterEnd()) badge += CommonUtils.Instance.BadgeString.IsCloseToQuarterEnd;
 
                     writer.WriteLine("");
                     writer.WriteLine($"No.{alertCount.ToString("D2")}{badge}");
@@ -142,9 +143,9 @@ internal class Alert
                         $",S{r.StockInfo.LatestPriceRSIS.ToString("N2")}" +
                         $"）{(r.StockInfo.OversoldIndicator() || (r.StockInfo.IsOwnedNow() && r.StockInfo.OverboughtIndicator()) ? mark : string.Empty)}");
                     writer.WriteLine($"市場：{r.StockInfo.Section}");
-                    writer.WriteLine($"配当利回り：{CommonUtils.Instance.ConvertToPercentage(r.StockInfo.DividendYield)}（{CommonUtils.Instance.ConvertToPercentage(r.StockInfo.DividendPayoutRatio)},{r.StockInfo.DividendRecordDateMonth}）{(r.StockInfo.IsDividendRecordDateClose() ? mark : string.Empty)}");
+                    writer.WriteLine($"配当利回り：{CommonUtils.Instance.ConvertToPercentage(r.StockInfo.DividendYield)}（{CommonUtils.Instance.ConvertToPercentage(r.StockInfo.DividendPayoutRatio)},{r.StockInfo.DividendRecordDateMonth}）{(r.StockInfo.IsCloseToDividendRecordDate() ? mark : string.Empty)}");
                     if (!string.IsNullOrEmpty(r.StockInfo.ShareholderBenefitsDetails))
-                        writer.WriteLine($"優待利回り：{CommonUtils.Instance.ConvertToPercentage(r.StockInfo.ShareholderBenefitYield)}（{r.StockInfo.ShareholderBenefitsDetails},{r.StockInfo.NumberOfSharesRequiredForBenefits},{r.StockInfo.ShareholderBenefitRecordMonth},{r.StockInfo.ShareholderBenefitRecordDay}）{(r.StockInfo.IsShareholderBenefitRecordDateClose() ? mark : string.Empty)}");
+                        writer.WriteLine($"優待利回り：{CommonUtils.Instance.ConvertToPercentage(r.StockInfo.ShareholderBenefitYield)}（{r.StockInfo.ShareholderBenefitsDetails},{r.StockInfo.NumberOfSharesRequiredForBenefits},{r.StockInfo.ShareholderBenefitRecordMonth},{r.StockInfo.ShareholderBenefitRecordDay}）{(r.StockInfo.IsCloseToShareholderBenefitRecordDate() ? mark : string.Empty)}");
 
                     // 通期予想履歴
                     count = 0;

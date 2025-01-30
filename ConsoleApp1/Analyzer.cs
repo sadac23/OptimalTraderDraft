@@ -311,7 +311,7 @@ internal class Analyzer
                 // 強制通知
             }
             // 配当/優待権利確定月が近い場合
-            else if (this.StockInfo.IsDividendRecordDateClose() || this.StockInfo.IsShareholderBenefitRecordDateClose())
+            else if (this.StockInfo.IsCloseToDividendRecordDate() || this.StockInfo.IsCloseToShareholderBenefitRecordDate())
             {
                 // 利回りが低い場合
                 if (!this.StockInfo.IsHighYield()) result = false;
