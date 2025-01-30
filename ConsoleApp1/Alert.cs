@@ -223,7 +223,14 @@ internal class Alert
 
     internal static void SendMail()
     {
-        string[] Scopes = { GmailService.Scope.GmailSend, GmailService.ScopeConstants.GmailSend };
+        string[] Scopes = { 
+                GmailService.Scope.GmailSend
+                //, GmailService.Scope.GmailSettingsBasic
+                //, GmailService.Scope.GmailModify
+                //, GmailService.Scope.GmailSettingsSharing 
+                //, GmailService.Scope.GmailMetadata
+                //, GmailService.Scope.MailGoogleCom
+        };
         string ApplicationName = "Gmail API .NET Quickstart";
 
         UserCredential credential;
