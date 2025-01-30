@@ -9,6 +9,7 @@ using NLog.Extensions.Logging;
 using System.Configuration;
 using System.Globalization;
 using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
+using System.Collections.Specialized;
 
 internal class CommonUtils : IDisposable
 {
@@ -51,6 +52,20 @@ internal class CommonUtils : IDisposable
     /// GmailAPIのCredentialファイルパス
     /// </summary>
     public string FilepathOfGmailAPICredential { get; set; } = ConfigurationManager.AppSettings["GmailAPICredentialFilePath"];
+
+    /// <summary>
+    /// OneDriveをリフレッシュするべきか？
+    /// </summary>
+    public bool ShouldRefreshOneDrive { get; set; } = false;
+    /// <summary>
+    /// 約定リストを更新すべきか？
+    /// </summary>
+    public bool ShouldUpdateExecutionList { get; set; } = false;
+    /// <summary>
+    /// メールを送信すべきか？
+    /// </summary>
+    public bool ShouldSendMail { get; set; } = false;
+
     /// <summary>
     /// アプリケーション開始時のメッセージ
     /// </summary>
@@ -77,6 +92,28 @@ internal class CommonUtils : IDisposable
 
     // プライベートコンストラクタにより、外部からのインスタンス化を防ぐ
     private CommonUtils()
+    {
+        // ロガー
+        SetupLogger();
+        // フラグ
+        SetupFlag();
+    }
+
+    /// <summary>
+    /// フラグの準備
+    /// </summary>
+    private void SetupFlag()
+    {
+        var processSettings = (NameValueCollection)ConfigurationManager.GetSection("processSettings");
+        this.ShouldUpdateExecutionList = processSettings["ShouldUpdateExecutionList"] == "1" ? true : false;
+        this.ShouldSendMail = processSettings["ShouldSendMail"] == "1" ? true : false;
+        this.ShouldRefreshOneDrive = processSettings["ShouldRefreshOneDrive"] == "1" ? true : false;
+    }
+
+    /// <summary>
+    /// ロガーの準備
+    /// </summary>
+    private void SetupLogger()
     {
         // NLogの設定をコード内で行う
         var config = new LoggingConfiguration();

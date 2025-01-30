@@ -144,6 +144,7 @@ using Google.Apis.Util.Store;
  * ・済：処理前にOneDriveをリフレッシュする。
  * ・済：所持している場合のみRSI上限バッジを表示する。
  * ・済：決算前バッジの追加。
+ * ・済：処理の実行をフラグ制御する。
  */
 
 /* TODO
@@ -183,10 +184,10 @@ var minkabuScraper = new MinkabuScraper();
 logger.LogInformation(CommonUtils.Instance.MessageAtApplicationStartup);
 
 // OneDriveリフレッシュ
-OneDriveRefresh();
+if (CommonUtils.Instance.ShouldRefreshOneDrive) OneDriveRefresh();
 
-// TODO: 約定履歴リストを更新
-UpdateXlsxExecutionStockList();
+// 約定履歴リストを更新
+if (CommonUtils.Instance.ShouldUpdateExecutionList) UpdateXlsxExecutionStockList();
 
 // 約定履歴取得
 var executionList = ExecutionList.GetXlsxExecutionStockList();
@@ -245,8 +246,8 @@ foreach (var watchStock in watchList)
 // ファイル保存
 Alert.SaveFile(results);
 
-// TODO: メール送信
-Alert.SendMail();
+// メール送信
+if (CommonUtils.Instance.ShouldSendMail) Alert.SendMail();
 
 logger.LogInformation(CommonUtils.Instance.MessageAtApplicationEnd);
 
