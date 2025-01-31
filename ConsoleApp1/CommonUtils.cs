@@ -54,6 +54,11 @@ internal class CommonUtils : IDisposable
     public string FilepathOfGmailAPICredential { get; set; } = ConfigurationManager.AppSettings["GmailAPICredentialFilePath"];
 
     /// <summary>
+    /// メールの件名
+    /// </summary>
+    public string MailSubject { get; set; } = ConfigurationManager.AppSettings["MailSubject"];
+
+    /// <summary>
     /// OneDriveをリフレッシュするべきか？
     /// </summary>
     public bool ShouldRefreshOneDrive { get; set; } = false;

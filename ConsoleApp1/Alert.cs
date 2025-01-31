@@ -223,14 +223,7 @@ internal class Alert
 
     internal static void SendMail()
     {
-        string[] Scopes = { 
-                GmailService.Scope.GmailSend
-                //, GmailService.Scope.GmailSettingsBasic
-                //, GmailService.Scope.GmailModify
-                //, GmailService.Scope.GmailSettingsSharing 
-                //, GmailService.Scope.GmailMetadata
-                //, GmailService.Scope.MailGoogleCom
-        };
+        string[] Scopes = { GmailService.Scope.GmailSend };
         string ApplicationName = "Gmail API .NET Quickstart";
 
         UserCredential credential;
@@ -266,11 +259,29 @@ internal class Alert
         var emailMessage = new MimeMessage();
         emailMessage.From.Add(new MailboxAddress("Your Name", "sadac23@gmail.com"));
         emailMessage.To.Add(new MailboxAddress("Recipient Name", "sadac23@gmail.com"));
-        emailMessage.Subject = "Test Email";
-        emailMessage.Body = new TextPart("plain")
+        emailMessage.Subject = CommonUtils.Instance.MailSubject;
+
+        var body = new TextPart("plain")
         {
-            Text = "This is a test email sent from C# using Gmail API."
+            Text = "OptimalTrader processing has completed."
         };
+
+        var alertFilePath = CommonUtils.ReplacePlaceholder(CommonUtils.Instance.FilepathOfAlert, "{yyyyMMdd}", CommonUtils.Instance.ExecusionDate.ToString("yyyyMMdd"));
+
+        // テキストファイルの添付
+        var attachment = new MimePart("text", "plain")
+        {
+            Content = new MimeContent(File.OpenRead(alertFilePath)),
+            ContentDisposition = new ContentDisposition(ContentDisposition.Attachment),
+            ContentTransferEncoding = ContentEncoding.Base64,
+            FileName = System.IO.Path.GetFileName(alertFilePath)
+        };
+
+        // メールに本文と添付ファイルを追加
+        var multipart = new Multipart("mixed");
+        multipart.Add(body);
+        multipart.Add(attachment);
+        emailMessage.Body = multipart;
 
         // Encode the email content
         var message = new Message
