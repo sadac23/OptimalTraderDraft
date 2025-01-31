@@ -159,7 +159,6 @@ using Google.Apis.Util.Store;
  * ・最終購入より下げてた場合はマーク
  * ・買残が出来高の何倍残っているか？
  * ・毎日実行して5日分ローテ
- * ・ラインに通知する（会社PCからは開発できない）
  * ・株価履歴のスクレイピング基準開始日は、3か月前でそろえる
  * ・4Q発表のタイミングで株探の通期予想が実績に置き換えられてしまうため、4Qの予実が算出できない。（常に100%になる。）
  * 　修正履歴も前期分は見れないため、取得不可。
@@ -168,88 +167,96 @@ using Google.Apis.Util.Store;
  * ・バッジ種類でまとめて出力する。
  * ・約定リストの自動更新。
  * ・海外投信、ETFの対応。
+ * ・株式分割が発生したら株価履歴をリフレッシュする。
  */
 
 var logger = CommonUtils.Instance.Logger;
 
-// 分析結果
-var results = new List<Analyzer.AnalysisResult>();
-
-// インスタンス生成
-var analyzer = new Analyzer();
-var yahooScraper = new YahooScraper();
-var kabutanScraper = new KabutanScraper();
-var minkabuScraper = new MinkabuScraper();
-
-logger.LogInformation(CommonUtils.Instance.MessageAtApplicationStartup);
-
-// OneDriveリフレッシュ
-if (CommonUtils.Instance.ShouldRefreshOneDrive) OneDriveRefresh();
-
-// 約定履歴リストを更新
-if (CommonUtils.Instance.ShouldUpdateExecutionList) UpdateXlsxExecutionStockList();
-
-// 約定履歴取得
-var executionList = ExecutionList.GetXlsxExecutionStockList();
-
-// ウォッチリスト取得
-var watchList = WatchList.GetXlsxWatchStockList();
-
-// マスタ取得
-var masterList = MasterList.GetXlsxAveragePerPbrList();
-
-// 直近の営業日を取得
-var lastTradingDay = GetLastTradingDay();
-
-// 過去の株価履歴キャッシュを削除
-DeleteHistoryCache();
-
-// ウォッチ銘柄を処理
-foreach (var watchStock in watchList)
+try
 {
-    // 削除日が入っていたらスキップ
-    if (!string.IsNullOrEmpty(watchStock.DeleteDate)) continue;
+    // 分析結果
+    var results = new List<Analyzer.AnalysisResult>();
 
-    var stockInfo = new StockInfo(watchStock);
+    // インスタンス生成
+    var analyzer = new Analyzer();
+    var yahooScraper = new YahooScraper();
+    var kabutanScraper = new KabutanScraper();
+    var minkabuScraper = new MinkabuScraper();
 
-    // 株価更新開始日を取得（なければ基準開始日を取得）
-    var startDate = GetStartDate(watchStock.Code);
+    logger.LogInformation(CommonUtils.Instance.MessageAtApplicationStartup);
 
-    // 外部サイトの情報取得
-    await yahooScraper.ScrapeTop(stockInfo);
-    await yahooScraper.ScrapeProfile(stockInfo);
-    if (lastTradingDay > startDate)
-        await yahooScraper.ScrapeHistory(stockInfo, startDate, CommonUtils.Instance.ExecusionDate);
-    await kabutanScraper.ScrapeFinance(stockInfo);
-    await minkabuScraper.ScrapeDividend(stockInfo);
-    await minkabuScraper.ScrapeYutai(stockInfo);
+    // OneDriveリフレッシュ
+    if (CommonUtils.Instance.ShouldRefreshOneDrive) OneDriveRefresh();
 
-    // 約定履歴を設定
-    stockInfo.SetExecutions(executionList);
+    // 約定履歴リストを更新
+    if (CommonUtils.Instance.ShouldUpdateExecutionList) UpdateXlsxExecutionStockList();
 
-    // マスタを設定
-    stockInfo.SetAveragePerPbr(masterList);
+    // 約定履歴取得
+    var executionList = ExecutionList.GetXlsxExecutionStockList();
 
-    // キャッシュ更新
-    UpdateMaster(stockInfo);
+    // ウォッチリスト取得
+    var watchList = WatchList.GetXlsxWatchStockList();
 
-    // チャート価格を更新
-    stockInfo.UpdateChartPrices();
+    // マスタ取得
+    var masterList = MasterList.GetXlsxAveragePerPbrList();
 
-    // 分析
-    var result = analyzer.Analize(stockInfo);
+    // 直近の営業日を取得
+    var lastTradingDay = GetLastTradingDay();
 
-    // 結果登録
-    results.Add(result);
+    // 過去の株価履歴キャッシュを削除
+    DeleteHistoryCache();
+
+    // ウォッチ銘柄を処理
+    foreach (var watchStock in watchList)
+    {
+        // 削除日が入っていたらスキップ
+        if (!string.IsNullOrEmpty(watchStock.DeleteDate)) continue;
+
+        var stockInfo = new StockInfo(watchStock);
+
+        // 株価更新開始日を取得（なければ基準開始日を取得）
+        var startDate = GetStartDate(watchStock.Code);
+
+        // 外部サイトの情報取得
+        await yahooScraper.ScrapeTop(stockInfo);
+        await yahooScraper.ScrapeProfile(stockInfo);
+        if (lastTradingDay > startDate)
+            await yahooScraper.ScrapeHistory(stockInfo, startDate, CommonUtils.Instance.ExecusionDate);
+        await kabutanScraper.ScrapeFinance(stockInfo);
+        await minkabuScraper.ScrapeDividend(stockInfo);
+        await minkabuScraper.ScrapeYutai(stockInfo);
+
+        // 約定履歴を設定
+        stockInfo.SetExecutions(executionList);
+
+        // マスタを設定
+        stockInfo.SetAveragePerPbr(masterList);
+
+        // キャッシュ更新
+        UpdateMaster(stockInfo);
+
+        // チャート価格を更新
+        stockInfo.UpdateChartPrices();
+
+        // 分析
+        var result = analyzer.Analize(stockInfo);
+
+        // 結果登録
+        results.Add(result);
+    }
+
+    // ファイル保存
+    Alert.SaveFile(results);
+
+    // メール送信
+    if (CommonUtils.Instance.ShouldSendMail) Alert.SendMail();
+
+    logger.LogInformation(CommonUtils.Instance.MessageAtApplicationEnd);
 }
-
-// ファイル保存
-Alert.SaveFile(results);
-
-// メール送信
-if (CommonUtils.Instance.ShouldSendMail) Alert.SendMail();
-
-logger.LogInformation(CommonUtils.Instance.MessageAtApplicationEnd);
+catch(Exception ex)
+{
+    logger.LogError(ex.Message, ex);
+}
 
 void OneDriveRefresh()
 {
