@@ -243,9 +243,17 @@ internal class CommonUtils : IDisposable
     /// </summary>
     public double ThresholdOfOversoldRSI { get; } = 30.00;
     /// <summary>
+    /// 上げすぎRSI閾値
+    /// </summary>
+    public double ThresholdOfOverboughtRSI { get; } = 70.00;
+    /// <summary>
     /// 四半期決算日が近いかを判定する日数の閾値
     /// </summary>
     public short ThresholdOfDaysToQuarterEnd { get; } = 14;
+    /// <summary>
+    /// 売却直後かを判定する日数の閾値
+    /// </summary>
+    public short ThresholdOfDaysJustSold { get; } = 3;
     /// <summary>
     /// 売買文字列
     /// </summary>
@@ -258,10 +266,6 @@ internal class CommonUtils : IDisposable
     /// 進捗良好の判定基準値
     /// </summary>
     public ThresholdOfProgressSuccessClass ThresholdOfProgressSuccess { get; } = new ThresholdOfProgressSuccessClass();
-    /// <summary>
-    /// 上げすぎRSI閾値
-    /// </summary>
-    public double ThresholdOfOverboughtRSI { get; } = 65.00;
     /// <summary>
     /// バッジ文字列
     /// </summary>
@@ -335,11 +339,13 @@ internal class CommonUtils : IDisposable
 
     public class BadgeStringClass
     {
+        //No.01【所持】【権利】【注目】【決算】【売済】
         public string ShouldWatch { get; } = "★";
-        public string IsOwned { get; } = "【持】";
-        public string IsCloseToRecordDate { get; } = "【権】";
-        public string IsFavorite { get; } = "【注】";
-        public string IsCloseToQuarterEnd { get; } = "【決】";
+        public string IsOwned { get; } = "【所持】";
+        public string IsCloseToRecordDate { get; } = "【権利】";
+        public string IsFavorite { get; } = "【注目】";
+        public string IsCloseToQuarterEnd { get; } = "【決算】";
+        public string IsJustSold { get; } = "【売済】";
     }
 
     public class ThresholdOfProgressSuccessClass

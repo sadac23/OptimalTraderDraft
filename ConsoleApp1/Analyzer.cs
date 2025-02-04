@@ -300,8 +300,8 @@ internal class Analyzer
             // 初期値は通知
             bool result = true;
 
-            // 所有している場合
-            if (this.StockInfo.IsOwnedNow())
+            // 所有しているor売却直後の場合
+            if (this.StockInfo.IsOwnedNow() || this.StockInfo.IsJustSold())
             {
                 // 強制通知
             }

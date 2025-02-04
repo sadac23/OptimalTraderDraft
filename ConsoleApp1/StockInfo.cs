@@ -10,6 +10,7 @@ using System.Globalization;
 using System.Runtime.ConstrainedExecution;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
+using static ExecutionList;
 using static StockInfo;
 
 internal class StockInfo
@@ -949,6 +950,25 @@ internal class StockInfo
                 var oneMonthBefore = CommonUtils.Instance.ExecusionDate;
                 var oneMonthAfter = CommonUtils.Instance.ExecusionDate.AddDays(CommonUtils.Instance.ThresholdOfDaysToQuarterEnd);
                 result = extractedDate >= oneMonthBefore && extractedDate <= oneMonthAfter;
+            }
+        }
+
+        return result;
+    }
+
+    /// <summary>
+    /// 売却直後か？
+    /// </summary>
+    internal bool IsJustSold()
+    {
+        bool result = false;
+
+        foreach (var execution in Executions)
+        {
+            if (execution.BuyOrSell == CommonUtils.Instance.BuyOrSellString.Sell
+                && execution.Date >= CommonUtils.Instance.ExecusionDate.AddDays(-1 * CommonUtils.Instance.ThresholdOfDaysJustSold))
+            {
+                result = true;
             }
         }
 
