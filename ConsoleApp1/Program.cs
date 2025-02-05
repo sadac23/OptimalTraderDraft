@@ -172,6 +172,7 @@ using Google.Apis.Util.Store;
  * ・株式分割が発生したら株価履歴をリフレッシュする。（直近50%以上の下落で判断。）
  * ・性能改善。
  * ・アナリスト予想の取得。
+ * ・進捗率は修正前予想との比較で算出する。（修正予想との比較はKPIにならない。）
  */
 
 var logger = CommonUtils.Instance.Logger;
@@ -218,17 +219,19 @@ try
 
         var stockInfo = new StockInfo(watchStock);
 
-        // 株価更新開始日を取得（なければ基準開始日を取得）
-        var startDate = GetStartDate(watchStock.Code);
+        // 履歴更新の最終日を取得（なければ基準開始日を取得）
+        var lastUpdateDay = GetLastHistoryUpdateDay(watchStock.Code);
 
         // 外部サイトの情報取得
         await yahooScraper.ScrapeTop(stockInfo);
         await yahooScraper.ScrapeProfile(stockInfo);
-        if (lastTradingDay > startDate)
-            await yahooScraper.ScrapeHistory(stockInfo, startDate, CommonUtils.Instance.ExecusionDate);
         await kabutanScraper.ScrapeFinance(stockInfo);
         await minkabuScraper.ScrapeDividend(stockInfo);
         await minkabuScraper.ScrapeYutai(stockInfo);
+
+        // 最終更新後に直近営業日がある場合は取得
+        if (lastTradingDay > lastUpdateDay) 
+            await yahooScraper.ScrapeHistory(stockInfo, lastUpdateDay, CommonUtils.Instance.ExecusionDate);
 
         // 約定履歴を設定
         stockInfo.SetExecutions(executionList);
@@ -325,7 +328,7 @@ DateTime GetLastTradingDay()
     return date;
 }
 
-DateTime GetStartDate(string code)
+DateTime GetLastHistoryUpdateDay(string code)
 {
     DateTime result = CommonUtils.Instance.MasterStartDate;
 
