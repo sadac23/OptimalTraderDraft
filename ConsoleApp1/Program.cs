@@ -40,7 +40,6 @@ using Google.Apis.Gmail.v1.Data;
 using Google.Apis.Services;
 using Google.Apis.Util.Store;
 
-
 /* DONE
  * ・済：ETFの処理
  * ・済：上昇率の分析追加
@@ -170,7 +169,7 @@ using Google.Apis.Util.Store;
  * ・約定リストの自動更新。
  * ・海外投信、ETFの対応。
  * ・株式分割が発生したら株価履歴をリフレッシュする。（直近50%以上の下落で判断。）
- * ・性能改善。
+ * ・性能改善。（主にスクレイピングが遅い。）
  * ・アナリスト予想の取得。
  * ・進捗率は修正前予想との比較で算出する。（修正予想との比較はKPIにならない。）
  */
@@ -223,11 +222,11 @@ try
         var lastUpdateDay = GetLastHistoryUpdateDay(watchStock.Code);
 
         // 外部サイトの情報取得
-        await yahooScraper.ScrapeTop(stockInfo);
-        await yahooScraper.ScrapeProfile(stockInfo);
         await kabutanScraper.ScrapeFinance(stockInfo);
         await minkabuScraper.ScrapeDividend(stockInfo);
         await minkabuScraper.ScrapeYutai(stockInfo);
+        await yahooScraper.ScrapeTop(stockInfo);
+        await yahooScraper.ScrapeProfile(stockInfo);
 
         // 最終更新後に直近営業日がある場合は取得
         if (lastTradingDay > lastUpdateDay) 
@@ -239,8 +238,8 @@ try
         // マスタを設定
         stockInfo.SetAveragePerPbr(masterList);
 
-        // キャッシュ更新
-        UpdateMaster(stockInfo);
+        // キャッシュ登録
+        stockInfo.RegisterCache();
 
         // チャート価格を更新
         stockInfo.UpdateChartPrices();
@@ -357,89 +356,6 @@ DateTime GetLastHistoryUpdateDay(string code)
     }
 
     return result;
-}
-
-void UpdateMaster(StockInfo stockInfo)
-{
-    foreach (var p in stockInfo.Prices)
-    {
-        if (!IsExist(stockInfo.Code, p)) {
-            InsertMaster(stockInfo.Code, p);
-            logger.LogInformation($"Date: {p.Date}, DateYYYYMMDD: {p.DateYYYYMMDD}, Open: {p.Open}, High: {p.High}, Low: {p.Low}, Close: {p.Close}, Volume: {p.Volume}");
-        }
-    }
-}
-
-void InsertMaster(string code, StockInfo.Price p)
-{
-    using (SQLiteConnection connection = new SQLiteConnection(CommonUtils.Instance.ConnectionString))
-    {
-        connection.Open();
-
-        // 挿入クエリ
-        string query = "INSERT INTO history (" +
-            "code" +
-            ", date_string" +
-            ", date" +
-            ", open" +
-            ", high" +
-            ", low" +
-            ", close" +
-            ", volume" +
-            ") VALUES (" +
-            "@code" +
-            ", @date_string" +
-            ", @date" +
-            ", @open" +
-            ", @high" +
-            ", @low" +
-            ", @close" +
-            ", @volume" +
-            ")";
-
-        using (SQLiteCommand command = new SQLiteCommand(query, connection))
-        {
-            // パラメータを設定
-            command.Parameters.AddWithValue("@code", code);
-            command.Parameters.AddWithValue("@date_string", p.DateYYYYMMDD);
-            command.Parameters.AddWithValue("@date", p.Date);
-            command.Parameters.AddWithValue("@open", p.Open);
-            command.Parameters.AddWithValue("@high", p.High);
-            command.Parameters.AddWithValue("@low", p.Low);
-            command.Parameters.AddWithValue("@close", p.Close);
-            command.Parameters.AddWithValue("@volume", p.Volume);
-
-            // クエリを実行
-            int rowsAffected = command.ExecuteNonQuery();
-
-            // 結果を表示
-            logger.LogInformation("Rows inserted: " + rowsAffected);
-        }
-    }
-}
-
-bool IsExist(string code, StockInfo.Price p)
-{
-    using (SQLiteConnection connection = new SQLiteConnection(CommonUtils.Instance.ConnectionString))
-    {
-        connection.Open();
-
-        // プライマリーキーに条件を設定したクエリ
-        string query = "SELECT count(code) as count FROM history WHERE code = @code and date_string = @date_string";
-
-        using (SQLiteCommand command = new SQLiteCommand(query, connection))
-        {
-            // パラメータを設定
-            command.Parameters.AddWithValue("@code", code);
-            command.Parameters.AddWithValue("@date_string", p.DateYYYYMMDD);
-
-            // COUNTの結果を取得
-            object result = command.ExecuteScalar();
-            int count = Convert.ToInt32(result);
-
-            return count > 0;
-        }
-    }
 }
 
 void UpdateXlsxExecutionStockList()

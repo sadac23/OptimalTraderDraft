@@ -3,6 +3,7 @@ using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Bibliography;
 using DocumentFormat.OpenXml.Drawing;
 using DocumentFormat.OpenXml.Drawing.Diagrams;
+using Microsoft.Extensions.Logging;
 using System.Data.Entity;
 using System.Data.Entity.Core.Metadata.Edm;
 using System.Data.SQLite;
@@ -973,6 +974,103 @@ internal class StockInfo
         }
 
         return result;
+    }
+
+    /// <summary>
+    /// データベースへのキャッシュ登録
+    /// </summary>
+    /// <remarks>
+    /// Webサイトのスクライピング結果を必要に応じてデータベースに登録する。
+    /// </remarks>
+    internal void RegisterCache()
+    {
+        // 株価履歴の登録
+        foreach (var p in this.Prices)
+        {
+            if (!IsInHistory(p))
+            {
+                RegsterHistory(p);
+                CommonUtils.Instance.Logger.LogInformation($"[History] Date: {p.Date}, DateYYYYMMDD: {p.DateYYYYMMDD}, Open: {p.Open}, High: {p.High}, Low: {p.Low}, Close: {p.Close}, Volume: {p.Volume}");
+            }
+        }
+
+        // 修正履歴の登録
+        foreach (var f in this.FullYearPerformancesForcasts)
+        {
+
+        }
+    }
+
+    private void RegsterHistory(Price p)
+    {
+        using (SQLiteConnection connection = new SQLiteConnection(CommonUtils.Instance.ConnectionString))
+        {
+            connection.Open();
+
+            // 挿入クエリ
+            string query = "INSERT INTO history (" +
+                "code" +
+                ", date_string" +
+                ", date" +
+                ", open" +
+                ", high" +
+                ", low" +
+                ", close" +
+                ", volume" +
+                ") VALUES (" +
+                "@code" +
+                ", @date_string" +
+                ", @date" +
+                ", @open" +
+                ", @high" +
+                ", @low" +
+                ", @close" +
+                ", @volume" +
+                ")";
+
+            using (SQLiteCommand command = new SQLiteCommand(query, connection))
+            {
+                // パラメータを設定
+                command.Parameters.AddWithValue("@code", this.Code);
+                command.Parameters.AddWithValue("@date_string", p.DateYYYYMMDD);
+                command.Parameters.AddWithValue("@date", p.Date);
+                command.Parameters.AddWithValue("@open", p.Open);
+                command.Parameters.AddWithValue("@high", p.High);
+                command.Parameters.AddWithValue("@low", p.Low);
+                command.Parameters.AddWithValue("@close", p.Close);
+                command.Parameters.AddWithValue("@volume", p.Volume);
+
+                // クエリを実行
+                int rowsAffected = command.ExecuteNonQuery();
+
+                // 結果を表示
+                CommonUtils.Instance.Logger.LogInformation("Rows inserted: " + rowsAffected);
+            }
+        }
+    }
+
+    private bool IsInHistory(Price p)
+    {
+        using (SQLiteConnection connection = new SQLiteConnection(CommonUtils.Instance.ConnectionString))
+        {
+            connection.Open();
+
+            // プライマリーキーに条件を設定したクエリ
+            string query = "SELECT count(code) as count FROM history WHERE code = @code and date_string = @date_string";
+
+            using (SQLiteCommand command = new SQLiteCommand(query, connection))
+            {
+                // パラメータを設定
+                command.Parameters.AddWithValue("@code", this.Code);
+                command.Parameters.AddWithValue("@date_string", p.DateYYYYMMDD);
+
+                // COUNTの結果を取得
+                object result = command.ExecuteScalar();
+                int count = Convert.ToInt32(result);
+
+                return count > 0;
+            }
+        }
     }
 
     /// <summary>
