@@ -664,6 +664,8 @@ internal class StockInfo
             _ => this.QuarterlyPerformancePeriod // デフォルト値（変更しない場合）
         };
 
+        // TODO: 比較対象の予実インスタンスの取得処理を分離する。
+
         // 当期進捗率
         if (this.QuarterlyPerformances.Count >= 2)
         {

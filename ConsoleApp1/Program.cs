@@ -173,6 +173,7 @@ using Google.Apis.Util.Store;
  * ・性能改善。（主にスクレイピングが遅い。）
  * ・アナリスト予想の取得。
  * ・進捗率は修正前予想との比較で算出する。（修正予想との比較はKPIにならない。）
+ * ・購入履歴にナンピンサインを追加。
  */
 
 var logger = CommonUtils.Instance.Logger;
