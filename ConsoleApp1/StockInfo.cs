@@ -990,14 +990,102 @@ internal class StockInfo
             if (!IsInHistory(p))
             {
                 RegsterHistory(p);
-                CommonUtils.Instance.Logger.LogInformation($"[History] Date: {p.Date}, DateYYYYMMDD: {p.DateYYYYMMDD}, Open: {p.Open}, High: {p.High}, Low: {p.Low}, Close: {p.Close}, Volume: {p.Volume}");
             }
         }
 
         // 修正履歴の登録
         foreach (var f in this.FullYearPerformancesForcasts)
         {
+            if (!IsInForcastHistory(f))
+            {
+                RegsterForcastHistory(f);
+            }
+        }
+    }
 
+    private void RegsterForcastHistory(FullYearPerformanceForcast f)
+    {
+        using (SQLiteConnection connection = new SQLiteConnection(CommonUtils.Instance.ConnectionString))
+        {
+            connection.Open();
+
+            // 挿入クエリ
+            string query = "INSERT INTO forcast_history (" +
+                "code" +
+                ", revision_date_string" +
+                ", revision_date" +
+                ", fiscal_period" +
+                ", category" +
+                ", revision_direction" +
+                ", revenue" +
+                ", operating_profit" +
+                ", ordinary_income" +
+                ", net_profit" +
+                ", revised_dividend" +
+                ") VALUES (" +
+                "@code" +
+                ", @revision_date_string" +
+                ", @revision_date" +
+                ", @fiscal_period" +
+                ", @category" +
+                ", @revision_direction" +
+                ", @revenue" +
+                ", @operating_profit" +
+                ", @ordinary_income" +
+                ", @net_profit" +
+                ", @revised_dividend" +
+                ")";
+
+            using (SQLiteCommand command = new SQLiteCommand(query, connection))
+            {
+                // パラメータを設定
+                command.Parameters.AddWithValue("@code", this.Code);
+                command.Parameters.AddWithValue("@revision_date_string", f.RevisionDate.ToString("yyyyMMdd"));
+                command.Parameters.AddWithValue("@revision_date", f.RevisionDate);
+                command.Parameters.AddWithValue("@fiscal_period", f.FiscalPeriod);
+                command.Parameters.AddWithValue("@category", f.Category);
+                command.Parameters.AddWithValue("@revision_direction", f.RevisionDirection);
+                command.Parameters.AddWithValue("@revenue", f.Revenue);
+                command.Parameters.AddWithValue("@operating_profit", f.OperatingProfit);
+                command.Parameters.AddWithValue("@ordinary_income", f.OrdinaryIncome);
+                command.Parameters.AddWithValue("@net_profit", f.NetProfit);
+                command.Parameters.AddWithValue("@revised_dividend", f.RevisedDividend);
+
+                // クエリを実行
+                int rowsAffected = command.ExecuteNonQuery();
+
+                // 結果を表示
+                CommonUtils.Instance.Logger.LogInformation("forcast_history rows inserted: " + rowsAffected);
+            }
+        }
+    }
+
+    /// <summary>
+    /// 予想履歴の存在するか？
+    /// </summary>
+    /// <param name="f"></param>
+    /// <returns></returns>
+    private bool IsInForcastHistory(FullYearPerformanceForcast f)
+    {
+        using (SQLiteConnection connection = new SQLiteConnection(CommonUtils.Instance.ConnectionString))
+        {
+            connection.Open();
+
+            // プライマリーキーに条件を設定したクエリ
+            string query = "SELECT count(code) as count FROM forcast_history WHERE code = @code and revision_date_string = @revision_date_string";
+
+            using (SQLiteCommand command = new SQLiteCommand(query, connection))
+            {
+                // パラメータを設定
+                command.Parameters.AddWithValue("@code", this.Code);
+                command.Parameters.AddWithValue("@revision_date_string", f.RevisionDate.ToString("yyyyMMdd"));
+
+                // COUNTの結果を取得
+                object result = command.ExecuteScalar();
+                int count = Convert.ToInt32(result);
+
+                return count > 0;
+            }
         }
     }
 
@@ -1044,7 +1132,7 @@ internal class StockInfo
                 int rowsAffected = command.ExecuteNonQuery();
 
                 // 結果を表示
-                CommonUtils.Instance.Logger.LogInformation("Rows inserted: " + rowsAffected);
+                CommonUtils.Instance.Logger.LogInformation("history rows inserted: " + rowsAffected);
             }
         }
     }
@@ -1221,7 +1309,7 @@ internal class StockInfo
         /// <summary>
         /// 修正日
         /// </summary>
-        public string RevisionDate { get; internal set; }
+        public DateTime RevisionDate { get; internal set; }
         /// <summary>
         /// 区分
         /// </summary>

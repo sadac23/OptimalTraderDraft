@@ -219,7 +219,7 @@ internal class KabutanScraper
                     FullYearPerformanceForcast p = new FullYearPerformanceForcast()
                     {
                         FiscalPeriod = fiscalPeriod,
-                        RevisionDate = revisionDate,
+                        RevisionDate = ConvertToDateTime(revisionDate),
                         Category = category,
                         RevisionDirection = revisionDirection,
                         Revenue = revenue,
@@ -368,6 +368,15 @@ internal class KabutanScraper
             Console.WriteLine("リクエストエラー: " + e.Message);
         }
     }
+
+    private DateTime ConvertToDateTime(string dateString)
+    {
+        // 指定された形式に従って文字列を解析します
+        string format = "yy/MM/dd";
+        DateTime dateTime = DateTime.ParseExact(dateString, format, CultureInfo.InvariantCulture);
+        return dateTime;
+    }
+
     private double ConvertToDoubleForPerPbr(string multiplierString)
     {
         // "倍"を除去

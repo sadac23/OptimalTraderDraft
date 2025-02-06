@@ -1,0 +1,26 @@
+CREATE TABLE "history" (
+	"code"	char,
+	"date_string"	BLOB,
+	"date"	date,
+	"open"	INTEGER,
+	"high"	INTEGER,
+	"low"	INTEGER,
+	"close"	INTEGER,
+	"volume"	INTEGER,
+	PRIMARY KEY("code","date_string")
+);
+
+CREATE TABLE "forcast_history" (
+	"code"	char,
+	"revision_date_string"	char,
+	"revision_date"	date,
+	"fiscal_period"	varchar,
+	"category"	varchar,
+	"revision_direction"	varchar,
+	"revenue"	double,
+	"operating_profit"	double,
+	"ordinary_income"	double,
+	"net_profit"	double,
+	"revised_dividend"	double,
+	PRIMARY KEY("code","revision_date_string")
+);
