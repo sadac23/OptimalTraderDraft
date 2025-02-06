@@ -1049,6 +1049,9 @@ internal class StockInfo
         }
     }
 
+    /// <summary>
+    /// 履歴に存在するか？
+    /// </summary>
     private bool IsInHistory(Price p)
     {
         using (SQLiteConnection connection = new SQLiteConnection(CommonUtils.Instance.ConnectionString))
@@ -1071,6 +1074,34 @@ internal class StockInfo
                 return count > 0;
             }
         }
+    }
+
+    /// <summary>
+    /// 四半期決算直後であるか？
+    /// </summary>
+    internal bool IsAfterQuarterEnd()
+    {
+        bool result = false;
+
+        if (string.IsNullOrEmpty(this.PressReleaseDate)) return result;
+
+        // 正規表現を使用して日付を抽出
+        var datePattern = @"\d{4}年\d{1,2}月\d{1,2}日";
+        var match = Regex.Match(this.PressReleaseDate, datePattern);
+
+        if (match.Success)
+        {
+            // 抽出した日付をDateTimeに変換
+            if (DateTime.TryParseExact(match.Value, "yyyy年M月d日", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime extractedDate))
+            {
+                // 指定日付より閾値日数以内かを判定
+                var oneMonthBefore = CommonUtils.Instance.ExecusionDate.AddDays(CommonUtils.Instance.ThresholdOfDaysFromQuarterEnd * -1);
+                var oneMonthAfter = CommonUtils.Instance.ExecusionDate;
+                result = extractedDate >= oneMonthBefore && extractedDate <= oneMonthAfter;
+            }
+        }
+
+        return result;
     }
 
     /// <summary>

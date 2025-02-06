@@ -247,9 +247,13 @@ internal class CommonUtils : IDisposable
     /// </summary>
     public double ThresholdOfOverboughtRSI { get; } = 70.00;
     /// <summary>
-    /// 四半期決算日が近いかを判定する日数の閾値
+    /// 四半期決算日直前かを判定する日数の閾値
     /// </summary>
     public short ThresholdOfDaysToQuarterEnd { get; } = 14;
+    /// <summary>
+    /// 四半期決算日直後かを判定する日数の閾値
+    /// </summary>
+    public short ThresholdOfDaysFromQuarterEnd { get; } = 7;
     /// <summary>
     /// 売却直後かを判定する日数の閾値
     /// </summary>
@@ -344,8 +348,9 @@ internal class CommonUtils : IDisposable
         public string IsOwned { get; } = "【所持】";
         public string IsCloseToRecordDate { get; } = "【権利】";
         public string IsFavorite { get; } = "【注目】";
-        public string IsCloseToQuarterEnd { get; } = "【決算】";
-        public string IsJustSold { get; } = "【売済】";
+        public string IsCloseToQuarterEnd { get; } = "【決前】";
+        public string IsJustSold { get; } = "【売後】";
+        public string IsAfterQuarterEnd { get; } = "【決後】";
     }
 
     public class ThresholdOfProgressSuccessClass

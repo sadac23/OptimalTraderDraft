@@ -60,7 +60,7 @@ internal class Alert
     }
     internal static void SaveFile(List<Analyzer.AnalysisResult> results)
     {
-        //No.01【所持】【権利】【注目】【決算】【売済】
+        //No.01【所持】【権利】【注目】【決前】【決後】【売後】
         //1928：積水ハウス(株)（建設業）
         //株価：1,234.0（2024/11/29：L99.99,S99.99）★
         //市場：東証プライム,名証プレミア
@@ -133,6 +133,7 @@ internal class Alert
                     if (r.StockInfo.IsCloseToDividendRecordDate() || r.StockInfo.IsCloseToShareholderBenefitRecordDate()) badge += CommonUtils.Instance.BadgeString.IsCloseToRecordDate;
                     if (r.StockInfo.IsFavorite) badge += CommonUtils.Instance.BadgeString.IsFavorite;
                     if (r.StockInfo.IsCloseToQuarterEnd()) badge += CommonUtils.Instance.BadgeString.IsCloseToQuarterEnd;
+                    if (r.StockInfo.IsAfterQuarterEnd()) badge += CommonUtils.Instance.BadgeString.IsAfterQuarterEnd;
                     if (r.StockInfo.IsJustSold()) badge += CommonUtils.Instance.BadgeString.IsJustSold;
 
                     writer.WriteLine("");
