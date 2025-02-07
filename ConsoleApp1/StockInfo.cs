@@ -1185,9 +1185,10 @@ internal class StockInfo
             if (DateTime.TryParseExact(match.Value, "yyyy年M月d日", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime extractedDate))
             {
                 // 指定日付より閾値日数以内かを判定
+                // 閾値（before） <= 決算日（extracted） < 現在日(after)
                 var oneMonthBefore = CommonUtils.Instance.ExecusionDate.AddDays(CommonUtils.Instance.ThresholdOfDaysFromQuarterEnd * -1);
                 var oneMonthAfter = CommonUtils.Instance.ExecusionDate;
-                result = extractedDate >= oneMonthBefore && extractedDate <= oneMonthAfter;
+                result = extractedDate >= oneMonthBefore && extractedDate < oneMonthAfter;
             }
         }
 
