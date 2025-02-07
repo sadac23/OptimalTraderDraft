@@ -140,7 +140,7 @@ internal class Alert
                     writer.WriteLine($"No.{alertCount.ToString("D2")}{badge}");
                     writer.WriteLine($"{r.StockInfo.Code}：{r.StockInfo.Name}（{r.StockInfo.Industry}）");
                     writer.WriteLine($"株価：{r.StockInfo.LatestPrice.ToString("N1")}" +
-                        $"（{r.StockInfo.LatestPriceDate.ToString("yyyy/MM/dd")}" +
+                        $"（{r.StockInfo.LatestPriceDate.ToString("yy/MM/dd")}" +
                         $"：L{r.StockInfo.LatestPriceRSIL.ToString("N2")}" +
                         $",S{r.StockInfo.LatestPriceRSIS.ToString("N2")}" +
                         $"）{(r.StockInfo.OversoldIndicator() || (r.StockInfo.IsOwnedNow() && r.StockInfo.OverboughtIndicator()) ? mark : string.Empty)}");
@@ -154,12 +154,12 @@ internal class Alert
                     foreach (var p in r.StockInfo.FullYearPerformancesForcasts)
                     {
                         if (count == 0) writer.WriteLine($"通期予想（前期比）：");
-                        writer.WriteLine($"{p.Category}：{p.RevisionDate.ToString("yyyy/MM/dd")}：{p.Summary}{(p.HasUpwardRevision() ? mark : string.Empty)}");
+                        writer.WriteLine($"{p.Category}：{p.RevisionDate.ToString("yy/MM/dd")}：{p.Summary}{(p.HasUpwardRevision() ? mark : string.Empty)}");
                         count++;
                     }
 
-                    writer.WriteLine($"通期進捗：{r.StockInfo.QuarterlyPerformancePeriod}：{CommonUtils.Instance.ConvertToPercentage(r.StockInfo.QuarterlyFullyearProgressRate)}（{r.StockInfo.QuarterlyPerformanceReleaseDate.ToString("yyyy/MM/dd")}）{(r.StockInfo.IsAnnualProgressOnTrack() ? mark : string.Empty)}");
-                    writer.WriteLine($"前期進捗：{r.StockInfo.QuarterlyPerformancePeriod}：{CommonUtils.Instance.ConvertToPercentage(r.StockInfo.PreviousFullyearProgressRate)}（{r.StockInfo.PreviousPerformanceReleaseDate.ToString("yyyy/MM/dd")}）");
+                    writer.WriteLine($"通期進捗：{r.StockInfo.QuarterlyPerformancePeriod}：{CommonUtils.Instance.ConvertToPercentage(r.StockInfo.QuarterlyFullyearProgressRate)}（{r.StockInfo.QuarterlyPerformanceReleaseDate.ToString("yy/MM/dd")}）{(r.StockInfo.IsAnnualProgressOnTrack() ? mark : string.Empty)}");
+                    writer.WriteLine($"前期進捗：{r.StockInfo.QuarterlyPerformancePeriod}：{CommonUtils.Instance.ConvertToPercentage(r.StockInfo.PreviousFullyearProgressRate)}（{r.StockInfo.PreviousPerformanceReleaseDate.ToString("yy/MM/dd")}）");
                     writer.WriteLine($"時価総額：{CommonUtils.Instance.ConvertToYenNotation(r.StockInfo.MarketCap)}");
 
                     count = 0;
@@ -194,14 +194,14 @@ internal class Alert
                     foreach (ExecutionList.Execution e in r.StockInfo.Executions)
                     {
                         if (count == 0) writer.WriteLine($"約定履歴：{(b ? mark : string.Empty)}");
-                        writer.WriteLine($"{e.BuyOrSell}：{e.Date.ToString("yyyy/MM/dd")}：{e.Price.ToString("N1")}*{e.Quantity}：{CommonUtils.Instance.ConvertToPercentage((r.StockInfo.LatestPrice / e.Price) - 1)}");
+                        writer.WriteLine($"{e.BuyOrSell}：{e.Date.ToString("yy/MM/dd")}：{e.Price.ToString("N1")}*{e.Quantity}：{CommonUtils.Instance.ConvertToPercentage((r.StockInfo.LatestPrice / e.Price) - 1)}");
                         count++;
                     }
 
                     writer.WriteLine($"チャート：");
                     foreach (var p in r.StockInfo.ChartPrices)
                     {
-                        writer.WriteLine($"{p.Date.ToString("yyyy/MM/dd")}" +
+                        writer.WriteLine($"{p.Date.ToString("yy/MM/dd")}" +
                             $"：{p.Price.ToString("N1")}" +
                             $"：{CommonUtils.Instance.ConvertToPercentage(p.Volatility)}" +
                             $"：L{p.RSIL.ToString("N2")}" +
