@@ -94,8 +94,6 @@ internal class YahooScraper
     {
         var url = $"https://finance.yahoo.co.jp/quote/{stockInfo.Code}.T/profile";
 
-        CommonUtils.Instance.Logger.LogInformation(url);
-
         using (HttpClient client = new HttpClient())
         {
             try
@@ -103,6 +101,8 @@ internal class YahooScraper
                 HttpResponseMessage response = await client.GetAsync(url);
                 response.EnsureSuccessStatusCode();
                 string pageContent = await response.Content.ReadAsStringAsync();
+
+                CommonUtils.Instance.Logger.LogInformation(url);
 
                 HtmlDocument document = new HtmlDocument();
                 document.LoadHtml(pageContent);
@@ -136,8 +136,6 @@ internal class YahooScraper
     {
         var url = $"https://finance.yahoo.co.jp/quote/{stockInfo.Code}.T";
 
-        CommonUtils.Instance.Logger.LogInformation(url);
-
         using (HttpClient client = new HttpClient())
         {
             try
@@ -145,6 +143,8 @@ internal class YahooScraper
                 HttpResponseMessage response = await client.GetAsync(url);
                 response.EnsureSuccessStatusCode();
                 string pageContent = await response.Content.ReadAsStringAsync();
+
+                CommonUtils.Instance.Logger.LogInformation(url);
 
                 HtmlDocument document = new HtmlDocument();
                 document.LoadHtml(pageContent);

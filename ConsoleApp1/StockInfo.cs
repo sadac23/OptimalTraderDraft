@@ -950,9 +950,10 @@ internal class StockInfo
             if (DateTime.TryParseExact(match.Value, "yyyy年M月d日", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime extractedDate))
             {
                 // 指定日付から閾値日数以内かを判定
+                // 実行日（before） < 決算日（extracted） <= 閾値日数(after)
                 var oneMonthBefore = CommonUtils.Instance.ExecusionDate;
                 var oneMonthAfter = CommonUtils.Instance.ExecusionDate.AddDays(CommonUtils.Instance.ThresholdOfDaysToQuarterEnd);
-                result = extractedDate >= oneMonthBefore && extractedDate <= oneMonthAfter;
+                result = extractedDate > oneMonthBefore && extractedDate <= oneMonthAfter;
             }
         }
 
@@ -1185,10 +1186,36 @@ internal class StockInfo
             if (DateTime.TryParseExact(match.Value, "yyyy年M月d日", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime extractedDate))
             {
                 // 指定日付より閾値日数以内かを判定
-                // 閾値（before） <= 決算日（extracted） < 現在日(after)
+                // 閾値日数（before） <= 決算日（extracted） < 実行日(after)
                 var oneMonthBefore = CommonUtils.Instance.ExecusionDate.AddDays(CommonUtils.Instance.ThresholdOfDaysFromQuarterEnd * -1);
                 var oneMonthAfter = CommonUtils.Instance.ExecusionDate;
                 result = extractedDate >= oneMonthBefore && extractedDate < oneMonthAfter;
+            }
+        }
+
+        return result;
+    }
+
+    /// <summary>
+    /// 四半期決算当日であるか？
+    /// </summary>
+    internal bool IsQuarterEnd()
+    {
+        bool result = false;
+
+        if (string.IsNullOrEmpty(this.PressReleaseDate)) return result;
+
+        // 正規表現を使用して日付を抽出
+        var datePattern = @"\d{4}年\d{1,2}月\d{1,2}日";
+        var match = Regex.Match(this.PressReleaseDate, datePattern);
+
+        if (match.Success)
+        {
+            // 抽出した日付をDateTimeに変換
+            if (DateTime.TryParseExact(match.Value, "yyyy年M月d日", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime extractedDate))
+            {
+                // 指定日付と一致するかを判定
+                result = CommonUtils.Instance.ExecusionDate.ToString("yyyyMMdd") == extractedDate.ToString("yyyyMMdd");
             }
         }
 

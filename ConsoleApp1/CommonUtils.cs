@@ -348,6 +348,7 @@ internal class CommonUtils : IDisposable
         public string IsOwned { get; } = "【所持】";
         public string IsCloseToRecordDate { get; } = "【権利】";
         public string IsFavorite { get; } = "【注目】";
+        public string IsQuarterEnd { get; } = "【決当】";
         public string IsCloseToQuarterEnd { get; } = "【決前】";
         public string IsJustSold { get; } = "【売後】";
         public string IsAfterQuarterEnd { get; } = "【決後】";
