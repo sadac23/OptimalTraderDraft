@@ -216,6 +216,10 @@ internal class StockInfo
     /// チャート価格
     /// </summary>
     public List<ChartPrice> ChartPrices { get; internal set; }
+    /// <summary>
+    /// 四半期決算実績の前年同期比の経常利益率
+    /// </summary>
+    public double QuarterlyOperatingProfitMarginYoY { get; internal set; }
 
     /// <summary>
     /// 現在、所有しているか？
@@ -666,6 +670,9 @@ internal class StockInfo
 
         // TODO: 比較対象の予実インスタンスの取得処理を分離する。
 
+        double latestOrdinaryIncome = 0;
+        double previousOrdinaryIncome = 0;
+
         // 当期進捗率
         if (this.QuarterlyPerformances.Count >= 2)
         {
@@ -679,7 +686,7 @@ internal class StockInfo
                 var refCount = this.QuarterlyPerformancePeriod == CommonUtils.Instance.QuarterString.Quarter4 ? 3 : 2;
 
                 var fullYearOrdinaryIncome = CommonUtils.Instance.GetDouble(this.FullYearPerformances[this.FullYearPerformances.Count - refCount].OrdinaryIncome);
-                var latestOrdinaryIncome = this.QuarterlyPerformances[this.QuarterlyPerformances.Count - 2].OrdinaryIncome;
+                latestOrdinaryIncome = this.QuarterlyPerformances[this.QuarterlyPerformances.Count - 2].OrdinaryIncome;
                 if (fullYearOrdinaryIncome > 0)
                 {
                     this.QuarterlyFullyearProgressRate = latestOrdinaryIncome / fullYearOrdinaryIncome;
@@ -700,7 +707,7 @@ internal class StockInfo
                 var refCount = this.QuarterlyPerformancePeriod == CommonUtils.Instance.QuarterString.Quarter4 ? 4 : 3;
 
                 var fullYearOrdinaryIncome = CommonUtils.Instance.GetDouble(this.FullYearPerformances[this.FullYearPerformances.Count - refCount].OrdinaryIncome);
-                var previousOrdinaryIncome = this.QuarterlyPerformances[this.QuarterlyPerformances.Count - 3].OrdinaryIncome;
+                previousOrdinaryIncome = this.QuarterlyPerformances[this.QuarterlyPerformances.Count - 3].OrdinaryIncome;
                 if (fullYearOrdinaryIncome > 0)
                 {
                     this.PreviousFullyearProgressRate = previousOrdinaryIncome / fullYearOrdinaryIncome;
@@ -708,6 +715,10 @@ internal class StockInfo
             }
         }
 
+        // *前年同期比の経常利益率を算出
+        this.QuarterlyOperatingProfitMarginYoY = (latestOrdinaryIncome / previousOrdinaryIncome) - 1;
+        // 前年値がマイナス（赤字）の場合は、算出値の符号を反転する。
+        this.QuarterlyOperatingProfitMarginYoY = previousOrdinaryIncome < 0 ? this.QuarterlyOperatingProfitMarginYoY * (-1) : this.QuarterlyOperatingProfitMarginYoY;
     }
 
     private DateTime ConvertToDateTime(string releaseDate)

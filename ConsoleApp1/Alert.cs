@@ -62,7 +62,7 @@ internal class Alert
     {
         //No.01【所持】【権利】【注目】【決当】【決前】【決後】【売後】
         //1928：積水ハウス(株)（建設業）
-        //株価：1,234.0（2024/11/29：L99.99,S99.99）★
+        //株価：1,234.0（24/11/29：L99.99,S99.99）★
         //市場：東証プライム,名証プレミア
         //配当利回り：3.64%（50%,5月,11月）★
         //優待利回り：3.64%（QUOカード,100株,5月,11月,月末）★
@@ -70,8 +70,8 @@ internal class Alert
         //初：24/04/26：増収増益増配（+50%,+50%,+50）
         //修：24/07/31：増収増益増配（+50%,+50%,+50）★
         //修：24/10/31：増収増益増配（+50%,+50%,+50）
-        //通期進捗：3Q：80.0%（2024/12/23）★
-        //前期進捗：3Q：80.0%（2024/12/23）
+        //通期進捗：3Q：80.0%（24/12/23：+99.9%）★
+        //前期進捗：3Q：80.0%（24/12/23）
         //時価総額：2兆3,470億円
         //ROE：9.99→9.99→10.71★
         //PER：11.0倍（14.2）★
@@ -83,28 +83,24 @@ internal class Alert
         //決算：3月末
         //次回の決算発表日は2025年1月14日の予定です。★
         //約定履歴：
-        //買：2024/12/04：2,068.0*300：-10.40%
-        //売：2024/12/05：2,068.0*100：-10.40%
-        //買：2024/12/06：2,060.0*100：-10.40%★
-        //変動履歴：
-        //2024/10/04：3,951.0：99.99：-10.40% (8)
-        //2024/09/27：4,119.0：99.99：-10.40% (9)
-        //2024/09/20：3,959.0：99.99：-10.40% (10)
+        //買：24/12/04：2,068.0*300：-10.40%
+        //売：24/12/05：2,068.0*100：-10.40%
+        //買：24/12/06：2,060.0*100：-10.40%★
         //チャート：
-        //2024/10/14：3,951.0：+99.99%：L99.99,S99.99
-        //2024/10/13：3,951.0：-99.99%：L99.99,S99.99
-        //2024/10/12：3,951.0：+99.99%：L99.99,S99.99
-        //2024/10/11：3,951.0：-99.99%：L99.99,S99.99
-        //2024/10/10：3,951.0：+99.99%：L99.99,S99.99
-        //2024/10/09：3,951.0：+99.99%：L99.99,S99.99
-        //2024/10/08：3,951.0：+99.99%：L99.99,S99.99
-        //2024/10/07：3,951.0：+99.99%：L99.99,S99.99
-        //2024/10/06：3,951.0：+99.99%：L99.99,S99.99
-        //2024/10/05：3,951.0：+99.99%：L99.99,S99.99
-        //2024/10/04：3,951.0：+99.99%：L99.99,S99.99
-        //2024/10/03：3,951.0：+99.99%：L99.99,S99.99
-        //2024/10/02：3,951.0：+99.99%：L99.99,S99.99
-        //2024/10/01：3,951.0：+99.99%：L99.99,S99.99
+        //24/10/14：3,951.0：+99.99%：L99.99,S99.99
+        //24/10/13：3,951.0：-99.99%：L99.99,S99.99
+        //24/10/12：3,951.0：+99.99%：L99.99,S99.99
+        //24/10/11：3,951.0：-99.99%：L99.99,S99.99
+        //24/10/10：3,951.0：+99.99%：L99.99,S99.99
+        //24/10/09：3,951.0：+99.99%：L99.99,S99.99
+        //24/10/08：3,951.0：+99.99%：L99.99,S99.99
+        //24/10/07：3,951.0：+99.99%：L99.99,S99.99
+        //24/10/06：3,951.0：+99.99%：L99.99,S99.99
+        //24/10/05：3,951.0：+99.99%：L99.99,S99.99
+        //24/10/04：3,951.0：+99.99%：L99.99,S99.99
+        //24/10/03：3,951.0：+99.99%：L99.99,S99.99
+        //24/10/02：3,951.0：+99.99%：L99.99,S99.99
+        //24/10/01：3,951.0：+99.99%：L99.99,S99.99
         //メモ：
         //ほげほげほげほげほげ。
 
@@ -159,8 +155,16 @@ internal class Alert
                         count++;
                     }
 
-                    writer.WriteLine($"通期進捗：{r.StockInfo.QuarterlyPerformancePeriod}：{CommonUtils.Instance.ConvertToPercentage(r.StockInfo.QuarterlyFullyearProgressRate)}（{r.StockInfo.QuarterlyPerformanceReleaseDate.ToString("yy/MM/dd")}）{(r.StockInfo.IsAnnualProgressOnTrack() ? mark : string.Empty)}");
-                    writer.WriteLine($"前期進捗：{r.StockInfo.QuarterlyPerformancePeriod}：{CommonUtils.Instance.ConvertToPercentage(r.StockInfo.PreviousFullyearProgressRate)}（{r.StockInfo.PreviousPerformanceReleaseDate.ToString("yy/MM/dd")}）");
+                    //通期進捗：3Q：80.0%（24/12/23：+99.9%）★
+                    writer.WriteLine($"通期進捗：{r.StockInfo.QuarterlyPerformancePeriod}" +
+                        $"：{CommonUtils.Instance.ConvertToPercentage(r.StockInfo.QuarterlyFullyearProgressRate)}" +
+                        $"（{r.StockInfo.QuarterlyPerformanceReleaseDate.ToString("yy/MM/dd")}" +
+                        $"：{CommonUtils.Instance.ConvertToPercentage(r.StockInfo.QuarterlyOperatingProfitMarginYoY, true)}）" +
+                        $"{(r.StockInfo.IsAnnualProgressOnTrack() ? mark : string.Empty)}");
+                    writer.WriteLine($"前期進捗：{r.StockInfo.QuarterlyPerformancePeriod}" +
+                        $"：{CommonUtils.Instance.ConvertToPercentage(r.StockInfo.PreviousFullyearProgressRate)}" +
+                        $"（{r.StockInfo.PreviousPerformanceReleaseDate.ToString("yy/MM/dd")}）");
+
                     writer.WriteLine($"時価総額：{CommonUtils.Instance.ConvertToYenNotation(r.StockInfo.MarketCap)}");
 
                     count = 0;
@@ -195,7 +199,7 @@ internal class Alert
                     foreach (ExecutionList.Execution e in r.StockInfo.Executions)
                     {
                         if (count == 0) writer.WriteLine($"約定履歴：{(b ? mark : string.Empty)}");
-                        writer.WriteLine($"{e.BuyOrSell}：{e.Date.ToString("yy/MM/dd")}：{e.Price.ToString("N1")}*{e.Quantity}：{CommonUtils.Instance.ConvertToPercentage((r.StockInfo.LatestPrice / e.Price) - 1)}");
+                        writer.WriteLine($"{e.BuyOrSell}：{e.Date.ToString("yy/MM/dd")}：{e.Price.ToString("N1")}*{e.Quantity}：{CommonUtils.Instance.ConvertToPercentage((r.StockInfo.LatestPrice / e.Price) - 1, true)}");
                         count++;
                     }
 
@@ -204,7 +208,7 @@ internal class Alert
                     {
                         writer.WriteLine($"{p.Date.ToString("yy/MM/dd")}" +
                             $"：{p.Price.ToString("N1")}" +
-                            $"：{CommonUtils.Instance.ConvertToPercentage(p.Volatility)}" +
+                            $"：{CommonUtils.Instance.ConvertToPercentage(p.Volatility, true)}" +
                             $"：L{p.RSIL.ToString("N2")}" +
                             $",S{p.RSIS.ToString("N2")}");
                     }
