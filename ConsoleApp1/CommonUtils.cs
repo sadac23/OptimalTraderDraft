@@ -197,6 +197,12 @@ internal class CommonUtils : IDisposable
         public string Quarter3 { get; } = "Q3";
         public string Quarter4 { get; } = "Q4";
     }
+    public class PeriodStringClass
+    {
+        public string Current { get; } = "今期";
+        public string Previous { get; } = "前期";
+        public string TwoAgo { get; } = "前々期";
+    }
 
     public AssetClassificationClass AssetClassification {  get; set; } = new AssetClassificationClass();
 
@@ -266,6 +272,10 @@ internal class CommonUtils : IDisposable
     /// 四半期文字列
     /// </summary>
     public QuarterStringClass QuarterString { get; } = new QuarterStringClass();
+    /// <summary>
+    /// 期間文字列
+    /// </summary>
+    public PeriodStringClass PeriodString { get; } = new PeriodStringClass();
     /// <summary>
     /// 進捗良好の判定基準値
     /// </summary>

@@ -670,31 +670,52 @@ internal class StockInfo
 
         // TODO: 比較対象の予実インスタンスの取得処理を分離する。
 
+        double fullYearOrdinaryIncome = 0;
         double latestOrdinaryIncome = 0;
         double previousOrdinaryIncome = 0;
 
-        // 当期進捗率
-        if (this.QuarterlyPerformances.Count >= 2)
+        //// *当期進捗率
+        //if (this.QuarterlyPerformances.Count >= 2)
+        //{
+        //    // 発表日の取得
+        //    this.QuarterlyPerformanceReleaseDate = ConvertToDateTime(this.QuarterlyPerformances[this.QuarterlyPerformances.Count - 2].ReleaseDate);
+
+        //    // 通期進捗率の算出
+        //    if (this.FullYearPerformances.Count >= 2)
+        //    {
+        //        // Q4の時は既に来期の予想が存在するため、2件前を参照する
+        //        var refCount = this.QuarterlyPerformancePeriod == CommonUtils.Instance.QuarterString.Quarter4 ? 3 : 2;
+
+        //        var fullYearOrdinaryIncome = CommonUtils.Instance.GetDouble(this.FullYearPerformances[this.FullYearPerformances.Count - refCount].OrdinaryIncome);
+        //        latestOrdinaryIncome = this.QuarterlyPerformances[this.QuarterlyPerformances.Count - 2].OrdinaryIncome;
+        //        if (fullYearOrdinaryIncome > 0)
+        //        {
+        //            this.QuarterlyFullyearProgressRate = latestOrdinaryIncome / fullYearOrdinaryIncome;
+        //        }
+        //    }
+        //}
+
+        // ** 当期進捗率
+
+        // 四半期実績の取得
+        var quarterlyPerformance = GetQuarterlyPerformance(CommonUtils.Instance.PeriodString.Current);
+
+        // 通期予想の取得
+        var fullYearPerformance = GetFullYearForecast(CommonUtils.Instance.PeriodString.Current);
+
+        // 発表日の取得
+        this.QuarterlyPerformanceReleaseDate = ConvertToDateTime(quarterlyPerformance.ReleaseDate);
+
+        latestOrdinaryIncome = quarterlyPerformance.OrdinaryIncome;
+        fullYearOrdinaryIncome = CommonUtils.Instance.GetDouble(fullYearPerformance.OrdinaryIncome);
+
+        if (fullYearOrdinaryIncome > 0)
         {
-            // 発表日の取得
-            this.QuarterlyPerformanceReleaseDate = ConvertToDateTime(this.QuarterlyPerformances[this.QuarterlyPerformances.Count - 2].ReleaseDate);
-
-            // 通期進捗率の算出
-            if (this.FullYearPerformances.Count >= 2)
-            {
-                // Q4の時は既に来期の予想が存在するため、2件前を参照する
-                var refCount = this.QuarterlyPerformancePeriod == CommonUtils.Instance.QuarterString.Quarter4 ? 3 : 2;
-
-                var fullYearOrdinaryIncome = CommonUtils.Instance.GetDouble(this.FullYearPerformances[this.FullYearPerformances.Count - refCount].OrdinaryIncome);
-                latestOrdinaryIncome = this.QuarterlyPerformances[this.QuarterlyPerformances.Count - 2].OrdinaryIncome;
-                if (fullYearOrdinaryIncome > 0)
-                {
-                    this.QuarterlyFullyearProgressRate = latestOrdinaryIncome / fullYearOrdinaryIncome;
-                }
-            }
+            this.QuarterlyFullyearProgressRate = latestOrdinaryIncome / fullYearOrdinaryIncome;
         }
 
-        // 前期進捗率
+        // ** 前期進捗率
+
         if (this.QuarterlyPerformances.Count >= 3)
         {
             // 発表日の取得
@@ -706,7 +727,7 @@ internal class StockInfo
                 // Q4の時は既に来期の予想が存在するため、2件前を参照する
                 var refCount = this.QuarterlyPerformancePeriod == CommonUtils.Instance.QuarterString.Quarter4 ? 4 : 3;
 
-                var fullYearOrdinaryIncome = CommonUtils.Instance.GetDouble(this.FullYearPerformances[this.FullYearPerformances.Count - refCount].OrdinaryIncome);
+                fullYearOrdinaryIncome = CommonUtils.Instance.GetDouble(this.FullYearPerformances[this.FullYearPerformances.Count - refCount].OrdinaryIncome);
                 previousOrdinaryIncome = this.QuarterlyPerformances[this.QuarterlyPerformances.Count - 3].OrdinaryIncome;
                 if (fullYearOrdinaryIncome > 0)
                 {
@@ -715,10 +736,45 @@ internal class StockInfo
             }
         }
 
-        // *前年同期比の経常利益率を算出
+        // ** 前年同期比の経常利益率を算出
+
         this.QuarterlyOperatingProfitMarginYoY = (latestOrdinaryIncome / previousOrdinaryIncome) - 1;
         // 前年値がマイナス（赤字）の場合は、算出値の符号を反転する。
         this.QuarterlyOperatingProfitMarginYoY = previousOrdinaryIncome < 0 ? this.QuarterlyOperatingProfitMarginYoY * (-1) : this.QuarterlyOperatingProfitMarginYoY;
+    }
+
+    private QuarterlyPerformance GetQuarterlyPerformance(string period)
+    {
+        QuarterlyPerformance result = new QuarterlyPerformance();
+
+        // 今期は2、前期は3
+        var refIndex = period == CommonUtils.Instance.PeriodString.Current ? 2 : 3;
+
+        // *当期進捗率
+        if (this.QuarterlyPerformances.Count >= refIndex)
+        {
+            result = this.QuarterlyPerformances[this.QuarterlyPerformances.Count - refIndex];
+        }
+
+        return result;
+    }
+
+    private FullYearPerformance GetFullYearForecast(string period)
+    {
+        FullYearPerformance result = new FullYearPerformance();
+
+        // 今期は2、前期は3
+        var refIndex = period == CommonUtils.Instance.PeriodString.Current ? 2 : 3;
+
+        // 通期進捗率の算出
+        if (this.FullYearPerformances.Count >= refIndex)
+        {
+            // TODO: Q4の時は既に来期の予想しか取得できないため、キャッシュから取得する必要がある。（現状は2件前の通期予想を格納している。）
+            refIndex = this.QuarterlyPerformancePeriod == CommonUtils.Instance.QuarterString.Quarter4 ? 3 : refIndex;
+            result = this.FullYearPerformances[this.FullYearPerformances.Count - refIndex];
+        }
+
+        return result;
     }
 
     private DateTime ConvertToDateTime(string releaseDate)
