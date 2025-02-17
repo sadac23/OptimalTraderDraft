@@ -156,12 +156,12 @@ internal class Alert
                     }
 
                     //通期進捗：3Q：80.0%（24/12/23：+99.9%）★
-                    writer.WriteLine($"通期進捗：{r.StockInfo.QuarterlyPerformancePeriod}" +
+                    writer.WriteLine($"通期進捗：{r.StockInfo.LastQuarterPeriod}" +
                         $"：{CommonUtils.Instance.ConvertToPercentage(r.StockInfo.QuarterlyFullyearProgressRate)}" +
                         $"（{r.StockInfo.QuarterlyPerformanceReleaseDate.ToString("yy/MM/dd")}" +
                         $"：{CommonUtils.Instance.ConvertToPercentage(r.StockInfo.QuarterlyOperatingProfitMarginYoY, true)}）" +
                         $"{(r.StockInfo.IsAnnualProgressOnTrack() ? mark : string.Empty)}");
-                    writer.WriteLine($"前期進捗：{r.StockInfo.QuarterlyPerformancePeriod}" +
+                    writer.WriteLine($"前期進捗：{r.StockInfo.LastQuarterPeriod}" +
                         $"：{CommonUtils.Instance.ConvertToPercentage(r.StockInfo.PreviousFullyearProgressRate)}" +
                         $"（{r.StockInfo.PreviousPerformanceReleaseDate.ToString("yy/MM/dd")}）");
 

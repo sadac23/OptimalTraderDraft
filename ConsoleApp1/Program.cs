@@ -152,6 +152,7 @@ using Google.Apis.Util.Store;
  * ・済：決算前後の場合は通知する。
  * ・済：決算当日は決当バッジを表示する。
  * ・済：四半期決算実績の対前年同期の経常利益の上昇率を追加する。
+ * ・済：直近が4Q発表の場合、前期の最終実績を修正履歴に追加する。
  */
 
 /* TODO
@@ -179,6 +180,9 @@ using Google.Apis.Util.Store;
  * ・4Q進捗率は修正前予想との比較で算出する。（修正予想との比較はKPIにならない。）
  * ・購入履歴にナンピンサインを追加。
  * ・GmailAPIをテストユーザから本番ユーザに切り替え。
+ * ・分割時は株価履歴をリフレッシュする。
+ * ・通期の前年同期比の値がおかしい。（6046）
+ * ・RSI閾値の見直し。（27くらいにする？）
  */
 
 var logger = CommonUtils.Instance.Logger;
@@ -223,10 +227,11 @@ try
         // 削除日が入っていたらスキップ
         if (!string.IsNullOrEmpty(watchStock.DeleteDate)) continue;
 
+        // インスタンスの初期化
         var stockInfo = new StockInfo(watchStock);
 
         // 履歴更新の最終日を取得（なければ基準開始日を取得）
-        var lastUpdateDay = GetLastHistoryUpdateDay(watchStock.Code);
+        var lastUpdateDay = GetLastHistoryUpdateDay(stockInfo);
 
         // 外部サイトの情報取得
         await kabutanScraper.ScrapeFinance(stockInfo);
@@ -234,7 +239,6 @@ try
         await minkabuScraper.ScrapeYutai(stockInfo);
         await yahooScraper.ScrapeTop(stockInfo);
         await yahooScraper.ScrapeProfile(stockInfo);
-
         // 最終更新後に直近営業日がある場合は取得
         if (lastTradingDay > lastUpdateDay) 
             await yahooScraper.ScrapeHistory(stockInfo, lastUpdateDay, CommonUtils.Instance.ExecusionDate);
@@ -245,11 +249,8 @@ try
         // マスタを設定
         stockInfo.SetAveragePerPbr(masterList);
 
-        // キャッシュ登録
-        stockInfo.RegisterCache();
-
-        // チャート価格を更新
-        stockInfo.UpdateChartPrices();
+        // インスタンス更新
+        stockInfo.Setup();
 
         // 分析
         var result = analyzer.Analize(stockInfo);
@@ -334,7 +335,7 @@ DateTime GetLastTradingDay()
     return date;
 }
 
-DateTime GetLastHistoryUpdateDay(string code)
+DateTime GetLastHistoryUpdateDay(StockInfo stockInfo)
 {
     DateTime result = CommonUtils.Instance.MasterStartDate;
 
@@ -348,7 +349,7 @@ DateTime GetLastHistoryUpdateDay(string code)
         using (SQLiteCommand command = new SQLiteCommand(query, connection))
         {
             // パラメータを設定
-            command.Parameters.AddWithValue("@code", code);
+            command.Parameters.AddWithValue("@code", stockInfo.Code);
             command.Parameters.AddWithValue("@max_date", CommonUtils.Instance.MasterStartDate);
 
             // データリーダーを使用して結果を取得

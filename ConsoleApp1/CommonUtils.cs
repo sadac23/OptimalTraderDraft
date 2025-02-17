@@ -204,6 +204,14 @@ internal class CommonUtils : IDisposable
         public string TwoAgo { get; } = "前々期";
     }
 
+    public class ForecastCategoryStringClass
+    {
+        public string Initial { get; } = "初";
+        public string Revised { get; } = "修";
+        public string Final { get; } = "終";
+    }
+
+
     public AssetClassificationClass AssetClassification {  get; set; } = new AssetClassificationClass();
 
     /// <summary>
@@ -276,6 +284,10 @@ internal class CommonUtils : IDisposable
     /// 期間文字列
     /// </summary>
     public PeriodStringClass PeriodString { get; } = new PeriodStringClass();
+    /// <summary>
+    /// 通期予想区分文字列
+    /// </summary>
+    public ForecastCategoryStringClass ForecastCategoryString { get; } = new ForecastCategoryStringClass();
     /// <summary>
     /// 進捗良好の判定基準値
     /// </summary>
@@ -350,6 +362,21 @@ internal class CommonUtils : IDisposable
     {
         // NLogのシャットダウン
         LogManager.Shutdown();
+    }
+
+    /// <summary>
+    /// 前年同期比の上昇率を算出する
+    /// </summary>
+    internal double CalculateYearOverYearGrowth(double previousYearValue, double currentYearValue)
+    {
+        double result = 0;
+
+        result = (currentYearValue / previousYearValue) - 1;
+
+        // 前年値がマイナスの場合は、算出値の符号を反転する。
+        result = previousYearValue < 0 ? result * (-1) : result;
+
+        return result;
     }
 
     public class BadgeStringClass

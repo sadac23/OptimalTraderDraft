@@ -224,7 +224,7 @@ internal class KabutanScraper
                         RevisionDirection = revisionDirection,
                         Revenue = revenue,
                         OperatingProfit = operatingProfit,
-                        OrdinaryIncome = ordinaryProfit,
+                        OrdinaryProfit = ordinaryProfit,
                         NetProfit = netProfit,
                         RevisedDividend = revisedDividend,
                         PreviousForcast = cloneP
@@ -238,19 +238,19 @@ internal class KabutanScraper
             }
 
             // 通期予想のサマリを更新
-            stockInfo.UpdateFullYearPerformanceForcastSummary();
+//            stockInfo.UpdateFullYearPerformanceForcastSummary();
 
             // 実績
             var node = htmlDocument.DocumentNode.SelectSingleNode("//*[@id=\"finance_box\"]/div[17]/div[1]/h3");
             if (node != null)
             {
-                stockInfo.QuarterlyPerformancePeriod = node.InnerText.Trim();
+                stockInfo.LastQuarterPeriod = node.InnerText.Trim();
             }
             else {
                 node = htmlDocument.DocumentNode.SelectSingleNode("//*[@id=\"finance_box\"]/div[18]/div[1]/h3");
                 if (node != null)
                 {
-                    stockInfo.QuarterlyPerformancePeriod = node.InnerText.Trim();
+                    stockInfo.LastQuarterPeriod = node.InnerText.Trim();
                 }
             }
 
@@ -277,21 +277,19 @@ internal class KabutanScraper
                         {
                             FiscalPeriod = fiscalPeriod,
                             Revenue = revenue,
-                            OperatingIncome = operatingIncome,
-                            OrdinaryIncome = CommonUtils.Instance.GetDouble(ordinaryProfit),
-                            NetIncome = netIncome,
+                            OperatingProfit = operatingIncome,
+                            OrdinaryProfit = CommonUtils.Instance.GetDouble(ordinaryProfit),
+                            NetProfit = netIncome,
                             AdjustedEarningsPerShare = adjustedEarningsPerShare,
-                            ProgressRate = progressRate,
+                            AdjustedDividendPerShare = progressRate,
                             ReleaseDate = releaseDate,
                         };
 
                         stockInfo.QuarterlyPerformances.Add(p);
                     }
                 }
-                stockInfo.UpdateProgress();
+//                stockInfo.UpdateProgress();
             }
-
-
 
             // 自己資本比率
 
