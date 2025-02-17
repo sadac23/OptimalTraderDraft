@@ -1300,6 +1300,9 @@ internal class StockInfo
     /// </summary>
     internal void Setup()
     {
+        // キャッシュ最新化
+        RegisterCache();
+
         // 直近の四半期決算期間の更新
         UpdateLastQuarterPeriod();
 
@@ -1314,9 +1317,6 @@ internal class StockInfo
 
         // チャート価格を更新
         UpdateChartPrices();
-
-        // キャッシュ登録
-        RegisterCache();
     }
 
     /// <summary>
