@@ -161,6 +161,8 @@ internal class KabutanScraper
                 var countHeader = 0;
                 FullYearPerformanceForcast cloneP = null;
 
+                var tempFiscalPeriod = string.Empty;
+
                 foreach (var row in rows)
                 {
                     var columns = row.SelectNodes("td|th");
@@ -189,11 +191,14 @@ internal class KabutanScraper
                         ordinaryProfit = columns[7].InnerText.Trim();
                         netProfit = columns[8].InnerText.Trim();
                         revisedDividend = columns[9].InnerText.Trim();
+
+                        // 明細行に同値を設定するため退避しておく
+                        tempFiscalPeriod = fiscalPeriod;
                     }
                     // 明細行
                     else if (columns != null && columns.Count >= 9)
                     {
-                        fiscalPeriod = string.Empty;
+                        fiscalPeriod = tempFiscalPeriod;
                         revisionDate = columns[1].InnerText.Trim();
                         category = columns[2].InnerText.Trim();
                         revisionDirection = string.Empty;

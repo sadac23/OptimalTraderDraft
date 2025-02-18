@@ -231,6 +231,10 @@ internal class StockInfo
     /// 四半期決算実績の前年同期比の経常利益率
     /// </summary>
     public double QuarterlyOperatingProfitMarginYoY { get; internal set; }
+    /// <summary>
+    /// カレントの4Q決算月
+    /// </summary>
+    public DateTime? CurrentFiscalMonth { get; private set; }
 
     /// <summary>
     /// 現在、所有しているか？
@@ -1299,6 +1303,9 @@ internal class StockInfo
         // キャッシュ最新化
         RegisterCache();
 
+        // カレントの4Q決算月を更新
+        this.CurrentFiscalMonth = ExtractYearMonth(this.FullYearPerformances[this.FullYearPerformances.Count - 2].FiscalPeriod);
+
         // 通期予想の更新
         UpdateFullYearPerformancesForcasts();
 
@@ -1310,6 +1317,28 @@ internal class StockInfo
 
         // チャート情報を更新
         UpdateChartPrices();
+    }
+
+    private DateTime? ExtractYearMonth(string input)
+    {
+        // 正規表現パターンを定義
+        string pattern = @"\b\d{4}\.\d{2}\b";
+
+        // 正規表現でマッチを検索
+        Match match = Regex.Match(input, pattern);
+
+        if (match.Success)
+        {
+            // マッチした文字列をDateTimeに変換
+            DateTime result;
+            if (DateTime.TryParseExact(match.Value, "yyyy.MM", CultureInfo.InvariantCulture, DateTimeStyles.None, out result))
+            {
+                return result;
+            }
+        }
+
+        // マッチしなかった場合はnullを返す
+        return null;
     }
 
     /// <summary>
