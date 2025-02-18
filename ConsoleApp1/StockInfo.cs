@@ -1304,7 +1304,7 @@ internal class StockInfo
         RegisterCache();
 
         // カレントの4Q決算月を更新
-        this.CurrentFiscalMonth = ExtractYearMonth(this.FullYearPerformances[this.FullYearPerformances.Count - 2].FiscalPeriod);
+//        this.CurrentFiscalMonth = ExtractYearMonth(this.FullYearPerformances[this.FullYearPerformances.Count - 2].FiscalPeriod);
 
         // 通期予想の更新
         UpdateFullYearPerformancesForcasts();
