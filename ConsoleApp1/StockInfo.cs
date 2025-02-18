@@ -683,27 +683,6 @@ internal class StockInfo
         double latestOrdinaryIncome = 0;
         double previousOrdinaryIncome = 0;
 
-        //// *当期進捗率
-        //if (this.QuarterlyPerformances.Count >= 2)
-        //{
-        //    // 発表日の取得
-        //    this.QuarterlyPerformanceReleaseDate = ConvertToDateTime(this.QuarterlyPerformances[this.QuarterlyPerformances.Count - 2].ReleaseDate);
-
-        //    // 通期進捗率の算出
-        //    if (this.FullYearPerformances.Count >= 2)
-        //    {
-        //        // Q4の時は既に来期の予想が存在するため、2件前を参照する
-        //        var refCount = this.QuarterlyPerformancePeriod == CommonUtils.Instance.QuarterString.Quarter4 ? 3 : 2;
-
-        //        var fullYearOrdinaryIncome = CommonUtils.Instance.GetDouble(this.FullYearPerformances[this.FullYearPerformances.Count - refCount].OrdinaryIncome);
-        //        latestOrdinaryIncome = this.QuarterlyPerformances[this.QuarterlyPerformances.Count - 2].OrdinaryIncome;
-        //        if (fullYearOrdinaryIncome > 0)
-        //        {
-        //            this.QuarterlyFullyearProgressRate = latestOrdinaryIncome / fullYearOrdinaryIncome;
-        //        }
-        //    }
-        //}
-
         // ** 当期進捗率
 
         // 四半期実績の取得
@@ -725,24 +704,41 @@ internal class StockInfo
 
         // ** 前期進捗率
 
-        if (this.QuarterlyPerformances.Count >= 3)
+        //if (this.QuarterlyPerformances.Count >= 3)
+        //{
+        //    // 発表日の取得
+        //    this.PreviousPerformanceReleaseDate = ConvertToDateTime(this.QuarterlyPerformances[this.QuarterlyPerformances.Count - 3].ReleaseDate);
+
+        //    // 通期進捗率の算出
+        //    if (this.FullYearPerformances.Count >= 3)
+        //    {
+        //        // Q4の時は既に来期の予想が存在するため、2件前を参照する
+        //        var refCount = this.LastQuarterPeriod == CommonUtils.Instance.QuarterString.Quarter4 ? 4 : 3;
+
+        //        fullYearOrdinaryIncome = CommonUtils.Instance.GetDouble(this.FullYearPerformances[this.FullYearPerformances.Count - refCount].OrdinaryIncome);
+        //        previousOrdinaryIncome = this.QuarterlyPerformances[this.QuarterlyPerformances.Count - 3].OrdinaryProfit;
+        //        if (fullYearOrdinaryIncome > 0)
+        //        {
+        //            this.PreviousFullyearProgressRate = previousOrdinaryIncome / fullYearOrdinaryIncome;
+        //        }
+        //    }
+        //}
+
+        // 四半期実績の取得
+        var previousQuarterlyPerformance = GetQuarterlyPerformance(CommonUtils.Instance.PeriodString.Previous);
+
+        // 通期予想の取得
+        var previousFullYearPerformance = GetFullYearForecast(CommonUtils.Instance.PeriodString.Previous);
+
+        // 発表日の取得
+        this.PreviousPerformanceReleaseDate = ConvertToDateTime(previousQuarterlyPerformance.ReleaseDate);
+
+        previousOrdinaryIncome = previousQuarterlyPerformance.OrdinaryProfit;
+        fullYearOrdinaryIncome = CommonUtils.Instance.GetDouble(previousFullYearPerformance.OrdinaryIncome);
+
+        if (fullYearOrdinaryIncome > 0)
         {
-            // 発表日の取得
-            this.PreviousPerformanceReleaseDate = ConvertToDateTime(this.QuarterlyPerformances[this.QuarterlyPerformances.Count - 3].ReleaseDate);
-
-            // 通期進捗率の算出
-            if (this.FullYearPerformances.Count >= 3)
-            {
-                // Q4の時は既に来期の予想が存在するため、2件前を参照する
-                var refCount = this.LastQuarterPeriod == CommonUtils.Instance.QuarterString.Quarter4 ? 4 : 3;
-
-                fullYearOrdinaryIncome = CommonUtils.Instance.GetDouble(this.FullYearPerformances[this.FullYearPerformances.Count - refCount].OrdinaryIncome);
-                previousOrdinaryIncome = this.QuarterlyPerformances[this.QuarterlyPerformances.Count - 3].OrdinaryProfit;
-                if (fullYearOrdinaryIncome > 0)
-                {
-                    this.PreviousFullyearProgressRate = previousOrdinaryIncome / fullYearOrdinaryIncome;
-                }
-            }
+            this.PreviousFullyearProgressRate = previousOrdinaryIncome / fullYearOrdinaryIncome;
         }
 
         // ** 前年同期比の経常利益率を算出
@@ -776,7 +772,7 @@ internal class StockInfo
         if (this.FullYearPerformances.Count >= refIndex)
         {
             // TODO: Q4の時は既に来期の予想しか取得できないため、キャッシュから取得する必要がある。（現状は2件前の通期予想を格納している。）
-            refIndex = this.LastQuarterPeriod == CommonUtils.Instance.QuarterString.Quarter4 ? 3 : refIndex;
+//            refIndex = this.LastQuarterPeriod == CommonUtils.Instance.QuarterString.Quarter4 ? 3 : refIndex;
             result = this.FullYearPerformances[this.FullYearPerformances.Count - refIndex];
         }
 
@@ -1296,15 +1292,12 @@ internal class StockInfo
     }
 
     /// <summary>
-    /// インスタンス内部処理
+    /// インスタンス準備
     /// </summary>
     internal void Setup()
     {
         // キャッシュ最新化
         RegisterCache();
-
-        // 直近の四半期決算期間の更新
-        UpdateLastQuarterPeriod();
 
         // 通期予想の更新
         UpdateFullYearPerformancesForcasts();
@@ -1315,7 +1308,7 @@ internal class StockInfo
         // 通期予想のサマリを更新
         UpdateFullYearPerformanceForcastSummary();
 
-        // チャート価格を更新
+        // チャート情報を更新
         UpdateChartPrices();
     }
 
@@ -1324,17 +1317,25 @@ internal class StockInfo
     /// </summary>
     private void UpdateFullYearPerformancesForcasts()
     {
-        // 最終決算の場合、通期予想に前期最終実績を追加する。
+        // 4Q決算の場合、通期予想に前期の修正履歴と最終実績を追加する。
         if (this.LastQuarterPeriod == CommonUtils.Instance.QuarterString.Quarter4)
         {
-            // 最新の前期実績を取得
+            // 前期の修正履歴を取得
+            List<FullYearPerformanceForcast> PreviousForcasts = GetPreviousForcasts();
+            foreach (var previous in PreviousForcasts)
+            {
+                // 先頭に追加
+                FullYearPerformancesForcasts.Insert(0, previous);
+            }
+
+            // 最終実績を取得
             var p = this.QuarterlyPerformances[this.QuarterlyPerformances.Count - 2];
 
             FullYearPerformanceForcast f = new FullYearPerformanceForcast()
             {
                 FiscalPeriod = string.Empty,
                 RevisionDate = ConvertToDateTime(p.ReleaseDate),
-                Category = "終",
+                Category = CommonUtils.Instance.ForecastCategoryString.Final,
                 RevisionDirection = string.Empty,
                 Revenue = p.Revenue,
                 OperatingProfit = p.OperatingProfit.ToString(),
@@ -1344,22 +1345,15 @@ internal class StockInfo
                 PreviousForcast = null
             };
 
-            // 前期の最終実績なので、先頭に追加。
+            // 先頭に追加
             FullYearPerformancesForcasts.Insert(0, f);
         }
     }
 
-    private void UpdateLastQuarterPeriod()
+    private List<FullYearPerformanceForcast> GetPreviousForcasts()
     {
-        // 期間の取得
-        this.LastQuarterPeriod = this.LastQuarterPeriod switch
-        {
-            string s when s.Contains("第１") => CommonUtils.Instance.QuarterString.Quarter1,
-            string s when s.Contains("第２") => CommonUtils.Instance.QuarterString.Quarter2,
-            string s when s.Contains("第３") => CommonUtils.Instance.QuarterString.Quarter3,
-            string s when s.Contains("前期") => CommonUtils.Instance.QuarterString.Quarter4,
-            _ => this.LastQuarterPeriod // デフォルト値（変更しない場合）
-        };
+        // TODO: 実装、前期履歴の取得キーをどうするか？
+        return new List<FullYearPerformanceForcast>();
     }
 
     /// <summary>
@@ -1527,7 +1521,7 @@ internal class StockInfo
         /// <summary>
         /// 予想概要
         /// </summary>
-        public object Summary { get; internal set; }
+        public string Summary { get; internal set; }
         /// <summary>
         /// 前回の予想
         /// </summary>
@@ -1546,7 +1540,9 @@ internal class StockInfo
         {
             bool result = false;
 
-            if (this.Category != "初") {
+            if (this.Category != CommonUtils.Instance.ForecastCategoryString.Initial 
+                && this.Category != CommonUtils.Instance.ForecastCategoryString.Final)
+            {
                 // 売上
                 if (CommonUtils.Instance.GetDouble(this.Revenue) < CommonUtils.Instance.GetDouble(this.PreviousForcast.Revenue)) result = true;
                 // 経常利益

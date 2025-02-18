@@ -149,7 +149,7 @@ internal class KabutanScraper
                         stockInfo.FullYearPerformances.Add(p);
                     }
                 }
-                //stockInfo.UpdateFullYearPerformanceForcastSummary();
+
                 stockInfo.UpdateDividendPayoutRatio();
             }
 
@@ -237,23 +237,30 @@ internal class KabutanScraper
                 }
             }
 
-            // 通期予想のサマリを更新
-//            stockInfo.UpdateFullYearPerformanceForcastSummary();
-
-            // 実績
+            // 四半期決算期間
             var node = htmlDocument.DocumentNode.SelectSingleNode("//*[@id=\"finance_box\"]/div[17]/div[1]/h3");
+            var period = string.Empty;
             if (node != null)
             {
-                stockInfo.LastQuarterPeriod = node.InnerText.Trim();
+                period = node.InnerText.Trim();
             }
             else {
                 node = htmlDocument.DocumentNode.SelectSingleNode("//*[@id=\"finance_box\"]/div[18]/div[1]/h3");
                 if (node != null)
                 {
-                    stockInfo.LastQuarterPeriod = node.InnerText.Trim();
+                    period = node.InnerText.Trim();
                 }
             }
+            stockInfo.LastQuarterPeriod = period switch
+            {
+                string s when s.Contains("第１") => CommonUtils.Instance.QuarterString.Quarter1,
+                string s when s.Contains("第２") => CommonUtils.Instance.QuarterString.Quarter2,
+                string s when s.Contains("第３") => CommonUtils.Instance.QuarterString.Quarter3,
+                string s when s.Contains("前期") => CommonUtils.Instance.QuarterString.Quarter4,
+                _ => period // デフォルト値（変更しない場合）
+            };
 
+            // 実績履歴
             rows = htmlDocument.DocumentNode.SelectNodes("//*[@id=\"finance_box\"]/table[3]/tbody/tr");
 
             if (rows != null && rows.Count != 0)
@@ -288,7 +295,6 @@ internal class KabutanScraper
                         stockInfo.QuarterlyPerformances.Add(p);
                     }
                 }
-//                stockInfo.UpdateProgress();
             }
 
             // 自己資本比率

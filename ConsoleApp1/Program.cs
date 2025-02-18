@@ -183,6 +183,7 @@ using Google.Apis.Util.Store;
  * ・GmailAPIをテストユーザから本番ユーザに切り替え。
  * ・分割時は株価履歴をリフレッシュする。
  * ・RSI閾値の見直し。（27くらいにする？）
+ * ・4Qは前期修正履歴を全件出力する。
  */
 
 var logger = CommonUtils.Instance.Logger;
@@ -218,10 +219,7 @@ try
     // 直近の営業日を取得
     var lastTradingDay = GetLastTradingDay();
 
-    // 過去の株価履歴キャッシュを削除
-    DeleteHistoryCache();
-
-    // ウォッチ銘柄を処理
+    // ウォッチ銘柄毎に処理
     foreach (var watchStock in watchList)
     {
         // 削除日が入っていたらスキップ
@@ -261,6 +259,9 @@ try
 
     // ファイル保存
     Alert.SaveFile(results);
+
+    // 過去の株価履歴キャッシュを削除
+    DeleteHistoryCache();
 
     // メール送信
     if (CommonUtils.Instance.ShouldSendMail) Alert.SendMail();
