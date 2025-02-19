@@ -1296,16 +1296,18 @@ internal class StockInfo
         // 4Q決算の場合、通期予想に前期の修正履歴と最終実績を追加する。
         if (this.LastQuarterPeriod == CommonUtils.Instance.QuarterString.Quarter4)
         {
-            // 前期の修正履歴を取得
-            List<FullYearPerformanceForcast> PreviousForcasts = GetPreviousForcasts();
             FullYearPerformanceForcast clone = null;
 
-            foreach (var previous in PreviousForcasts)
-            {
-                // 先頭に追加
-                FullYearPerformancesForcasts.Insert(0, previous);
-                clone = (FullYearPerformanceForcast)previous.Clone();
-            }
+            //TODO: データによって落ちるので一旦削除（1439）
+            //// 前期の修正履歴を取得
+            //List<FullYearPerformanceForcast> PreviousForcasts = GetPreviousForcasts();
+
+            //foreach (var previous in PreviousForcasts)
+            //{
+            //    // 先頭に追加
+            //    FullYearPerformancesForcasts.Insert(0, previous);
+            //    clone = (FullYearPerformanceForcast)previous.Clone();
+            //}
 
             // 最終実績を取得
             var p = this.QuarterlyPerformances[this.QuarterlyPerformances.Count - 2];
