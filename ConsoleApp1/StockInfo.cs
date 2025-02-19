@@ -706,28 +706,6 @@ internal class StockInfo
             this.QuarterlyFullyearProgressRate = latestOrdinaryIncome / fullYearOrdinaryIncome;
         }
 
-        // ** 前期進捗率
-
-        //if (this.QuarterlyPerformances.Count >= 3)
-        //{
-        //    // 発表日の取得
-        //    this.PreviousPerformanceReleaseDate = ConvertToDateTime(this.QuarterlyPerformances[this.QuarterlyPerformances.Count - 3].ReleaseDate);
-
-        //    // 通期進捗率の算出
-        //    if (this.FullYearPerformances.Count >= 3)
-        //    {
-        //        // Q4の時は既に来期の予想が存在するため、2件前を参照する
-        //        var refCount = this.LastQuarterPeriod == CommonUtils.Instance.QuarterString.Quarter4 ? 4 : 3;
-
-        //        fullYearOrdinaryIncome = CommonUtils.Instance.GetDouble(this.FullYearPerformances[this.FullYearPerformances.Count - refCount].OrdinaryIncome);
-        //        previousOrdinaryIncome = this.QuarterlyPerformances[this.QuarterlyPerformances.Count - 3].OrdinaryProfit;
-        //        if (fullYearOrdinaryIncome > 0)
-        //        {
-        //            this.PreviousFullyearProgressRate = previousOrdinaryIncome / fullYearOrdinaryIncome;
-        //        }
-        //    }
-        //}
-
         // 四半期実績の取得
         var previousQuarterlyPerformance = GetQuarterlyPerformance(CommonUtils.Instance.PeriodString.Previous);
 
@@ -775,8 +753,8 @@ internal class StockInfo
         // 通期進捗率の算出
         if (this.FullYearPerformances.Count >= refIndex)
         {
-            // TODO: Q4の時は既に来期の予想しか取得できないため、キャッシュから取得する必要がある。（現状は2件前の通期予想を格納している。）
-//            refIndex = this.LastQuarterPeriod == CommonUtils.Instance.QuarterString.Quarter4 ? 3 : refIndex;
+            // TODO: Q4の時は既に来期の予想しか取得できないため、キャッシュから取得する必要がある。（現状は2件前の通期実績を格納している。よって常に100%になる。）
+            refIndex = this.LastQuarterPeriod == CommonUtils.Instance.QuarterString.Quarter4 ? refIndex + 1 : refIndex;
             result = this.FullYearPerformances[this.FullYearPerformances.Count - refIndex];
         }
 
