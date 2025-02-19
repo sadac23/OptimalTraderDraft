@@ -6,6 +6,7 @@ using System;
 using System.Globalization;
 using System.Net.Http;
 using System.Security.Policy;
+using System.Text.RegularExpressions;
 using static WatchList;
 
 internal class MinkabuScraper
@@ -76,12 +77,44 @@ internal class MinkabuScraper
                     s++;
                 }
             }
+
+            // 直近の4Q決算月
+            var node = htmlDocument.DocumentNode.SelectSingleNode("//*[@id=\"dps_detail\"]/div[2]/div/div[6]/table[1]/tbody/tr[1]/th[1]/text()");
+
+            if (node != null)
+            {
+                // カレントの4Q決算月を取得
+                var currentFiscalMonth = node.InnerText.Trim();
+                stockInfo.CurrentFiscalMonth = ExtractYearMonth(currentFiscalMonth);
+            }
         }
         catch (Exception e)
         {
             Console.WriteLine("リクエストエラー: " + e.Message);
         }
 
+    }
+
+    private DateTime? ExtractYearMonth(string input)
+    {
+        // 正規表現パターンを定義
+        string pattern = @"(\d{4})年(\d{1,2})月期";
+
+        // 正規表現でマッチを検索
+        Match match = Regex.Match(input, pattern);
+
+        if (match.Success)
+        {
+            // マッチした文字列から年と月を抽出
+            int year = int.Parse(match.Groups[1].Value);
+            int month = int.Parse(match.Groups[2].Value);
+
+            // DateTimeオブジェクトを作成
+            return new DateTime(year, month, 1);
+        }
+
+        // マッチしなかった場合はnullを返す
+        return null;
     }
 
     internal async Task ScrapeYutai(StockInfo stockInfo)
