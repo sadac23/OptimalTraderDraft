@@ -235,11 +235,7 @@ internal class CommonUtils : IDisposable
     /// <summary>
     /// ナンピン閾値
     /// </summary>
-    public double ThresholdOfAverageDown { get; } = -0.05;
-    /// <summary>
-    /// 注目マーク
-    /// </summary>
-    public string WatchMark { get; } = "★";
+    public double ThresholdOfAverageDown { get; } = -0.03;
     /// <summary>
     /// 利回り閾値
     /// </summary>

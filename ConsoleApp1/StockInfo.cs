@@ -883,24 +883,17 @@ internal class StockInfo
     }
 
     /// <summary>
-    /// ナンピンするべきか？
+    /// 対象約定はナンピンするべきか？
     /// </summary>
-    internal bool ShouldAverageDown()
+    internal bool ShouldAverageDown(Execution e)
     {
         var result = false;
 
-        // 所有中かつ、最終購入よりナンピン基準を下回る下落の場合
-        if (this.IsOwnedNow())
+        // 売却済でない買約定
+        if (e.BuyOrSell == CommonUtils.Instance.BuyOrSellString.Buy && !e.HasSellExecuted)
         {
-            double p = 0;
-            foreach (var item in this.Executions)
-            {
-                if (item.BuyOrSell == CommonUtils.Instance.BuyOrSellString.Buy)
-                {
-                    p = item.Price;
-                }
-            }
-            if (((this.LatestPrice / p) - 1) <= CommonUtils.Instance.ThresholdOfAverageDown)
+            // 変動率がナンピン閾値以下の場合
+            if (((this.LatestPrice / e.Price) - 1) <= CommonUtils.Instance.ThresholdOfAverageDown)
             {
                 result = true;
             }

@@ -195,11 +195,16 @@ internal class Alert
 
                     count = 0;
                     s = string.Empty;
-                    var b = r.StockInfo.ShouldAverageDown();
                     foreach (ExecutionList.Execution e in r.StockInfo.Executions)
                     {
-                        if (count == 0) writer.WriteLine($"約定履歴：{(b ? mark : string.Empty)}");
-                        writer.WriteLine($"{e.BuyOrSell}：{e.Date.ToString("yy/MM/dd")}：{e.Price.ToString("N1")}*{e.Quantity}：{CommonUtils.Instance.ConvertToPercentage((r.StockInfo.LatestPrice / e.Price) - 1, true)}");
+                        if (count == 0) writer.WriteLine($"約定履歴：");
+
+                        writer.WriteLine($"{e.BuyOrSell}" +
+                            $"：{e.Date.ToString("yy/MM/dd")}" +
+                            $"：{e.Price.ToString("N1")}*{e.Quantity}" +
+                            $"：{CommonUtils.Instance.ConvertToPercentage((r.StockInfo.LatestPrice / e.Price) - 1, true)}" +
+                            $"{(r.StockInfo.ShouldAverageDown(e) ? mark : string.Empty)}");
+
                         count++;
                     }
 
