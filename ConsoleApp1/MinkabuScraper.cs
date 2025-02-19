@@ -95,7 +95,7 @@ internal class MinkabuScraper
 
     }
 
-    private DateTime? ExtractYearMonth(string input)
+    private DateTime ExtractYearMonth(string input)
     {
         // 正規表現パターンを定義
         string pattern = @"(\d{4})年(\d{1,2})月期";
@@ -113,8 +113,8 @@ internal class MinkabuScraper
             return new DateTime(year, month, 1);
         }
 
-        // マッチしなかった場合はnullを返す
-        return null;
+        // マッチしなかった場合は初期値を返す
+        return new DateTime();
     }
 
     internal async Task ScrapeYutai(StockInfo stockInfo)
