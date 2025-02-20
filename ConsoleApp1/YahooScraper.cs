@@ -65,8 +65,9 @@ internal class YahooScraper
                             var low = CommonUtils.Instance.GetDouble(columns[3].InnerText.Trim());
                             var close = CommonUtils.Instance.GetDouble(columns[4].InnerText.Trim());
                             var volume = CommonUtils.Instance.GetDouble(columns[5].InnerText.Trim());
+                            var adjustedClose = CommonUtils.Instance.GetDouble(columns[6].InnerText.Trim());
 
-                            stockInfo.Prices.Add(new StockInfo.Price
+                            stockInfo.ScrapedPrices.Add(new StockInfo.ScrapedPrice
                             {
                                 Date = date,
                                 DateYYYYMMDD = date.ToString("yyyyMMdd"),
@@ -74,7 +75,8 @@ internal class YahooScraper
                                 High = high,
                                 Low = low,
                                 Close = close,
-                                Volume = volume
+                                Volume = volume,
+                                AdjustedClose = adjustedClose
                             });
                         }
                         rowCount++;

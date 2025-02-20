@@ -25,7 +25,7 @@ internal class StockInfo
         this.Classification = watchStock.Classification;
         this.IsFavorite = watchStock.IsFavorite == "1" ? true : false;
         this.Memo = watchStock.Memo;
-        this.Prices = new List<StockInfo.Price>();
+        this.ScrapedPrices = new List<StockInfo.ScrapedPrice>();
         this.FullYearPerformances = new List<StockInfo.FullYearPerformance>();
         this.FullYearProfits = new List<FullYearProfit>();
         this.QuarterlyPerformances = new List<StockInfo.QuarterlyPerformance>();
@@ -39,11 +39,11 @@ internal class StockInfo
     /// <summary>
     /// 名称
     /// </summary>
-    public string ?Name { get; set; }
+    public string? Name { get; set; }
     /// <summary>
     /// 価格履歴
     /// </summary>
-    public List<Price> Prices { get; set; }
+    public List<ScrapedPrice> ScrapedPrices { get; set; }
     /// <summary>
     /// 区分
     /// </summary>
@@ -1033,7 +1033,7 @@ internal class StockInfo
     private void RegisterCache()
     {
         // 株価履歴の登録
-        foreach (var p in this.Prices)
+        foreach (var p in this.ScrapedPrices)
         {
             if (!IsInHistory(p))
             {
@@ -1137,7 +1137,7 @@ internal class StockInfo
         }
     }
 
-    private void RegsterHistory(Price p)
+    private void RegsterHistory(ScrapedPrice p)
     {
         using (SQLiteConnection connection = new SQLiteConnection(CommonUtils.Instance.ConnectionString))
         {
@@ -1188,7 +1188,7 @@ internal class StockInfo
     /// <summary>
     /// 履歴に存在するか？
     /// </summary>
-    private bool IsInHistory(Price p)
+    private bool IsInHistory(ScrapedPrice p)
     {
         using (SQLiteConnection connection = new SQLiteConnection(CommonUtils.Instance.ConnectionString))
         {
@@ -1405,15 +1405,40 @@ internal class StockInfo
     /// <summary>
     /// 日次価格情報
     /// </summary>
-    public class Price
+    public class ScrapedPrice
     {
+        /// <summary>
+        /// 日付
+        /// </summary>
         public DateTime Date { get; set; }
+        /// <summary>
+        /// 日付文字列
+        /// </summary>
         public string DateYYYYMMDD { get; set; }
+        /// <summary>
+        /// 始値
+        /// </summary>
         public double Open { get; set; }
+        /// <summary>
+        /// 高値
+        /// </summary>
         public double High { get; set; }
+        /// <summary>
+        /// 安値
+        /// </summary>
         public double Low { get; set; }
+        /// <summary>
+        /// 終値
+        /// </summary>
         public double Close { get; set; }
+        /// <summary>
+        /// 出来高
+        /// </summary>
         public double Volume { get; set; }
+        /// <summary>
+        /// 調整後終値
+        /// </summary>
+        public double AdjustedClose { get; internal set; }
     }
 
     public class FullYearPerformance
