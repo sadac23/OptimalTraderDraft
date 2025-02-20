@@ -228,33 +228,42 @@ try
         // インスタンスの初期化
         var stockInfo = new StockInfo(watchStock);
 
-        // 履歴更新の最終日を取得（なければ基準開始日を取得）
-        var lastUpdateDay = GetLastHistoryUpdateDay(stockInfo);
+        try
+        {
+            // 履歴更新の最終日を取得（なければ基準開始日を取得）
+            var lastUpdateDay = GetLastHistoryUpdateDay(stockInfo);
 
-        // 外部サイトの情報取得
-        await kabutanScraper.ScrapeFinance(stockInfo);
-        await minkabuScraper.ScrapeDividend(stockInfo);
-        await minkabuScraper.ScrapeYutai(stockInfo);
-        await yahooScraper.ScrapeTop(stockInfo);
-        await yahooScraper.ScrapeProfile(stockInfo);
-        // 最終更新後に直近営業日がある場合は取得
-        if (lastTradingDay > lastUpdateDay) 
-            await yahooScraper.ScrapeHistory(stockInfo, lastUpdateDay, CommonUtils.Instance.ExecusionDate);
+            // 外部サイトの情報取得
+            await kabutanScraper.ScrapeFinance(stockInfo);
+            await minkabuScraper.ScrapeDividend(stockInfo);
+            await minkabuScraper.ScrapeYutai(stockInfo);
+            await yahooScraper.ScrapeTop(stockInfo);
+            await yahooScraper.ScrapeProfile(stockInfo);
+            // 最終更新後に直近営業日がある場合は取得
+            if (lastTradingDay > lastUpdateDay)
+                await yahooScraper.ScrapeHistory(stockInfo, lastUpdateDay, CommonUtils.Instance.ExecusionDate);
 
-        // 約定履歴を設定
-        stockInfo.SetExecutions(executionList);
+            // 約定履歴を設定
+            stockInfo.SetExecutions(executionList);
 
-        // マスタを設定
-        stockInfo.SetAveragePerPbr(masterList);
+            // マスタを設定
+            stockInfo.SetAveragePerPbr(masterList);
 
-        // インスタンス更新
-        stockInfo.Setup();
+            // 情報更新
+            stockInfo.Setup();
 
-        // 分析
-        var result = analyzer.Analize(stockInfo);
+            // 分析
+            var result = analyzer.Analize(stockInfo);
 
-        // 結果登録
-        results.Add(result);
+            // 結果登録
+            results.Add(result);
+
+        }
+        catch (Exception ex) {
+
+            // ログ出力
+            logger.LogError($"Error!!!（コード：{stockInfo.Code}）", ex);
+        }
     }
 
     // ファイル保存

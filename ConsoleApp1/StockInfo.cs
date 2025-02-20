@@ -1268,7 +1268,7 @@ internal class StockInfo
     }
 
     /// <summary>
-    /// インスタンス準備
+    /// 情報更新
     /// </summary>
     internal void Setup()
     {
@@ -1296,18 +1296,21 @@ internal class StockInfo
         // 4Q決算の場合、通期予想に前期の修正履歴と最終実績を追加する。
         if (this.LastQuarterPeriod == CommonUtils.Instance.QuarterString.Quarter4)
         {
-            FullYearPerformanceForcast clone = null;
+            // 前期の修正履歴を取得
+            List<FullYearPerformanceForcast> PreviousForcasts = GetPreviousForcasts();
 
-            //TODO: データによって落ちるので一旦削除（1439）
-            //// 前期の修正履歴を取得
-            //List<FullYearPerformanceForcast> PreviousForcasts = GetPreviousForcasts();
+            short count = 0;
+            FullYearPerformanceForcast clone = new FullYearPerformanceForcast();
+            foreach (var previous in PreviousForcasts)
+            {
+                count++;
 
-            //foreach (var previous in PreviousForcasts)
-            //{
-            //    // 先頭に追加
-            //    FullYearPerformancesForcasts.Insert(0, previous);
-            //    clone = (FullYearPerformanceForcast)previous.Clone();
-            //}
+                // 先頭に追加
+                FullYearPerformancesForcasts.Insert(0, previous);
+
+                // 最終を退避しておく
+                if (count == PreviousForcasts.Count) clone = (FullYearPerformanceForcast)previous.Clone();
+            }
 
             // 最終実績を取得
             var p = this.QuarterlyPerformances[this.QuarterlyPerformances.Count - 2];
@@ -1338,6 +1341,9 @@ internal class StockInfo
     private List<FullYearPerformanceForcast> GetPreviousForcasts()
     {
         List<FullYearPerformanceForcast> result = new List<FullYearPerformanceForcast>();
+
+        // カレント決算月が取得できていない場合は抜ける
+        if(this.CurrentFiscalMonth == DateTime.MinValue) return result;
 
         using (SQLiteConnection connection = new SQLiteConnection(CommonUtils.Instance.ConnectionString))
         {
