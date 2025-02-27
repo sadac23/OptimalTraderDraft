@@ -184,6 +184,8 @@ using Google.Apis.Util.Store;
  * ・GmailAPIをテストユーザから本番ユーザに切り替え。
  * ・分割時は株価履歴をリフレッシュする。
  * ・エラー時にメールしたい
+ * ・営業利益率の追加（5%以上でマーク）
+ * ・権前、権後バッジを追加
  */
 
 var logger = CommonUtils.Instance.Logger;
