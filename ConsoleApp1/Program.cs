@@ -186,6 +186,7 @@ using Google.Apis.Util.Store;
  * ・エラー時にメールしたい
  * ・営業利益率の追加（5%以上でマーク）
  * ・権前、権後バッジを追加
+ * ・購入検討バッジを追加
  */
 
 var logger = CommonUtils.Instance.Logger;

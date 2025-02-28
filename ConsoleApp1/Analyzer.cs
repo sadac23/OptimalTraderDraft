@@ -288,38 +288,31 @@ internal class Analyzer
         /// <summary>
         /// 通知すべきか？
         /// </summary>
-        /// <remarks>
-        /// 所有しているもの：強制通知
-        /// お気に入り：強制通知
-        /// 当月権利銘柄：高利回り、直近暴落
-        /// 四半期決算前後：高利回り、、直近暴落、進捗良い
-        /// その他：高利回り、直近暴落、時価総額高い、進捗良い、割安
-        /// </remarks>
         internal bool ShouldAlert()
         {
             // 初期値は通知
             bool result = true;
 
-            // 所有しているor売却直後の場合
-            if (this.StockInfo.IsOwnedNow() || this.StockInfo.IsJustSold())
+            // 注目 or 所有している or 売却直後の場合
+            if (this.StockInfo.IsFavorite || this.StockInfo.IsOwnedNow() || this.StockInfo.IsJustSold())
             {
                 // 強制通知
             }
-            // お気に入りの場合
-            else if (this.StockInfo.IsFavorite)
+            // 配当/優待権利確定月が近い場合
+            else if (this.StockInfo.IsCloseToDividendRecordDate() || this.StockInfo.IsCloseToShareholderBenefitRecordDate())
             {
-                // 強制通知
-            }
-            // 権利銘柄のスクリーニングは一旦、封印する（古野電気で損切）
-            //// 配当/優待権利確定月が近い場合
-            //else if (this.StockInfo.IsCloseToDividendRecordDate() || this.StockInfo.IsCloseToShareholderBenefitRecordDate())
-            //{
-            //    // 利回りが低い場合
-            //    if (!this.StockInfo.IsHighYield()) result = false;
+                // 利回りが低い場合
+                if (!this.StockInfo.IsHighYield()) result = false;
 
-            //    // 直近で暴落していない場合
-            //    if (!this.StockInfo.OversoldIndicator()) result = false; 
-            //}
+                // 直近で暴落していない場合
+                if (!this.StockInfo.OversoldIndicator()) result = false;
+
+                // 時価総額が低い場合
+                if (!this.StockInfo.IsHighMarketCap()) result = false;
+
+                // 進捗が良くない場合
+                if (!this.StockInfo.IsAnnualProgressOnTrack()) result = false;
+            }
             // 四半期決算前後の場合
             else if (this.StockInfo.IsCloseToQuarterEnd() || this.StockInfo.IsAfterQuarterEnd())
             {
@@ -328,6 +321,9 @@ internal class Analyzer
 
                 // 直近で暴落していない場合
                 if (!this.StockInfo.OversoldIndicator()) result = false;
+
+                // 時価総額が低い場合
+                if (!this.StockInfo.IsHighMarketCap()) result = false;
 
                 // 進捗が良くない場合
                 if (!this.StockInfo.IsAnnualProgressOnTrack()) result = false;

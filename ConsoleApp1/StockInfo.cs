@@ -592,6 +592,7 @@ internal class StockInfo
     /// <remarks>配当権利確定日が当月以内の場合にtrueを返す。</remarks>
     internal bool IsCloseToDividendRecordDate()
     {
+        // TODO: 次回権利日の閾値以内かを判定する
         return IsWithinMonths(this.DividendRecordDateMonth, 0);
     }
 
@@ -681,9 +682,6 @@ internal class StockInfo
     }
     internal void UpdateProgress()
     {
-
-        // TODO: 比較対象の予実インスタンスの取得処理を分離する。
-
         double fullYearOrdinaryIncome = 0;
         double latestOrdinaryIncome = 0;
         double previousOrdinaryIncome = 0;
@@ -1400,6 +1398,42 @@ internal class StockInfo
             }
         }
         return result;
+    }
+    /// <summary>
+    /// 配当権利確定日か？
+    /// </summary>
+    internal bool IsDividendRecordDate()
+    {
+        // TODO
+        return false;
+    }
+
+    /// <summary>
+    /// 優待権利確定日か？
+    /// </summary>
+    internal bool IsShareholderBenefitRecordDate()
+    {
+        // TODO
+        return false;
+    }
+
+    /// <summary>
+    /// 配当権利確定日直後か？
+    /// </summary>
+    internal bool IsAfterDividendRecordDate()
+    {
+        // TODO
+        return false;
+    }
+
+    /// <summary>
+    /// 優待権利確定日直後か？
+    /// </summary>
+    /// <returns></returns>
+    internal bool IsAfterShareholderBenefitRecordDate()
+    {
+        // TODO
+        return false;
     }
 
     /// <summary>

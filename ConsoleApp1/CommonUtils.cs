@@ -377,15 +377,16 @@ internal class CommonUtils : IDisposable
 
     public class BadgeStringClass
     {
-        //No.01【所持】【権利】【注目】【決算】【売済】
         public string ShouldWatch { get; } = "★";
-        public string IsOwned { get; } = "【所持】";
-        public string IsCloseToRecordDate { get; } = "【権利】";
         public string IsFavorite { get; } = "【注目】";
+        public string IsOwned { get; } = "【所持】";
+        public string IsCloseToRecordDate { get; } = "【権前】";
+        public string IsRecordDate { get; } = "【権当】";
+        public string IsAfterRecordDate { get; } = "【権後】";
         public string IsQuarterEnd { get; } = "【決当】";
         public string IsCloseToQuarterEnd { get; } = "【決前】";
-        public string IsJustSold { get; } = "【売後】";
         public string IsAfterQuarterEnd { get; } = "【決後】";
+        public string IsJustSold { get; } = "【売後】";
     }
 
     public class ThresholdOfProgressSuccessClass
