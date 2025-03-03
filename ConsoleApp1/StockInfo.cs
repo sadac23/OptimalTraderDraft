@@ -593,7 +593,45 @@ internal class StockInfo
     internal bool IsCloseToDividendRecordDate()
     {
         // TODO: 次回権利日の閾値以内かを判定する
+        //bool result = false;
+
+        //List<DateTime> recordDays = this.GetRecordDays();
+
+        //foreach (var day in recordDays)
+        //{
+        //    // 権利日のN日前 <= 実行日 < 権利日
+        //    if (day.AddDays(-1 * 14) <= CommonUtils.Instance.ExecusionDate 
+        //        && CommonUtils.Instance.ExecusionDate < day)
+        //    {
+        //        result = true;
+        //    }
+        //}
+
+        //return result;
+
         return IsWithinMonths(this.DividendRecordDateMonth, 0);
+    }
+
+    private List<DateTime> GetRecordDays()
+    {
+        List <DateTime> days = new List<DateTime>();
+
+        if (!string.IsNullOrEmpty(this.DividendRecordDateMonth))
+        {
+            // 月文字列を分割してリストに変換
+            string[] monthArray = this.DividendRecordDateMonth.Split(',');
+            List<int> months = new List<int>();
+
+            foreach (string monthStr in monthArray)
+            {
+                int month = ParseMonth(monthStr.Trim());
+                months.Add(month);
+            }
+        }
+
+        // TODO
+
+        return days;
     }
 
     public static bool IsWithinMonths(string monthsStr, short m)
@@ -810,7 +848,9 @@ internal class StockInfo
     internal bool IsHighYield()
     {
         bool result = false;
+
         if ((this.DividendYield + this.ShareholderBenefitYield) > CommonUtils.Instance.ThresholdOfYield) result = true;
+
         return result;
     }
 
@@ -1434,6 +1474,56 @@ internal class StockInfo
     {
         // TODO
         return false;
+    }
+
+    /// <summary>
+    /// 権利確定日直前か？
+    /// </summary>
+    internal bool IsCloseToRecordDate()
+    {
+        bool result = false;
+
+        // 配当
+        if (this.IsCloseToDividendRecordDate()) result = true;
+
+        // 優待
+        if (this.IsCloseToShareholderBenefitRecordDate()) result = true;
+
+        return result;
+    }
+
+    /// <summary>
+    /// 権利確定日当日か？
+    /// </summary>
+    /// <returns></returns>
+    internal bool IsRecordDate()
+    {
+        bool result = false;
+
+        // 配当
+        if (this.IsDividendRecordDate()) result = true;
+
+        // 優待
+        if (this.IsShareholderBenefitRecordDate()) result = true;
+
+        return result;
+    }
+
+    /// <summary>
+    /// 権利確定日直後か？
+    /// </summary>
+    /// <returns></returns>
+    internal bool IsAfterRecordDate()
+    {
+        bool result = false;
+
+        // 配当
+        if (this.IsAfterDividendRecordDate()) result = true;
+
+        // 優待
+        if (this.IsAfterShareholderBenefitRecordDate()) result = true;
+
+        return result;
     }
 
     /// <summary>

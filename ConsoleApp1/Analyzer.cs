@@ -298,8 +298,8 @@ internal class Analyzer
             {
                 // 強制通知
             }
-            // 配当/優待権利確定月が近い場合
-            else if (this.StockInfo.IsCloseToDividendRecordDate() || this.StockInfo.IsCloseToShareholderBenefitRecordDate())
+            // 権利確定月前後の場合
+            else if (this.StockInfo.IsCloseToRecordDate() || this.StockInfo.IsRecordDate() || this.StockInfo.IsAfterRecordDate())
             {
                 // 利回りが低い場合
                 if (!this.StockInfo.IsHighYield()) result = false;
@@ -314,7 +314,7 @@ internal class Analyzer
                 if (!this.StockInfo.IsAnnualProgressOnTrack()) result = false;
             }
             // 四半期決算前後の場合
-            else if (this.StockInfo.IsCloseToQuarterEnd() || this.StockInfo.IsAfterQuarterEnd())
+            else if (this.StockInfo.IsCloseToQuarterEnd()|| this.StockInfo.IsQuarterEnd() || this.StockInfo.IsAfterQuarterEnd())
             {
                 // 利回りが低い場合
                 if (!this.StockInfo.IsHighYield()) result = false;

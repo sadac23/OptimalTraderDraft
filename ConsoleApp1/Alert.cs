@@ -127,14 +127,9 @@ internal class Alert
                     string badge = string.Empty;
                     if (r.StockInfo.IsFavorite) badge += CommonUtils.Instance.BadgeString.IsFavorite;
                     if (r.StockInfo.IsOwnedNow()) badge += CommonUtils.Instance.BadgeString.IsOwned;
-
-                    if (r.StockInfo.IsCloseToDividendRecordDate() || r.StockInfo.IsCloseToShareholderBenefitRecordDate())
-                        badge += CommonUtils.Instance.BadgeString.IsCloseToRecordDate;
-                    if (r.StockInfo.IsDividendRecordDate() || r.StockInfo.IsShareholderBenefitRecordDate())
-                        badge += CommonUtils.Instance.BadgeString.IsRecordDate;
-                    if (r.StockInfo.IsAfterDividendRecordDate() || r.StockInfo.IsAfterShareholderBenefitRecordDate())
-                        badge += CommonUtils.Instance.BadgeString.IsAfterRecordDate;
-
+                    if (r.StockInfo.IsCloseToRecordDate()) badge += CommonUtils.Instance.BadgeString.IsCloseToRecordDate;
+                    if (r.StockInfo.IsRecordDate()) badge += CommonUtils.Instance.BadgeString.IsRecordDate;
+                    if (r.StockInfo.IsAfterRecordDate()) badge += CommonUtils.Instance.BadgeString.IsAfterRecordDate;
                     if (r.StockInfo.IsQuarterEnd()) badge += CommonUtils.Instance.BadgeString.IsQuarterEnd;
                     if (r.StockInfo.IsCloseToQuarterEnd()) badge += CommonUtils.Instance.BadgeString.IsCloseToQuarterEnd;
                     if (r.StockInfo.IsAfterQuarterEnd()) badge += CommonUtils.Instance.BadgeString.IsAfterQuarterEnd;
@@ -162,7 +157,6 @@ internal class Alert
                         count++;
                     }
 
-                    //通期進捗：3Q：80.0%（24/12/23：+99.9%）★
                     writer.WriteLine($"通期進捗：{r.StockInfo.LastQuarterPeriod}" +
                         $"：{CommonUtils.Instance.ConvertToPercentage(r.StockInfo.QuarterlyFullyearProgressRate)}" +
                         $"（{r.StockInfo.QuarterlyPerformanceReleaseDate.ToString("yy/MM/dd")}" +
@@ -198,7 +192,7 @@ internal class Alert
                         s += r.StockInfo.ExtractAndValidateDateWithinOneMonth() ? mark : string.Empty;
                     }
                     writer.WriteLine($"決算：{r.StockInfo.EarningsPeriod}");
-                    writer.WriteLine($"{s}");
+                    if (!string.IsNullOrEmpty(s)) writer.WriteLine($"{s}");
 
                     count = 0;
                     s = string.Empty;
