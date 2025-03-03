@@ -5,6 +5,7 @@ using DocumentFormat.OpenXml.Drawing;
 using DocumentFormat.OpenXml.Drawing.Charts;
 using DocumentFormat.OpenXml.Drawing.Diagrams;
 using DocumentFormat.OpenXml.Office2016.Excel;
+using DocumentFormat.OpenXml.Spreadsheet;
 using DocumentFormat.OpenXml.Wordprocessing;
 using Microsoft.Extensions.Logging;
 using System.Data.Entity;
@@ -1526,6 +1527,63 @@ internal class StockInfo
         if (this.IsAfterShareholderBenefitRecordDate()) result = true;
 
         return result;
+    }
+
+    /// <summary>
+    /// ゴールデンクロス発生可能性があるか？
+    /// </summary>
+    /// <returns></returns>
+    /// <remarks>
+    /// 移動平均値の乖離が減少、かつ0に近づいている。
+    /// </remarks>
+    internal bool IsGoldenCrossPossible()
+    {
+        bool result = false;
+
+        // TODO
+//        if (this.IsDivergenceDecreasing(this.ChartPrices, 3)) result = true;
+
+        return result;
+    }
+
+    /// <summary>
+    /// 徐々に指定要素数内の値の乖離値が減少しているか？
+    /// </summary>
+    /// <param name="values"></param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentException"></exception>
+    private bool IsDivergenceDecreasing(List<ChartPrice> values, short count)
+    {
+        if (values == null || values.Count < 3)
+        {
+            throw new ArgumentException("List must be non-null and contain at least three elements.");
+        }
+
+        // Calculate the initial difference
+        double previousDifference = Math.Abs(values[1].MACD() - values[0].MACD());
+
+        // Iterate through the list and check if the differences are decreasing
+        for (int i = 2; i < values.Count; i++)
+        {
+            if (i > count) continue;
+
+            double currentDifference = Math.Abs(values[i].MACD() - values[i - 1].MACD());
+
+            // 既にクロス済の場合
+            if (values[i].MACD() >= 0)
+            {
+                return false;
+            }
+
+            if (currentDifference <= previousDifference)
+            {
+                return false;
+            }
+
+            previousDifference = currentDifference;
+        }
+
+        return true;
     }
 
     /// <summary>

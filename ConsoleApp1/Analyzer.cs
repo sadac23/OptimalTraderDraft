@@ -300,6 +300,18 @@ internal class Analyzer
             {
                 // 強制通知
             }
+            // ゴールデンクロス発生可能性がある場合
+            else if (this.StockInfo.IsGoldenCrossPossible())
+            {
+                // 利回りが低い場合
+                if (!this.StockInfo.IsHighYield()) result = false;
+
+                // 時価総額が低い場合
+                if (!this.StockInfo.IsHighMarketCap()) result = false;
+
+                // 進捗が良くない場合
+                if (!this.StockInfo.IsAnnualProgressOnTrack()) result = false;
+            }
             // 権利確定月前後の場合
             else if (this.StockInfo.IsCloseToRecordDate() || this.StockInfo.IsRecordDate() || this.StockInfo.IsAfterRecordDate())
             {
