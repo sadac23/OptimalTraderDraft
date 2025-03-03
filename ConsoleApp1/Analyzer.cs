@@ -1,10 +1,12 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
 using DocumentFormat.OpenXml.Drawing.Charts;
+using DocumentFormat.OpenXml.Math;
 using DocumentFormat.OpenXml.Wordprocessing;
 using System.Data.SQLite;
 using System.Runtime.CompilerServices;
 using System.Runtime.ConstrainedExecution;
+using System.Runtime.Intrinsics.X86;
 using static Analyzer;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
@@ -430,4 +432,73 @@ internal class Analyzer
         return lastFriday;
     }
 
+    /// <summary>
+    /// MACDの取得
+    /// </summary>
+    /// <param name="date"></param>
+    /// <param name="code"></param>
+    /// <returns></returns>
+    internal static double GetMACD(DateTime date, string code)
+    {
+        double result = 0;
+
+        double smaS = GetSMA(25, date, code);
+        double smaL = GetSMA(75, date, code);
+
+        result = smaS - smaL;
+
+        return result;
+    }
+
+    /// <summary>
+    /// 移動平均値の取得
+    /// </summary>
+    /// <param name="v"></param>
+    /// <param name="date"></param>
+    /// <param name="code"></param>
+    /// <returns></returns>
+    internal static double GetSMA(int v, DateTime date, string code)
+    {
+        double result = 0;
+
+        using (SQLiteConnection connection = new SQLiteConnection(CommonUtils.Instance.ConnectionString))
+        {
+            connection.Open();
+
+            // プライマリーキーに条件を設定したクエリ
+            string query =
+                "SELECT date, close FROM (" +
+                " SELECT date, close" +
+                " FROM history" +
+                " WHERE date <= @date and code = @code" +
+                " ORDER BY date DESC" +
+                " LIMIT @limit)" +
+                " ORDER BY date ASC;";
+
+            using (SQLiteCommand command = new SQLiteCommand(query, connection))
+            {
+                // パラメータを設定
+                command.Parameters.AddWithValue("@date", date.ToString("yyyy-MM-dd 23:59:59"));
+                command.Parameters.AddWithValue("@code", code);
+                command.Parameters.AddWithValue("@limit", v);
+
+                double sum = 0;
+
+                // データリーダーを使用して結果を取得
+                using (SQLiteDataReader reader = command.ExecuteReader())
+                {
+
+                    // 結果を読み取り
+                    while (reader.Read())
+                    {
+                        sum += reader.GetDouble(reader.GetOrdinal("close"));
+                    }
+                }
+
+                result = sum / v;
+            }
+        }
+
+        return result;
+    }
 }

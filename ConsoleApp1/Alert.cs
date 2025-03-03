@@ -87,7 +87,7 @@ internal class Alert
         //売：24/12/05：2,068.0*100：-10.40%
         //買：24/12/06：2,060.0*100：-10.40%★
         //チャート：
-        //24/10/14：3,951.0：+99.99%：L99.99,S99.99
+        //24/10/14：3,951.0：+99.99%：MACD3,951,L99.99,S99.99
         //24/10/13：3,951.0：-99.99%：L99.99,S99.99
         //24/10/12：3,951.0：+99.99%：L99.99,S99.99
         //24/10/11：3,951.0：-99.99%：L99.99,S99.99
@@ -212,11 +212,13 @@ internal class Alert
                     writer.WriteLine($"チャート：");
                     foreach (var p in r.StockInfo.ChartPrices)
                     {
+                        //24/10/14：3,951.0：+99.99%：MACD3,951,L99.99,S99.99
                         writer.WriteLine($"{p.Date.ToString("yy/MM/dd")}" +
                             $"：{p.Price.ToString("N1")}" +
                             $"：{CommonUtils.Instance.ConvertToPercentage(p.Volatility, true)}" +
-                            $"：L{p.RSIL.ToString("N2")}" +
-                            $",S{p.RSIS.ToString("N2")}");
+                            $"：SMA{p.MACD().ToString("N1")}({p.SMA25.ToString("N1")},{p.SMA75.ToString("N1")})" +
+                            $",RSIS{p.RSIS.ToString("N2")}" +
+                            $",RSIL{p.RSIL.ToString("N2")}");
                     }
 
                     if (!string.IsNullOrEmpty(r.StockInfo.Memo))

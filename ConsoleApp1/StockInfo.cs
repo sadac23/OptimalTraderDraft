@@ -995,8 +995,10 @@ internal class StockInfo
                             Date = date,
                             Price = close,
                             Volatility = previousPrice != null ? (close / previousPrice.Price) - 1 : 0,
-                            RSIL = Analyzer.GetCutlerRSI(CommonUtils.Instance.RSILongPeriodDays,date,this.Code),
+                            RSIL = Analyzer.GetCutlerRSI(CommonUtils.Instance.RSILongPeriodDays, date, this.Code),
                             RSIS = Analyzer.GetCutlerRSI(CommonUtils.Instance.RSIShortPeriodDays, date, this.Code),
+                            SMA25 = Analyzer.GetSMA(25, date, this.Code),
+                            SMA75 = Analyzer.GetSMA(75, date, this.Code),
                         };
 
                         prices.Add(price);
@@ -1778,10 +1780,25 @@ internal class StockInfo
         public double Volatility { get; internal set; }
         public double RSIL { get; internal set; }
         public double RSIS { get; internal set; }
+        public double MACD_EMA { get; internal set; }
+        /// <summary>
+        /// 単純移動平均値（25日）
+        /// </summary>
+        public double SMA25 { get; internal set; }
+        /// <summary>
+        /// 単純移動平均値（75日）
+        /// </summary>
+        public double SMA75 { get; internal set; }
+
         public object Clone()
         {
             // 浅いコピー（メンバーコピー）を返す
             return this.MemberwiseClone();
+        }
+
+        internal double MACD()
+        {
+            return this.SMA25 - this.SMA75;
         }
     }
 }
