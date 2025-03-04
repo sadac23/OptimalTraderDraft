@@ -991,6 +991,9 @@ internal class StockInfo
                         double close = reader.GetDouble(reader.GetOrdinal("close"));
                         double volume = reader.GetDouble(reader.GetOrdinal("volume"));
 
+                        double sma25 = Analyzer.GetSMA(25, date, this.Code);
+                        double sma75 = Analyzer.GetSMA(75, date, this.Code);
+
                         ChartPrice price = new ChartPrice()
                         {
                             Date = date,
@@ -998,8 +1001,11 @@ internal class StockInfo
                             Volatility = previousPrice != null ? (close / previousPrice.Price) - 1 : 0,
                             RSIL = Analyzer.GetCutlerRSI(CommonUtils.Instance.RSILongPeriodDays, date, this.Code),
                             RSIS = Analyzer.GetCutlerRSI(CommonUtils.Instance.RSIShortPeriodDays, date, this.Code),
-                            SMA25 = Analyzer.GetSMA(25, date, this.Code),
-                            SMA75 = Analyzer.GetSMA(75, date, this.Code),
+                            SMA25 = sma25,
+                            SMA75 = sma75,
+                            SMAdev = sma25 - sma75,
+                            MADS = (close - sma25) / sma25,
+                            MADL = (close - sma75) / sma75,
                         };
 
                         prices.Add(price);
@@ -1847,6 +1853,21 @@ internal class StockInfo
         /// 単純移動平均値（75日）
         /// </summary>
         public double SMA75 { get; internal set; }
+
+        /// <summary>
+        /// Moving Average Deviation（平均移動乖離）
+        /// 25日
+        /// </summary>
+        public double MADS { get; internal set; }
+        /// <summary>
+        /// Moving Average Deviation（平均移動乖離）
+        /// 75日
+        /// </summary>
+        public double MADL { get; internal set; }
+        /// <summary>
+        /// SMA25、SMA75の乖離値
+        /// </summary>
+        public double SMAdev { get; internal set; }
 
         public object Clone()
         {

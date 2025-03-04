@@ -83,10 +83,10 @@ internal class Alert
         //自己資本比率：40.0%
         //決算：3月末
         //次回の決算発表日は2025年1月14日の予定です。★
-        //チャート：
+        //チャート（RSI）：
         //10/14：3,951.0：-99.99%（S99.99,L99.99）
-        //テクニカル（SMA div）：
-        //10/14：+3,951.0（S3,951.0：L3,951.0）
+        //テクニカル（MAD）：
+        //10/14：3,951.0：S+99.99%,L+99.99%
         //約定履歴：
         //買：24/12/04：2,068.0*300：-10.40%
         //売：24/12/05：2,068.0*100：-10.40%
@@ -186,9 +186,11 @@ internal class Alert
                     if (!string.IsNullOrEmpty(s)) writer.WriteLine($"{s}");
 
                     //チャート：
-                    writer.WriteLine($"チャート：");
+                    writer.WriteLine($"チャート（RSI）：");
                     foreach (var p in r.StockInfo.ChartPrices)
                     {
+                        //チャート（RSI）：
+                        //10/14：3,951.0：-99.99%（S99.99,L99.99）
                         writer.WriteLine(
                             $"{p.Date.ToString("MM/dd")}" +
                             $"：{p.Price.ToString("N1")}" +
@@ -198,15 +200,16 @@ internal class Alert
                             $"");
                     }
 
-                    //テクニカル（SMA div）：
-                    writer.WriteLine($"テクニカル（SMA div）：");
+                    //テクニカル（MAD）：
+                    writer.WriteLine($"テクニカル（SMAdev：MAD）：");
                     foreach (var p in r.StockInfo.ChartPrices)
                     {
+                        //10/14：3,951.0：999.0：S+99.99%,L+99.99%
                         writer.WriteLine(
                             $"{p.Date.ToString("MM/dd")}" +
-                            $"：{p.MACD().ToString("N1")}" +
-                            $"（S{p.SMA25.ToString("N1")}" +
-                            $"：L{p.SMA75.ToString("N1")}）" +
+                            $"：{p.SMAdev.ToString("N1")}" +
+                            $"：S{CommonUtils.Instance.ConvertToPercentage(p.MADS, true)}" +
+                            $",L{CommonUtils.Instance.ConvertToPercentage(p.MADL, true)}" +
                             $"");
                     }
 
