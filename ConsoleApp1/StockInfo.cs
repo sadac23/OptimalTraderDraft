@@ -1540,14 +1540,38 @@ internal class StockInfo
     /// </summary>
     /// <returns></returns>
     /// <remarks>
-    /// 移動平均値の乖離が減少、かつ0に近づいている。
+    /// 短期/長期の移動平均乖離値がマイナスから0に近づいているかを判定する。
     /// </remarks>
     internal bool IsGoldenCrossPossible()
     {
-        bool result = false;
+        bool result = true;
 
         // TODO
-//        if (this.IsDivergenceDecreasing(this.ChartPrices, 3)) result = true;
+        //        if (this.IsDivergenceDecreasing(this.ChartPrices, 3)) result = true;
+
+        double tempSMAdev = 0;
+        short count = 0;
+
+        // 最新から遡って判定
+        foreach (var item in this.ChartPrices)
+        {
+            // 判定日数を超過した場合は終了
+            if (count > 7) break;
+
+            // 既に発生している場合
+            if (item.SMAdev > 0) result = false;
+
+            // 2件目以降
+            if (count > 0)
+            {
+                // 遡って乖離値が減少している場合（SMA25が上昇していない場合）
+                if (item.SMAdev >= tempSMAdev) result = false;
+            }
+
+            tempSMAdev = item.SMAdev;
+
+            count++;
+        }
 
         return result;
     }
