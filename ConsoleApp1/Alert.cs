@@ -15,6 +15,7 @@ using Google.Apis.Services;
 using Google.Apis.Util.Store;
 using MimeKit;
 using Microsoft.Extensions.Logging;
+using DocumentFormat.OpenXml.Bibliography;
 
 internal class Alert
 {
@@ -62,7 +63,7 @@ internal class Alert
     {
         //No.01【注目】【所持】【権前】【権当】【権後】【決当】【決前】【決後】【売後】【金交】
         //1928：積水ハウス(株)（建設業）
-        //株価：1,234.0（24/11/29：L99.99,S99.99）★
+        //株価：1,234.0（24/11/29：S99.99,L99.99）★
         //市場：東証プライム,名証プレミア
         //配当利回り：3.64%（50%,5月,11月）★
         //優待利回り：3.64%（QUOカード,100株,5月,11月,月末）★
@@ -82,25 +83,14 @@ internal class Alert
         //自己資本比率：40.0%
         //決算：3月末
         //次回の決算発表日は2025年1月14日の予定です。★
+        //チャート：
+        //10/14：3,951.0：-99.99%（S99.99,L99.99）
+        //テクニカル（SMA div）：
+        //10/14：+3,951.0（S3,951.0：L3,951.0）
         //約定履歴：
         //買：24/12/04：2,068.0*300：-10.40%
         //売：24/12/05：2,068.0*100：-10.40%
         //買：24/12/06：2,060.0*100：-10.40%★
-        //チャート：
-        //24/10/14：3,951.0：+99.99%：MACD3,951,L99.99,S99.99
-        //24/10/13：3,951.0：-99.99%：L99.99,S99.99
-        //24/10/12：3,951.0：+99.99%：L99.99,S99.99
-        //24/10/11：3,951.0：-99.99%：L99.99,S99.99
-        //24/10/10：3,951.0：+99.99%：L99.99,S99.99
-        //24/10/09：3,951.0：+99.99%：L99.99,S99.99
-        //24/10/08：3,951.0：+99.99%：L99.99,S99.99
-        //24/10/07：3,951.0：+99.99%：L99.99,S99.99
-        //24/10/06：3,951.0：+99.99%：L99.99,S99.99
-        //24/10/05：3,951.0：+99.99%：L99.99,S99.99
-        //24/10/04：3,951.0：+99.99%：L99.99,S99.99
-        //24/10/03：3,951.0：+99.99%：L99.99,S99.99
-        //24/10/02：3,951.0：+99.99%：L99.99,S99.99
-        //24/10/01：3,951.0：+99.99%：L99.99,S99.99
         //メモ：
         //ほげほげほげほげほげ。
 
@@ -141,8 +131,8 @@ internal class Alert
                     writer.WriteLine($"{r.StockInfo.Code}：{r.StockInfo.Name}（{r.StockInfo.Industry}）");
                     writer.WriteLine($"株価：{r.StockInfo.LatestPrice.ToString("N1")}" +
                         $"（{r.StockInfo.LatestPriceDate.ToString("yy/MM/dd")}" +
-                        $"：L{r.StockInfo.LatestPriceRSIL.ToString("N2")}" +
-                        $",S{r.StockInfo.LatestPriceRSIS.ToString("N2")}" +
+                        $"：S{r.StockInfo.LatestPriceRSIS.ToString("N2")}" +
+                        $",L{r.StockInfo.LatestPriceRSIL.ToString("N2")}" +
                         $"）{(r.StockInfo.OversoldIndicator() || (r.StockInfo.IsOwnedNow() && r.StockInfo.OverboughtIndicator()) ? mark : string.Empty)}");
                     writer.WriteLine($"市場：{r.StockInfo.Section}");
                     writer.WriteLine($"配当利回り：{CommonUtils.Instance.ConvertToPercentage(r.StockInfo.DividendYield)}（{CommonUtils.Instance.ConvertToPercentage(r.StockInfo.DividendPayoutRatio)},{r.StockInfo.DividendRecordDateMonth}）{(r.StockInfo.IsCloseToDividendRecordDate() ? mark : string.Empty)}");
@@ -195,6 +185,31 @@ internal class Alert
                     writer.WriteLine($"決算：{r.StockInfo.EarningsPeriod}");
                     if (!string.IsNullOrEmpty(s)) writer.WriteLine($"{s}");
 
+                    //チャート：
+                    writer.WriteLine($"チャート：");
+                    foreach (var p in r.StockInfo.ChartPrices)
+                    {
+                        writer.WriteLine(
+                            $"{p.Date.ToString("MM/dd")}" +
+                            $"：{p.Price.ToString("N1")}" +
+                            $"：{CommonUtils.Instance.ConvertToPercentage(p.Volatility, true)}" +
+                            $"（S{p.RSIS.ToString("N2")}" +
+                            $",L{p.RSIL.ToString("N2")}）" +
+                            $"");
+                    }
+
+                    //テクニカル（SMA div）：
+                    writer.WriteLine($"テクニカル（SMA div）：");
+                    foreach (var p in r.StockInfo.ChartPrices)
+                    {
+                        writer.WriteLine(
+                            $"{p.Date.ToString("MM/dd")}" +
+                            $"：{p.MACD().ToString("N1")}" +
+                            $"（S{p.SMA25.ToString("N1")}" +
+                            $"：L{p.SMA75.ToString("N1")}）" +
+                            $"");
+                    }
+
                     count = 0;
                     s = string.Empty;
                     foreach (ExecutionList.Execution e in r.StockInfo.Executions)
@@ -208,18 +223,6 @@ internal class Alert
                             $"{(r.StockInfo.ShouldAverageDown(e) ? mark : string.Empty)}");
 
                         count++;
-                    }
-
-                    writer.WriteLine($"チャート：");
-                    foreach (var p in r.StockInfo.ChartPrices)
-                    {
-                        //24/10/14：3,951.0：+99.99%：MACD3,951,L99.99,S99.99
-                        writer.WriteLine($"{p.Date.ToString("yy/MM/dd")}" +
-                            $"：{p.Price.ToString("N1")}" +
-                            $"：{CommonUtils.Instance.ConvertToPercentage(p.Volatility, true)}" +
-                            $"：SMA{p.MACD().ToString("N1")}({p.SMA25.ToString("N1")},{p.SMA75.ToString("N1")})" +
-                            $",RSIS{p.RSIS.ToString("N2")}" +
-                            $",RSIL{p.RSIL.ToString("N2")}");
                     }
 
                     if (!string.IsNullOrEmpty(r.StockInfo.Memo))
