@@ -185,6 +185,21 @@ internal class Alert
                     writer.WriteLine($"決算：{r.StockInfo.EarningsPeriod}");
                     if (!string.IsNullOrEmpty(s)) writer.WriteLine($"{s}");
 
+                    count = 0;
+                    s = string.Empty;
+                    foreach (ExecutionList.Execution e in r.StockInfo.Executions)
+                    {
+                        if (count == 0) writer.WriteLine($"約定履歴：");
+
+                        writer.WriteLine($"{e.BuyOrSell}" +
+                            $"：{e.Date.ToString("yy/MM/dd")}" +
+                            $"：{e.Price.ToString("N1")}*{e.Quantity}" +
+                            $"：{CommonUtils.Instance.ConvertToPercentage((r.StockInfo.LatestPrice / e.Price) - 1, true)}" +
+                            $"{(r.StockInfo.ShouldAverageDown(e) ? mark : string.Empty)}");
+
+                        count++;
+                    }
+
                     //チャート：
                     writer.WriteLine($"チャート（RSI）：");
                     foreach (var p in r.StockInfo.ChartPrices)
@@ -211,21 +226,6 @@ internal class Alert
                             $"：S{CommonUtils.Instance.ConvertToPercentage(p.MADS, true)}" +
                             $",L{CommonUtils.Instance.ConvertToPercentage(p.MADL, true)}" +
                             $"");
-                    }
-
-                    count = 0;
-                    s = string.Empty;
-                    foreach (ExecutionList.Execution e in r.StockInfo.Executions)
-                    {
-                        if (count == 0) writer.WriteLine($"約定履歴：");
-
-                        writer.WriteLine($"{e.BuyOrSell}" +
-                            $"：{e.Date.ToString("yy/MM/dd")}" +
-                            $"：{e.Price.ToString("N1")}*{e.Quantity}" +
-                            $"：{CommonUtils.Instance.ConvertToPercentage((r.StockInfo.LatestPrice / e.Price) - 1, true)}" +
-                            $"{(r.StockInfo.ShouldAverageDown(e) ? mark : string.Empty)}");
-
-                        count++;
                     }
 
                     if (!string.IsNullOrEmpty(r.StockInfo.Memo))
