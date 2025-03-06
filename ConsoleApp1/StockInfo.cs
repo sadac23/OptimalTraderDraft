@@ -161,11 +161,11 @@ internal class StockInfo
     /// <summary>
     /// 直近の株価
     /// </summary>
-    public double LatestPrice { get; internal set; }
+    public ChartPrice LatestPrice { get { return this.ChartPrices.Count > 0 ? this.ChartPrices[0] : new ChartPrice(); } }
     /// <summary>
     /// 直近の株価日付
     /// </summary>
-    public DateTime LatestPriceDate { get; internal set; }
+//    public DateTime LatestPriceDate { get; internal set; }
     /// <summary>
     /// 信用買残
     /// </summary>
@@ -218,15 +218,7 @@ internal class StockInfo
     /// </summary>
     public string EarningsPeriod { get; internal set; }
     /// <summary>
-    /// 直近の株価RSI（長期）
-    /// </summary>
-    public double LatestPriceRSIL { get; internal set; }
-    /// <summary>
-    /// 直近の株価RSI（短期）
-    /// </summary>
-    public double LatestPriceRSIS { get; internal set; }
-    /// <summary>
-    /// チャート価格
+    /// チャート価格（降順）
     /// </summary>
     public List<ChartPrice> ChartPrices { get; internal set; }
     /// <summary>
@@ -911,7 +903,7 @@ internal class StockInfo
         if (e.BuyOrSell == CommonUtils.Instance.BuyOrSellString.Buy && !e.HasSellExecuted)
         {
             // 変動率がナンピン閾値以下の場合
-            if (((this.LatestPrice / e.Price) - 1) <= CommonUtils.Instance.ThresholdOfAverageDown)
+            if (((this.LatestPrice.Price / e.Price) - 1) <= CommonUtils.Instance.ThresholdOfAverageDown)
             {
                 result = true;
             }
@@ -923,37 +915,19 @@ internal class StockInfo
     /// <summary>
     /// 下げすぎ判定
     /// </summary>
-    internal bool OversoldIndicator()
-    {
-        bool result = false;
+    //internal bool OversoldIndicator(ChartPrice? price = null)
+    //{
+    //    bool result = false;
 
-        // RSIが閾値以下の場合
-        if (this.LatestPriceRSIL <= CommonUtils.Instance.ThresholdOfOversoldRSI) result = true;
-        if (this.LatestPriceRSIS <= CommonUtils.Instance.ThresholdOfOversoldRSI) result = true;
+    //    // パラメータがあればターゲットとする
+    //    var target = price != null ? price : this.ChartPrices[0];
 
-        return result;
-    }
+    //    // RSIが閾値以下の場合
+    //    if (target.RSIL <= CommonUtils.Instance.ThresholdOfOversoldRSI) result = true;
+    //    if (target.RSIS <= CommonUtils.Instance.ThresholdOfOversoldRSI) result = true;
 
-    /// <summary>
-    /// 上げすぎ判定
-    /// </summary>
-    /// <returns></returns>
-    internal bool OverboughtIndicator()
-    {
-        bool result = false;
-
-        // RSIが閾値以下の場合
-        if (this.LatestPriceRSIL >= CommonUtils.Instance.ThresholdOfOverboughtRSI) result = true;
-        if (this.LatestPriceRSIS >= CommonUtils.Instance.ThresholdOfOverboughtRSI) result = true;
-
-        return result;
-    }
-
-    internal List<ChartPrice> GetAlertPrices()
-    {
-        List<ChartPrice> result = new List<ChartPrice>();
-        return result;
-    }
+    //    return result;
+    //}
 
     private void UpdateChartPrices()
     {
@@ -1577,46 +1551,6 @@ internal class StockInfo
     }
 
     /// <summary>
-    /// 徐々に指定要素数内の値の乖離値が減少しているか？
-    /// </summary>
-    /// <param name="values"></param>
-    /// <returns></returns>
-    /// <exception cref="ArgumentException"></exception>
-    private bool IsDivergenceDecreasing(List<ChartPrice> values, short count)
-    {
-        if (values == null || values.Count < 3)
-        {
-            throw new ArgumentException("List must be non-null and contain at least three elements.");
-        }
-
-        // Calculate the initial difference
-        double previousDifference = Math.Abs(values[1].MACD() - values[0].MACD());
-
-        // Iterate through the list and check if the differences are decreasing
-        for (int i = 2; i < values.Count; i++)
-        {
-            if (i > count) continue;
-
-            double currentDifference = Math.Abs(values[i].MACD() - values[i - 1].MACD());
-
-            // 既にクロス済の場合
-            if (values[i].MACD() >= 0)
-            {
-                return false;
-            }
-
-            if (currentDifference <= previousDifference)
-            {
-                return false;
-            }
-
-            previousDifference = currentDifference;
-        }
-
-        return true;
-    }
-
-    /// <summary>
     /// 日次価格情報
     /// </summary>
     public class ScrapedPrice
@@ -1868,7 +1802,6 @@ internal class StockInfo
         public double Volatility { get; internal set; }
         public double RSIL { get; internal set; }
         public double RSIS { get; internal set; }
-        public double MACD_EMA { get; internal set; }
         /// <summary>
         /// 単純移動平均値（25日）
         /// </summary>
@@ -1899,9 +1832,26 @@ internal class StockInfo
             return this.MemberwiseClone();
         }
 
-        internal double MACD()
+        internal bool OverboughtIndicator()
         {
-            return this.SMA25 - this.SMA75;
+            bool result = false;
+
+            // RSIが閾値以下の場合
+            if (this.RSIL >= CommonUtils.Instance.ThresholdOfOverboughtRSI) result = true;
+            if (this.RSIS >= CommonUtils.Instance.ThresholdOfOverboughtRSI) result = true;
+
+            return result;
+        }
+
+        internal bool OversoldIndicator()
+        {
+            bool result = false;
+
+            // RSIが閾値以下の場合
+            if (this.RSIL <= CommonUtils.Instance.ThresholdOfOversoldRSI) result = true;
+            if (this.RSIS <= CommonUtils.Instance.ThresholdOfOversoldRSI) result = true;
+
+            return result;
         }
     }
 }

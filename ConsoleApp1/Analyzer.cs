@@ -128,15 +128,6 @@ internal class Analyzer
             VolatilityRateIndex1RSI14 = endIndexRS1L,
         };
 
-        if (term == 1)
-        {
-            // 直近の株価を取得しておく
-            item.LatestPrice = endIndex;
-            item.LatestPriceDate = endIndexDate;
-            item.LatestPriceRSIS = endIndexRSIS;
-            item.LatestPriceRSIL = endIndexRS1L;
-        }
-
         // 個別
         if (item.Classification == CommonUtils.Instance.AssetClassification.JapaneseIndividualStocks)
         {
@@ -319,7 +310,7 @@ internal class Analyzer
                 if (!this.StockInfo.IsHighYield()) result = false;
 
                 // 直近で暴落していない場合
-                if (!this.StockInfo.OversoldIndicator()) result = false;
+                if (!this.StockInfo.LatestPrice.OversoldIndicator()) result = false;
 
                 // 時価総額が低い場合
                 if (!this.StockInfo.IsHighMarketCap()) result = false;
@@ -334,7 +325,7 @@ internal class Analyzer
                 if (!this.StockInfo.IsHighYield()) result = false;
 
                 // 直近で暴落していない場合
-                if (!this.StockInfo.OversoldIndicator()) result = false;
+                if (!this.StockInfo.LatestPrice.OversoldIndicator()) result = false;
 
                 // 時価総額が低い場合
                 if (!this.StockInfo.IsHighMarketCap()) result = false;
@@ -349,7 +340,7 @@ internal class Analyzer
                 if (!this.StockInfo.IsHighYield()) result = false;
 
                 // 直近で暴落していない場合
-                if (!this.StockInfo.OversoldIndicator()) result = false;
+                if (!this.StockInfo.LatestPrice.OversoldIndicator()) result = false;
 
                 // 時価総額が低い場合
                 if (!this.StockInfo.IsHighMarketCap()) result = false;

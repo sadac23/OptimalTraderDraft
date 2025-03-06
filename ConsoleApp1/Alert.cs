@@ -129,11 +129,11 @@ internal class Alert
                     writer.WriteLine("");
                     writer.WriteLine($"No.{alertCount.ToString("D2")}{badge}");
                     writer.WriteLine($"{r.StockInfo.Code}：{r.StockInfo.Name}");
-                    writer.WriteLine($"株価：{r.StockInfo.LatestPrice.ToString("N1")}" +
-                        $"（{r.StockInfo.LatestPriceDate.ToString("yy/MM/dd")}" +
-                        $"：S{r.StockInfo.LatestPriceRSIS.ToString("N2")}" +
-                        $",L{r.StockInfo.LatestPriceRSIL.ToString("N2")}" +
-                        $"）{(r.StockInfo.OversoldIndicator() || (r.StockInfo.IsOwnedNow() && r.StockInfo.OverboughtIndicator()) ? mark : string.Empty)}");
+                    writer.WriteLine($"株価：{r.StockInfo.LatestPrice.Price.ToString("N1")}" +
+                        $"（{r.StockInfo.LatestPrice.Date.ToString("yy/MM/dd")}" +
+                        $"：S{r.StockInfo.LatestPrice.RSIS.ToString("N2")}" +
+                        $",L{r.StockInfo.LatestPrice.RSIL.ToString("N2")}" +
+                        $"）{(r.StockInfo.LatestPrice.OversoldIndicator() || (r.StockInfo.IsOwnedNow() && r.StockInfo.LatestPrice.OverboughtIndicator()) ? mark : string.Empty)}");
                     writer.WriteLine($"市場/業種：{r.StockInfo.Section}/{r.StockInfo.Industry}");
                     writer.WriteLine($"配当利回り：{CommonUtils.Instance.ConvertToPercentage(r.StockInfo.DividendYield)}（{CommonUtils.Instance.ConvertToPercentage(r.StockInfo.DividendPayoutRatio)},{r.StockInfo.DividendRecordDateMonth}）{(r.StockInfo.IsCloseToDividendRecordDate() ? mark : string.Empty)}");
                     if (!string.IsNullOrEmpty(r.StockInfo.ShareholderBenefitsDetails))
@@ -194,7 +194,7 @@ internal class Alert
                         writer.WriteLine($"{e.BuyOrSell}" +
                             $"：{e.Date.ToString("yy/MM/dd")}" +
                             $"：{e.Price.ToString("N1")}*{e.Quantity}" +
-                            $"：{CommonUtils.Instance.ConvertToPercentage((r.StockInfo.LatestPrice / e.Price) - 1, true)}" +
+                            $"：{CommonUtils.Instance.ConvertToPercentage((r.StockInfo.LatestPrice.Price / e.Price) - 1, true)}" +
                             $"{(r.StockInfo.ShouldAverageDown(e) ? mark : string.Empty)}");
 
                         count++;
@@ -212,6 +212,7 @@ internal class Alert
                             $"：{CommonUtils.Instance.ConvertToPercentage(p.Volatility, true)}" +
                             $"（S{p.RSIS.ToString("N2")}" +
                             $",L{p.RSIL.ToString("N2")}）" +
+                            $"{(p.OversoldIndicator() ? mark : string.Empty)}" +
                             $"");
                     }
 
