@@ -62,9 +62,9 @@ internal class Alert
     internal static void SaveFile(List<Analyzer.AnalysisResult> results)
     {
         //No.01【注目】【所持】【権前】【権当】【権後】【決当】【決前】【決後】【売後】【金交】
-        //1928：積水ハウス(株)（建設業）
+        //1928：積水ハウス(株)
         //株価：1,234.0（24/11/29：S99.99,L99.99）★
-        //市場：東証プライム,名証プレミア
+        //市場/業種：東証Ｐ/建設業
         //配当利回り：3.64%（50%,5月,11月）★
         //優待利回り：3.64%（QUOカード,100株,5月,11月,月末）★
         //通期予想（前期比）：
@@ -128,13 +128,13 @@ internal class Alert
 
                     writer.WriteLine("");
                     writer.WriteLine($"No.{alertCount.ToString("D2")}{badge}");
-                    writer.WriteLine($"{r.StockInfo.Code}：{r.StockInfo.Name}（{r.StockInfo.Industry}）");
+                    writer.WriteLine($"{r.StockInfo.Code}：{r.StockInfo.Name}");
                     writer.WriteLine($"株価：{r.StockInfo.LatestPrice.ToString("N1")}" +
                         $"（{r.StockInfo.LatestPriceDate.ToString("yy/MM/dd")}" +
                         $"：S{r.StockInfo.LatestPriceRSIS.ToString("N2")}" +
                         $",L{r.StockInfo.LatestPriceRSIL.ToString("N2")}" +
                         $"）{(r.StockInfo.OversoldIndicator() || (r.StockInfo.IsOwnedNow() && r.StockInfo.OverboughtIndicator()) ? mark : string.Empty)}");
-                    writer.WriteLine($"市場：{r.StockInfo.Section}");
+                    writer.WriteLine($"市場/業種：{r.StockInfo.Section}/{r.StockInfo.Industry}");
                     writer.WriteLine($"配当利回り：{CommonUtils.Instance.ConvertToPercentage(r.StockInfo.DividendYield)}（{CommonUtils.Instance.ConvertToPercentage(r.StockInfo.DividendPayoutRatio)},{r.StockInfo.DividendRecordDateMonth}）{(r.StockInfo.IsCloseToDividendRecordDate() ? mark : string.Empty)}");
                     if (!string.IsNullOrEmpty(r.StockInfo.ShareholderBenefitsDetails))
                         writer.WriteLine($"優待利回り：{CommonUtils.Instance.ConvertToPercentage(r.StockInfo.ShareholderBenefitYield)}（{r.StockInfo.ShareholderBenefitsDetails},{r.StockInfo.NumberOfSharesRequiredForBenefits},{r.StockInfo.ShareholderBenefitRecordMonth},{r.StockInfo.ShareholderBenefitRecordDay}）{(r.StockInfo.IsCloseToShareholderBenefitRecordDate() ? mark : string.Empty)}");
@@ -169,8 +169,8 @@ internal class Alert
                     }
                     if (!string.IsNullOrEmpty(s)) writer.WriteLine($"ROE：{s}{(r.StockInfo.IsROEAboveThreshold() ? mark : string.Empty)}");
 
-                    writer.WriteLine($"PER：{CommonUtils.Instance.ConvertToMultiplierString(r.StockInfo.Per)}（{r.StockInfo.AveragePer}）{(r.StockInfo.IsPERUndervalued() ? mark : string.Empty)}");
-                    writer.WriteLine($"PBR：{CommonUtils.Instance.ConvertToMultiplierString(r.StockInfo.Pbr)}（{r.StockInfo.AveragePbr}）{(r.StockInfo.IsPBRUndervalued() ? mark : string.Empty)}");
+                    writer.WriteLine($"PER：{CommonUtils.Instance.ConvertToMultiplierString(r.StockInfo.Per)}（{r.StockInfo.AveragePer.ToString("N1")}）{(r.StockInfo.IsPERUndervalued() ? mark : string.Empty)}");
+                    writer.WriteLine($"PBR：{CommonUtils.Instance.ConvertToMultiplierString(r.StockInfo.Pbr)}（{r.StockInfo.AveragePbr.ToString("N1")}）{(r.StockInfo.IsPBRUndervalued() ? mark : string.Empty)}");
                     writer.WriteLine($"信用倍率：{r.StockInfo.MarginBalanceRatio}");
                     writer.WriteLine($"信用残：{r.StockInfo.MarginBuyBalance}/{r.StockInfo.MarginSellBalance}（{r.StockInfo.MarginBalanceDate}）");
                     writer.WriteLine($"出来高：{r.StockInfo.LatestTradingVolume}");

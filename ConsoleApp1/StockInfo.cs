@@ -510,9 +510,9 @@ internal class StockInfo
             // 市場区分(マスタ, 外部サイト)
             Dictionary<string, string> sectionTable = new Dictionary<string, string>
             {
-                { "スタンダード市場", "東証スタンダード" },
-                { "プライム市場", "東証プライム" },
-                { "グロース市場", "東証グロース" },
+                { "スタンダード市場", "東証Ｓ" },
+                { "プライム市場", "東証Ｐ" },
+                { "グロース市場", "東証Ｇ" },
             };
 
             // 種別(マスタ, 外部サイト)
