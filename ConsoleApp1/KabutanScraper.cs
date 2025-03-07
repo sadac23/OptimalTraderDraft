@@ -36,6 +36,20 @@ internal class KabutanScraper
 
             CommonUtils.Instance.Logger.LogInformation(url);
 
+            // 市場
+            var sectionNode = htmlDocument.DocumentNode.SelectSingleNode("//*[@id=\"stockinfo_i1\"]/div[1]/div/span");
+            if (sectionNode != null)
+            {
+                stockInfo.Section = sectionNode.InnerText.Trim();
+            }
+
+            // 業種
+            var industryNode = htmlDocument.DocumentNode.SelectSingleNode("//*[@id=\"stockinfo_i2\"]/div/a");
+            if (industryNode != null)
+            {
+                stockInfo.Industry = industryNode.InnerText.Trim();
+            }
+
             // ROE
             rows = htmlDocument.DocumentNode.SelectNodes("//div[contains(@class, 'fin_year_t0_d fin_year_profit_d dispnone')]/table/tbody/tr");
 

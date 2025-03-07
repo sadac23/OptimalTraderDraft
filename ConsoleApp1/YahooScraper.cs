@@ -110,17 +110,17 @@ internal class YahooScraper
                 document.LoadHtml(pageContent);
 
                 // 市場名を含むノードをXPathで選択
-                var marketNode = document.DocumentNode.SelectSingleNode("//th[text()='市場名']/following-sibling::td");
-                if (marketNode != null)
-                {
-                    stockInfo.Section = marketNode.InnerText.Trim();
-                }
+                //var marketNode = document.DocumentNode.SelectSingleNode("//th[text()='市場名']/following-sibling::td");
+                //if (marketNode != null)
+                //{
+                //    stockInfo.Section = marketNode.InnerText.Trim();
+                //}
                 // 業種分類を含むノードをXPathで選択
-                var industryNode = document.DocumentNode.SelectSingleNode("//th[text()='業種分類']/following-sibling::td");
-                if (industryNode != null)
-                {
-                    stockInfo.Industry = industryNode.InnerText.Trim();
-                }
+                //var industryNode = document.DocumentNode.SelectSingleNode("//th[text()='業種分類']/following-sibling::td");
+                //if (industryNode != null)
+                //{
+                //    stockInfo.Industry = industryNode.InnerText.Trim();
+                //}
                 // 決算を含むノードをXPathで選択
                 var earningsPeriod = document.DocumentNode.SelectSingleNode("//th[text()='決算']/following-sibling::td");
                 if (earningsPeriod != null)
