@@ -18,6 +18,214 @@ internal class KabutanScraper
 
     internal async Task ScrapeFinance(StockInfo stockInfo)
     {
+        if (stockInfo.Classification == CommonUtils.Instance.Classification.JapaneseIndividualStocks) 
+        {
+            await this.ScrapeFinanceJP(stockInfo);
+        }
+        else if (stockInfo.Classification == CommonUtils.Instance.Classification.USIndividualStocks)
+        {
+            await this.ScrapeFinanceUS(stockInfo);
+        }
+    }
+
+    private async Task ScrapeFinanceUS(StockInfo stockInfo)
+    {
+        try
+        {
+            var url = $"https://us.kabutan.jp/stocks/{stockInfo.Code}/finance";
+
+            var httpClient = new HttpClient();
+            var htmlDocument = new HtmlDocument();
+
+            var html = string.Empty;
+
+            /** 株探（かぶたん） */
+            html = await httpClient.GetStringAsync(url);
+            htmlDocument.LoadHtml(html);
+
+            CommonUtils.Instance.Logger.LogInformation(url);
+
+            // 市場
+            var sectionNode = htmlDocument.DocumentNode.SelectSingleNode("/html/body/div/div[2]/div[1]/main/div[1]/div[1]/div[1]/span");
+            if (sectionNode != null)
+            {
+                stockInfo.Section = sectionNode.InnerText.Trim();
+            }
+            // 業種
+            var industryNode = htmlDocument.DocumentNode.SelectSingleNode("//*[@id=\"stockinfo_i2\"]/div/a");
+            if (industryNode != null)
+            {
+                stockInfo.Industry = industryNode.InnerText.Trim();
+            }
+            // ROE
+            var fullYearProfitRows = htmlDocument.DocumentNode.SelectNodes("/html/body/div/div[2]/div[1]/main/div[7]/table/tbody/tr");
+            if (fullYearProfitRows != null && fullYearProfitRows.Count >= 3)
+            {
+                // 直近の3件のみ取得
+                for (int i = fullYearProfitRows.Count - 3; i < fullYearProfitRows.Count; i++)
+                {
+                    var columns = fullYearProfitRows[i].SelectNodes("td|th");
+
+                    if (columns != null && columns.Count >= 8)
+                    {
+                        var fiscalPeriod = columns[0].InnerText.Trim();
+                        var revenue = columns[1].InnerText.Trim();
+                        var operatingIncome = columns[2].InnerText.Trim();
+                        var operatingMargin = columns[3].InnerText.Trim();
+                        var roe = columns[4].InnerText.Trim();
+                        var roa = columns[5].InnerText.Trim();
+                        var totalAssetTurnover = columns[6].InnerText.Trim();
+                        var adjustedEarningsPerShare = columns[7].InnerText.Trim();
+
+                        FullYearProfit p = new FullYearProfit()
+                        {
+                            FiscalPeriod = fiscalPeriod,
+                            Revenue = revenue,
+                            OperatingIncome = operatingIncome,
+                            OperatingMargin = operatingMargin,
+                            Roe = CommonUtils.Instance.GetDouble(roe),
+                            Roa = CommonUtils.Instance.GetDouble(roa),
+                            TotalAssetTurnover = totalAssetTurnover,
+                            AdjustedEarningsPerShare = adjustedEarningsPerShare,
+                        };
+
+                        stockInfo.FullYearProfits.Add(p);
+                        stockInfo.Roe = CommonUtils.Instance.GetDouble(roe);
+                    }
+                }
+            }
+
+            // PER
+            var perNode = htmlDocument.DocumentNode.SelectSingleNode("/html/body/div/div[2]/div[1]/main/div[1]/div[2]/div[2]/div[2]/div/div[1]/div[2]/text()");
+            if (perNode != null)
+            {
+                var per = perNode.InnerText;
+                stockInfo.Per = ConvertToDoubleForPerPbr(per);
+            }
+            // 利回り
+            var dividendYieldNode = htmlDocument.DocumentNode.SelectSingleNode("/html/body/div/div[2]/div[1]/main/div[1]/div[2]/div[2]/div[2]/div/div[3]/div[2]/text()");
+            if (dividendYieldNode != null)
+            {
+                var dividendYield = dividendYieldNode.InnerText;
+                stockInfo.DividendYield = ConvertToDoubleForYield(dividendYield);
+            }
+            // 時価総額
+            var marketCapNode = htmlDocument.DocumentNode.SelectSingleNode("/html/body/div/div[2]/div[1]/main/div[1]/div[2]/div[3]/div[2]/span[2]");
+            if (marketCapNode != null)
+            {
+                var marketCap = marketCapNode.InnerText;
+                stockInfo.MarketCap = ConvertJapaneseNumberToDouble(marketCap);
+            }
+
+            // 通期業績、修正履歴
+            var fullYearPerformanceRows = htmlDocument.DocumentNode.SelectNodes("/html/body/div/div[2]/div[1]/main/div[5]/table/tbody/tr");
+            if (fullYearPerformanceRows != null && fullYearPerformanceRows.Count >= 5)
+            {
+                // 直近の5件のみ取得
+                for (int i = fullYearPerformanceRows.Count - 5; i < fullYearPerformanceRows.Count; i++)
+                {
+                    var columns = fullYearPerformanceRows[i].SelectNodes("td|th");
+
+                    if (columns != null && columns.Count >= 8)
+                    {
+                        var fiscalPeriod = columns[0].InnerText.Trim();
+                        var revenue = columns[1].InnerText.Trim();
+                        var operatingProfit = columns[2].InnerText.Trim();
+                        var ordinaryProfit = columns[3].InnerText.Trim();
+                        var netProfit = columns[4].InnerText.Trim();
+                        var adjustedEarningsPerShare = columns[5].InnerText.Trim();
+                        var adjustedDividendPerShare = columns[6].InnerText.Trim();
+                        var announcementDate = columns[7].InnerText.Trim();
+
+                        FullYearPerformance p = new FullYearPerformance()
+                        {
+                            FiscalPeriod = fiscalPeriod,
+                            Revenue = revenue,
+                            OperatingProfit = operatingProfit,
+                            OrdinaryProfit = ordinaryProfit,
+                            NetProft = netProfit,
+                            AdjustedEarningsPerShare = adjustedEarningsPerShare,
+                            AdjustedDividendPerShare = adjustedDividendPerShare,
+                            AnnouncementDate = announcementDate,
+                        };
+
+                        stockInfo.FullYearPerformances.Add(p);
+
+                        FullYearPerformanceForcast f = new FullYearPerformanceForcast()
+                        {
+                            FiscalPeriod = fiscalPeriod,
+                            RevisionDate = ConvertToDateTime(announcementDate, "yyyy-MM-dd"),
+                            Category = CommonUtils.Instance.ForecastCategoryString.Initial,
+                            RevisionDirection = string.Empty,
+                            Revenue = revenue,
+                            OperatingProfit = operatingProfit,
+                            OrdinaryProfit = ordinaryProfit,
+                            NetProfit = netProfit,
+                            RevisedDividend = adjustedDividendPerShare,
+                            PreviousForcast = null
+                        };
+
+                        stockInfo.FullYearPerformancesForcasts.Add(f);
+                    }
+                }
+            }
+
+
+
+        }
+        catch (Exception ex)
+        {
+            CommonUtils.Instance.Logger.LogError(ex.Message, ex);
+        }
+    }
+
+    private double ConvertJapaneseNumberToDouble(string input)
+    {
+        // 単位とその倍率を定義
+        var units = new (string Unit, double Multiplier)[]
+        {
+            ("兆", 1e12),
+            ("億", 1e8),
+            ("万", 1e4)
+        };
+
+        double result = 0;
+        foreach (var (unit, multiplier) in units)
+        {
+            int unitIndex = input.IndexOf(unit);
+            if (unitIndex != -1)
+            {
+                // 単位の前の数値部分を抽出
+                string numberPart = input.Substring(0, unitIndex);
+                // 数値部分からカンマを削除
+                numberPart = numberPart.Replace(",", "");
+                // 数値部分をdoubleに変換
+                if (double.TryParse(numberPart, out double number))
+                {
+                    result += number * multiplier;
+                }
+                // 単位の後の部分を再設定
+                input = input.Substring(unitIndex + unit.Length);
+            }
+        }
+
+        // 残りの部分があれば、それを加算
+        input = input.Replace(",", "").Replace("ドル", "").Replace("ﾄﾞﾙ", "");
+        if (double.TryParse(input, out double remainingNumber))
+        {
+            result += remainingNumber;
+        }
+
+        return result;
+    }
+
+    /// <summary>
+    /// 日本個別株向け
+    /// </summary>
+    /// <param name="stockInfo"></param>
+    /// <returns></returns>
+    private async Task ScrapeFinanceJP(StockInfo stockInfo)
+    {
         try
         {
             var urlBaseKabutanFinance = $"https://kabutan.jp/stock/finance?code={stockInfo.Code}";
@@ -108,6 +316,7 @@ internal class KabutanScraper
                             var pbr = columns[1].InnerText.Trim();
                             var dividendYield = columns[2].InnerText.Trim();
                             var marginBalanceRatio = columns[3].InnerText.Trim();
+
                             stockInfo.Per = ConvertToDoubleForPerPbr(per);
                             stockInfo.Pbr = ConvertToDoubleForPerPbr(pbr);
                             stockInfo.DividendYield = ConvertToDoubleForYield(dividendYield);
@@ -152,9 +361,9 @@ internal class KabutanScraper
                         {
                             FiscalPeriod = fiscalPeriod,
                             Revenue = revenue,
-                            OperatingIncome = operatingIncome,
-                            OrdinaryIncome = ordinaryIncome,
-                            NetIncome = netIncome,
+                            OperatingProfit = operatingIncome,
+                            OrdinaryProfit = ordinaryIncome,
+                            NetProft = netIncome,
                             AdjustedEarningsPerShare = adjustedEarningsPerShare,
                             AdjustedDividendPerShare = adjustedDividendPerShare,
                             AnnouncementDate = announcementDate,
@@ -163,8 +372,6 @@ internal class KabutanScraper
                         stockInfo.FullYearPerformances.Add(p);
                     }
                 }
-
-                stockInfo.UpdateDividendPayoutRatio();
             }
 
             // 修正履歴
@@ -388,14 +595,13 @@ internal class KabutanScraper
         }
         catch (Exception e)
         {
-            Console.WriteLine("リクエストエラー: " + e.Message);
+            CommonUtils.Instance.Logger.LogError(e.Message, e);
         }
     }
 
-    private DateTime ConvertToDateTime(string dateString)
+    private DateTime ConvertToDateTime(string dateString, string format = "yy/MM/dd")
     {
         // 指定された形式に従って文字列を解析します
-        string format = "yy/MM/dd";
         DateTime dateTime = DateTime.ParseExact(dateString, format, CultureInfo.InvariantCulture);
         return dateTime;
     }

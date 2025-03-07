@@ -195,6 +195,7 @@ using Google.Apis.Util.Store;
  * ・PER/PBRは平均値+10%の幅を持たせる。
  * ・日経平均の情報追加。
  * ・短期平均値が長期平均値を突き抜ける前に検知。
+ * ・米国個別株対応。
  */
 
 var logger = CommonUtils.Instance.Logger;

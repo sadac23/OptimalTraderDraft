@@ -276,10 +276,10 @@ internal class StockInfo
 
             // "増収増益増配（+50%,+50%,+50）"
             this.FullYearPerformanceForcastSummary += GetRevenueIncreasedSummary(lastValue.Revenue, secondLastValue.Revenue);
-            this.FullYearPerformanceForcastSummary += GetOrdinaryIncomeIncreasedSummary(lastValue.OrdinaryIncome, secondLastValue.OrdinaryIncome);
+            this.FullYearPerformanceForcastSummary += GetOrdinaryIncomeIncreasedSummary(lastValue.OrdinaryProfit, secondLastValue.OrdinaryProfit);
             this.FullYearPerformanceForcastSummary += GetDividendPerShareIncreasedSummary(lastValue.AdjustedDividendPerShare, secondLastValue.AdjustedDividendPerShare);
             this.FullYearPerformanceForcastSummary += $"（{GetIncreasedRate(lastValue.Revenue, secondLastValue.Revenue)}";
-            this.FullYearPerformanceForcastSummary += $",{GetIncreasedRate(lastValue.OrdinaryIncome, secondLastValue.OrdinaryIncome)}";
+            this.FullYearPerformanceForcastSummary += $",{GetIncreasedRate(lastValue.OrdinaryProfit, secondLastValue.OrdinaryProfit)}";
             this.FullYearPerformanceForcastSummary += $",{GetDividendPerShareIncreased(lastValue.AdjustedDividendPerShare, secondLastValue.AdjustedDividendPerShare)}）";
         }
 
@@ -296,10 +296,10 @@ internal class StockInfo
             }
 
             p.Summary += GetRevenueIncreasedSummary(p.Revenue, secondLast.Revenue);
-            p.Summary += GetOrdinaryIncomeIncreasedSummary(p.OrdinaryProfit, secondLast.OrdinaryIncome);
+            p.Summary += GetOrdinaryIncomeIncreasedSummary(p.OrdinaryProfit, secondLast.OrdinaryProfit);
             p.Summary += GetDividendPerShareIncreasedSummary(p.RevisedDividend, secondLast.AdjustedDividendPerShare);
             p.Summary += $"（{GetIncreasedRate(p.Revenue, secondLast.Revenue)}";
-            p.Summary += $",{GetIncreasedRate(p.OrdinaryProfit, secondLast.OrdinaryIncome)}";
+            p.Summary += $",{GetIncreasedRate(p.OrdinaryProfit, secondLast.OrdinaryProfit)}";
             p.Summary += $",{GetDividendPerShareIncreased(p.RevisedDividend, secondLast.AdjustedDividendPerShare)}）";
         }
     }
@@ -729,7 +729,7 @@ internal class StockInfo
         this.QuarterlyPerformanceReleaseDate = ConvertToDateTime(quarterlyPerformance.ReleaseDate);
 
         latestOrdinaryIncome = quarterlyPerformance.OrdinaryProfit;
-        fullYearOrdinaryIncome = CommonUtils.Instance.GetDouble(fullYearPerformance.OrdinaryIncome);
+        fullYearOrdinaryIncome = CommonUtils.Instance.GetDouble(fullYearPerformance.OrdinaryProfit);
 
         if (fullYearOrdinaryIncome > 0)
         {
@@ -746,7 +746,7 @@ internal class StockInfo
         this.PreviousPerformanceReleaseDate = ConvertToDateTime(previousQuarterlyPerformance.ReleaseDate);
 
         previousOrdinaryIncome = previousQuarterlyPerformance.OrdinaryProfit;
-        fullYearOrdinaryIncome = CommonUtils.Instance.GetDouble(previousFullYearPerformance.OrdinaryIncome);
+        fullYearOrdinaryIncome = CommonUtils.Instance.GetDouble(previousFullYearPerformance.OrdinaryProfit);
 
         if (fullYearOrdinaryIncome > 0)
         {
@@ -1302,6 +1302,9 @@ internal class StockInfo
         // 実績進捗率の更新
         UpdateProgress();
 
+        // 配当性向の更新
+        UpdateDividendPayoutRatio();
+
         // 通期予想のサマリを更新
         UpdateFullYearPerformanceForcastSummary();
 
@@ -1602,15 +1605,15 @@ internal class StockInfo
         /// <summary>
         /// 営業益
         /// </summary>
-        public string OperatingIncome { get; set; }
+        public string OperatingProfit { get; set; }
         /// <summary>
         /// 経常益
         /// </summary>
-        public string OrdinaryIncome { get; set; }
+        public string OrdinaryProfit { get; set; }
         /// <summary>
         /// 最終益
         /// </summary>
-        public string NetIncome { get; set; }
+        public string NetProft { get; set; }
         /// <summary>
         /// 修正1株益
         /// </summary>

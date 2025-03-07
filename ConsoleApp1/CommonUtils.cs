@@ -169,12 +169,13 @@ internal class CommonUtils : IDisposable
         });
     }
 
-    public class AssetClassificationClass
+    public class ClassificationClass
     {
         //日本個別株: JapaneseIndividualStocks
         //日本ETF: Japanese ETFs
         //日本投資信託: Japanese Mutual Funds
         //米国ETF: U.S.ETFs
+        //米国個別株：USIndividualStocks
 
         /// <summary>
         /// 日本個別株
@@ -184,6 +185,10 @@ internal class CommonUtils : IDisposable
         /// 日本ETF
         /// </summary>
         public string JapaneseETFs { get; } = "2";
+        /// <summary>
+        /// 米国個別株
+        /// </summary>
+        public string USIndividualStocks { get; } = "5";
     }
     public class BuyOrSellStringClass
     {
@@ -211,8 +216,7 @@ internal class CommonUtils : IDisposable
         public string Final { get; } = "終";
     }
 
-
-    public AssetClassificationClass AssetClassification {  get; set; } = new AssetClassificationClass();
+    public ClassificationClass Classification {  get; set; } = new ClassificationClass();
 
     /// <summary>
     /// チャートの表示日数
