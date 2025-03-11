@@ -274,7 +274,7 @@ try
         catch (Exception ex) {
 
             // ログ出力
-            logger.LogError($"Error!!!（コード：{stockInfo.Code}）", ex);
+            logger.LogError($"Code: {stockInfo.Code}, Message: {ex.Message}", ex);
         }
     }
 

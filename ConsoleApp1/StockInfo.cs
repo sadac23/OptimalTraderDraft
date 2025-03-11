@@ -1317,6 +1317,8 @@ internal class StockInfo
     /// </summary>
     private void UpdateFullYearPerformancesForcasts()
     {
+        if (this.QuarterlyPerformances.Count < 2) return;
+
         // 4Q決算の場合、通期予想に前期の修正履歴と最終実績を追加する。
         if (this.LastQuarterPeriod == CommonUtils.Instance.QuarterString.Quarter4)
         {

@@ -9,6 +9,8 @@ using System.Globalization;
 using System.Data;
 using DocumentFormat.OpenXml.Office2016.Excel;
 using Microsoft.Extensions.Logging;
+using DocumentFormat.OpenXml.Wordprocessing;
+using System.Linq;
 
 internal class KabutanScraper
 {
@@ -117,7 +119,7 @@ internal class KabutanScraper
                 stockInfo.MarketCap = ConvertJapaneseNumberToDouble(marketCap);
             }
 
-            // 通期業績、修正履歴
+            // 通期業績
             var fullYearPerformanceRows = htmlDocument.DocumentNode.SelectNodes("/html/body/div/div[2]/div[1]/main/div[5]/table/tbody/tr");
             if (fullYearPerformanceRows != null && fullYearPerformanceRows.Count >= 5)
             {
@@ -150,28 +152,116 @@ internal class KabutanScraper
                         };
 
                         stockInfo.FullYearPerformances.Add(p);
-
-                        FullYearPerformanceForcast f = new FullYearPerformanceForcast()
-                        {
-                            FiscalPeriod = fiscalPeriod,
-                            RevisionDate = ConvertToDateTime(announcementDate, "yyyy-MM-dd"),
-                            Category = CommonUtils.Instance.ForecastCategoryString.Initial,
-                            RevisionDirection = string.Empty,
-                            Revenue = revenue,
-                            OperatingProfit = operatingProfit,
-                            OrdinaryProfit = ordinaryProfit,
-                            NetProfit = netProfit,
-                            RevisedDividend = adjustedDividendPerShare,
-                            PreviousForcast = null
-                        };
-
-                        stockInfo.FullYearPerformancesForcasts.Add(f);
                     }
                 }
             }
 
+            // 修正履歴
+            if (stockInfo.FullYearPerformances.Count > 2)
+            {
+                var p = stockInfo.FullYearPerformances[stockInfo.FullYearPerformances.Count - 2];
+
+                FullYearPerformanceForcast f = new FullYearPerformanceForcast()
+                {
+                    FiscalPeriod = p.FiscalPeriod,
+                    RevisionDate = ConvertToDateTime(p.AnnouncementDate, "yyyy-MM-dd"),
+                    Category = CommonUtils.Instance.ForecastCategoryString.Initial,
+                    RevisionDirection = string.Empty,
+                    Revenue = p.Revenue,
+                    OperatingProfit = p.OperatingProfit,
+                    OrdinaryProfit = p.OrdinaryProfit,
+                    NetProfit = p.NetProft,
+                    RevisedDividend = p.AdjustedDividendPerShare,
+                    PreviousForcast = null
+                };
+
+                stockInfo.FullYearPerformancesForcasts.Add(f);
+            }
+
+            // 四半期決算期間
+            var termRows = htmlDocument.DocumentNode.SelectNodes("/html/body/div/div[2]/div[1]/main/div[8]/div[2]/div");
+            if (termRows != null && termRows.Count >= 4)
+            {
+                short count = 0;
+                foreach (var item in termRows)
+                {
+                    // < div class="bg-gradient-to-b px-3 py-0.5 text-gray-700 border border-gray-500 text-shadow-white from-pink to-salmon">１Ｑ</div>
+                    bool containPink = false;
+                    foreach (var row in item.GetClasses())
+                    {
+                        if (row.Contains("pink")) containPink = true;
+                    }
+
+                    if (!containPink) break;
+
+                    count++;
+                }
+
+                stockInfo.LastQuarterPeriod = count switch
+                {
+                    short s when s == 1 => CommonUtils.Instance.QuarterString.Quarter1,
+                    short s when s == 2 => CommonUtils.Instance.QuarterString.Quarter2,
+                    short s when s == 3 => CommonUtils.Instance.QuarterString.Quarter3,
+                    short s when s == 4 => CommonUtils.Instance.QuarterString.Quarter4,
+                    _ => string.Empty // デフォルト値（変更しない場合）
+                };
+            }
+
+            // 実績履歴
+            var resultRows = htmlDocument.DocumentNode.SelectNodes("/html/body/div/div[2]/div[1]/main/div[9]/table/tbody/tr");
+            if (resultRows != null && resultRows.Count != 0)
+            {
+                List<QuarterlyPerformance> performances = new List<QuarterlyPerformance>();
+
+                foreach (var row in resultRows)
+                {
+                    var columns = row.SelectNodes("td|th");
+
+                    if (columns != null && columns.Count >= 7)
+                    {
+                        var fiscalPeriod = columns[0].InnerText.Trim();
+                        var revenue = columns[1].InnerText.Trim();
+                        var operatingIncome = columns[2].InnerText.Trim();
+                        var ordinaryProfit = columns[3].InnerText.Trim();
+                        var netIncome = columns[4].InnerText.Trim();
+                        var adjustedEarningsPerShare = columns[5].InnerText.Trim();
+                        var progressRate = columns[6].InnerText.Trim();
+                        var releaseDate = columns[7].InnerText.Trim();
+
+                        var p = new QuarterlyPerformance()
+                        {
+                            FiscalPeriod = fiscalPeriod,
+                            Revenue = revenue,
+                            OperatingProfit = operatingIncome,
+                            OrdinaryProfit = CommonUtils.Instance.GetDouble(ordinaryProfit),
+                            NetProfit = netIncome,
+                            AdjustedEarningsPerShare = adjustedEarningsPerShare,
+                            AdjustedDividendPerShare = progressRate,
+                            ReleaseDate = releaseDate,
+                        };
+
+                        performances.Add(p);
+                    }
+                }
 
 
+                //0,1,2,3,4
+                int count = 0;
+                count = stockInfo.LastQuarterPeriod == CommonUtils.Instance.QuarterString.Quarter1 ? performances.Count - 2 : count;
+                count = stockInfo.LastQuarterPeriod == CommonUtils.Instance.QuarterString.Quarter2 ? performances.Count - 3 : count;
+                count = stockInfo.LastQuarterPeriod == CommonUtils.Instance.QuarterString.Quarter3 ? performances.Count - 4 : count;
+                count = stockInfo.LastQuarterPeriod == CommonUtils.Instance.QuarterString.Quarter4 ? performances.Count - 5 : count;
+
+                var sum = new QuarterlyPerformance();
+                for (int i = count; i < performances.Count - 1; i++)
+                {
+                    sum.FiscalPeriod = performances[i].FiscalPeriod;
+                    sum.OrdinaryProfit += performances[i].OrdinaryProfit;
+                    sum.ReleaseDate = performances[i].ReleaseDate;
+                }
+
+                stockInfo.QuarterlyPerformances.Add(sum);
+            }
         }
         catch (Exception ex)
         {
@@ -601,9 +691,17 @@ internal class KabutanScraper
 
     private DateTime ConvertToDateTime(string dateString, string format = "yy/MM/dd")
     {
-        // 指定された形式に従って文字列を解析します
-        DateTime dateTime = DateTime.ParseExact(dateString, format, CultureInfo.InvariantCulture);
-        return dateTime;
+        try
+        {
+            // 指定された形式に従って文字列を解析します
+            DateTime dateTime = DateTime.ParseExact(dateString, format, CultureInfo.InvariantCulture);
+            return dateTime;
+        }
+        catch
+        {
+            return DateTime.MinValue;
+
+        }
     }
 
     private double ConvertToDoubleForPerPbr(string multiplierString)
