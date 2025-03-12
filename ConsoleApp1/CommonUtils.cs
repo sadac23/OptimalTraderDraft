@@ -300,6 +300,10 @@ internal class CommonUtils : IDisposable
     /// ロガー
     /// </summary>
     public ILogger<Program> Logger { get; private set; }
+    /// <summary>
+    /// Yahooの履歴ページをスクレイピングするための最大ページ数
+    /// </summary>
+    public int MaxPageCountToScrapeYahooHistory { get; } = 100;
 
     internal static string ReplacePlaceholder(string? input, string placeholder, string newValue)
     {

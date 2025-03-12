@@ -8,26 +8,21 @@ using static WatchList;
 
 internal class YahooScraper
 {
-    int _pageCountMax = 100;
-
     internal async Task ScrapeHistory(StockInfo stockInfo, DateTime from, DateTime to)
     {
+        int _pageCountMax = CommonUtils.Instance.MaxPageCountToScrapeYahooHistory;
+
         try
         {
             var httpClient = new HttpClient();
             var htmlDocument = new HtmlDocument();
-
-            var url = string.Empty;
-            var html = string.Empty;
-            HtmlNodeCollection rows = null;
-
             var urlBaseYahooFinance = $"https://finance.yahoo.co.jp/quote/{stockInfo.Code}.T/history?styl=stock&from={from.ToString("yyyyMMdd")}&to={to.ToString("yyyyMMdd")}&timeFrame=d";
 
             /** Yahooファイナンス */
             for (int i = 1; i < _pageCountMax; i++)
             {
-                url = urlBaseYahooFinance + $"&page={i}";
-                html = await httpClient.GetStringAsync(url);
+                var url = urlBaseYahooFinance + $"&page={i}";
+                var html = await httpClient.GetStringAsync(url);
 
                 CommonUtils.Instance.Logger.LogInformation(url);
 
@@ -40,14 +35,7 @@ internal class YahooScraper
                 // 他の処理
                 htmlDocument.LoadHtml(html);
 
-                //if (string.IsNullOrEmpty(stockInfo.Name))
-                //{
-                //    var title = htmlDocument.DocumentNode.SelectNodes("//title");
-                //    string[] parts = title[0].InnerText.Trim().Split('【');
-                //    stockInfo.Name = parts.Length > 0 ? parts[0] : stockInfo.Name;
-                //}
-
-                rows = htmlDocument.DocumentNode.SelectNodes("//table[contains(@class, 'StocksEtfReitPriceHistory')]/tbody/tr");
+                var rows = htmlDocument.DocumentNode.SelectNodes("//table[contains(@class, 'StocksEtfReitPriceHistory')]/tbody/tr");
 
                 if (rows != null && rows.Count != 0)
                 {
