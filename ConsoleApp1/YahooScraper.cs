@@ -145,7 +145,7 @@ internal class YahooScraper
                 stockInfo.Name = parts.Length > 0 ? parts[0] : stockInfo.Name;
 
                 // 決算発表
-                var node = document.DocumentNode.SelectSingleNode("//p[contains(@class, 'PressReleaseDate__message__3kiO')]");
+                var node = document.DocumentNode.SelectSingleNode("//*[@id=\"summary\"]/div/section[1]/p");
                 if (node != null)
                 {
                     stockInfo.PressReleaseDate = node.InnerText.Trim();

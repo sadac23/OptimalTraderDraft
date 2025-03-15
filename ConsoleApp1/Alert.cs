@@ -176,14 +176,15 @@ internal class Alert
                     writer.WriteLine($"出来高：{r.StockInfo.LatestTradingVolume}");
                     writer.WriteLine($"自己資本比率：{r.StockInfo.EquityRatio}");
 
+                    writer.WriteLine($"決算：{r.StockInfo.EarningsPeriod}");
+
                     s = string.Empty;
                     if (!string.IsNullOrEmpty(r.StockInfo.PressReleaseDate))
                     {
                         s += r.StockInfo.PressReleaseDate;
                         s += r.StockInfo.ExtractAndValidateDateWithinOneMonth() ? mark : string.Empty;
+                        writer.WriteLine($"{s}");
                     }
-                    writer.WriteLine($"決算：{r.StockInfo.EarningsPeriod}");
-                    if (!string.IsNullOrEmpty(s)) writer.WriteLine($"{s}");
 
                     count = 0;
                     s = string.Empty;
