@@ -1368,6 +1368,9 @@ internal class StockInfo
     {
         List<FullYearPerformanceForcast> result = new List<FullYearPerformanceForcast>();
 
+        //TODO: バグがあるため、暫定対応として抜ける。
+        return result;
+
         // カレント決算月が取得できていない場合は抜ける
         if(this.CurrentFiscalMonth == DateTime.MinValue) return result;
 

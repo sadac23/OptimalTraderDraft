@@ -197,6 +197,7 @@ using Google.Apis.Util.Store;
  * ・短期平均値が長期平均値を突き抜ける前に検知。
  * ・米国個別株対応。
  * ・SendGridへの対応。
+ * ・StockInfo.GetPreviousForcasts()のバグ対応。（GetDoubleで例外）
  */
 
 var logger = CommonUtils.Instance.Logger;
