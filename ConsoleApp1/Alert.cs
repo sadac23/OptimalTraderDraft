@@ -217,18 +217,18 @@ internal class Alert
                             $"");
                     }
 
-                    //テクニカル（MAD）：
-                    writer.WriteLine($"テクニカル（SMAdev：MAD）：");
-                    foreach (var p in r.StockInfo.ChartPrices)
-                    {
-                        //10/14：3,951.0：999.0：S+99.99%,L+99.99%
-                        writer.WriteLine(
-                            $"{p.Date.ToString("MM/dd")}" +
-                            $"：{p.SMAdev.ToString("N1")}" +
-                            $"：S{CommonUtils.Instance.ConvertToPercentage(p.MADS, true)}" +
-                            $",L{CommonUtils.Instance.ConvertToPercentage(p.MADL, true)}" +
-                            $"");
-                    }
+                    ////テクニカル（MAD）：
+                    //writer.WriteLine($"テクニカル（SMAdev：MAD）：");
+                    //foreach (var p in r.StockInfo.ChartPrices)
+                    //{
+                    //    //10/14：3,951.0：999.0：S+99.99%,L+99.99%
+                    //    writer.WriteLine(
+                    //        $"{p.Date.ToString("MM/dd")}" +
+                    //        $"：{p.SMAdev.ToString("N1")}" +
+                    //        $"：S{CommonUtils.Instance.ConvertToPercentage(p.MADS, true)}" +
+                    //        $",L{CommonUtils.Instance.ConvertToPercentage(p.MADL, true)}" +
+                    //        $"");
+                    //}
 
                     if (!string.IsNullOrEmpty(r.StockInfo.Memo))
                     {

@@ -398,25 +398,25 @@ internal class StockInfo
             {
                 if (result1 > result2)
                 {
-                    return "増配";
+                    return "↑";
                 }
                 else if (result1 == result2)
                 {
-                    return "同配";
+                    return "→";
                 }
                 else
                 {
-                    return "減配";
+                    return "↓";
                 }
             }
             else
             {
-                return "？配";
+                return "？";
             }
         }
         catch (Exception ex)
         {
-            return "？配";
+            return "？";
         }
     }
 
@@ -429,21 +429,21 @@ internal class StockInfo
             {
                 if (result1 > result2)
                 {
-                    return "増益";
+                    return "↑";
                 }
                 else
                 {
-                    return "減益";
+                    return "↓";
                 }
             }
             else
             {
-                return "？益";
+                return "？";
             }
         }
         catch (Exception ex)
         {
-            return "？益";
+            return "？";
         }
     }
 
@@ -456,21 +456,21 @@ internal class StockInfo
             {
                 if (result1 > result2)
                 {
-                    return "増収";
+                    return "↑";
                 }
                 else
                 {
-                    return "減収";
+                    return "↓";
                 }
             }
             else
             {
-                return "？収";
+                return "？";
             }
         }
         catch (Exception ex)
         {
-            return "？収";
+            return "？";
         }
     }
 
