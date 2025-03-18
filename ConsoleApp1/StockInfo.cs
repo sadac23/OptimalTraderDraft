@@ -1114,11 +1114,11 @@ internal class StockInfo
                 command.Parameters.AddWithValue("@fiscal_period", f.FiscalPeriod);
                 command.Parameters.AddWithValue("@category", f.Category);
                 command.Parameters.AddWithValue("@revision_direction", f.RevisionDirection);
-                command.Parameters.AddWithValue("@revenue", f.Revenue);
-                command.Parameters.AddWithValue("@operating_profit", f.OperatingProfit);
-                command.Parameters.AddWithValue("@ordinary_income", f.OrdinaryProfit);
-                command.Parameters.AddWithValue("@net_profit", f.NetProfit);
-                command.Parameters.AddWithValue("@revised_dividend", f.RevisedDividend);
+                command.Parameters.AddWithValue("@revenue", CommonUtils.Instance.GetDouble(f.Revenue));
+                command.Parameters.AddWithValue("@operating_profit", CommonUtils.Instance.GetDouble(f.OperatingProfit));
+                command.Parameters.AddWithValue("@ordinary_income", CommonUtils.Instance.GetDouble(f.OrdinaryProfit));
+                command.Parameters.AddWithValue("@net_profit", CommonUtils.Instance.GetDouble(f.NetProfit));
+                command.Parameters.AddWithValue("@revised_dividend", CommonUtils.Instance.GetDouble(f.RevisedDividend));
 
                 // クエリを実行
                 int rowsAffected = command.ExecuteNonQuery();
@@ -1368,66 +1368,70 @@ internal class StockInfo
     {
         List<FullYearPerformanceForcast> result = new List<FullYearPerformanceForcast>();
 
-        //TODO: バグがあるため、暫定対応として抜ける。
-        return result;
-
-        // カレント決算月が取得できていない場合は抜ける
-        if(this.CurrentFiscalMonth == DateTime.MinValue) return result;
-
-        using (SQLiteConnection connection = new SQLiteConnection(CommonUtils.Instance.ConnectionString))
+        try
         {
-            connection.Open();
+            // カレント決算月が取得できていない場合は抜ける
+            if (this.CurrentFiscalMonth == DateTime.MinValue) return result;
 
-            // プライマリーキーに条件を設定したクエリ
-            string query = "SELECT * FROM forcast_history WHERE code = @code and fiscal_period = @fiscal_period ORDER BY revision_date";
-
-            using (SQLiteCommand command = new SQLiteCommand(query, connection))
+            using (SQLiteConnection connection = new SQLiteConnection(CommonUtils.Instance.ConnectionString))
             {
-                // パラメータを設定
-                command.Parameters.AddWithValue("@code", this.Code);
-                command.Parameters.AddWithValue("@fiscal_period", this.CurrentFiscalMonth.AddYears(-1).ToString("yyyy.MM"));
+                connection.Open();
 
-                using (SQLiteDataReader reader = command.ExecuteReader())
+                // プライマリーキーに条件を設定したクエリ
+                string query = "SELECT * FROM forcast_history WHERE code = @code and fiscal_period = @fiscal_period ORDER BY revision_date";
+
+                using (SQLiteCommand command = new SQLiteCommand(query, connection))
                 {
-                    FullYearPerformanceForcast cloneF = null;
+                    // パラメータを設定
+                    command.Parameters.AddWithValue("@code", this.Code);
+                    command.Parameters.AddWithValue("@fiscal_period", this.CurrentFiscalMonth.AddYears(-1).ToString("yyyy.MM"));
 
-                    while (reader.Read())
+                    using (SQLiteDataReader reader = command.ExecuteReader())
                     {
-                        // カラム名を指定してデータを取得
-                        string code = reader.GetString(reader.GetOrdinal("code"));
-                        string revisionDateString = reader.GetString(reader.GetOrdinal("revision_date_string"));
-                        DateTime revisionDate = reader.GetDateTime(reader.GetOrdinal("revision_date"));
-                        string fiscalPeriod = reader.GetString(reader.GetOrdinal("fiscal_period"));
-                        string category = reader.GetString(reader.GetOrdinal("category"));
-                        string revisionDirection = reader.GetString(reader.GetOrdinal("revision_direction"));
-                        double revenue = reader.GetDouble(reader.GetOrdinal("revenue"));
-                        double operatingProfit = reader.GetDouble(reader.GetOrdinal("operating_profit"));
-                        double ordinaryIncome = reader.GetDouble(reader.GetOrdinal("ordinary_income"));
-                        double netProfit = reader.GetDouble(reader.GetOrdinal("net_profit"));
-                        double revisedDividend = reader.GetDouble(reader.GetOrdinal("revised_dividend"));
+                        FullYearPerformanceForcast cloneF = null;
 
-                        FullYearPerformanceForcast f = new FullYearPerformanceForcast()
+                        while (reader.Read())
                         {
-                            Category = category,
-                            FiscalPeriod = fiscalPeriod,
-                            RevisionDate = revisionDate,
-                            NetProfit = netProfit.ToString(),
-                            OperatingProfit = operatingProfit.ToString(),
-                            OrdinaryProfit = ordinaryIncome.ToString(),
-                            RevisionDirection = revisionDirection,
-                            Revenue = revenue.ToString(),
-                            RevisedDividend = revisedDividend.ToString(),
-                            Summary = string.Empty,
-                            PreviousForcast = cloneF,
-                        };
-                        // 前回分の保持
-                        cloneF = (FullYearPerformanceForcast)f.Clone();
+                            // カラム名を指定してデータを取得
+                            string code = reader.GetString(reader.GetOrdinal("code"));
+                            string revisionDateString = reader.GetString(reader.GetOrdinal("revision_date_string"));
+                            DateTime revisionDate = reader.GetDateTime(reader.GetOrdinal("revision_date"));
+                            string fiscalPeriod = reader.GetString(reader.GetOrdinal("fiscal_period"));
+                            string category = reader.GetString(reader.GetOrdinal("category"));
+                            string revisionDirection = reader.GetString(reader.GetOrdinal("revision_direction"));
+                            double revenue = reader.GetDouble(reader.GetOrdinal("revenue"));
+                            double operatingProfit = reader.GetDouble(reader.GetOrdinal("operating_profit"));
+                            double ordinaryIncome = reader.GetDouble(reader.GetOrdinal("ordinary_income"));
+                            double netProfit = reader.GetDouble(reader.GetOrdinal("net_profit"));
+                            double revisedDividend = reader.GetDouble(reader.GetOrdinal("revised_dividend"));
 
-                        result.Add(f);
+                            FullYearPerformanceForcast f = new FullYearPerformanceForcast()
+                            {
+                                Category = category,
+                                FiscalPeriod = fiscalPeriod,
+                                RevisionDate = revisionDate,
+                                NetProfit = netProfit.ToString(),
+                                OperatingProfit = operatingProfit.ToString(),
+                                OrdinaryProfit = ordinaryIncome.ToString(),
+                                RevisionDirection = revisionDirection,
+                                Revenue = revenue.ToString(),
+                                RevisedDividend = revisedDividend.ToString(),
+                                Summary = string.Empty,
+                                PreviousForcast = cloneF,
+                            };
+                            // 前回分の保持
+                            cloneF = (FullYearPerformanceForcast)f.Clone();
+
+                            result.Add(f);
+                        }
                     }
                 }
             }
         }
+        catch { 
+            // 例外は無視する。
+        }
+
         return result;
     }
     /// <summary>
