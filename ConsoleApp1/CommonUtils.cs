@@ -126,7 +126,7 @@ internal class CommonUtils : IDisposable
         // ファイルターゲットを作成
         var logfile = new FileTarget("logfile")
         {
-            FileName = FilepathOfFilelog,
+            FileName = CommonUtils.ReplacePlaceholder(FilepathOfFilelog, "{yyyyMMdd}", ExecusionDate.ToString("yyyyMMdd")),
             Layout = "${longdate} ${uppercase:${level}} ${message}"
         };
 
