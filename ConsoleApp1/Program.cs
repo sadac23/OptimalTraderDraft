@@ -292,7 +292,8 @@ try
 }
 catch(Exception ex)
 {
-    logger.LogError(ex.Message, ex);
+    // ログ出力
+    logger.LogError($"Message:{ex.Message}, StackTrace:{ex.StackTrace}", ex);
 }
 
 void OneDriveRefresh()
