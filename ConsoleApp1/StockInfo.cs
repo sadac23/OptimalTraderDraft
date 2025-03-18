@@ -686,22 +686,22 @@ internal class StockInfo
     /// <summary>
     /// PERが割安か？
     /// </summary>
-    internal bool IsPERUndervalued()
+    internal bool IsPERUndervalued(bool isLenient = false)
     {
         bool result = false;
-        if (this.Per > 0 && this.Per < this.AveragePer) result = true;
+        double threshold = isLenient ? this.AveragePer * CommonUtils.Instance.LenientFactor : this.AveragePer;
+        if (this.Per > 0 && this.Per < threshold) result = true;
         return result;
     }
 
     /// <summary>
     /// PBRが割安か？
     /// </summary>
-    /// <returns></returns>
-    /// <exception cref="NotImplementedException"></exception>
-    internal bool IsPBRUndervalued()
+    internal bool IsPBRUndervalued(bool isLenient = false)
     {
         bool result = false;
-        if (this.Pbr > 0 && this.Pbr < this.AveragePbr) result = true;
+        double threshold = isLenient ? this.AveragePbr * CommonUtils.Instance.LenientFactor : this.AveragePbr;
+        if (this.Pbr > 0 && this.Pbr < threshold) result = true;
         return result;
     }
     /// <summary>

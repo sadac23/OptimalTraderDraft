@@ -304,6 +304,10 @@ internal class CommonUtils : IDisposable
     /// Yahooの履歴ページをスクレイピングするための最大ページ数
     /// </summary>
     public int MaxPageCountToScrapeYahooHistory { get; } = 100;
+    /// <summary>
+    /// 割安を緩めに判定する際の係数
+    /// </summary>
+    public double LenientFactor { get; } = 1.1;
 
     internal static string ReplacePlaceholder(string? input, string placeholder, string newValue)
     {

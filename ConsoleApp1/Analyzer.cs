@@ -291,18 +291,18 @@ internal class Analyzer
             {
                 // 強制通知
             }
-            // ゴールデンクロス発生可能性がある場合
-            else if (this.StockInfo.IsGoldenCrossPossible())
-            {
-                // 利回りが低い場合
-                if (!this.StockInfo.IsHighYield()) result = false;
+            //// ゴールデンクロス発生可能性がある場合
+            //else if (this.StockInfo.IsGoldenCrossPossible())
+            //{
+            //    // 利回りが低い場合
+            //    if (!this.StockInfo.IsHighYield()) result = false;
 
-                // 時価総額が低い場合
-                if (!this.StockInfo.IsHighMarketCap()) result = false;
+            //    // 時価総額が低い場合
+            //    if (!this.StockInfo.IsHighMarketCap()) result = false;
 
-                // 進捗が良くない場合
-                if (!this.StockInfo.IsAnnualProgressOnTrack()) result = false;
-            }
+            //    // 進捗が良くない場合
+            //    if (!this.StockInfo.IsAnnualProgressOnTrack()) result = false;
+            //}
             // 権利確定月前後の場合
             else if (this.StockInfo.IsCloseToRecordDate() || this.StockInfo.IsRecordDate() || this.StockInfo.IsAfterRecordDate())
             {
@@ -349,10 +349,10 @@ internal class Analyzer
                 if (!this.StockInfo.IsAnnualProgressOnTrack()) result = false;
 
                 // PERが割高の場合
-                if (!this.StockInfo.IsPERUndervalued()) result = false;
+                if (!this.StockInfo.IsPERUndervalued(true)) result = false;
 
                 // PBRが割高の場合
-                if (!this.StockInfo.IsPBRUndervalued()) result = false;
+                if (!this.StockInfo.IsPBRUndervalued(true)) result = false;
             }
 
             return result;
