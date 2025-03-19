@@ -229,6 +229,17 @@ internal class StockInfo
     /// カレントの4Q決算月
     /// </summary>
     public DateTime CurrentFiscalMonth { get; internal set; }
+    /// <summary>
+    /// 信託報酬率
+    /// </summary>
+    /// <remarks>
+    /// "3.58%"は"0.0358"で保持。
+    /// </remarks>
+    public double TrustFeeRate { get; internal set; }
+    /// <summary>
+    /// 投資信託の運用会社
+    /// </summary>
+    public string FundManagementCompany { get; internal set; }
 
     /// <summary>
     /// 現在、所有しているか？

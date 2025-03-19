@@ -134,6 +134,12 @@ internal class Alert
                         $"：S{r.StockInfo.LatestPrice.RSIS.ToString("N2")}" +
                         $",L{r.StockInfo.LatestPrice.RSIL.ToString("N2")}" +
                         $"）{(r.StockInfo.LatestPrice.OversoldIndicator() || (r.StockInfo.IsOwnedNow() && r.StockInfo.LatestPrice.OverboughtIndicator()) ? mark : string.Empty)}");
+                    // ETFのみ
+                    if (r.StockInfo.Classification == CommonUtils.Instance.Classification.JapaneseETFs)
+                    {
+                        writer.WriteLine($"運用会社：{r.StockInfo.FundManagementCompany}");
+                        writer.WriteLine($"信託報酬：{CommonUtils.Instance.ConvertToPercentage(r.StockInfo.TrustFeeRate, false, "F3")}");
+                    }
                     writer.WriteLine($"市場/業種：{r.StockInfo.Section}{(!string.IsNullOrEmpty(r.StockInfo.Industry) ? $"/{r.StockInfo.Industry}" : string.Empty)}");
                     writer.WriteLine($"配当利回り：{CommonUtils.Instance.ConvertToPercentage(r.StockInfo.DividendYield)}（{CommonUtils.Instance.ConvertToPercentage(r.StockInfo.DividendPayoutRatio)},{r.StockInfo.DividendRecordDateMonth}）{(r.StockInfo.IsCloseToDividendRecordDate() ? mark : string.Empty)}");
                     if (!string.IsNullOrEmpty(r.StockInfo.ShareholderBenefitsDetails))

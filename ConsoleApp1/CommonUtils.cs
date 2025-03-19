@@ -317,10 +317,10 @@ internal class CommonUtils : IDisposable
         }
         return input.Replace(placeholder, newValue);
     }
-    internal string ConvertToPercentage(double value, bool shouldAddSign = false)
+    internal string ConvertToPercentage(double value, bool shouldAddSign = false, string format = "F2")
     {
         // パーセント形式の文字列に変換し、プラスの場合は"+"を付ける
-        string formattedValue = (value * 100).ToString("F2", CultureInfo.InvariantCulture);
+        string formattedValue = (value * 100).ToString(format, CultureInfo.InvariantCulture);
 
         if (value >= 0)
         {

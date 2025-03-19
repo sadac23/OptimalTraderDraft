@@ -124,17 +124,16 @@ internal class YahooScraper
     }
     internal async Task ScrapeTop(StockInfo stockInfo)
     {
-        var url = $"https://finance.yahoo.co.jp/quote/{stockInfo.Code}.T";
-
         using (HttpClient client = new HttpClient())
         {
             try
             {
+                var url = $"https://finance.yahoo.co.jp/quote/{stockInfo.Code}.T";
+                CommonUtils.Instance.Logger.LogInformation(url);
+
                 HttpResponseMessage response = await client.GetAsync(url);
                 response.EnsureSuccessStatusCode();
                 string pageContent = await response.Content.ReadAsStringAsync();
-
-                CommonUtils.Instance.Logger.LogInformation(url);
 
                 HtmlDocument document = new HtmlDocument();
                 document.LoadHtml(pageContent);
@@ -181,6 +180,28 @@ internal class YahooScraper
                     stockInfo.MarginBalanceDate = node.InnerText.Trim();
                 }
 
+                // ** ETFは追加情報取得
+                if (stockInfo.Classification == CommonUtils.Instance.Classification.JapaneseETFs)
+                {
+                    // 決算月
+                    var dividendNode = document.DocumentNode.SelectSingleNode("//*[@id=\"referenc\"]/div/ul/li[11]/dl/dd/span/span/span");
+                    if (dividendNode != null)
+                    {
+                        stockInfo.EarningsPeriod = dividendNode.InnerText.Trim();
+                    }
+                    // 運用会社
+                    var companyNode = document.DocumentNode.SelectSingleNode("//*[@id=\"referenc\"]/div/ul/li[6]/dl/dd/span/span/span");
+                    if (companyNode != null)
+                    {
+                        stockInfo.FundManagementCompany = companyNode.InnerText.Trim();
+                    }
+                    // 信託報酬率
+                    var trustFeeRateNode = document.DocumentNode.SelectSingleNode("//*[@id=\"referenc\"]/div/ul/li[13]/dl/dd/span/span/span");
+                    if (trustFeeRateNode != null)
+                    {
+                        stockInfo.TrustFeeRate = ConvertToDouble(trustFeeRateNode.InnerText.Trim());
+                    }
+                }
             }
             catch (Exception e)
             {
@@ -195,4 +216,22 @@ internal class YahooScraper
 
         return date;
     }
+    private double ConvertToDouble(string percentString)
+    {
+        // パーセント記号を除去
+        percentString = percentString.Replace("％", "");
+        percentString = percentString.Replace("%", "");
+
+        // 文字列をdoubleに変換
+        if (double.TryParse(percentString, NumberStyles.Any, CultureInfo.InvariantCulture, out double value))
+        {
+            // パーセントから小数に変換
+            return value / 100.0;
+        }
+        else
+        {
+            return 0;
+        }
+    }
+
 }
