@@ -196,6 +196,8 @@ using Google.Apis.Util.Store;
  * ・日経平均の情報追加。
  * ・短期平均値が長期平均値を突き抜ける前に検知。
  * ・米国個別株対応。
+ * ・直近開示情報（disclosure）を追加してマークする。
+ * ・マスタファイルをリポジトリから入れ替える仕組み。
  */
 
 var logger = CommonUtils.Instance.Logger;
