@@ -164,6 +164,7 @@ using Google.Apis.Util.Store;
  * ・済：チャート価格にもRSIバッジ表示
  * ・済：StockInfo.GetPreviousForcasts()のバグ対応。（GetDoubleで例外）
  * ・済：PER/PBRは平均値+10%の幅を持たせる。
+ * ・済：株式分割が発生したら株価履歴をリフレッシュする。（終値と調整後終値の不一致で判断。）
  */
 
 /* TODO
@@ -183,7 +184,6 @@ using Google.Apis.Util.Store;
  * ・バッジ種類でまとめて出力する。
  * ・約定リストの自動更新。
  * ・海外投信、ETFの対応。
- * ・株式分割が発生したら株価履歴をリフレッシュする。（直近50%以上の下落で判断。）
  * ・性能改善。（主にスクレイピングが遅い。）
  * ・アナリスト予想の取得。（楽天証券から取得？）
  * ・4Q進捗率は修正前予想との比較で算出する。（修正予想との比較はKPIにならない。）
@@ -253,9 +253,20 @@ try
             await minkabuScraper.ScrapeYutai(stockInfo);
             await yahooScraper.ScrapeTop(stockInfo);
             await yahooScraper.ScrapeProfile(stockInfo);
-            // 最終更新後に直近営業日がある場合は取得
+
+            // 最終更新後に直近営業日がある場合は履歴取得
             if (lastTradingDay > lastUpdateDay)
+            {
                 await yahooScraper.ScrapeHistory(stockInfo, lastUpdateDay, CommonUtils.Instance.ExecusionDate);
+
+                // 株式分割がある場合は履歴をクリアして再取得
+                if (stockInfo.HasRecentStockSplitOccurred() && lastUpdateDay != CommonUtils.Instance.MasterStartDate)
+                {
+                    stockInfo.DeleteHistory(CommonUtils.Instance.ExecusionDate);
+                    stockInfo.ScrapedPrices.Clear();
+                    await yahooScraper.ScrapeHistory(stockInfo, CommonUtils.Instance.MasterStartDate, CommonUtils.Instance.ExecusionDate);
+                }
+            }
 
             // 約定履歴を設定
             stockInfo.SetExecutions(executionList);
@@ -283,8 +294,8 @@ try
     // ファイル保存
     Alert.SaveFile(results);
 
-    // 過去の株価履歴キャッシュを削除
-    DeleteHistoryCache();
+    //// 過去の株価履歴キャッシュを削除
+    //DeleteHistoryCache();
 
     // メール送信
     if (CommonUtils.Instance.ShouldSendMail) Alert.SendMail();

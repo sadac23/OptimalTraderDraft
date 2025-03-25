@@ -1069,9 +1069,12 @@ internal class StockInfo
         {
             if (!IsInHistory(p))
             {
-                RegsterHistory(p);
+                this.RegsterHistory(p);
             }
         }
+
+        // 株価履歴の削除
+        this.DeleteHistory(CommonUtils.Instance.ExecusionDate.AddMonths(-1 * CommonUtils.Instance.StockPriceHistoryMonths));
 
         // 修正履歴の登録
         foreach (var f in this.FullYearPerformancesForcasts)
@@ -1205,7 +1208,7 @@ internal class StockInfo
                 command.Parameters.AddWithValue("@open", p.Open);
                 command.Parameters.AddWithValue("@high", p.High);
                 command.Parameters.AddWithValue("@low", p.Low);
-                command.Parameters.AddWithValue("@close", p.Close);
+                command.Parameters.AddWithValue("@close", p.AdjustedClose);     //調整後終値を格納
                 command.Parameters.AddWithValue("@volume", p.Volume);
 
                 // クエリを実行
@@ -1571,6 +1574,58 @@ internal class StockInfo
         }
 
         return result;
+    }
+
+    /// <summary>
+    /// 直近で株式分割が実施されたか？
+    /// </summary>
+    /// <returns></returns>
+    internal bool HasRecentStockSplitOccurred()
+    {
+        bool result = false;
+
+        foreach (var item in this.ScrapedPrices) {
+            // 調整後終値と異なる場合は分割実施と判断
+            if (item.Close != item.AdjustedClose)
+            {
+                result = true;
+
+                CommonUtils.Instance.Logger.LogInformation($"" +
+                    $"Code:{this.Code}, " +
+                    $"Message:株式分割あり（" +
+                    $"日付：{item.Date.ToString("yyyyMMdd")}, " +
+                    $"終値：{item.Close}, " +
+                    $"調整後終値：{item.AdjustedClose}）");
+
+                break;
+            }
+        }
+
+        return result;
+    }
+
+    internal void DeleteHistory(DateTime target)
+    {
+        using (SQLiteConnection connection = new SQLiteConnection(CommonUtils.Instance.ConnectionString))
+        {
+            connection.Open();
+
+            // 挿入クエリ
+            string query = "DELETE FROM history WHERE code = @code and date <= @date";
+
+            using (SQLiteCommand command = new SQLiteCommand(query, connection))
+            {
+                // パラメータを設定
+                command.Parameters.AddWithValue("@code", this.Code);
+                command.Parameters.AddWithValue("@date", target);
+
+                // クエリを実行
+                int rowsAffected = command.ExecuteNonQuery();
+
+                // 結果を表示
+                CommonUtils.Instance.Logger.LogInformation($"History Rows deleted: {rowsAffected}");
+            }
+        }
     }
 
     /// <summary>
