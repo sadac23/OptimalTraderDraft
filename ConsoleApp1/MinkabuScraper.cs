@@ -138,7 +138,7 @@ internal class MinkabuScraper
             CommonUtils.Instance.Logger.LogInformation(url);
 
             // 優待内容
-            rows = htmlDocument.DocumentNode.SelectNodes("//h3[contains(@class, 'category fwb fsl')]");
+            rows = htmlDocument.DocumentNode.SelectNodes("//*[@id=\"yutai_info\"]/div[4]/div[1]/div[2]/div/div[1]/h3");
 
             if (rows != null && rows.Count != 0)
             {
