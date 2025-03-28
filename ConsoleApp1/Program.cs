@@ -247,6 +247,9 @@ try
             // 履歴更新の最終日を取得（なければ基準開始日を取得）
             var lastUpdateDay = stockInfo.GetLastHistoryUpdateDay();
 
+            //// 外部サイト情報を一括取得
+            //var results1 = await FetchMultipleDataAsync(stockInfo);
+
             // 外部サイトの情報取得
             await kabutanScraper.ScrapeFinance(stockInfo);
             await minkabuScraper.ScrapeDividend(stockInfo);
@@ -303,4 +306,29 @@ catch(Exception ex)
 {
     // ログ出力
     logger.LogError($"Message:{ex.Message}, StackTrace:{ex.StackTrace}", ex);
+}
+
+async Task<List<string>> FetchMultipleDataAsync(StockInfo stockInfo)
+{
+    var urls = new List<string>
+            {
+                $"https://kabutan.jp/stock/finance?code={stockInfo.Code}",
+                $"https://minkabu.jp/stock/{stockInfo.Code}/dividend",
+                $"https://minkabu.jp/stock/{stockInfo.Code}/yutai"
+            };
+
+    // 複数の非同期タスクを作成
+    var tasks = urls.Select(url => FetchDataAsync(url)).ToList();
+
+    // すべてのタスクが完了するのを待つ
+    var results = await Task.WhenAll(tasks);
+
+    return results.ToList();
+}
+
+async Task<string> FetchDataAsync(string url)
+{
+    HttpResponseMessage response = await CommonUtils.Instance.HttpClient.GetAsync(url);
+    response.EnsureSuccessStatusCode();
+    return await response.Content.ReadAsStringAsync();
 }
