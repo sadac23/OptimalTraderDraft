@@ -6,7 +6,7 @@ using static WatchList;
 
 internal class MasterList
 {
-    internal static List<AveragePerPbrDetails> GetXlsxAveragePerPbrList()
+    internal static List<AveragePerPbrDetails> LoadXlsx()
     {
         List<AveragePerPbrDetails> results = new List<AveragePerPbrDetails>();
 

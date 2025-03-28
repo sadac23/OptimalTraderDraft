@@ -1,6 +1,11 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
 using ClosedXML.Excel;
+using Google.Apis.Auth.OAuth2;
+using Google.Apis.Gmail.v1.Data;
+using Google.Apis.Gmail.v1;
+using Google.Apis.Services;
+using Google.Apis.Util.Store;
 using Microsoft.Extensions.Logging;
 
 internal class ExecutionList
@@ -49,7 +54,7 @@ internal class ExecutionList
         return list;
     }
 
-    internal static List<ListDetail> GetXlsxExecutionStockList()
+    internal static List<ListDetail> LoadXlsx()
     {
         List<ListDetail> results = new List<ListDetail>();
 
@@ -95,6 +100,68 @@ internal class ExecutionList
         }
 
         return results;
+    }
+
+    internal static void UpdateFromGmail()
+    {
+        string[] Scopes = { GmailService.Scope.GmailReadonly };
+        string ApplicationName = "Gmail API .NET Quickstart";
+
+        UserCredential credential;
+
+        string credentialFilepath = CommonUtils.Instance.FilepathOfGmailAPICredential;
+
+        // クレデンシャルが存在しない場合は無視
+        if (string.IsNullOrEmpty(credentialFilepath)) return;
+        if (!File.Exists(credentialFilepath))
+        {
+            CommonUtils.Instance.Logger.LogInformation($"約定リスト更新（Gmail検索）スキップ：APICredentialFileなし({credentialFilepath})");
+            return;
+        }
+
+        using (var stream =
+            new FileStream(credentialFilepath, FileMode.Open, FileAccess.Read))
+        {
+            // The file token.json stores the user's access and refresh tokens, and is created
+            // automatically when the authorization flow completes for the first time.
+            string credPath = "token.json";
+            credential = GoogleWebAuthorizationBroker.AuthorizeAsync(
+                GoogleClientSecrets.FromStream(stream).Secrets,
+                Scopes,
+                "sadac23@gmail.com",
+                CancellationToken.None,
+                new FileDataStore(credPath, true)).Result;
+
+            CommonUtils.Instance.Logger.LogInformation("Credential file saved to: " + credPath);
+        }
+
+        // Create Gmail API service.
+        var service = new GmailService(new BaseClientService.Initializer()
+        {
+            HttpClientInitializer = credential,
+            ApplicationName = ApplicationName,
+        });
+
+        // Define parameters of request.
+        UsersResource.MessagesResource.ListRequest request = service.Users.Messages.List("me");
+        request.Q = "subject:国内株式の注文が約定しました"; // 検索クエリを指定
+
+        // List messages.
+        IList<Message> messages = request.Execute().Messages;
+
+        CommonUtils.Instance.Logger.LogInformation("Messages:");
+        if (messages != null && messages.Count > 0)
+        {
+            foreach (var messageItem in messages)
+            {
+                var message = service.Users.Messages.Get("me", messageItem.Id).Execute();
+                CommonUtils.Instance.Logger.LogInformation($"- {message.Snippet}");
+            }
+        }
+        else
+        {
+            CommonUtils.Instance.Logger.LogInformation("No messages found.");
+        }
     }
 
     public class ListDetail

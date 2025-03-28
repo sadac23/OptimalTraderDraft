@@ -10,6 +10,7 @@ using System.Configuration;
 using System.Globalization;
 using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
 using System.Collections.Specialized;
+using System.Diagnostics;
 
 internal class CommonUtils : IDisposable
 {
@@ -391,6 +392,46 @@ internal class CommonUtils : IDisposable
         result = previousYearValue < 0 ? result * (-1) : result;
 
         return result;
+    }
+
+    internal DateTime GetLastTradingDay()
+    {
+        DateTime date = CommonUtils.Instance.ExecusionDate.Date;
+
+        // 土日または祝日の場合、前日を確認
+        while (TSEHolidayChecker.IsTSEHoliday(date))
+        {
+            date = date.AddDays(-1);
+        }
+
+        return date;
+    }
+
+    internal void OneDriveRefresh()
+    {
+        string oneDrivePath = @"C:\Program Files\Microsoft OneDrive\OneDrive.exe"; // OneDriveの実行ファイルのパス
+
+        if (File.Exists(oneDrivePath))
+        {
+            ProcessStartInfo startInfo = new ProcessStartInfo
+            {
+                FileName = oneDrivePath,
+                Arguments = "/sync", // 同期をトリガーする引数
+                RedirectStandardOutput = true,
+                UseShellExecute = false,
+                CreateNoWindow = true
+            };
+
+            using (Process process = Process.Start(startInfo))
+            {
+                process.WaitForExit();
+                this.Logger.LogInformation("OneDrive sync triggered.");
+            }
+        }
+        else
+        {
+            this.Logger.LogInformation("OneDrive executable not found.");
+        }
     }
 
     public class BadgeStringClass

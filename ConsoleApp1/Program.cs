@@ -216,22 +216,22 @@ try
     logger.LogInformation(CommonUtils.Instance.MessageAtApplicationStartup);
 
     // OneDriveリフレッシュ
-    if (CommonUtils.Instance.ShouldRefreshOneDrive) OneDriveRefresh();
+    if (CommonUtils.Instance.ShouldRefreshOneDrive) CommonUtils.Instance.OneDriveRefresh();
 
     // 約定履歴リストを更新
-    if (CommonUtils.Instance.ShouldUpdateExecutionList) UpdateXlsxExecutionStockList();
+    if (CommonUtils.Instance.ShouldUpdateExecutionList) ExecutionList.UpdateFromGmail();
 
     // 約定履歴取得
-    var executionList = ExecutionList.GetXlsxExecutionStockList();
+    var executionList = ExecutionList.LoadXlsx();
 
     // ウォッチリスト取得
-    var watchList = WatchList.GetXlsxWatchStockList();
+    var watchList = WatchList.LoadXlsx();
 
     // マスタ取得
-    var masterList = MasterList.GetXlsxAveragePerPbrList();
+    var masterList = MasterList.LoadXlsx();
 
     // 直近の営業日を取得
-    var lastTradingDay = GetLastTradingDay();
+    var lastTradingDay = CommonUtils.Instance.GetLastTradingDay();
 
     // ウォッチ銘柄毎に処理
     foreach (var watchStock in watchList)
@@ -245,7 +245,7 @@ try
         try
         {
             // 履歴更新の最終日を取得（なければ基準開始日を取得）
-            var lastUpdateDay = GetLastHistoryUpdateDay(stockInfo);
+            var lastUpdateDay = stockInfo.GetLastHistoryUpdateDay();
 
             // 外部サイトの情報取得
             await kabutanScraper.ScrapeFinance(stockInfo);
@@ -294,9 +294,6 @@ try
     // ファイル保存
     Alert.SaveFile(results);
 
-    //// 過去の株価履歴キャッシュを削除
-    //DeleteHistoryCache();
-
     // メール送信
     if (CommonUtils.Instance.ShouldSendMail) Alert.SendMail();
 
@@ -306,160 +303,4 @@ catch(Exception ex)
 {
     // ログ出力
     logger.LogError($"Message:{ex.Message}, StackTrace:{ex.StackTrace}", ex);
-}
-
-void OneDriveRefresh()
-{
-    string oneDrivePath = @"C:\Program Files\Microsoft OneDrive\OneDrive.exe"; // OneDriveの実行ファイルのパス
-
-    if (File.Exists(oneDrivePath))
-    {
-        ProcessStartInfo startInfo = new ProcessStartInfo
-        {
-            FileName = oneDrivePath,
-            Arguments = "/sync", // 同期をトリガーする引数
-            RedirectStandardOutput = true,
-            UseShellExecute = false,
-            CreateNoWindow = true
-        };
-
-        using (Process process = Process.Start(startInfo))
-        {
-            process.WaitForExit();
-            logger.LogInformation("OneDrive sync triggered.");
-        }
-    }
-    else
-    {
-        logger.LogInformation("OneDrive executable not found.");
-    }
-}
-
-void DeleteHistoryCache()
-{
-    using (SQLiteConnection connection = new SQLiteConnection(CommonUtils.Instance.ConnectionString))
-    {
-        connection.Open();
-
-        // 挿入クエリ
-        string query = "DELETE FROM history WHERE date <= @date";
-
-        using (SQLiteCommand command = new SQLiteCommand(query, connection))
-        {
-            // パラメータを設定
-            command.Parameters.AddWithValue("@date", CommonUtils.Instance.ExecusionDate.AddMonths(-1 * CommonUtils.Instance.StockPriceHistoryMonths));
-
-            // クエリを実行
-            int rowsAffected = command.ExecuteNonQuery();
-
-            // 結果を表示
-            logger.LogInformation($"History Rows deleted: {rowsAffected}");
-        }
-    }
-}
-
-DateTime GetLastTradingDay()
-{
-    DateTime date = CommonUtils.Instance.ExecusionDate.Date;
-
-    // 土日または祝日の場合、前日を確認
-    while (TSEHolidayChecker.IsTSEHoliday(date))
-    {
-        date = date.AddDays(-1);
-    }
-
-    return date;
-}
-
-DateTime GetLastHistoryUpdateDay(StockInfo stockInfo)
-{
-    DateTime result = CommonUtils.Instance.MasterStartDate;
-
-    using (SQLiteConnection connection = new SQLiteConnection(CommonUtils.Instance.ConnectionString))
-    {
-        connection.Open();
-
-        // プライマリーキーに条件を設定したクエリ
-        string query = $"SELECT IFNULL(MAX(date), @max_date) FROM history WHERE code = @code";
-
-        using (SQLiteCommand command = new SQLiteCommand(query, connection))
-        {
-            // パラメータを設定
-            command.Parameters.AddWithValue("@code", stockInfo.Code);
-            command.Parameters.AddWithValue("@max_date", CommonUtils.Instance.MasterStartDate);
-
-            // データリーダーを使用して結果を取得
-            using (SQLiteDataReader reader = command.ExecuteReader())
-            {
-                if (reader.HasRows && reader.Read())
-                {
-                    result = reader.GetDateTime(0);
-                }
-            }
-        }
-    }
-
-    return result;
-}
-
-void UpdateXlsxExecutionStockList()
-{
-    string[] Scopes = { GmailService.Scope.GmailReadonly };
-    string ApplicationName = "Gmail API .NET Quickstart";
-
-    UserCredential credential;
-
-    string credentialFilepath = CommonUtils.Instance.FilepathOfGmailAPICredential;
-
-    // クレデンシャルが存在しない場合は無視
-    if (string.IsNullOrEmpty(credentialFilepath)) return;
-    if (!File.Exists(credentialFilepath))
-    {
-        CommonUtils.Instance.Logger.LogInformation($"約定リスト更新（Gmail検索）スキップ：APICredentialFileなし({credentialFilepath})");
-        return;
-    }
-
-    using (var stream =
-        new FileStream(credentialFilepath, FileMode.Open, FileAccess.Read))
-    {
-        // The file token.json stores the user's access and refresh tokens, and is created
-        // automatically when the authorization flow completes for the first time.
-        string credPath = "token.json";
-        credential = GoogleWebAuthorizationBroker.AuthorizeAsync(
-            GoogleClientSecrets.FromStream(stream).Secrets,
-            Scopes,
-            "sadac23@gmail.com",
-            CancellationToken.None,
-            new FileDataStore(credPath, true)).Result;
-
-        logger.LogInformation("Credential file saved to: " + credPath);
-    }
-
-    // Create Gmail API service.
-    var service = new GmailService(new BaseClientService.Initializer()
-    {
-        HttpClientInitializer = credential,
-        ApplicationName = ApplicationName,
-    });
-
-    // Define parameters of request.
-    UsersResource.MessagesResource.ListRequest request = service.Users.Messages.List("me");
-    request.Q = "subject:国内株式の注文が約定しました"; // 検索クエリを指定
-
-    // List messages.
-    IList<Message> messages = request.Execute().Messages;
-
-    logger.LogInformation("Messages:");
-    if (messages != null && messages.Count > 0)
-    {
-        foreach (var messageItem in messages)
-        {
-            var message = service.Users.Messages.Get("me", messageItem.Id).Execute();
-            logger.LogInformation($"- {message.Snippet}");
-        }
-    }
-    else
-    {
-        logger.LogInformation("No messages found.");
-    }
 }

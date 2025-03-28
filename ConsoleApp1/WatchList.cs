@@ -40,7 +40,7 @@ internal class WatchList
         return results;
     }
 
-    internal static List<WatchStock> GetXlsxWatchStockList()
+    internal static List<WatchStock> LoadXlsx()
     {
         List<WatchStock> results = new List<WatchStock>();
 

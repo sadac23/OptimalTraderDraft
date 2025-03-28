@@ -817,7 +817,6 @@ internal class StockInfo
     /// <summary>
     /// 通期進捗が順調か？
     /// </summary>
-    /// <returns></returns>
     internal bool IsAnnualProgressOnTrack()
     {
         bool result = false;
@@ -848,7 +847,6 @@ internal class StockInfo
     /// <summary>
     /// 利回りが高いか？
     /// </summary>
-    /// <returns></returns>
     internal bool IsHighYield()
     {
         bool result = false;
@@ -861,7 +859,6 @@ internal class StockInfo
     /// <summary>
     /// 時価総額が高いか？
     /// </summary>
-    /// <returns></returns>
     internal bool IsHighMarketCap()
     {
         bool result = false;
@@ -922,23 +919,6 @@ internal class StockInfo
 
         return result;
     }
-
-    /// <summary>
-    /// 下げすぎ判定
-    /// </summary>
-    //internal bool OversoldIndicator(ChartPrice? price = null)
-    //{
-    //    bool result = false;
-
-    //    // パラメータがあればターゲットとする
-    //    var target = price != null ? price : this.ChartPrices[0];
-
-    //    // RSIが閾値以下の場合
-    //    if (target.RSIL <= CommonUtils.Instance.ThresholdOfOversoldRSI) result = true;
-    //    if (target.RSIS <= CommonUtils.Instance.ThresholdOfOversoldRSI) result = true;
-
-    //    return result;
-    //}
 
     private void UpdateChartPrices()
     {
@@ -1009,8 +989,6 @@ internal class StockInfo
     /// <summary>
     /// 四半期決算日が近いか？
     /// </summary>
-    /// <returns></returns>
-    /// <exception cref="NotImplementedException"></exception>
     internal bool IsCloseToQuarterEnd()
     {
         bool result = false;
@@ -1059,9 +1037,6 @@ internal class StockInfo
     /// <summary>
     /// データベースへのキャッシュ登録
     /// </summary>
-    /// <remarks>
-    /// Webサイトのスクライピング結果を必要に応じてデータベースに登録する。
-    /// </remarks>
     private void RegisterCache()
     {
         // 株価履歴の登録
@@ -1069,7 +1044,7 @@ internal class StockInfo
         {
             if (!IsInHistory(p))
             {
-                this.RegsterHistory(p);
+                this.RegisterHistory(p);
             }
         }
 
@@ -1081,12 +1056,15 @@ internal class StockInfo
         {
             if (!IsInForcastHistory(f))
             {
-                RegsterForcastHistory(f);
+                RegisterForcastHistory(f);
             }
         }
     }
-
-    private void RegsterForcastHistory(FullYearPerformanceForcast f)
+    /// <summary>
+    /// 通期予想履歴の登録
+    /// </summary>
+    /// <param name="f"></param>
+    private void RegisterForcastHistory(FullYearPerformanceForcast f)
     {
         using (SQLiteConnection connection = new SQLiteConnection(CommonUtils.Instance.ConnectionString))
         {
@@ -1171,8 +1149,11 @@ internal class StockInfo
             }
         }
     }
-
-    private void RegsterHistory(ScrapedPrice p)
+    /// <summary>
+    /// 株価履歴の登録
+    /// </summary>
+    /// <param name="p"></param>
+    private void RegisterHistory(ScrapedPrice p)
     {
         using (SQLiteConnection connection = new SQLiteConnection(CommonUtils.Instance.ConnectionString))
         {
@@ -1603,7 +1584,10 @@ internal class StockInfo
 
         return result;
     }
-
+    /// <summary>
+    /// 株価履歴の削除
+    /// </summary>
+    /// <param name="target"></param>
     internal void DeleteHistory(DateTime target)
     {
         using (SQLiteConnection connection = new SQLiteConnection(CommonUtils.Instance.ConnectionString))
@@ -1626,6 +1610,37 @@ internal class StockInfo
                 CommonUtils.Instance.Logger.LogInformation($"History Rows deleted: {rowsAffected}");
             }
         }
+    }
+
+    internal DateTime GetLastHistoryUpdateDay()
+    {
+        DateTime result = CommonUtils.Instance.MasterStartDate;
+
+        using (SQLiteConnection connection = new SQLiteConnection(CommonUtils.Instance.ConnectionString))
+        {
+            connection.Open();
+
+            // プライマリーキーに条件を設定したクエリ
+            string query = $"SELECT IFNULL(MAX(date), @max_date) FROM history WHERE code = @code";
+
+            using (SQLiteCommand command = new SQLiteCommand(query, connection))
+            {
+                // パラメータを設定
+                command.Parameters.AddWithValue("@code", this.Code);
+                command.Parameters.AddWithValue("@max_date", CommonUtils.Instance.MasterStartDate);
+
+                // データリーダーを使用して結果を取得
+                using (SQLiteDataReader reader = command.ExecuteReader())
+                {
+                    if (reader.HasRows && reader.Read())
+                    {
+                        result = reader.GetDateTime(0);
+                    }
+                }
+            }
+        }
+
+        return result;
     }
 
     /// <summary>
