@@ -102,6 +102,8 @@ internal class CommonUtils : IDisposable
         SetupLogger();
         // フラグ
         SetupFlag();
+        // HttpClient
+        this.HttpClient = new HttpClient();
     }
 
     /// <summary>
@@ -308,6 +310,10 @@ internal class CommonUtils : IDisposable
     /// 割安を緩めに判定する際の係数
     /// </summary>
     public double LenientFactor { get; } = 1.1;
+    /// <summary>
+    /// HttpClientインスタンス
+    /// </summary>
+    public HttpClient HttpClient { get; internal set; }
 
     internal static string ReplacePlaceholder(string? input, string placeholder, string newValue)
     {

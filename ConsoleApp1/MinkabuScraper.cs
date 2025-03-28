@@ -21,7 +21,6 @@ internal class MinkabuScraper
         {
             var urlBaseMinkabuDividend = $"https://minkabu.jp/stock/{stockInfo.Code}/dividend";
 
-            var httpClient = new HttpClient();
             var htmlDocument = new HtmlDocument();
 
             var url = string.Empty;
@@ -30,7 +29,7 @@ internal class MinkabuScraper
 
             /** みんかぶ（配当） */
             url = urlBaseMinkabuDividend;
-            html = await httpClient.GetStringAsync(url);
+            html = await CommonUtils.Instance.HttpClient.GetStringAsync(url);
             htmlDocument.LoadHtml(html);
 
             CommonUtils.Instance.Logger.LogInformation(url);
@@ -123,7 +122,6 @@ internal class MinkabuScraper
         {
             var urlBaseMinkabuYutai = $"https://minkabu.jp/stock/{stockInfo.Code}/yutai";
 
-            var httpClient = new HttpClient();
             var htmlDocument = new HtmlDocument();
 
             var url = string.Empty;
@@ -132,7 +130,7 @@ internal class MinkabuScraper
 
             /** みんかぶ（優待） */
             url = urlBaseMinkabuYutai;
-            html = await httpClient.GetStringAsync(url);
+            html = await CommonUtils.Instance.HttpClient.GetStringAsync(url);
             htmlDocument.LoadHtml(html);
 
             CommonUtils.Instance.Logger.LogInformation(url);

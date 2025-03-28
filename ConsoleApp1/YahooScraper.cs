@@ -14,7 +14,6 @@ internal class YahooScraper
 
         try
         {
-            var httpClient = new HttpClient();
             var htmlDocument = new HtmlDocument();
             var urlBaseYahooFinance = $"https://finance.yahoo.co.jp/quote/{stockInfo.Code}.T/history?styl=stock&from={from.ToString("yyyyMMdd")}&to={to.ToString("yyyyMMdd")}&timeFrame=d";
 
@@ -22,7 +21,7 @@ internal class YahooScraper
             for (int i = 1; i < _pageCountMax; i++)
             {
                 var url = urlBaseYahooFinance + $"&page={i}";
-                var html = await httpClient.GetStringAsync(url);
+                var html = await CommonUtils.Instance.HttpClient.GetStringAsync(url);
 
                 CommonUtils.Instance.Logger.LogInformation(url);
 
@@ -84,129 +83,111 @@ internal class YahooScraper
     {
         var url = $"https://finance.yahoo.co.jp/quote/{stockInfo.Code}.T/profile";
 
-        using (HttpClient client = new HttpClient())
+        try
         {
-            try
+            HttpResponseMessage response = await CommonUtils.Instance.HttpClient.GetAsync(url);
+            response.EnsureSuccessStatusCode();
+            string pageContent = await response.Content.ReadAsStringAsync();
+
+            CommonUtils.Instance.Logger.LogInformation(url);
+
+            HtmlDocument document = new HtmlDocument();
+            document.LoadHtml(pageContent);
+
+            // 決算を含むノードをXPathで選択
+            var earningsPeriod = document.DocumentNode.SelectSingleNode("//th[text()='決算']/following-sibling::td");
+            if (earningsPeriod != null)
             {
-                HttpResponseMessage response = await client.GetAsync(url);
-                response.EnsureSuccessStatusCode();
-                string pageContent = await response.Content.ReadAsStringAsync();
-
-                CommonUtils.Instance.Logger.LogInformation(url);
-
-                HtmlDocument document = new HtmlDocument();
-                document.LoadHtml(pageContent);
-
-                // 市場名を含むノードをXPathで選択
-                //var marketNode = document.DocumentNode.SelectSingleNode("//th[text()='市場名']/following-sibling::td");
-                //if (marketNode != null)
-                //{
-                //    stockInfo.Section = marketNode.InnerText.Trim();
-                //}
-                // 業種分類を含むノードをXPathで選択
-                //var industryNode = document.DocumentNode.SelectSingleNode("//th[text()='業種分類']/following-sibling::td");
-                //if (industryNode != null)
-                //{
-                //    stockInfo.Industry = industryNode.InnerText.Trim();
-                //}
-                // 決算を含むノードをXPathで選択
-                var earningsPeriod = document.DocumentNode.SelectSingleNode("//th[text()='決算']/following-sibling::td");
-                if (earningsPeriod != null)
-                {
-                    stockInfo.EarningsPeriod = earningsPeriod.InnerText.Trim();
-                }
+                stockInfo.EarningsPeriod = earningsPeriod.InnerText.Trim();
             }
-            catch (Exception e)
-            {
-                Console.WriteLine("ScrapeProfile: " + e.Message);
-            }
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine("ScrapeProfile: " + e.Message);
         }
     }
     internal async Task ScrapeTop(StockInfo stockInfo)
     {
-        using (HttpClient client = new HttpClient())
+        try
         {
-            try
+            var url = $"https://finance.yahoo.co.jp/quote/{stockInfo.Code}.T";
+            CommonUtils.Instance.Logger.LogInformation(url);
+
+            HttpResponseMessage response = await CommonUtils.Instance.HttpClient.GetAsync(url);
+            response.EnsureSuccessStatusCode();
+            string pageContent = await response.Content.ReadAsStringAsync();
+
+            HtmlDocument document = new HtmlDocument();
+            document.LoadHtml(pageContent);
+
+            // 名称
+            var title = document.DocumentNode.SelectNodes("//title");
+            string[] parts = title[0].InnerText.Trim().Split('【');
+            stockInfo.Name = parts.Length > 0 ? parts[0] : stockInfo.Name;
+
+            // 決算発表
+            var node = document.DocumentNode.SelectSingleNode("//*[@id=\"summary\"]/div/section[1]/p");
+            if (node != null)
             {
-                var url = $"https://finance.yahoo.co.jp/quote/{stockInfo.Code}.T";
-                CommonUtils.Instance.Logger.LogInformation(url);
+                stockInfo.PressReleaseDate = node.InnerText.Trim();
+            }
 
-                HttpResponseMessage response = await client.GetAsync(url);
-                response.EnsureSuccessStatusCode();
-                string pageContent = await response.Content.ReadAsStringAsync();
+            // 出来高
+            node = document.DocumentNode.SelectSingleNode("//dt/span[text()='出来高']/ancestor::dt/following-sibling::dd//span[@class='StyledNumber__value__3rXW DataListItem__value__11kV']");
+            if (node != null)
+            {
+                stockInfo.LatestTradingVolume = node.InnerText.Trim();
+            }
 
-                HtmlDocument document = new HtmlDocument();
-                document.LoadHtml(pageContent);
+            // 信用買残
+            // <section id="margin" class="MarginTransactionInformation__1kka">
+            //                node = document.DocumentNode.SelectSingleNode("//dt[text()='信用買残']/following-sibling::dd/span[@class='StyledNumber__value__3rXW']");
+            node = document.DocumentNode.SelectSingleNode("//*[@id=\"margin\"]/div/ul/li[1]/dl/dd/span[1]/span/span[1]");
+            if (node != null)
+            {
+                stockInfo.MarginBuyBalance = node.InnerText.Trim();
+            }
 
-                // 名称
-                var title = document.DocumentNode.SelectNodes("//title");
-                string[] parts = title[0].InnerText.Trim().Split('【');
-                stockInfo.Name = parts.Length > 0 ? parts[0] : stockInfo.Name;
+            // 信用売残
+            node = document.DocumentNode.SelectSingleNode("//*[@id=\"margin\"]/div/ul/li[4]/dl/dd/span[1]/span/span[1]");
+            if (node != null)
+            {
+                stockInfo.MarginSellBalance = node.InnerText.Trim();
+            }
 
-                // 決算発表
-                var node = document.DocumentNode.SelectSingleNode("//*[@id=\"summary\"]/div/section[1]/p");
-                if (node != null)
+            // 信用残更新日付
+            node = document.DocumentNode.SelectSingleNode("//*[@id=\"margin\"]/div/ul/li[1]/dl/dd/span[2]/text()[2]");
+            if (node != null)
+            {
+                stockInfo.MarginBalanceDate = node.InnerText.Trim();
+            }
+
+            // ** ETFは追加情報取得
+            if (stockInfo.Classification == CommonUtils.Instance.Classification.JapaneseETFs)
+            {
+                // 決算月
+                var dividendNode = document.DocumentNode.SelectSingleNode("//*[@id=\"referenc\"]/div/ul/li[11]/dl/dd/span/span/span");
+                if (dividendNode != null)
                 {
-                    stockInfo.PressReleaseDate = node.InnerText.Trim();
+                    stockInfo.EarningsPeriod = dividendNode.InnerText.Trim();
                 }
-
-                // 出来高
-                node = document.DocumentNode.SelectSingleNode("//dt/span[text()='出来高']/ancestor::dt/following-sibling::dd//span[@class='StyledNumber__value__3rXW DataListItem__value__11kV']");
-                if (node != null)
+                // 運用会社
+                var companyNode = document.DocumentNode.SelectSingleNode("//*[@id=\"referenc\"]/div/ul/li[6]/dl/dd/span/span/span");
+                if (companyNode != null)
                 {
-                    stockInfo.LatestTradingVolume = node.InnerText.Trim();
+                    stockInfo.FundManagementCompany = companyNode.InnerText.Trim();
                 }
-
-                // 信用買残
-                // <section id="margin" class="MarginTransactionInformation__1kka">
-//                node = document.DocumentNode.SelectSingleNode("//dt[text()='信用買残']/following-sibling::dd/span[@class='StyledNumber__value__3rXW']");
-                node = document.DocumentNode.SelectSingleNode("//*[@id=\"margin\"]/div/ul/li[1]/dl/dd/span[1]/span/span[1]");
-                if (node != null)
+                // 信託報酬率
+                var trustFeeRateNode = document.DocumentNode.SelectSingleNode("//*[@id=\"referenc\"]/div/ul/li[13]/dl/dd/span/span/span");
+                if (trustFeeRateNode != null)
                 {
-                    stockInfo.MarginBuyBalance = node.InnerText.Trim();
-                }
-
-                // 信用売残
-                node = document.DocumentNode.SelectSingleNode("//*[@id=\"margin\"]/div/ul/li[4]/dl/dd/span[1]/span/span[1]");
-                if (node != null)
-                {
-                    stockInfo.MarginSellBalance = node.InnerText.Trim();
-                }
-
-                // 信用残更新日付
-                node = document.DocumentNode.SelectSingleNode("//*[@id=\"margin\"]/div/ul/li[1]/dl/dd/span[2]/text()[2]");
-                if (node != null)
-                {
-                    stockInfo.MarginBalanceDate = node.InnerText.Trim();
-                }
-
-                // ** ETFは追加情報取得
-                if (stockInfo.Classification == CommonUtils.Instance.Classification.JapaneseETFs)
-                {
-                    // 決算月
-                    var dividendNode = document.DocumentNode.SelectSingleNode("//*[@id=\"referenc\"]/div/ul/li[11]/dl/dd/span/span/span");
-                    if (dividendNode != null)
-                    {
-                        stockInfo.EarningsPeriod = dividendNode.InnerText.Trim();
-                    }
-                    // 運用会社
-                    var companyNode = document.DocumentNode.SelectSingleNode("//*[@id=\"referenc\"]/div/ul/li[6]/dl/dd/span/span/span");
-                    if (companyNode != null)
-                    {
-                        stockInfo.FundManagementCompany = companyNode.InnerText.Trim();
-                    }
-                    // 信託報酬率
-                    var trustFeeRateNode = document.DocumentNode.SelectSingleNode("//*[@id=\"referenc\"]/div/ul/li[13]/dl/dd/span/span/span");
-                    if (trustFeeRateNode != null)
-                    {
-                        stockInfo.TrustFeeRate = ConvertToDouble(trustFeeRateNode.InnerText.Trim());
-                    }
+                    stockInfo.TrustFeeRate = ConvertToDouble(trustFeeRateNode.InnerText.Trim());
                 }
             }
-            catch (Exception e)
-            {
-                Console.WriteLine("ScrapeTop: " + e.Message);
-            }
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine("ScrapeTop: " + e.Message);
         }
     }
     private DateTime GetDate(string v)

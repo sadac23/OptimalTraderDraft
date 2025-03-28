@@ -36,13 +36,12 @@ internal class KabutanScraper
         {
             var url = $"https://us.kabutan.jp/stocks/{stockInfo.Code}/finance";
 
-            var httpClient = new HttpClient();
             var htmlDocument = new HtmlDocument();
 
             var html = string.Empty;
 
             /** 株探（かぶたん） */
-            html = await httpClient.GetStringAsync(url);
+            html = await CommonUtils.Instance.HttpClient.GetStringAsync(url);
             htmlDocument.LoadHtml(html);
 
             CommonUtils.Instance.Logger.LogInformation(url);
@@ -320,7 +319,6 @@ internal class KabutanScraper
         {
             var urlBaseKabutanFinance = $"https://kabutan.jp/stock/finance?code={stockInfo.Code}";
 
-            var httpClient = new HttpClient();
             var htmlDocument = new HtmlDocument();
 
             var url = string.Empty;
@@ -329,7 +327,7 @@ internal class KabutanScraper
 
             /** 株探（かぶたん） */
             url = urlBaseKabutanFinance;
-            html = await httpClient.GetStringAsync(url);
+            html = await CommonUtils.Instance.HttpClient.GetStringAsync(url);
             htmlDocument.LoadHtml(html);
 
             CommonUtils.Instance.Logger.LogInformation(url);
