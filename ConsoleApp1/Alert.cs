@@ -141,7 +141,11 @@ internal class Alert
                         writer.WriteLine($"信託報酬：{CommonUtils.Instance.ConvertToPercentage(r.StockInfo.TrustFeeRate, false, "F3")}");
                     }
                     writer.WriteLine($"市場/業種：{r.StockInfo.Section}{(!string.IsNullOrEmpty(r.StockInfo.Industry) ? $"/{r.StockInfo.Industry}" : string.Empty)}");
-                    writer.WriteLine($"配当利回り：{CommonUtils.Instance.ConvertToPercentage(r.StockInfo.DividendYield)}（{CommonUtils.Instance.ConvertToPercentage(r.StockInfo.DividendPayoutRatio)},{r.StockInfo.DividendRecordDateMonth}）{(r.StockInfo.IsCloseToDividendRecordDate() ? mark : string.Empty)}");
+                    writer.WriteLine($"配当利回り：{CommonUtils.Instance.ConvertToPercentage(r.StockInfo.DividendYield)}" +
+                        $"（{CommonUtils.Instance.ConvertToPercentage(r.StockInfo.DividendPayoutRatio)}" +
+                        $",{CommonUtils.Instance.ConvertToPercentage(r.StockInfo.Doe)}" +
+                        $",{r.StockInfo.DividendRecordDateMonth}" +
+                        $"）{(r.StockInfo.IsCloseToDividendRecordDate() ? mark : string.Empty)}");
                     if (!string.IsNullOrEmpty(r.StockInfo.ShareholderBenefitsDetails))
                         writer.WriteLine($"優待利回り：{CommonUtils.Instance.ConvertToPercentage(r.StockInfo.ShareholderBenefitYield)}（{r.StockInfo.ShareholderBenefitsDetails},{r.StockInfo.NumberOfSharesRequiredForBenefits},{r.StockInfo.ShareholderBenefitRecordMonth},{r.StockInfo.ShareholderBenefitRecordDay}）{(r.StockInfo.IsCloseToShareholderBenefitRecordDate() ? mark : string.Empty)}");
 

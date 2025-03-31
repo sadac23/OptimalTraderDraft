@@ -241,6 +241,11 @@ internal class StockInfo
     /// 投資信託の運用会社
     /// </summary>
     public string FundManagementCompany { get; internal set; }
+    /// <summary>
+    /// 株主資本配当率
+    /// </summary>
+    /// <remarks>年間配当総額÷株主資本×100 or 配当性向×自己資本利益率(ROE)×100</remarks>
+    public double Doe { get; internal set; }
 
     /// <summary>
     /// 現在、所有しているか？
@@ -252,16 +257,6 @@ internal class StockInfo
     internal bool IsOwnedNow()
     {
         var result = false;
-
-        //double buy = 0;
-        //double sell = 0;
-
-        //foreach (var execution in Executions)
-        //{
-        //    if (execution.BuyOrSell == CommonUtils.Instance.BuyOrSellString.Buy) buy += execution.Quantity;
-        //    if (execution.BuyOrSell == CommonUtils.Instance.BuyOrSellString.Sell) sell += execution.Quantity;
-        //}
-        //if (buy > sell) result = true;
 
         foreach (var e in this.Executions)
         {
@@ -498,7 +493,17 @@ internal class StockInfo
 
             //  今期レコードより配当性向を算出
             this.DividendPayoutRatio = GetDividendPayoutRatio(lastValue.AdjustedDividendPerShare, lastValue.AdjustedEarningsPerShare);
+
+            //  今期レコードより株主資本配当率（DOE）を算出
+            this.Doe = GetDOE(this.DividendPayoutRatio, this.FullYearProfits.Last().Roe);
         }
+    }
+
+    private double GetDOE(double dividendPayoutRatio, double roe)
+    {
+        double result = 0;
+        result = dividendPayoutRatio * (roe / 100);
+        return result;
     }
 
     internal void UpdateExecutions(List<ExecutionList.ListDetail> executionList)
