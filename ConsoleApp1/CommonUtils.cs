@@ -158,7 +158,7 @@ internal class CommonUtils : IDisposable
         var serviceProvider = serviceCollection.BuildServiceProvider();
 
         // ロガーを取得
-        this.Logger = serviceProvider.GetService<ILogger<Program>>();
+        this.Logger = serviceProvider.GetService<ILogger<ConsoleApp1.Program>>();
     }
 
     private void ConfigureServices(ServiceCollection services)
@@ -302,7 +302,7 @@ internal class CommonUtils : IDisposable
     /// <summary>
     /// ロガー
     /// </summary>
-    public ILogger<Program> Logger { get; private set; }
+    public ILogger<ConsoleApp1.Program> Logger { get; private set; }
     /// <summary>
     /// Yahooの履歴ページをスクレイピングするための最大ページ数
     /// </summary>
@@ -393,7 +393,10 @@ internal class CommonUtils : IDisposable
 
         return result;
     }
-
+    /// <summary>
+    /// 直近の東証営業日を取得する
+    /// </summary>
+    /// <returns></returns>
     internal DateTime GetLastTradingDay()
     {
         DateTime date = CommonUtils.Instance.ExecusionDate.Date;
@@ -406,7 +409,9 @@ internal class CommonUtils : IDisposable
 
         return date;
     }
-
+    /// <summary>
+    /// OneDriveのローカルファイルの最新化
+    /// </summary>
     internal void OneDriveRefresh()
     {
         string oneDrivePath = @"C:\Program Files\Microsoft OneDrive\OneDrive.exe"; // OneDriveの実行ファイルのパス

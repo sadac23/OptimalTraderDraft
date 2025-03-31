@@ -12,6 +12,7 @@ using System.Data.Entity;
 using System.Data.Entity.Core.Metadata.Edm;
 using System.Data.SQLite;
 using System.Globalization;
+using System.Reflection;
 using System.Runtime.ConstrainedExecution;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
@@ -500,13 +501,13 @@ internal class StockInfo
         }
     }
 
-    internal void SetExecutions(List<ExecutionList.ListDetail> executionList)
+    internal void UpdateExecutions(List<ExecutionList.ListDetail> executionList)
     {
         // 日付でソートして約定履歴を格納
         this.Executions = ExecutionList.GetExecutions(executionList, this.Code).OrderBy(e => e.Date).ToList();
     }
 
-    internal void SetAveragePerPbr(List<MasterList.AveragePerPbrDetails> masterList)
+    internal void UpdateAveragePerPbr(List<MasterList.AveragePerPbrDetails> masterList)
     {
         try
         {
@@ -697,6 +698,7 @@ internal class StockInfo
     /// <summary>
     /// PERが割安か？
     /// </summary>
+    /// <param name="isLenient">緩めに判定するか？</param>
     internal bool IsPERUndervalued(bool isLenient = false)
     {
         bool result = false;
@@ -1641,6 +1643,73 @@ internal class StockInfo
         }
 
         return result;
+    }
+
+    /// <summary>
+    /// 外部サイトからの取得情報を埋める
+    /// </summary>
+    /// <remarks>各サイトの情報を非同期で取得してインスタンスに設定する。</remarks>
+    internal async Task UpdateFromExternalSource()
+    {
+        List<Task> tasks = new List<Task>();
+
+        var yahooScraper = new YahooScraper();
+        var kabutanScraper = new KabutanScraper();
+        var minkabuScraper = new MinkabuScraper();
+
+        Task kabutanFinance = Task.Run(async () =>
+        {
+            await kabutanScraper.ScrapeFinance(this);
+        });
+        tasks.Add(kabutanFinance);
+
+        Task minkabuDividend = Task.Run(async () =>
+        {
+            await minkabuScraper.ScrapeDividend(this);
+        });
+        tasks.Add(minkabuDividend);
+
+        Task minkabuYutai = Task.Run(async () =>
+        {
+            await minkabuScraper.ScrapeYutai(this);
+        });
+        tasks.Add(minkabuYutai);
+
+        Task yahooTop = Task.Run(async () =>
+        {
+            await yahooScraper.ScrapeTop(this);
+        });
+        tasks.Add(yahooTop);
+
+        Task yahooProfile = Task.Run(async () =>
+        {
+            await yahooScraper.ScrapeProfile(this);
+        });
+        tasks.Add(yahooProfile);
+
+        Task yahooHistory = Task.Run(async () =>
+        {
+            // 履歴更新の最終日を取得（なければ基準開始日を取得）
+            var lastUpdateDay = this.GetLastHistoryUpdateDay();
+
+            // 最終更新後に直近営業日がある場合は履歴取得
+            if (CommonUtils.Instance.GetLastTradingDay() > lastUpdateDay)
+            {
+                await yahooScraper.ScrapeHistory(this, lastUpdateDay, CommonUtils.Instance.ExecusionDate);
+
+                // 株式分割がある場合は履歴をクリアして再取得
+                if (this.HasRecentStockSplitOccurred() && lastUpdateDay != CommonUtils.Instance.MasterStartDate)
+                {
+                    this.DeleteHistory(CommonUtils.Instance.ExecusionDate);
+                    this.ScrapedPrices.Clear();
+                    await yahooScraper.ScrapeHistory(this, CommonUtils.Instance.MasterStartDate, CommonUtils.Instance.ExecusionDate);
+                }
+            }
+        });
+        tasks.Add(yahooHistory);
+
+        // タスクの実行待ち
+        await Task.WhenAll(tasks);
     }
 
     /// <summary>

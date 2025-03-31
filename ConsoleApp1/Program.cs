@@ -39,6 +39,7 @@ using Google.Apis.Gmail.v1;
 using Google.Apis.Gmail.v1.Data;
 using Google.Apis.Services;
 using Google.Apis.Util.Store;
+using NLog;
 
 /* DONE
  * ・済：ETFの処理
@@ -165,6 +166,7 @@ using Google.Apis.Util.Store;
  * ・済：StockInfo.GetPreviousForcasts()のバグ対応。（GetDoubleで例外）
  * ・済：PER/PBRは平均値+10%の幅を持たせる。
  * ・済：株式分割が発生したら株価履歴をリフレッシュする。（終値と調整後終値の不一致で判断。）
+ * ・済：性能改善。（主にスクレイピングが遅い。）
  */
 
 /* TODO
@@ -184,7 +186,6 @@ using Google.Apis.Util.Store;
  * ・バッジ種類でまとめて出力する。
  * ・約定リストの自動更新。
  * ・海外投信、ETFの対応。
- * ・性能改善。（主にスクレイピングが遅い。）
  * ・アナリスト予想の取得。（楽天証券から取得？）
  * ・4Q進捗率は修正前予想との比較で算出する。（修正予想との比較はKPIにならない。）
  * ・GmailAPIをテストユーザから本番ユーザに切り替え。（アプリ審査に動画が必要）
@@ -200,135 +201,204 @@ using Google.Apis.Util.Store;
  * ・マスタファイルをリポジトリから入れ替える仕組み。
  */
 
-var logger = CommonUtils.Instance.Logger;
-
-try
+namespace ConsoleApp1
 {
-    // 分析結果
-    var results = new List<Analyzer.AnalysisResult>();
-
-    // インスタンス生成
-    var analyzer = new Analyzer();
-    var yahooScraper = new YahooScraper();
-    var kabutanScraper = new KabutanScraper();
-    var minkabuScraper = new MinkabuScraper();
-
-    logger.LogInformation(CommonUtils.Instance.MessageAtApplicationStartup);
-
-    // OneDriveリフレッシュ
-    if (CommonUtils.Instance.ShouldRefreshOneDrive) CommonUtils.Instance.OneDriveRefresh();
-
-    // 約定履歴リストを更新
-    if (CommonUtils.Instance.ShouldUpdateExecutionList) ExecutionList.UpdateFromGmail();
-
-    // 約定履歴取得
-    var executionList = ExecutionList.LoadXlsx();
-
-    // ウォッチリスト取得
-    var watchList = WatchList.LoadXlsx();
-
-    // マスタ取得
-    var masterList = MasterList.LoadXlsx();
-
-    // 直近の営業日を取得
-    var lastTradingDay = CommonUtils.Instance.GetLastTradingDay();
-
-    // ウォッチ銘柄毎に処理
-    foreach (var watchStock in watchList)
+    class Program
     {
-        // 削除日が入っていたらスキップ
-        if (!string.IsNullOrEmpty(watchStock.DeleteDate)) continue;
-
-        // インスタンスの初期化
-        var stockInfo = new StockInfo(watchStock);
-
-        try
+        static async Task Main(string[] args)
         {
-            // 履歴更新の最終日を取得（なければ基準開始日を取得）
-            var lastUpdateDay = stockInfo.GetLastHistoryUpdateDay();
+            var logger = CommonUtils.Instance.Logger;
 
-            //// 外部サイト情報を一括取得
-            //var results1 = await FetchMultipleDataAsync(stockInfo);
+            // 分析結果
+            var results = new List<Analyzer.AnalysisResult>();
 
-            // 外部サイトの情報取得
-            await kabutanScraper.ScrapeFinance(stockInfo);
-            await minkabuScraper.ScrapeDividend(stockInfo);
-            await minkabuScraper.ScrapeYutai(stockInfo);
-            await yahooScraper.ScrapeTop(stockInfo);
-            await yahooScraper.ScrapeProfile(stockInfo);
+            // インスタンス生成
+            var analyzer = new Analyzer();
 
-            // 最終更新後に直近営業日がある場合は履歴取得
-            if (lastTradingDay > lastUpdateDay)
+            try
             {
-                await yahooScraper.ScrapeHistory(stockInfo, lastUpdateDay, CommonUtils.Instance.ExecusionDate);
+                // 開始
+                logger.LogInformation(CommonUtils.Instance.MessageAtApplicationStartup);
 
-                // 株式分割がある場合は履歴をクリアして再取得
-                if (stockInfo.HasRecentStockSplitOccurred() && lastUpdateDay != CommonUtils.Instance.MasterStartDate)
+                // OneDriveリフレッシュ
+                if (CommonUtils.Instance.ShouldRefreshOneDrive) CommonUtils.Instance.OneDriveRefresh();
+
+                // 約定履歴リストを更新
+                if (CommonUtils.Instance.ShouldUpdateExecutionList) ExecutionList.UpdateFromGmail();
+
+                // 約定履歴取得
+                var executionList = ExecutionList.LoadXlsx();
+
+                // ウォッチリスト取得
+                var watchList = WatchList.LoadXlsx();
+
+                // マスタ取得
+                var masterList = MasterList.LoadXlsx();
+
+                // ウォッチ銘柄毎に処理
+                foreach (var watchStock in watchList)
                 {
-                    stockInfo.DeleteHistory(CommonUtils.Instance.ExecusionDate);
-                    stockInfo.ScrapedPrices.Clear();
-                    await yahooScraper.ScrapeHistory(stockInfo, CommonUtils.Instance.MasterStartDate, CommonUtils.Instance.ExecusionDate);
+                    // 削除日が入っていたらスキップ
+                    if (!string.IsNullOrEmpty(watchStock.DeleteDate)) continue;
+
+                    // インスタンスの初期化
+                    var stockInfo = new StockInfo(watchStock);
+
+                    try
+                    {
+                        // 外部サイトの情報を反映する
+                        await stockInfo.UpdateFromExternalSource();
+
+                        // 約定履歴を設定
+                        stockInfo.UpdateExecutions(executionList);
+
+                        // マスタを設定
+                        stockInfo.UpdateAveragePerPbr(masterList);
+
+                        // 情報更新
+                        stockInfo.Setup();
+
+                        // 分析
+                        var result = analyzer.Analize(stockInfo);
+
+                        // 結果登録
+                        results.Add(result);
+                    }
+                    catch (Exception ex)
+                    {
+                        // ログ出力
+                        logger.LogError($"Code:{stockInfo.Code}, Message:{ex.Message}, StackTrace:{ex.StackTrace}", ex);
+                    }
                 }
+
+                // ファイル保存
+                Alert.SaveFile(results);
+
+                // メール送信
+                if (CommonUtils.Instance.ShouldSendMail) Alert.SendMail();
+
+                // 終了
+                logger.LogInformation(CommonUtils.Instance.MessageAtApplicationEnd);
+            }
+            catch (Exception ex)
+            {
+                // ログ出力
+                logger.LogError($"Message:{ex.Message}, StackTrace:{ex.StackTrace}", ex);
+            }
+        }
+        [Obsolete("リファクタリングにより削除予定。")]
+        static async Task Main_(string[] args)
+        {
+            var logger = CommonUtils.Instance.Logger;
+
+            try
+            {
+                // 分析結果
+                var results = new List<Analyzer.AnalysisResult>();
+
+                // インスタンス生成
+                var analyzer = new Analyzer();
+                var yahooScraper = new YahooScraper();
+                var kabutanScraper = new KabutanScraper();
+                var minkabuScraper = new MinkabuScraper();
+
+                logger.LogInformation(CommonUtils.Instance.MessageAtApplicationStartup);
+
+                // OneDriveリフレッシュ
+                if (CommonUtils.Instance.ShouldRefreshOneDrive) CommonUtils.Instance.OneDriveRefresh();
+
+                // 約定履歴リストを更新
+                if (CommonUtils.Instance.ShouldUpdateExecutionList) ExecutionList.UpdateFromGmail();
+
+                // 約定履歴取得
+                var executionList = ExecutionList.LoadXlsx();
+
+                // ウォッチリスト取得
+                var watchList = WatchList.LoadXlsx();
+
+                // マスタ取得
+                var masterList = MasterList.LoadXlsx();
+
+                // 直近の営業日を取得
+                var lastTradingDay = CommonUtils.Instance.GetLastTradingDay();
+
+                // ウォッチ銘柄毎に処理
+                foreach (var watchStock in watchList)
+                {
+                    // 削除日が入っていたらスキップ
+                    if (!string.IsNullOrEmpty(watchStock.DeleteDate)) continue;
+
+                    // インスタンスの初期化
+                    var stockInfo = new StockInfo(watchStock);
+
+                    try
+                    {
+                        // 履歴更新の最終日を取得（なければ基準開始日を取得）
+                        var lastUpdateDay = stockInfo.GetLastHistoryUpdateDay();
+
+                        //// 外部サイト情報を一括取得
+                        //var results1 = await FetchMultipleDataAsync(stockInfo);
+
+                        // 外部サイトの情報取得
+                        await kabutanScraper.ScrapeFinance(stockInfo);
+                        await minkabuScraper.ScrapeDividend(stockInfo);
+                        await minkabuScraper.ScrapeYutai(stockInfo);
+                        await yahooScraper.ScrapeTop(stockInfo);
+                        await yahooScraper.ScrapeProfile(stockInfo);
+
+                        // 最終更新後に直近営業日がある場合は履歴取得
+                        if (lastTradingDay > lastUpdateDay)
+                        {
+                            await yahooScraper.ScrapeHistory(stockInfo, lastUpdateDay, CommonUtils.Instance.ExecusionDate);
+
+                            // 株式分割がある場合は履歴をクリアして再取得
+                            if (stockInfo.HasRecentStockSplitOccurred() && lastUpdateDay != CommonUtils.Instance.MasterStartDate)
+                            {
+                                stockInfo.DeleteHistory(CommonUtils.Instance.ExecusionDate);
+                                stockInfo.ScrapedPrices.Clear();
+                                await yahooScraper.ScrapeHistory(stockInfo, CommonUtils.Instance.MasterStartDate, CommonUtils.Instance.ExecusionDate);
+                            }
+                        }
+
+                        // 約定履歴を設定
+                        stockInfo.UpdateExecutions(executionList);
+
+                        // マスタを設定
+                        stockInfo.UpdateAveragePerPbr(masterList);
+
+                        // 情報更新
+                        stockInfo.Setup();
+
+                        // 分析
+                        var result = analyzer.Analize(stockInfo);
+
+                        // 結果登録
+                        results.Add(result);
+
+                    }
+                    catch (Exception ex)
+                    {
+
+                        // ログ出力
+                        logger.LogError($"Code:{stockInfo.Code}, Message:{ex.Message}, StackTrace:{ex.StackTrace}", ex);
+                    }
+                }
+
+                // ファイル保存
+                Alert.SaveFile(results);
+
+                // メール送信
+                if (CommonUtils.Instance.ShouldSendMail) Alert.SendMail();
+
+                logger.LogInformation(CommonUtils.Instance.MessageAtApplicationEnd);
+            }
+            catch (Exception ex)
+            {
+                // ログ出力
+                logger.LogError($"Message:{ex.Message}, StackTrace:{ex.StackTrace}", ex);
             }
 
-            // 約定履歴を設定
-            stockInfo.SetExecutions(executionList);
-
-            // マスタを設定
-            stockInfo.SetAveragePerPbr(masterList);
-
-            // 情報更新
-            stockInfo.Setup();
-
-            // 分析
-            var result = analyzer.Analize(stockInfo);
-
-            // 結果登録
-            results.Add(result);
-
         }
-        catch (Exception ex) {
 
-            // ログ出力
-            logger.LogError($"Code:{stockInfo.Code}, Message:{ex.Message}, StackTrace:{ex.StackTrace}", ex);
-        }
     }
-
-    // ファイル保存
-    Alert.SaveFile(results);
-
-    // メール送信
-    if (CommonUtils.Instance.ShouldSendMail) Alert.SendMail();
-
-    logger.LogInformation(CommonUtils.Instance.MessageAtApplicationEnd);
-}
-catch(Exception ex)
-{
-    // ログ出力
-    logger.LogError($"Message:{ex.Message}, StackTrace:{ex.StackTrace}", ex);
-}
-
-async Task<List<string>> FetchMultipleDataAsync(StockInfo stockInfo)
-{
-    var urls = new List<string>
-            {
-                $"https://kabutan.jp/stock/finance?code={stockInfo.Code}",
-                $"https://minkabu.jp/stock/{stockInfo.Code}/dividend",
-                $"https://minkabu.jp/stock/{stockInfo.Code}/yutai"
-            };
-
-    // 複数の非同期タスクを作成
-    var tasks = urls.Select(url => FetchDataAsync(url)).ToList();
-
-    // すべてのタスクが完了するのを待つ
-    var results = await Task.WhenAll(tasks);
-
-    return results.ToList();
-}
-
-async Task<string> FetchDataAsync(string url)
-{
-    HttpResponseMessage response = await CommonUtils.Instance.HttpClient.GetAsync(url);
-    response.EnsureSuccessStatusCode();
-    return await response.Content.ReadAsStringAsync();
 }
