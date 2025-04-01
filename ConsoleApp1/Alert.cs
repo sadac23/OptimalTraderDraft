@@ -77,6 +77,7 @@ internal class Alert
         //ROE：9.99→9.99→10.71★
         //PER：11.0倍（14.2）★
         //PBR：1.18倍（1.1）★
+        //営業利益率：99.9%
         //信用倍率：8.58倍
         //信用残：2,020,600/2,020,600（12/13）
         //出来高：2,020,600
@@ -181,6 +182,7 @@ internal class Alert
 
                     writer.WriteLine($"PER：{CommonUtils.Instance.ConvertToMultiplierString(r.StockInfo.Per)}（{r.StockInfo.AveragePer.ToString("N1")}）{(r.StockInfo.IsPERUndervalued() ? mark : string.Empty)}");
                     writer.WriteLine($"PBR：{CommonUtils.Instance.ConvertToMultiplierString(r.StockInfo.Pbr)}（{r.StockInfo.AveragePbr.ToString("N1")}）{(r.StockInfo.IsPBRUndervalued() ? mark : string.Empty)}");
+                    writer.WriteLine($"営業利益率：{CommonUtils.Instance.ConvertToPercentage(r.StockInfo.OperatingProfitMargin)}");
                     writer.WriteLine($"信用倍率：{r.StockInfo.MarginBalanceRatio}");
                     writer.WriteLine($"信用残：{r.StockInfo.MarginBuyBalance}/{r.StockInfo.MarginSellBalance}（{r.StockInfo.MarginBalanceDate}）");
                     writer.WriteLine($"出来高：{r.StockInfo.LatestTradingVolume}");

@@ -246,6 +246,11 @@ internal class StockInfo
     /// </summary>
     /// <remarks>年間配当総額÷株主資本×100 or 配当性向×自己資本利益率(ROE)×100</remarks>
     public double Doe { get; internal set; }
+    /// <summary>
+    /// 営業利益率
+    /// </summary>
+    /// <remarks>営業利益 ÷ 売上高 × 100</remarks>
+    public double OperatingProfitMargin { get; internal set; }
 
     /// <summary>
     /// 現在、所有しているか？
@@ -271,25 +276,26 @@ internal class StockInfo
     /// </summary>
     internal void UpdateFullYearPerformanceForcastSummary()
     {
-        this.FullYearPerformanceForcastSummary = string.Empty;
 
-        // リストの件数が3件以上あるか確認
-        if (this.FullYearPerformances.Count >= 3)
-        {
-            // 最後から3件前の値（前期）
-            var secondLastValue = this.FullYearPerformances[this.FullYearPerformances.Count - 3];
-            // 最後から2件前の値（今期）
-            var lastValue = this.FullYearPerformances[this.FullYearPerformances.Count - 2];
+        //使っていないので削除予定
+        //this.FullYearPerformanceForcastSummary = string.Empty;
 
-            // "増収増益増配（+50%,+50%,+50）"
-            this.FullYearPerformanceForcastSummary += GetRevenueIncreasedSummary(lastValue.Revenue, secondLastValue.Revenue);
-            this.FullYearPerformanceForcastSummary += GetOrdinaryIncomeIncreasedSummary(lastValue.OrdinaryProfit, secondLastValue.OrdinaryProfit);
-            this.FullYearPerformanceForcastSummary += GetDividendPerShareIncreasedSummary(lastValue.AdjustedDividendPerShare, secondLastValue.AdjustedDividendPerShare);
-            this.FullYearPerformanceForcastSummary += $"（{GetIncreasedRate(lastValue.Revenue, secondLastValue.Revenue)}";
-            this.FullYearPerformanceForcastSummary += $",{GetIncreasedRate(lastValue.OrdinaryProfit, secondLastValue.OrdinaryProfit)}";
-            this.FullYearPerformanceForcastSummary += $",{GetDividendPerShareIncreased(lastValue.AdjustedDividendPerShare, secondLastValue.AdjustedDividendPerShare)}）";
-        }
+        //// リストの件数が3件以上あるか確認
+        //if (this.FullYearPerformances.Count >= 3)
+        //{
+        //    // 最後から3件前の値（前期）
+        //    var secondLastValue = this.FullYearPerformances[this.FullYearPerformances.Count - 3];
+        //    // 最後から2件前の値（今期）
+        //    var lastValue = this.FullYearPerformances[this.FullYearPerformances.Count - 2];
 
+        //    // "増収増益増配（+50%,+50%,+50）"
+        //    this.FullYearPerformanceForcastSummary += GetRevenueIncreasedSummary(lastValue.Revenue, secondLastValue.Revenue);
+        //    this.FullYearPerformanceForcastSummary += GetOrdinaryIncomeIncreasedSummary(lastValue.OrdinaryProfit, secondLastValue.OrdinaryProfit);
+        //    this.FullYearPerformanceForcastSummary += GetDividendPerShareIncreasedSummary(lastValue.AdjustedDividendPerShare, secondLastValue.AdjustedDividendPerShare);
+        //    this.FullYearPerformanceForcastSummary += $"（{GetIncreasedRate(lastValue.Revenue, secondLastValue.Revenue)}";
+        //    this.FullYearPerformanceForcastSummary += $",{GetIncreasedRate(lastValue.OrdinaryProfit, secondLastValue.OrdinaryProfit)}";
+        //    this.FullYearPerformanceForcastSummary += $",{GetDividendPerShareIncreased(lastValue.AdjustedDividendPerShare, secondLastValue.AdjustedDividendPerShare)}）";
+        //}
 
         foreach (var p in this.FullYearPerformancesForcasts)
         {
@@ -753,6 +759,13 @@ internal class StockInfo
         {
             this.QuarterlyFullyearProgressRate = latestOrdinaryIncome / fullYearOrdinaryIncome;
         }
+
+        // 営業利益率の算出
+        var revenue = CommonUtils.Instance.GetDouble(quarterlyPerformance.Revenue);
+        var operatingProfit = CommonUtils.Instance.GetDouble(quarterlyPerformance.OperatingProfit);
+        this.OperatingProfitMargin = operatingProfit / revenue;
+
+        // ** 前期進捗率
 
         // 四半期実績の取得
         var previousQuarterlyPerformance = GetQuarterlyPerformance(CommonUtils.Instance.PeriodString.Previous);
