@@ -804,19 +804,61 @@ internal class StockInfo
         return result;
     }
 
-    private FullYearPerformance GetFullYearForecast(string period)
+    //private FullYearPerformance GetFullYearForecast(string period)
+    //{
+    //    FullYearPerformance result = new FullYearPerformance();
+
+    //    // 今期は2、前期は3
+    //    var refIndex = period == CommonUtils.Instance.PeriodString.Current ? 2 : 3;
+
+    //    // 通期進捗率の算出
+    //    if (this.FullYearPerformances.Count >= refIndex)
+    //    {
+    //        // TODO: Q4の時は既に来期の予想しか取得できないため、キャッシュから取得する必要がある。（現状は2件前の通期実績を格納している。よって常に100%になる。）
+    //        refIndex = this.LastQuarterPeriod == CommonUtils.Instance.QuarterString.Quarter4 ? refIndex + 1 : refIndex;
+    //        result = this.FullYearPerformances[this.FullYearPerformances.Count - refIndex];
+    //    }
+
+    //    return result;
+    //}
+
+    /// <summary>
+    /// 通期予想の取得
+    /// </summary>
+    private FullYearPerformance GetFullYearForecast(string periodString)
     {
         FullYearPerformance result = new FullYearPerformance();
 
         // 今期は2、前期は3
-        var refIndex = period == CommonUtils.Instance.PeriodString.Current ? 2 : 3;
+        var refIndex = periodString == CommonUtils.Instance.PeriodString.Current ? 2 : 3;
 
         // 通期進捗率の算出
         if (this.FullYearPerformances.Count >= refIndex)
         {
             // TODO: Q4の時は既に来期の予想しか取得できないため、キャッシュから取得する必要がある。（現状は2件前の通期実績を格納している。よって常に100%になる。）
-            refIndex = this.LastQuarterPeriod == CommonUtils.Instance.QuarterString.Quarter4 ? refIndex + 1 : refIndex;
-            result = this.FullYearPerformances[this.FullYearPerformances.Count - refIndex];
+            //refIndex = this.LastQuarterPeriod == CommonUtils.Instance.QuarterString.Quarter4 ? refIndex + 1 : refIndex;
+            //result = this.FullYearPerformances[this.FullYearPerformances.Count - refIndex];
+
+            // TODO: Q4の時は既に来期の予想しか取得できないため、キャッシュから取得する必要がある。（現状は2件前の通期実績を格納している。よって常に100%になる。）
+            if (this.LastQuarterPeriod == CommonUtils.Instance.QuarterString.Quarter4)
+            {
+                var previousFinalForcast = this.FullYearPerformancesForcasts.Where(forcast =>
+                forcast.FiscalPeriod == this.CurrentFiscalMonth.AddYears(-1).ToString("yyyy.MM")
+                && forcast.Category == CommonUtils.Instance.ForecastCategoryString.Revised).LastOrDefault();
+
+                if (previousFinalForcast != null)
+                {
+                    result.FiscalPeriod = previousFinalForcast.FiscalPeriod;
+                }
+                else
+                {
+                    result = this.FullYearPerformances[this.FullYearPerformances.Count - (refIndex + 1)];
+                }
+            }
+            else
+            {
+                result = this.FullYearPerformances[this.FullYearPerformances.Count - refIndex];
+            }
         }
 
         return result;
