@@ -172,7 +172,6 @@ using NLog;
  */
 
 /* TODO
- * ・前年マイナスでプラ転した場合の通期業績率がうまく算出できていない。（5214など）
  * ・ユニットテスト実装
  * ・前年よりも極端に利益減予想の場合はマーク
  * ・買残が出来高の何倍残っているか？
@@ -197,18 +196,13 @@ namespace ConsoleApp1
     {
         static async Task Main(string[] args)
         {
-            var logger = CommonUtils.Instance.Logger;
-
             // 分析結果
-            var results = new List<Analyzer.AnalysisResult>();
-
-            // インスタンス生成
-            var analyzer = new Analyzer();
+            var results = new List<StockInfo>();
 
             try
             {
                 // 開始
-                logger.LogInformation(CommonUtils.Instance.MessageAtApplicationStartup);
+                CommonUtils.Instance.Logger.LogInformation(CommonUtils.Instance.MessageAtApplicationStartup);
 
                 // OneDriveリフレッシュ
                 if (CommonUtils.Instance.ShouldRefreshOneDrive) CommonUtils.Instance.OneDriveRefresh();
@@ -248,16 +242,13 @@ namespace ConsoleApp1
                         // 情報更新
                         stockInfo.Setup();
 
-                        // 分析
-                        var result = analyzer.Analize(stockInfo);
-
                         // 結果登録
-                        results.Add(result);
+                        results.Add(stockInfo);
                     }
                     catch (Exception ex)
                     {
                         // ログ出力
-                        logger.LogError($"Code:{stockInfo.Code}, Message:{ex.Message}, StackTrace:{ex.StackTrace}", ex);
+                        CommonUtils.Instance.Logger.LogError($"Code:{stockInfo.Code}, Message:{ex.Message}, StackTrace:{ex.StackTrace}", ex);
                     }
                 }
 
@@ -268,12 +259,12 @@ namespace ConsoleApp1
                 if (CommonUtils.Instance.ShouldSendMail) Alert.SendMail();
 
                 // 終了
-                logger.LogInformation(CommonUtils.Instance.MessageAtApplicationEnd);
+                CommonUtils.Instance.Logger.LogInformation(CommonUtils.Instance.MessageAtApplicationEnd);
             }
             catch (Exception ex)
             {
                 // ログ出力
-                logger.LogError($"Message:{ex.Message}, StackTrace:{ex.StackTrace}", ex);
+                CommonUtils.Instance.Logger.LogError($"Message:{ex.Message}, StackTrace:{ex.StackTrace}", ex);
             }
         }
     }

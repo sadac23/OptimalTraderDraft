@@ -1730,6 +1730,83 @@ internal class StockInfo
         await Task.WhenAll(tasks);
     }
 
+    internal bool ShouldAlert()
+    {
+        // 初期値は通知
+        bool result = true;
+
+        // 注目 or 所有している or 売却直後の場合
+        if (this.IsFavorite || this.IsOwnedNow() || this.IsJustSold())
+        {
+            // 強制通知
+        }
+        //// ゴールデンクロス発生可能性がある場合
+        //else if (this.StockInfo.IsGoldenCrossPossible())
+        //{
+        //    // 利回りが低い場合
+        //    if (!this.StockInfo.IsHighYield()) result = false;
+
+        //    // 時価総額が低い場合
+        //    if (!this.StockInfo.IsHighMarketCap()) result = false;
+
+        //    // 進捗が良くない場合
+        //    if (!this.StockInfo.IsAnnualProgressOnTrack()) result = false;
+        //}
+        // 権利確定月前後の場合
+        else if (this.IsCloseToRecordDate() || this.IsRecordDate() || this.IsAfterRecordDate())
+        {
+            // 利回りが低い場合
+            if (!this.IsHighYield()) result = false;
+
+            // 直近で暴落していない場合
+            if (!this.LatestPrice.OversoldIndicator()) result = false;
+
+            // 時価総額が低い場合
+            if (!this.IsHighMarketCap()) result = false;
+
+            // 進捗が良くない場合
+            if (!this.IsAnnualProgressOnTrack()) result = false;
+        }
+        // 四半期決算前後の場合
+        else if (this.IsCloseToQuarterEnd() || this.IsQuarterEnd() || this.IsAfterQuarterEnd())
+        {
+            // 利回りが低い場合
+            if (!this.IsHighYield()) result = false;
+
+            // 直近で暴落していない場合
+            if (!this.LatestPrice.OversoldIndicator()) result = false;
+
+            // 時価総額が低い場合
+            if (!this.IsHighMarketCap()) result = false;
+
+            // 進捗が良くない場合
+            if (!this.IsAnnualProgressOnTrack()) result = false;
+        }
+        // それ以外
+        else
+        {
+            // 利回りが低い場合
+            if (!this.IsHighYield()) result = false;
+
+            // 直近で暴落していない場合
+            if (!this.LatestPrice.OversoldIndicator()) result = false;
+
+            // 時価総額が低い場合
+            if (!this.IsHighMarketCap()) result = false;
+
+            // 進捗が良くない場合
+            if (!this.IsAnnualProgressOnTrack()) result = false;
+
+            // PERが割高の場合
+            if (!this.IsPERUndervalued(true)) result = false;
+
+            // PBRが割高の場合
+            if (!this.IsPBRUndervalued(true)) result = false;
+        }
+
+        return result;
+    }
+
     /// <summary>
     /// 日次価格情報
     /// </summary>

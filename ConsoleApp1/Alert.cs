@@ -59,7 +59,7 @@ internal class Alert
             Console.WriteLine("Failed to send email. Error: " + ex.Message);
         }
     }
-    internal static void SaveFile(List<Analyzer.AnalysisResult> results)
+    internal static void SaveFile(List<StockInfo> results)
     {
         //No.01【注目】【所持】【権前】【権当】【権後】【決当】【決前】【決後】【売後】【金交】
         //1928：積水ハウス(株)
@@ -105,7 +105,7 @@ internal class Alert
 
             short alertCount = 0;
 
-            foreach (Analyzer.AnalysisResult r in results)
+            foreach (StockInfo r in results)
             {
                 if (r.ShouldAlert())
                 {
@@ -116,106 +116,111 @@ internal class Alert
 
                     // バッジの取得
                     string badge = string.Empty;
-                    if (r.StockInfo.IsFavorite) badge += CommonUtils.Instance.BadgeString.IsFavorite;
-                    if (r.StockInfo.IsOwnedNow()) badge += CommonUtils.Instance.BadgeString.IsOwned;
-                    if (r.StockInfo.IsCloseToRecordDate()) badge += CommonUtils.Instance.BadgeString.IsCloseToRecordDate;
-                    if (r.StockInfo.IsRecordDate()) badge += CommonUtils.Instance.BadgeString.IsRecordDate;
-                    if (r.StockInfo.IsAfterRecordDate()) badge += CommonUtils.Instance.BadgeString.IsAfterRecordDate;
-                    if (r.StockInfo.IsQuarterEnd()) badge += CommonUtils.Instance.BadgeString.IsQuarterEnd;
-                    if (r.StockInfo.IsCloseToQuarterEnd()) badge += CommonUtils.Instance.BadgeString.IsCloseToQuarterEnd;
-                    if (r.StockInfo.IsAfterQuarterEnd()) badge += CommonUtils.Instance.BadgeString.IsAfterQuarterEnd;
-                    if (r.StockInfo.IsJustSold()) badge += CommonUtils.Instance.BadgeString.IsJustSold;
-                    if (r.StockInfo.IsGoldenCrossPossible()) badge += CommonUtils.Instance.BadgeString.IsGoldenCrossPossible;
+                    if (r.IsFavorite) badge += CommonUtils.Instance.BadgeString.IsFavorite;
+                    if (r.IsOwnedNow()) badge += CommonUtils.Instance.BadgeString.IsOwned;
+                    if (r.IsCloseToRecordDate()) badge += CommonUtils.Instance.BadgeString.IsCloseToRecordDate;
+                    if (r.IsRecordDate()) badge += CommonUtils.Instance.BadgeString.IsRecordDate;
+                    if (r.IsAfterRecordDate()) badge += CommonUtils.Instance.BadgeString.IsAfterRecordDate;
+                    if (r.IsQuarterEnd()) badge += CommonUtils.Instance.BadgeString.IsQuarterEnd;
+                    if (r.IsCloseToQuarterEnd()) badge += CommonUtils.Instance.BadgeString.IsCloseToQuarterEnd;
+                    if (r.IsAfterQuarterEnd()) badge += CommonUtils.Instance.BadgeString.IsAfterQuarterEnd;
+                    if (r.IsJustSold()) badge += CommonUtils.Instance.BadgeString.IsJustSold;
+                    if (r.IsGoldenCrossPossible()) badge += CommonUtils.Instance.BadgeString.IsGoldenCrossPossible;
 
                     writer.WriteLine("");
                     writer.WriteLine($"No.{alertCount.ToString("D2")}{badge}");
-                    writer.WriteLine($"{r.StockInfo.Code}：{r.StockInfo.Name}");
-                    writer.WriteLine($"株価：{r.StockInfo.LatestPrice.Price.ToString("N1")}" +
-                        $"（{r.StockInfo.LatestPrice.Date.ToString("yy/MM/dd")}" +
-                        $"：S{r.StockInfo.LatestPrice.RSIS.ToString("N2")}" +
-                        $",L{r.StockInfo.LatestPrice.RSIL.ToString("N2")}" +
-                        $"）{(r.StockInfo.LatestPrice.OversoldIndicator() || (r.StockInfo.IsOwnedNow() && r.StockInfo.LatestPrice.OverboughtIndicator()) ? mark : string.Empty)}");
+                    writer.WriteLine($"{r.Code}：{r.Name}");
+                    writer.WriteLine($"株価：{r.LatestPrice.Price.ToString("N1")}" +
+                        $"（{r.LatestPrice.Date.ToString("yy/MM/dd")}" +
+                        $"：S{r.LatestPrice.RSIS.ToString("N2")}" +
+                        $",L{r.LatestPrice.RSIL.ToString("N2")}" +
+                        $"）{(r.LatestPrice.OversoldIndicator() || (r.IsOwnedNow() && r.LatestPrice.OverboughtIndicator()) ? mark : string.Empty)}");
                     // ETFのみ
-                    if (r.StockInfo.Classification == CommonUtils.Instance.Classification.JapaneseETFs)
+                    if (r.Classification == CommonUtils.Instance.Classification.JapaneseETFs)
                     {
-                        writer.WriteLine($"運用会社：{r.StockInfo.FundManagementCompany}");
-                        writer.WriteLine($"信託報酬：{CommonUtils.Instance.ConvertToPercentage(r.StockInfo.TrustFeeRate, false, "F3")}");
+                        writer.WriteLine($"運用会社：{r.FundManagementCompany}");
+                        writer.WriteLine($"信託報酬：{CommonUtils.Instance.ConvertToPercentage(r.TrustFeeRate, false, "F3")}");
                     }
-                    writer.WriteLine($"市場/業種：{r.StockInfo.Section}{(!string.IsNullOrEmpty(r.StockInfo.Industry) ? $"/{r.StockInfo.Industry}" : string.Empty)}");
-                    writer.WriteLine($"配当利回り：{CommonUtils.Instance.ConvertToPercentage(r.StockInfo.DividendYield)}" +
-                        $"（{CommonUtils.Instance.ConvertToPercentage(r.StockInfo.DividendPayoutRatio)}" +
-                        $",{CommonUtils.Instance.ConvertToPercentage(r.StockInfo.Doe)}" +
-                        $",{r.StockInfo.DividendRecordDateMonth}" +
-                        $"）{(r.StockInfo.IsCloseToDividendRecordDate() ? mark : string.Empty)}");
-                    if (!string.IsNullOrEmpty(r.StockInfo.ShareholderBenefitsDetails))
-                        writer.WriteLine($"優待利回り：{CommonUtils.Instance.ConvertToPercentage(r.StockInfo.ShareholderBenefitYield)}（{r.StockInfo.ShareholderBenefitsDetails},{r.StockInfo.NumberOfSharesRequiredForBenefits},{r.StockInfo.ShareholderBenefitRecordMonth},{r.StockInfo.ShareholderBenefitRecordDay}）{(r.StockInfo.IsCloseToShareholderBenefitRecordDate() ? mark : string.Empty)}");
+                    writer.WriteLine($"市場/業種：{r.Section}{(!string.IsNullOrEmpty(r.Industry) ? $"/{r.Industry}" : string.Empty)}");
+                    writer.WriteLine($"配当利回り：{CommonUtils.Instance.ConvertToPercentage(r.DividendYield)}" +
+                        $"（{CommonUtils.Instance.ConvertToPercentage(r.DividendPayoutRatio)}" +
+                        $",{CommonUtils.Instance.ConvertToPercentage(r.Doe)}" +
+                        $",{r.DividendRecordDateMonth}" +
+                        $"）{(r.IsCloseToDividendRecordDate() ? mark : string.Empty)}");
+                    if (!string.IsNullOrEmpty(r.ShareholderBenefitsDetails))
+                        writer.WriteLine($"優待利回り：{CommonUtils.Instance.ConvertToPercentage(r.ShareholderBenefitYield)}" +
+                            $"（{r.ShareholderBenefitsDetails}" +
+                            $",{r.NumberOfSharesRequiredForBenefits}" +
+                            $",{r.ShareholderBenefitRecordMonth}" +
+                            $",{r.ShareholderBenefitRecordDay}" +
+                            $"）{(r.IsCloseToShareholderBenefitRecordDate() ? mark : string.Empty)}");
 
                     // 通期予想履歴
                     count = 0;
-                    foreach (var p in r.StockInfo.FullYearPerformancesForcasts)
+                    foreach (var p in r.FullYearPerformancesForcasts)
                     {
                         if (count == 0) writer.WriteLine($"通期予想（前期比）：");
                         writer.WriteLine($"{p.Category}：{p.RevisionDate.ToString("yy/MM/dd")}：{p.Summary}{(p.HasUpwardRevision() ? mark : string.Empty)}");
                         count++;
                     }
 
-                    writer.WriteLine($"通期進捗：{r.StockInfo.LastQuarterPeriod}" +
-                        $"：{CommonUtils.Instance.ConvertToPercentage(r.StockInfo.QuarterlyFullyearProgressRate)}" +
-                        $"（{r.StockInfo.QuarterlyPerformanceReleaseDate.ToString("yy/MM/dd")}" +
-                        $"：{CommonUtils.Instance.ConvertToPercentage(r.StockInfo.QuarterlyOperatingProfitMarginYoY, true)}）" +
-                        $"{(r.StockInfo.IsAnnualProgressOnTrack() ? mark : string.Empty)}");
-                    writer.WriteLine($"前期進捗：{r.StockInfo.LastQuarterPeriod}" +
-                        $"：{CommonUtils.Instance.ConvertToPercentage(r.StockInfo.PreviousFullyearProgressRate)}" +
-                        $"（{r.StockInfo.PreviousPerformanceReleaseDate.ToString("yy/MM/dd")}）");
+                    writer.WriteLine($"通期進捗：{r.LastQuarterPeriod}" +
+                        $"：{CommonUtils.Instance.ConvertToPercentage(r.QuarterlyFullyearProgressRate)}" +
+                        $"（{r.QuarterlyPerformanceReleaseDate.ToString("yy/MM/dd")}" +
+                        $"：{CommonUtils.Instance.ConvertToPercentage(r.QuarterlyOperatingProfitMarginYoY, true)}）" +
+                        $"{(r.IsAnnualProgressOnTrack() ? mark : string.Empty)}");
+                    writer.WriteLine($"前期進捗：{r.LastQuarterPeriod}" +
+                        $"：{CommonUtils.Instance.ConvertToPercentage(r.PreviousFullyearProgressRate)}" +
+                        $"（{r.PreviousPerformanceReleaseDate.ToString("yy/MM/dd")}）");
 
-                    writer.WriteLine($"時価総額：{CommonUtils.Instance.ConvertToYenNotation(r.StockInfo.MarketCap)}");
+                    writer.WriteLine($"時価総額：{CommonUtils.Instance.ConvertToYenNotation(r.MarketCap)}");
 
                     count = 0;
                     s = string.Empty;
-                    foreach (StockInfo.FullYearProfit p in r.StockInfo.FullYearProfits)
+                    foreach (StockInfo.FullYearProfit p in r.FullYearProfits)
                     {
                         if (count > 0) s += "→";
                         s += p.Roe;
                         count++;
                     }
-                    if (!string.IsNullOrEmpty(s)) writer.WriteLine($"ROE：{s}{(r.StockInfo.IsROEAboveThreshold() ? mark : string.Empty)}");
+                    if (!string.IsNullOrEmpty(s)) writer.WriteLine($"ROE：{s}{(r.IsROEAboveThreshold() ? mark : string.Empty)}");
 
-                    writer.WriteLine($"PER：{CommonUtils.Instance.ConvertToMultiplierString(r.StockInfo.Per)}（{r.StockInfo.AveragePer.ToString("N1")}）{(r.StockInfo.IsPERUndervalued() ? mark : string.Empty)}");
-                    writer.WriteLine($"PBR：{CommonUtils.Instance.ConvertToMultiplierString(r.StockInfo.Pbr)}（{r.StockInfo.AveragePbr.ToString("N1")}）{(r.StockInfo.IsPBRUndervalued() ? mark : string.Empty)}");
-                    writer.WriteLine($"営業利益率：{CommonUtils.Instance.ConvertToPercentage(r.StockInfo.OperatingProfitMargin)}");
-                    writer.WriteLine($"信用倍率：{r.StockInfo.MarginBalanceRatio}");
-                    writer.WriteLine($"信用残：{r.StockInfo.MarginBuyBalance}/{r.StockInfo.MarginSellBalance}（{r.StockInfo.MarginBalanceDate}）");
-                    writer.WriteLine($"出来高：{r.StockInfo.LatestTradingVolume}");
-                    writer.WriteLine($"自己資本比率：{r.StockInfo.EquityRatio}");
+                    writer.WriteLine($"PER：{CommonUtils.Instance.ConvertToMultiplierString(r.Per)}（{r.AveragePer.ToString("N1")}）{(r.IsPERUndervalued() ? mark : string.Empty)}");
+                    writer.WriteLine($"PBR：{CommonUtils.Instance.ConvertToMultiplierString(r.Pbr)}（{r.AveragePbr.ToString("N1")}）{(r.IsPBRUndervalued() ? mark : string.Empty)}");
+                    writer.WriteLine($"営業利益率：{CommonUtils.Instance.ConvertToPercentage(r.OperatingProfitMargin)}");
+                    writer.WriteLine($"信用倍率：{r.MarginBalanceRatio}");
+                    writer.WriteLine($"信用残：{r.MarginBuyBalance}/{r.MarginSellBalance}（{r.MarginBalanceDate}）");
+                    writer.WriteLine($"出来高：{r.LatestTradingVolume}");
+                    writer.WriteLine($"自己資本比率：{r.EquityRatio}");
 
-                    writer.WriteLine($"決算：{r.StockInfo.EarningsPeriod}");
+                    writer.WriteLine($"決算：{r.EarningsPeriod}");
 
                     s = string.Empty;
-                    if (!string.IsNullOrEmpty(r.StockInfo.PressReleaseDate))
+                    if (!string.IsNullOrEmpty(r.PressReleaseDate))
                     {
-                        s += r.StockInfo.PressReleaseDate;
-                        s += r.StockInfo.ExtractAndValidateDateWithinOneMonth() ? mark : string.Empty;
+                        s += r.PressReleaseDate;
+                        s += r.ExtractAndValidateDateWithinOneMonth() ? mark : string.Empty;
                         writer.WriteLine($"{s}");
                     }
 
                     count = 0;
                     s = string.Empty;
-                    foreach (ExecutionList.Execution e in r.StockInfo.Executions)
+                    foreach (ExecutionList.Execution e in r.Executions)
                     {
                         if (count == 0) writer.WriteLine($"約定履歴：");
 
                         writer.WriteLine($"{e.BuyOrSell}" +
                             $"：{e.Date.ToString("yy/MM/dd")}" +
                             $"：{e.Price.ToString("N1")}*{e.Quantity}" +
-                            $"：{CommonUtils.Instance.ConvertToPercentage((r.StockInfo.LatestPrice.Price / e.Price) - 1, true)}" +
-                            $"{(r.StockInfo.ShouldAverageDown(e) ? mark : string.Empty)}");
+                            $"：{CommonUtils.Instance.ConvertToPercentage((r.LatestPrice.Price / e.Price) - 1, true)}" +
+                            $"{(r.ShouldAverageDown(e) ? mark : string.Empty)}");
 
                         count++;
                     }
 
                     //チャート：
                     writer.WriteLine($"チャート（RSI）：");
-                    foreach (var p in r.StockInfo.ChartPrices)
+                    foreach (var p in r.ChartPrices)
                     {
                         //チャート（RSI）：
                         //10/14：3,951.0：-99.99%（S99.99,L99.99）
@@ -242,11 +247,11 @@ internal class Alert
                     //        $"");
                     //}
 
-                    if (!string.IsNullOrEmpty(r.StockInfo.Memo))
+                    if (!string.IsNullOrEmpty(r.Memo))
                     {
                         //メモ：
                         writer.WriteLine($"メモ：");
-                        writer.WriteLine(r.StockInfo.Memo);
+                        writer.WriteLine(r.Memo);
                     }
                 }
             }
