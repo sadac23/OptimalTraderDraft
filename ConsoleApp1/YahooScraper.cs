@@ -1,9 +1,11 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
+using DocumentFormat.OpenXml.Bibliography;
 using HtmlAgilityPack;
 using Microsoft.Extensions.Logging;
 using System.Globalization;
 using System.Security.Policy;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 using static WatchList;
 
 internal class YahooScraper
@@ -215,4 +217,76 @@ internal class YahooScraper
         }
     }
 
+    internal async Task ScrapeDisclosure(StockInfo stockInfo)
+    {
+        var url = $"https://finance.yahoo.co.jp/quote/{stockInfo.Code}.T/disclosure";
+
+        try
+        {
+            HttpResponseMessage response = await CommonUtils.Instance.HttpClient.GetAsync(url);
+            response.EnsureSuccessStatusCode();
+            string pageContent = await response.Content.ReadAsStringAsync();
+
+            CommonUtils.Instance.Logger.LogInformation(url);
+
+            HtmlDocument document = new HtmlDocument();
+            document.LoadHtml(pageContent);
+
+            var nodes = document.DocumentNode.SelectNodes("//*[@id=\"disclist\"]/li");
+            if (nodes != null && nodes.Count != 0)
+            {
+                foreach (var item in nodes)
+                {
+                    var header = string.Empty;
+                    DateTime datetime = DateTime.MinValue;
+
+                    var nodeHeader = item.SelectSingleNode("//article/a/h3");
+                    if (nodeHeader != null)
+                    {
+                        header = nodeHeader.InnerText.Trim();
+                    }
+                    var nodeDate = item.SelectSingleNode("//article/a/ul/li[1]/time");
+                    if (nodeDate != null)
+                    {
+                        datetime = this.ConvertToDatetime(nodeDate.InnerText.Trim());
+                    }
+                    stockInfo.Disclosures.Add(new StockInfo.Disclosure
+                    {
+                        Header = header,
+                        Datetime = datetime,
+                    });
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine("ScrapeDisclosure: " + e.Message);
+        }
+    }
+
+    private DateTime ConvertToDatetime(string v)
+    {
+        DateTime result;
+
+        // 現在の年を取得
+        int currentYear = DateTime.Now.Year;
+
+        // 日付形式を試す
+        string fullDateString = $"{currentYear}/{v}";
+        if (DateTime.TryParseExact(fullDateString, "yyyy/M/d", CultureInfo.InvariantCulture, DateTimeStyles.None, out result))
+        {
+            return result;
+        }
+
+        // 時刻形式を試す
+        if (DateTime.TryParseExact(v, "H:mm", CultureInfo.InvariantCulture, DateTimeStyles.None, out result))
+        {
+            // 現在の日付に時刻を設定
+            DateTime currentDate = DateTime.Now.Date;
+            result = currentDate.Add(result.TimeOfDay);
+            return result;
+        }
+
+        throw new FormatException("入力文字列の形式が正しくありません。");
+    }
 }

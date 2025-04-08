@@ -61,7 +61,7 @@ internal class Alert
     }
     internal static void SaveFile(List<StockInfo> results)
     {
-        //No.01【注目】【所持】【権前】【権当】【権後】【決当】【決前】【決後】【売後】【金交】
+        //No.01【注目】【所持】【権前】【権当】【権後】【決当】【決前】【決後】【売後】【金交】【開示】
         //1928：積水ハウス(株)
         //株価：1,234.0（24/11/29：S99.99,L99.99）★
         //市場/業種：東証Ｐ/建設業
@@ -126,6 +126,7 @@ internal class Alert
                     if (r.IsAfterQuarterEnd()) badge += CommonUtils.Instance.BadgeString.IsAfterQuarterEnd;
                     if (r.IsJustSold()) badge += CommonUtils.Instance.BadgeString.IsJustSold;
                     if (r.IsGoldenCrossPossible()) badge += CommonUtils.Instance.BadgeString.IsGoldenCrossPossible;
+                    if (r.HasDisclosure()) badge += CommonUtils.Instance.BadgeString.HasDisclosure;
 
                     writer.WriteLine("");
                     writer.WriteLine($"No.{alertCount.ToString("D2")}{badge}");

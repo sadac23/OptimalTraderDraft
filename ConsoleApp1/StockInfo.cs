@@ -33,6 +33,7 @@ internal class StockInfo
         this.QuarterlyPerformances = new List<StockInfo.QuarterlyPerformance>();
         this.FullYearPerformancesForcasts = new List<FullYearPerformanceForcast>();
         this.ChartPrices = new List<StockInfo.ChartPrice>();
+        this.Disclosures = new List<Disclosure>();
     }
     /// <summary>
     /// コード
@@ -251,6 +252,10 @@ internal class StockInfo
     /// </summary>
     /// <remarks>営業利益 ÷ 売上高 × 100</remarks>
     public double OperatingProfitMargin { get; internal set; }
+    /// <summary>
+    /// 開示情報
+    /// </summary>
+    public List<Disclosure> Disclosures { get; private set; }
 
     /// <summary>
     /// 現在、所有しているか？
@@ -1747,6 +1752,12 @@ internal class StockInfo
         });
         tasks.Add(yahooProfile);
 
+        Task yahooDisclosure = Task.Run(async () =>
+        {
+            await yahooScraper.ScrapeDisclosure(this);
+        });
+        tasks.Add(yahooDisclosure);
+
         Task yahooHistory = Task.Run(async () =>
         {
             // 履歴更新の最終日を取得（なければ基準開始日を取得）
@@ -1846,6 +1857,22 @@ internal class StockInfo
             if (!this.IsPBRUndervalued(true)) result = false;
         }
 
+        return result;
+    }
+
+    /// <summary>
+    /// 開示情報があるか？
+    /// </summary>
+    internal bool HasDisclosure()
+    {
+        bool result = false;
+        foreach (var item in this.Disclosures)
+        {
+            if (item.Datetime.ToString("yyyyMMdd") == CommonUtils.Instance.ExecusionDate.ToString("yyyyMMdd"))
+            {
+                result = true;
+            }
+        }
         return result;
     }
 
@@ -2152,5 +2179,11 @@ internal class StockInfo
 
             return result;
         }
+    }
+
+    public class Disclosure
+    {
+        public DateTime Datetime { get; internal set; }
+        public string Header { get; internal set; }
     }
 }
