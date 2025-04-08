@@ -1,6 +1,7 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
 using ClosedXML.Excel;
+using DocumentFormat.OpenXml.Office2013.Word;
 using System.Collections.Generic;
 using System.Data.SQLite;
 using System.Runtime.CompilerServices;
@@ -58,6 +59,8 @@ internal class WatchList
 
             if (worksheet != null)
             {
+                List<WatchStock> temp = new List<WatchStock>();
+
                 // 指定行から順番にデータを取得
                 var rows = worksheet.RowsUsed()
                     .Where(row => row.RowNumber() >= startRowIndex);
@@ -73,8 +76,10 @@ internal class WatchList
                         DeleteDate = row.Cell(8).Value.ToString(),
                         Memo = row.Cell(9).Value.ToString(),
                     };
-                    results.Add(data);
+                    temp.Add(data);
                 }
+
+                results = temp.OrderBy(p => p.Classification).ThenBy(p => p.Code).ToList();
             }
             else
             {
