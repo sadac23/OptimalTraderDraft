@@ -343,4 +343,50 @@ internal class Alert
             .Replace('/', '_')
             .Replace("=", "");
     }
+
+    internal static void SaveFileAdvance(List<StockInfo> results)
+    {
+        var alertFilePath = CommonUtils.ReplacePlaceholder(
+            CommonUtils.Instance.FilepathOfAlert, "{yyyyMMdd}", CommonUtils.Instance.ExecusionDate.ToString("yyyyMMdd"));
+
+        using (StreamWriter writer = new StreamWriter(alertFilePath))
+        {
+            // ファイルヘッダー
+            writer.WriteLine($"{DateTime.Today.ToString("yyyyMMdd")}");
+
+            short alertCount = 0;
+
+            foreach (StockInfo r in results)
+            {
+                if (r.ShouldAlert())
+                {
+                    string s = string.Empty;
+
+                    alertCount++;
+
+                    // バッジの取得
+                    string badge = string.Empty;
+                    if (r.IsFavorite) badge += CommonUtils.Instance.BadgeString.IsFavorite;
+                    if (r.IsOwnedNow()) badge += CommonUtils.Instance.BadgeString.IsOwned;
+                    if (r.IsCloseToRecordDate()) badge += CommonUtils.Instance.BadgeString.IsCloseToRecordDate;
+                    if (r.IsRecordDate()) badge += CommonUtils.Instance.BadgeString.IsRecordDate;
+                    if (r.IsAfterRecordDate()) badge += CommonUtils.Instance.BadgeString.IsAfterRecordDate;
+                    if (r.IsQuarterEnd()) badge += CommonUtils.Instance.BadgeString.IsQuarterEnd;
+                    if (r.IsCloseToQuarterEnd()) badge += CommonUtils.Instance.BadgeString.IsCloseToQuarterEnd;
+                    if (r.IsAfterQuarterEnd()) badge += CommonUtils.Instance.BadgeString.IsAfterQuarterEnd;
+                    if (r.IsJustSold()) badge += CommonUtils.Instance.BadgeString.IsJustSold;
+                    if (r.IsGoldenCrossPossible()) badge += CommonUtils.Instance.BadgeString.IsGoldenCrossPossible;
+                    if (r.HasDisclosure()) badge += CommonUtils.Instance.BadgeString.HasDisclosure;
+
+                    writer.WriteLine("");
+                    writer.WriteLine($"No.{alertCount.ToString("D2")}{badge}");
+                    writer.WriteLine(r.ToOutputString());
+                }
+            }
+
+            // ファイルフッター
+            writer.WriteLine();
+            writer.WriteLine($"出力件数：{alertCount}件");
+        }
+    }
 }

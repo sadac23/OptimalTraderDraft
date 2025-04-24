@@ -15,6 +15,7 @@ using System.Globalization;
 using System.Reflection;
 using System.Runtime.ConstrainedExecution;
 using System.Runtime.InteropServices;
+using System.Text;
 using System.Text.RegularExpressions;
 using static ExecutionList;
 using static StockInfo;
@@ -1714,7 +1715,7 @@ internal class StockInfo
     /// 外部サイトからの取得情報を埋める
     /// </summary>
     /// <remarks>各サイトの情報を非同期で取得してインスタンスに設定する。</remarks>
-    internal async Task UpdateFromExternalSource()
+    internal virtual async Task UpdateFromExternalSource()
     {
         List<Task> tasks = new List<Task>();
 
@@ -1874,6 +1875,146 @@ internal class StockInfo
             }
         }
         return result;
+    }
+
+    internal static StockInfo GetInstance(WatchList.WatchStock watchStock)
+    {
+        if ((watchStock.Classification == CommonUtils.Instance.Classification.JapaneseETFs))
+        {
+            return new JapaneseETFInfo(watchStock);
+        }else {
+            return new StockInfo(watchStock);
+        }
+    }
+
+    internal virtual string ToOutputString()
+    {
+        StringBuilder sb = new StringBuilder();
+
+        var mark = CommonUtils.Instance.BadgeString.ShouldWatch;
+        var count = 0;
+        var s = string.Empty;
+
+        sb.AppendLine($"{this.Code}：{this.Name}");
+
+        sb.AppendLine($"株価：{this.LatestPrice.Price.ToString("N1")}" +
+            $"（{this.LatestPrice.Date.ToString("yy/MM/dd")}" +
+            $"：S{this.LatestPrice.RSIS.ToString("N2")}" +
+            $",L{this.LatestPrice.RSIL.ToString("N2")}" +
+            $"）{(this.LatestPrice.OversoldIndicator() || (this.IsOwnedNow() && this.LatestPrice.OverboughtIndicator()) ? mark : string.Empty)}");
+
+        sb.AppendLine($"市場/業種：{this.Section}{(!string.IsNullOrEmpty(this.Industry) ? $"/{this.Industry}" : string.Empty)}");
+
+        sb.AppendLine($"配当利回り：{CommonUtils.Instance.ConvertToPercentage(this.DividendYield)}" +
+            $"（{CommonUtils.Instance.ConvertToPercentage(this.DividendPayoutRatio)}" +
+            $",{CommonUtils.Instance.ConvertToPercentage(this.Doe)}" +
+            $",{this.DividendRecordDateMonth}" +
+            $"）{(this.IsCloseToDividendRecordDate() ? mark : string.Empty)}");
+
+        if (!string.IsNullOrEmpty(this.ShareholderBenefitsDetails))
+        sb.AppendLine($"優待利回り：{CommonUtils.Instance.ConvertToPercentage(this.ShareholderBenefitYield)}" +
+            $"（{this.ShareholderBenefitsDetails}" +
+            $",{this.NumberOfSharesRequiredForBenefits}" +
+            $",{this.ShareholderBenefitRecordMonth}" +
+            $",{this.ShareholderBenefitRecordDay}" +
+            $"）{(this.IsCloseToShareholderBenefitRecordDate() ? mark : string.Empty)}");
+
+        // 通期予想履歴
+        foreach (var p in this.FullYearPerformancesForcasts)
+        {
+            if (count == 0) sb.AppendLine($"通期予想（前期比）：");
+            sb.AppendLine($"{p.Category}" +
+                $"：{p.RevisionDate.ToString("yy/MM/dd")}" +
+                $"：{p.Summary}{(p.HasUpwardRevision() ? mark : string.Empty)}");
+            count++;
+        }
+
+        sb.AppendLine($"通期進捗：{this.LastQuarterPeriod}" +
+            $"：{CommonUtils.Instance.ConvertToPercentage(this.QuarterlyFullyearProgressRate)}" +
+            $"（{this.QuarterlyPerformanceReleaseDate.ToString("yy/MM/dd")}" +
+            $"：{CommonUtils.Instance.ConvertToPercentage(this.QuarterlyOperatingProfitMarginYoY, true)}）" +
+            $"{(this.IsAnnualProgressOnTrack() ? mark : string.Empty)}");
+
+        sb.AppendLine($"前期進捗：{this.LastQuarterPeriod}" +
+            $"：{CommonUtils.Instance.ConvertToPercentage(this.PreviousFullyearProgressRate)}" +
+            $"（{this.PreviousPerformanceReleaseDate.ToString("yy/MM/dd")}）");
+
+        sb.AppendLine($"時価総額：{CommonUtils.Instance.ConvertToYenNotation(this.MarketCap)}");
+
+        count = 0;
+        s = string.Empty;
+        foreach (StockInfo.FullYearProfit p in this.FullYearProfits)
+        {
+            if (count > 0) s += "→";
+            s += p.Roe;
+            count++;
+        }
+        if (!string.IsNullOrEmpty(s)) 
+        sb.AppendLine($"ROE：{s}{(this.IsROEAboveThreshold() ? mark : string.Empty)}");
+
+        sb.AppendLine($"PER：{CommonUtils.Instance.ConvertToMultiplierString(this.Per)}" +
+            $"（{this.AveragePer.ToString("N1")}）{(this.IsPERUndervalued() ? mark : string.Empty)}");
+
+        sb.AppendLine($"PBR：{CommonUtils.Instance.ConvertToMultiplierString(this.Pbr)}" +
+            $"（{this.AveragePbr.ToString("N1")}）{(this.IsPBRUndervalued() ? mark : string.Empty)}");
+
+        sb.AppendLine($"営業利益率：{CommonUtils.Instance.ConvertToPercentage(this.OperatingProfitMargin)}");
+
+        sb.AppendLine($"信用倍率：{this.MarginBalanceRatio}");
+
+        sb.AppendLine($"信用残：{this.MarginBuyBalance}/{this.MarginSellBalance}（{this.MarginBalanceDate}）");
+        
+        sb.AppendLine($"出来高：{this.LatestTradingVolume}");
+
+        sb.AppendLine($"自己資本比率：{this.EquityRatio}");
+
+        sb.AppendLine($"決算：{this.EarningsPeriod}");
+
+        s = string.Empty;
+        if (!string.IsNullOrEmpty(this.PressReleaseDate))
+        {
+            s += this.PressReleaseDate;
+            s += this.ExtractAndValidateDateWithinOneMonth() ? mark : string.Empty;
+            sb.AppendLine($"{s}");
+        }
+
+        count = 0;
+        s = string.Empty;
+        foreach (ExecutionList.Execution e in this.Executions)
+        {
+            if (count == 0) sb.AppendLine($"約定履歴：");
+
+            sb.AppendLine($"{e.BuyOrSell}" +
+                $"：{e.Date.ToString("yy/MM/dd")}" +
+                $"：{e.Price.ToString("N1")}*{e.Quantity}" +
+                $"：{CommonUtils.Instance.ConvertToPercentage((this.LatestPrice.Price / e.Price) - 1, true)}" +
+                $"{(this.ShouldAverageDown(e) ? mark : string.Empty)}");
+
+            count++;
+        }
+
+        //チャート：
+        sb.AppendLine($"チャート（RSI）：");
+        foreach (var p in this.ChartPrices)
+        {
+            sb.AppendLine(
+                $"{p.Date.ToString("MM/dd")}" +
+                $"：{p.Price.ToString("N1")}" +
+                $"：{CommonUtils.Instance.ConvertToPercentage(p.Volatility, true)}" +
+                $"（S{p.RSIS.ToString("N2")}" +
+                $",L{p.RSIL.ToString("N2")}）" +
+                $"{(p.OversoldIndicator() ? mark : string.Empty)}" +
+                $"");
+        }
+
+        if (!string.IsNullOrEmpty(this.Memo))
+        {
+            //メモ：
+            sb.AppendLine($"メモ：");
+            sb.AppendLine(this.Memo);
+        }
+
+        return sb.ToString();
     }
 
     /// <summary>

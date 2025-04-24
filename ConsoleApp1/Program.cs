@@ -227,7 +227,8 @@ namespace ConsoleApp1
                     if (!string.IsNullOrEmpty(watchStock.DeleteDate)) continue;
 
                     // インスタンスの初期化
-                    var stockInfo = new StockInfo(watchStock);
+                    //                    var stockInfo = new StockInfo(watchStock);
+                    var stockInfo = StockInfo.GetInstance(watchStock);
 
                     try
                     {
@@ -254,7 +255,8 @@ namespace ConsoleApp1
                 }
 
                 // ファイル保存
-                Alert.SaveFile(results);
+//                Alert.SaveFile(results);
+                Alert.SaveFileAdvance(results);
 
                 // メール送信
                 if (CommonUtils.Instance.ShouldSendMail) Alert.SendMail();
