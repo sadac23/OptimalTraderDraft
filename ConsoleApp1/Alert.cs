@@ -377,6 +377,7 @@ internal class Alert
                     if (r.IsJustSold()) badge += CommonUtils.Instance.BadgeString.IsJustSold;
                     if (r.IsGoldenCrossPossible()) badge += CommonUtils.Instance.BadgeString.IsGoldenCrossPossible;
                     if (r.HasDisclosure()) badge += CommonUtils.Instance.BadgeString.HasDisclosure;
+                    if (r.IsGranvilleCase1Matched()) badge += CommonUtils.Instance.BadgeString.IsGranvilleCase1Matched;
 
                     writer.WriteLine("");
                     writer.WriteLine($"No.{alertCount.ToString("D2")}{badge}");

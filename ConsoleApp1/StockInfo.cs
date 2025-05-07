@@ -8,6 +8,7 @@ using DocumentFormat.OpenXml.Office2016.Excel;
 using DocumentFormat.OpenXml.Spreadsheet;
 using DocumentFormat.OpenXml.Wordprocessing;
 using Microsoft.Extensions.Logging;
+using SixLabors.Fonts;
 using System.Data.Entity;
 using System.Data.Entity.Core.Metadata.Edm;
 using System.Data.SQLite;
@@ -1806,6 +1807,18 @@ internal class StockInfo
         //    // 進捗が良くない場合
         //    if (!this.StockInfo.IsAnnualProgressOnTrack()) result = false;
         //}
+        // グランビルケースに該当する場合
+        else if (this.IsGranvilleCase1Matched())
+        {
+            // 利回りが低い場合
+            if (!this.IsHighYield()) result = false;
+
+            // 時価総額が低い場合
+            if (!this.IsHighMarketCap()) result = false;
+
+            // 進捗が良くない場合
+            if (!this.IsAnnualProgressOnTrack()) result = false;
+        }
         // 権利確定月前後の場合
         else if (this.IsCloseToRecordDate() || this.IsRecordDate() || this.IsAfterRecordDate())
         {
@@ -2015,6 +2028,24 @@ internal class StockInfo
         }
 
         return sb.ToString();
+    }
+
+    internal bool IsGranvilleCase1Matched()
+    {
+        bool result = false;
+
+        if (this.ChartPrices.Count <= 7) return result;
+
+        int sIndex = this.ChartPrices.Count - 7;
+        int eIndex = this.ChartPrices.Count - 1;
+
+        var start = this.ChartPrices[sIndex].Price - this.ChartPrices[sIndex].SMA25;
+        var end = this.ChartPrices[eIndex].Price - this.ChartPrices[eIndex].SMA25;
+
+        // 乖離値の開始がマイナス、終了がプラスの場合
+        if (start < 0 && end > 0) result = true;
+
+        return result;
     }
 
     /// <summary>
