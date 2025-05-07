@@ -1,4 +1,5 @@
 ﻿// See https://aka.ms/new-console-template for more information
+using DocumentFormat.OpenXml.Bibliography;
 using System.Text;
 
 internal class JapaneseETFInfo : StockInfo
@@ -21,6 +22,9 @@ internal class JapaneseETFInfo : StockInfo
             $"：S{this.LatestPrice.RSIS.ToString("N2")}" +
             $",L{this.LatestPrice.RSIL.ToString("N2")}" +
             $"）{(this.LatestPrice.OversoldIndicator() || (this.IsOwnedNow() && this.LatestPrice.OverboughtIndicator()) ? mark : string.Empty)}");
+
+        sb.AppendLine($"運用会社：{this.FundManagementCompany}");
+        sb.AppendLine($"信託報酬：{CommonUtils.Instance.ConvertToPercentage(this.TrustFeeRate, false, "F3")}");
 
         sb.AppendLine($"信用残：{this.MarginBuyBalance}/{this.MarginSellBalance}（{this.MarginBalanceDate}）");
 
