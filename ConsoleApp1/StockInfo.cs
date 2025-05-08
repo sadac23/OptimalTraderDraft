@@ -1808,16 +1808,13 @@ internal class StockInfo
         //    if (!this.StockInfo.IsAnnualProgressOnTrack()) result = false;
         //}
         // グランビルケースに該当する場合
-        else if (this.IsGranvilleCase1Matched())
+        else if (this.IsGranvilleCase1Matched() || this.IsGranvilleCase2Matched())
         {
             // 利回りが低い場合
             if (!this.IsHighYield()) result = false;
 
             // 時価総額が低い場合
             if (!this.IsHighMarketCap()) result = false;
-
-            // 進捗が良くない場合
-            if (!this.IsAnnualProgressOnTrack()) result = false;
         }
         // 権利確定月前後の場合
         else if (this.IsCloseToRecordDate() || this.IsRecordDate() || this.IsAfterRecordDate())
@@ -1869,6 +1866,30 @@ internal class StockInfo
 
             // PBRが割高の場合
             if (!this.IsPBRUndervalued(true)) result = false;
+        }
+
+        return result;
+    }
+
+    internal bool IsGranvilleCase2Matched()
+    {
+        bool result = false;
+
+        if (this.ChartPrices.Count == 0) return result;
+
+        var start = this.ChartPrices.First().Price - this.ChartPrices.First().SMA25;
+        var end = this.ChartPrices.Last().Price - this.ChartPrices.Last().SMA25;
+
+        // 乖離値の開始がプラス、終了がプラスの場合
+        if (start > 0 && end > 0)
+        {
+            foreach (var item in this.ChartPrices)
+            {
+                var dev = item.Price - item.SMA25;
+
+                // マイナスが存在する場合
+                if (dev < 0) result = true;
+            }
         }
 
         return result;
@@ -2034,13 +2055,10 @@ internal class StockInfo
     {
         bool result = false;
 
-        if (this.ChartPrices.Count <= 7) return result;
+        if (this.ChartPrices.Count == 0) return result;
 
-        int sIndex = this.ChartPrices.Count - 7;
-        int eIndex = this.ChartPrices.Count - 1;
-
-        var start = this.ChartPrices[sIndex].Price - this.ChartPrices[sIndex].SMA25;
-        var end = this.ChartPrices[eIndex].Price - this.ChartPrices[eIndex].SMA25;
+        var start = this.ChartPrices.First().Price - this.ChartPrices.First().SMA25;
+        var end = this.ChartPrices.Last().Price - this.ChartPrices.Last().SMA25;
 
         // 乖離値の開始がマイナス、終了がプラスの場合
         if (start < 0 && end > 0) result = true;

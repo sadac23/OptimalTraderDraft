@@ -454,6 +454,7 @@ internal class CommonUtils : IDisposable
         public string IsGoldenCrossPossible { get; } = "【金交】";
         public string HasDisclosure { get; } = "【開示】";
         public string IsGranvilleCase1Matched { get; } = "【GV①】";
+        public string IsGranvilleCase2Matched { get; } = "【GV②】";
     }
 
     public class ThresholdOfProgressSuccessClass
