@@ -455,6 +455,7 @@ internal class CommonUtils : IDisposable
         public string HasDisclosure { get; } = "【開示】";
         public string IsGranvilleCase1Matched { get; } = "【GV①】";
         public string IsGranvilleCase2Matched { get; } = "【GV②】";
+        public string IsOversold { get; } = "【売越】";
     }
 
     public class ThresholdOfProgressSuccessClass

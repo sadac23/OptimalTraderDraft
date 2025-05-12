@@ -367,6 +367,7 @@ internal class Alert
                     // バッジの取得
                     string badge = string.Empty;
                     if (r.IsFavorite) badge += CommonUtils.Instance.BadgeString.IsFavorite;
+                    if (r.LatestPrice.OversoldIndicator()) badge += CommonUtils.Instance.BadgeString.IsOversold;
                     if (r.IsOwnedNow()) badge += CommonUtils.Instance.BadgeString.IsOwned;
                     if (r.IsCloseToRecordDate()) badge += CommonUtils.Instance.BadgeString.IsCloseToRecordDate;
                     if (r.IsRecordDate()) badge += CommonUtils.Instance.BadgeString.IsRecordDate;
@@ -377,8 +378,8 @@ internal class Alert
                     if (r.IsJustSold()) badge += CommonUtils.Instance.BadgeString.IsJustSold;
                     if (r.IsGoldenCrossPossible()) badge += CommonUtils.Instance.BadgeString.IsGoldenCrossPossible;
                     if (r.HasDisclosure()) badge += CommonUtils.Instance.BadgeString.HasDisclosure;
-                    if (r.IsGranvilleCase1Matched()) badge += CommonUtils.Instance.BadgeString.IsGranvilleCase1Matched;
-                    if (r.IsGranvilleCase2Matched()) badge += CommonUtils.Instance.BadgeString.IsGranvilleCase2Matched;
+                    //if (r.IsGranvilleCase1Matched()) badge += CommonUtils.Instance.BadgeString.IsGranvilleCase1Matched;
+                    //if (r.IsGranvilleCase2Matched()) badge += CommonUtils.Instance.BadgeString.IsGranvilleCase2Matched;
 
                     writer.WriteLine("");
                     writer.WriteLine($"No.{alertCount.ToString("D2")}{badge}");

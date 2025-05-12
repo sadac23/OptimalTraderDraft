@@ -1807,15 +1807,15 @@ internal class StockInfo
         //    // 進捗が良くない場合
         //    if (!this.StockInfo.IsAnnualProgressOnTrack()) result = false;
         //}
-        // グランビルケースに該当する場合
-        else if (this.IsGranvilleCase1Matched() || this.IsGranvilleCase2Matched())
-        {
-            // 利回りが低い場合
-            if (!this.IsHighYield()) result = false;
+        //// グランビルケースに該当する場合
+        //else if (this.IsGranvilleCase1Matched() || this.IsGranvilleCase2Matched())
+        //{
+        //    // 利回りが低い場合
+        //    if (!this.IsHighYield()) result = false;
 
-            // 時価総額が低い場合
-            if (!this.IsHighMarketCap()) result = false;
-        }
+        //    // 時価総額が低い場合
+        //    if (!this.IsHighMarketCap()) result = false;
+        //}
         // 権利確定月前後の場合
         else if (this.IsCloseToRecordDate() || this.IsRecordDate() || this.IsAfterRecordDate())
         {
