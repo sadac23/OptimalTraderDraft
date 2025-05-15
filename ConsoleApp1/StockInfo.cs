@@ -851,11 +851,19 @@ internal class StockInfo
             {
                 var previousFinalForcast = this.FullYearPerformancesForcasts.Where(forcast =>
                 forcast.FiscalPeriod == this.CurrentFiscalMonth.AddYears(-1).ToString("yyyy.MM")
-                && forcast.Category == CommonUtils.Instance.ForecastCategoryString.Revised).LastOrDefault();
+                && (forcast.Category == CommonUtils.Instance.ForecastCategoryString.Initial 
+                || forcast.Category == CommonUtils.Instance.ForecastCategoryString.Revised)).LastOrDefault();
 
                 if (previousFinalForcast != null)
                 {
                     result.FiscalPeriod = previousFinalForcast.FiscalPeriod;
+                    result.Revenue = previousFinalForcast.Revenue;
+                    result.OperatingProfit = previousFinalForcast.OperatingProfit;
+                    result.OrdinaryProfit = previousFinalForcast.OrdinaryProfit;
+                    result.NetProft = previousFinalForcast.NetProfit;
+                    result.AdjustedEarningsPerShare = string.Empty;
+                    result.AdjustedDividendPerShare = previousFinalForcast.RevisedDividend;
+                    result.AnnouncementDate = previousFinalForcast.RevisionDate.ToString();
                 }
                 else
                 {
@@ -1391,15 +1399,16 @@ internal class StockInfo
 
             short count = 0;
             FullYearPerformanceForcast clone = new FullYearPerformanceForcast();
+
             foreach (var previous in PreviousForcasts)
             {
-                count++;
-
-                // 先頭に追加
-                FullYearPerformancesForcasts.Insert(0, previous);
+                // カウント位置に追加
+                FullYearPerformancesForcasts.Insert(count, previous);
 
                 // 最終を退避しておく
-                if (count == PreviousForcasts.Count) clone = (FullYearPerformanceForcast)previous.Clone();
+                if (count == PreviousForcasts.Count - 1) clone = (FullYearPerformanceForcast)previous.Clone();
+
+                count++;
             }
 
             // 最終実績を取得
@@ -1419,8 +1428,8 @@ internal class StockInfo
                 PreviousForcast = clone
             };
 
-            // 先頭に追加
-            FullYearPerformancesForcasts.Insert(0, f);
+            // カウント位置に追加
+            FullYearPerformancesForcasts.Insert(count, f);
         }
     }
 
@@ -2295,6 +2304,8 @@ internal class StockInfo
         internal bool HasUpwardRevision()
         {
             bool result = false;
+
+            if (this.PreviousForcast == null) return result;
 
             if (this.Category != CommonUtils.Instance.ForecastCategoryString.Initial 
                 && this.Category != CommonUtils.Instance.ForecastCategoryString.Final)
