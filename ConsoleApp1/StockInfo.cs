@@ -1472,11 +1472,13 @@ internal class StockInfo
                             string fiscalPeriod = reader.GetString(reader.GetOrdinal("fiscal_period"));
                             string category = reader.GetString(reader.GetOrdinal("category"));
                             string revisionDirection = reader.GetString(reader.GetOrdinal("revision_direction"));
-                            double revenue = reader.GetDouble(reader.GetOrdinal("revenue"));
-                            double operatingProfit = reader.GetDouble(reader.GetOrdinal("operating_profit"));
-                            double ordinaryIncome = reader.GetDouble(reader.GetOrdinal("ordinary_income"));
-                            double netProfit = reader.GetDouble(reader.GetOrdinal("net_profit"));
-                            double revisedDividend = reader.GetDouble(reader.GetOrdinal("revised_dividend"));
+
+                            // 不具合でdouble項目に文字列が格納されているため、どちらも読むための対策
+                            double revenue = GetDouble(reader, "revenue");
+                            double operatingProfit = GetDouble(reader, "operating_profit");
+                            double ordinaryIncome = GetDouble(reader, "ordinary_income");
+                            double netProfit = GetDouble(reader, "net_profit");
+                            double revisedDividend = GetDouble(reader, "revised_dividend");
 
                             FullYearPerformanceForcast f = new FullYearPerformanceForcast()
                             {
@@ -1507,6 +1509,50 @@ internal class StockInfo
 
         return result;
     }
+
+    private double GetDouble(SQLiteDataReader reader, string v)
+    {
+        double result = 0;
+        try
+        {
+            // まずstringで取得
+            result = ConvertToDouble(reader.GetString(reader.GetOrdinal(v)));
+        }
+        catch
+        {
+            // 失敗したらobjectで取得
+            result = ConvertToDouble(reader.GetValue(reader.GetOrdinal(v)));
+        }
+        return result;
+    }
+
+    private double ConvertToDouble(object input)
+    {
+        if (input == null) return 0;
+
+        // 文字列の場合はカンマを除去
+        if (input is string strInput)
+        {
+            strInput = strInput.Replace(",", "");
+            if (double.TryParse(strInput, NumberStyles.Any, CultureInfo.InvariantCulture, out double value))
+            {
+                return value;
+            }
+        }
+        // 数値型ならそのまま変換
+        else if (input is IConvertible)
+        {
+            try
+            {
+                return Convert.ToDouble(input, CultureInfo.InvariantCulture);
+            }
+            catch (FormatException) { }
+            catch (InvalidCastException) { }
+        }
+
+        return 0;
+    }
+
     /// <summary>
     /// 配当権利確定日か？
     /// </summary>
