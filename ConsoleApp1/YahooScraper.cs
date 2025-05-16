@@ -101,6 +101,9 @@ internal class YahooScraper
             if (earningsPeriod != null)
             {
                 stockInfo.EarningsPeriod = earningsPeriod.InnerText.Trim();
+
+                // 直近の4Q決算月
+                stockInfo.CurrentFiscalMonth = GetNextClosingDate(CommonUtils.Instance.ExecusionDate, stockInfo.EarningsPeriod);
             }
         }
         catch (Exception e)
@@ -288,5 +291,42 @@ internal class YahooScraper
         }
 
         throw new FormatException("入力文字列の形式が正しくありません。");
+    }
+    private DateTime GetNextClosingDate(DateTime currentDate, string closingDateStr)
+    {
+        // 月を解析
+        int month = ParseMonth(closingDateStr);
+        if (month == -1)
+        {
+            throw new ArgumentException("無効な書式です。");
+        }
+
+        // 指定された月の末日を取得
+        DateTime closingDate = new DateTime(currentDate.Year, month, DateTime.DaysInMonth(currentDate.Year, month));
+
+        // 現在の日付と比較して次回の決算日を判定
+        if (currentDate <= closingDate)
+        {
+            return closingDate;
+        }
+        else
+        {
+            // 現在の日付が指定された月の末日を過ぎている場合、次の年の同じ月の末日を返す
+            return new DateTime(currentDate.Year + 1, month, DateTime.DaysInMonth(currentDate.Year + 1, month));
+        }
+    }
+
+    private int ParseMonth(string closingDateStr)
+    {
+        // 月の名前を解析
+        if (closingDateStr.EndsWith("月末日"))
+        {
+            string monthStr = closingDateStr.Replace("月末日", "");
+            if (int.TryParse(monthStr, out int month) && month >= 1 && month <= 12)
+            {
+                return month;
+            }
+        }
+        return -1; // 無効な書式
     }
 }

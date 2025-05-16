@@ -77,15 +77,15 @@ internal class MinkabuScraper
                 }
             }
 
-            // 直近の4Q決算月
-            var node = htmlDocument.DocumentNode.SelectSingleNode("//*[@id=\"dps_detail\"]/div[2]/div/div[6]/table[1]/tbody/tr[1]/th[1]/text()");
+            //// 直近の4Q決算月
+            //var node = htmlDocument.DocumentNode.SelectSingleNode("//*[@id=\"dps_detail\"]/div[2]/div/div[6]/table[1]/tbody/tr[1]/th[1]/text()");
 
-            if (node != null)
-            {
-                // カレントの4Q決算月を取得
-                var currentFiscalMonth = node.InnerText.Trim();
-                stockInfo.CurrentFiscalMonth = ExtractYearMonth(currentFiscalMonth);
-            }
+            //if (node != null)
+            //{
+            //    // カレントの4Q決算月を取得
+            //    var currentFiscalMonth = node.InnerText.Trim();
+            //    stockInfo.CurrentFiscalMonth = ExtractYearMonth(currentFiscalMonth);
+            //}
         }
         catch (Exception e)
         {
