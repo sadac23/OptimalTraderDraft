@@ -242,75 +242,93 @@ internal class CommonUtils : IDisposable
     /// <summary>
     /// ナンピン閾値
     /// </summary>
-    public double ThresholdOfAverageDown { get; } = -0.03;
+    public double ThresholdOfAverageDown { get; } = -0.04;
+
     /// <summary>
     /// 利回り閾値
     /// </summary>
     public double ThresholdOfYield { get; } = 0.0300;
+
     /// <summary>
     /// 時価総額閾値
     /// </summary>
     public double ThresholdOfMarketCap { get; } = 100000000000;
+
     /// <summary>
     /// ROE閾値
     /// </summary>
     public double ThresholdOfROE { get; } = 8.00;
+
     /// <summary>
     /// 下げすぎRSI閾値
     /// </summary>
     public double ThresholdOfOversoldRSI { get; } = 30.00;
+
     /// <summary>
     /// 上げすぎRSI閾値
     /// </summary>
     public double ThresholdOfOverboughtRSI { get; } = 70.00;
+
     /// <summary>
     /// 四半期決算日直前かを判定する日数の閾値
     /// </summary>
     public short ThresholdOfDaysToQuarterEnd { get; } = 14;
+
     /// <summary>
     /// 四半期決算日直後かを判定する日数の閾値
     /// </summary>
     public short ThresholdOfDaysFromQuarterEnd { get; } = 7;
+
     /// <summary>
     /// 売却直後かを判定する日数の閾値
     /// </summary>
     public short ThresholdOfDaysJustSold { get; } = 3;
+
     /// <summary>
     /// 売買文字列
     /// </summary>
     public BuyOrSellStringClass BuyOrSellString { get; } = new BuyOrSellStringClass();
+
     /// <summary>
     /// 四半期文字列
     /// </summary>
     public QuarterStringClass QuarterString { get; } = new QuarterStringClass();
+
     /// <summary>
     /// 期間文字列
     /// </summary>
     public PeriodStringClass PeriodString { get; } = new PeriodStringClass();
+
     /// <summary>
     /// 通期予想区分文字列
     /// </summary>
     public ForecastCategoryStringClass ForecastCategoryString { get; } = new ForecastCategoryStringClass();
+
     /// <summary>
     /// 進捗良好の判定基準値
     /// </summary>
     public ThresholdOfProgressSuccessClass ThresholdOfProgressSuccess { get; } = new ThresholdOfProgressSuccessClass();
+
     /// <summary>
     /// バッジ文字列
     /// </summary>
     public BadgeStringClass BadgeString { get; } = new BadgeStringClass();
+
     /// <summary>
     /// ロガー
     /// </summary>
     public ILogger<ConsoleApp1.Program> Logger { get; private set; }
+
     /// <summary>
     /// Yahooの履歴ページをスクレイピングするための最大ページ数
     /// </summary>
     public int MaxPageCountToScrapeYahooHistory { get; } = 100;
+
     /// <summary>
     /// 割安を緩めに判定する際の係数
     /// </summary>
     public double LenientFactor { get; } = 1.1;
+
     /// <summary>
     /// HttpClientインスタンス
     /// </summary>

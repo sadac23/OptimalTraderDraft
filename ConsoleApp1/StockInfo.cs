@@ -2353,8 +2353,7 @@ internal class StockInfo
 
             if (this.PreviousForcast == null) return result;
 
-            if (this.Category != CommonUtils.Instance.ForecastCategoryString.Initial 
-                && this.Category != CommonUtils.Instance.ForecastCategoryString.Final)
+            if (this.Category != CommonUtils.Instance.ForecastCategoryString.Initial)
             {
                 // 売上
                 if (CommonUtils.Instance.GetDouble(this.Revenue) > CommonUtils.Instance.GetDouble(this.PreviousForcast.Revenue)) result = true;

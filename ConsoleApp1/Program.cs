@@ -256,8 +256,7 @@ namespace ConsoleApp1
                 }
 
                 // ファイル保存
-//                Alert.SaveFile(results);
-                Alert.SaveFileAdvance(results);
+                Alert.SaveFile(results);
 
                 // メール送信
                 if (CommonUtils.Instance.ShouldSendMail) Alert.SendMail();
