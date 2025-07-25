@@ -1809,11 +1809,11 @@ internal class StockInfo
         });
         tasks.Add(yahooProfile);
 
-        //Task yahooDisclosure = Task.Run(async () =>
-        //{
-        //    await yahooScraper.ScrapeDisclosure(this);
-        //});
-        //tasks.Add(yahooDisclosure);
+        Task yahooDisclosure = Task.Run(async () =>
+        {
+            await yahooScraper.ScrapeDisclosure(this);
+        });
+        tasks.Add(yahooDisclosure);
 
         Task yahooHistory = Task.Run(async () =>
         {
