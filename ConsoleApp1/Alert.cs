@@ -60,7 +60,7 @@ internal class Alert
         }
     }
 
-    internal static void SendMail_smtp()
+    internal static void SendGmailViaSmtp()
     {
         string smtpServer = "smtp.gmail.com";
         int smtpPort = 587;
@@ -68,8 +68,11 @@ internal class Alert
         string appPassword = "llixzoitbcygegue";
         string toEmail = "sadac23@gmail.com"; // 自分宛て
 
-        string subject = "C#からのテストメール";
-        string body = "これはC#アプリからGmail SMTP経由で送信したテストメールです。";
+        string subject = CommonUtils.Instance.MailSubject;
+        string body = "OptimalTrader processing has completed.";
+
+        // 添付ファイルパス
+        var attachmentFilePath = CommonUtils.ReplacePlaceholder(CommonUtils.Instance.FilepathOfAlert, "{yyyyMMdd}", CommonUtils.Instance.ExecusionDate.ToString("yyyyMMdd"));
 
         try
         {
@@ -78,6 +81,17 @@ internal class Alert
             mail.To.Add(toEmail);
             mail.Subject = subject;
             mail.Body = body;
+
+            // 添付ファイルの追加
+            if (File.Exists(attachmentFilePath))
+            {
+                Attachment attachment = new Attachment(attachmentFilePath);
+                mail.Attachments.Add(attachment);
+            }
+            else
+            {
+                Console.WriteLine("添付ファイルが存在しません: " + attachmentFilePath);
+            }
 
             SmtpClient smtpClient = new SmtpClient(smtpServer, smtpPort);
             smtpClient.Credentials = new NetworkCredential(fromEmail, appPassword);
