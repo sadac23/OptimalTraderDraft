@@ -261,7 +261,8 @@ namespace ConsoleApp1
                 Alert.SaveFile(results);
 
                 // メール送信
-                if (CommonUtils.Instance.ShouldSendMail) Alert.SendMail();
+                //if (CommonUtils.Instance.ShouldSendMail) Alert.SendMail();
+                if (CommonUtils.Instance.ShouldSendMail) Alert.SendMail_smtp();
 
                 // 終了
                 CommonUtils.Instance.Logger.LogInformation(CommonUtils.Instance.MessageAtApplicationEnd);

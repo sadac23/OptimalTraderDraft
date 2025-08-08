@@ -60,6 +60,38 @@ internal class Alert
         }
     }
 
+    internal static void SendMail_smtp()
+    {
+        string smtpServer = "smtp.gmail.com";
+        int smtpPort = 587;
+        string fromEmail = "sadac23@gmail.com";
+        string appPassword = "llixzoitbcygegue";
+        string toEmail = "sadac23@gmail.com"; // 自分宛て
+
+        string subject = "C#からのテストメール";
+        string body = "これはC#アプリからGmail SMTP経由で送信したテストメールです。";
+
+        try
+        {
+            MailMessage mail = new MailMessage();
+            mail.From = new MailAddress(fromEmail);
+            mail.To.Add(toEmail);
+            mail.Subject = subject;
+            mail.Body = body;
+
+            SmtpClient smtpClient = new SmtpClient(smtpServer, smtpPort);
+            smtpClient.Credentials = new NetworkCredential(fromEmail, appPassword);
+            smtpClient.EnableSsl = true;
+
+            smtpClient.Send(mail);
+            Console.WriteLine("メール送信に成功しました。");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("メール送信に失敗しました: " + ex.Message);
+        }
+    }
+
     internal static void SendMail()
     {
         string[] Scopes = { GmailService.Scope.GmailSend };
