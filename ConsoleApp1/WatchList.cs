@@ -8,7 +8,7 @@ using System.Runtime.CompilerServices;
 using System.Xml.Serialization;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
-internal class WatchList
+public class WatchList
 {
     internal static List<WatchStock> GetWatchStockList(string connectionString)
     {
@@ -90,7 +90,7 @@ internal class WatchList
         return results;
     }
 
-    internal class WatchStock
+    public class WatchStock
     {
         public string Code { get; set; }
         public string Name { get; set; }
@@ -100,7 +100,7 @@ internal class WatchList
         /// </summary>
         public string Classification { get; set; }
         public string IsFavorite { get; set; }
-        public string Memo { get; internal set; }
+        public string Memo { get; set; }
     }
 
 }

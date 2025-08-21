@@ -8,7 +8,7 @@ using Google.Apis.Services;
 using Google.Apis.Util.Store;
 using Microsoft.Extensions.Logging;
 
-internal class ExecutionList
+public class ExecutionList
 {
     internal static List<Execution> GetExecutions(List<ListDetail> executionList, string code)
     {
@@ -177,7 +177,7 @@ internal class ExecutionList
         public string SellQuantity { get; internal set; }
     }
 
-    internal class Execution
+    public class Execution
     {
         /// <summary>
         /// コード
@@ -191,11 +191,11 @@ internal class ExecutionList
         /// 買：買い付け
         /// 売：売り付け
         /// </summary>
-        public string BuyOrSell { get; internal set; }
+        public string BuyOrSell { get; set; }
         /// <summary>
         /// 取引日
         /// </summary>
-        public DateTime Date { get; internal set; }
+        public DateTime Date { get; set; }
         /// <summary>
         /// 価格
         /// </summary>

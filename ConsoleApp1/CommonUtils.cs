@@ -11,11 +11,46 @@ using System.Globalization;
 using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
 using System.Collections.Specialized;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 
-internal class CommonUtils : IDisposable
+[assembly: InternalsVisibleTo("ConsoleApp1.Tests")]
+
+public class CommonUtils : IDisposable
 {
-    // 唯一のインスタンスを保持するための静的フィールド
-    private static CommonUtils instance = null;
+    // シングルトンインスタンス
+    private static CommonUtils instance;
+    public static CommonUtils Instance => instance ??= new CommonUtils();
+
+    // テスト用: インスタンス差し替え
+    internal static void SetInstanceForTest(CommonUtils testInstance)
+    {
+        instance = testInstance;
+    }
+
+    // シングルトンのためprotectedコンストラクタ
+    protected CommonUtils()
+    {
+        // ロガー
+        SetupLogger();
+        // フラグ
+        SetupFlag();
+        // HttpClient
+        this.HttpClient = new HttpClient();
+
+        // 設定ファイルから値を取得（テスト用サブクラスでは上書き可能）
+        ConnectionString = ConfigurationManager.ConnectionStrings["OTDB"]?.ConnectionString ?? "";
+        FilepathOfWatchList = ConfigurationManager.AppSettings["WatchListFilePath"] ?? "";
+        FilepathOfExecutionList = ConfigurationManager.AppSettings["ExecutionListFilePath"] ?? "";
+        FilepathOfAveragePerPbrList = ConfigurationManager.AppSettings["AveragePerPbrListFilePath"] ?? "";
+        FilepathOfFilelog = ConfigurationManager.AppSettings["FilelogFilePath"] ?? "";
+        FilepathOfAlert = ConfigurationManager.AppSettings["AlertFilePath"] ?? "";
+        FilepathOfGmailAPICredential = ConfigurationManager.AppSettings["GmailAPICredentialFilePath"] ?? "";
+        MailSubject = ConfigurationManager.AppSettings["MailSubject"] ?? "";
+    }
+
+    // 例: プロパティやメソッド
+    public virtual double ThresholdOfYield => 0.04;
+    public virtual BuyOrSellStringClass BuyOrSellString => new BuyOrSellStringClass { Buy = "買", Sell = "売" };
 
     /// <summary>
     /// アプリケーション実行日
@@ -28,36 +63,36 @@ internal class CommonUtils : IDisposable
     /// <summary>
     /// データベースの接続文字列
     /// </summary>
-    public string ConnectionString { get; set; } = ConfigurationManager.ConnectionStrings["OTDB"].ConnectionString;
+    public virtual string ConnectionString { get; set; }
     /// <summary>
     /// ウォッチリストのファイルパス
     /// </summary>
-    public string FilepathOfWatchList { get; set; } = ConfigurationManager.AppSettings["WatchListFilePath"];
+    public virtual string FilepathOfWatchList { get; set; }
     /// <summary>
     /// 約定履歴のファイルパス
     /// </summary>
-    public string FilepathOfExecutionList { get; set; } = ConfigurationManager.AppSettings["ExecutionListFilePath"];
+    public virtual string FilepathOfExecutionList { get; set; }
     /// <summary>
     /// PER/PBRの平均リスト
     /// </summary>
-    public string FilepathOfAveragePerPbrList { get; set; } = ConfigurationManager.AppSettings["AveragePerPbrListFilePath"];
+    public virtual string FilepathOfAveragePerPbrList { get; set; }
     /// <summary>
     /// ファイルログのファイルパス
     /// </summary>
-    public string FilepathOfFilelog { get; set; } = ConfigurationManager.AppSettings["FilelogFilePath"];
+    public virtual string FilepathOfFilelog { get; set; }
     /// <summary>
     /// 通知ファイルパス
     /// </summary>
-    public string FilepathOfAlert { get; set; } = ConfigurationManager.AppSettings["AlertFilePath"];
+    public virtual string FilepathOfAlert { get; set; }
     /// <summary>
     /// GmailAPIのCredentialファイルパス
     /// </summary>
-    public string FilepathOfGmailAPICredential { get; set; } = ConfigurationManager.AppSettings["GmailAPICredentialFilePath"];
+    public virtual string FilepathOfGmailAPICredential { get; set; }
 
     /// <summary>
     /// メールの件名
     /// </summary>
-    public string MailSubject { get; set; } = ConfigurationManager.AppSettings["MailSubject"];
+    public virtual string MailSubject { get; set; }
 
     /// <summary>
     /// OneDriveをリフレッシュするべきか？
@@ -96,32 +131,21 @@ internal class CommonUtils : IDisposable
     /// </summary>
     public short RSIShortPeriodDays { get; } = 9;
 
-    // プライベートコンストラクタにより、外部からのインスタンス化を防ぐ
-    private CommonUtils()
-    {
-        // ロガー
-        SetupLogger();
-        // フラグ
-        SetupFlag();
-        // HttpClient
-        this.HttpClient = new HttpClient();
-    }
-
     /// <summary>
     /// フラグの準備
     /// </summary>
-    private void SetupFlag()
+    protected virtual void SetupFlag()
     {
         var processSettings = (NameValueCollection)ConfigurationManager.GetSection("processSettings");
-        this.ShouldUpdateExecutionList = processSettings["ShouldUpdateExecutionList"] == "1" ? true : false;
-        this.ShouldSendMail = processSettings["ShouldSendMail"] == "1" ? true : false;
-        this.ShouldRefreshOneDrive = processSettings["ShouldRefreshOneDrive"] == "1" ? true : false;
+        this.ShouldUpdateExecutionList = processSettings["ShouldUpdateExecutionList"] == "1";
+        this.ShouldSendMail = processSettings["ShouldSendMail"] == "1";
+        this.ShouldRefreshOneDrive = processSettings["ShouldRefreshOneDrive"] == "1";
     }
 
     /// <summary>
     /// ロガーの準備
     /// </summary>
-    private void SetupLogger()
+    protected virtual void SetupLogger()
     {
         // NLogの設定をコード内で行う
         var config = new LoggingConfiguration();
@@ -195,8 +219,8 @@ internal class CommonUtils : IDisposable
     }
     public class BuyOrSellStringClass
     {
-        public string Buy { get; } = "買";
-        public string Sell { get; } = "売";
+        public string Buy { get; set; }
+        public string Sell { get; set; }
     }
     public class QuarterStringClass
     {
@@ -226,19 +250,6 @@ internal class CommonUtils : IDisposable
     /// </summary>
     public short ChartDays { get; } = 14;
 
-    // 唯一のインスタンスを取得するための静的メソッド
-    public static CommonUtils Instance
-    {
-        get
-        {
-            if (instance == null)
-            {
-                instance = new CommonUtils();
-            }
-            return instance;
-        }
-    }
-
     /// <summary>
     /// ナンピン閾値
     /// </summary>
@@ -247,7 +258,7 @@ internal class CommonUtils : IDisposable
     /// <summary>
     /// 利回り閾値
     /// </summary>
-    public double ThresholdOfYield { get; } = 0.0300;
+    // public double ThresholdOfYield { get; } = 0.0300;
 
     /// <summary>
     /// 時価総額閾値
@@ -287,7 +298,7 @@ internal class CommonUtils : IDisposable
     /// <summary>
     /// 売買文字列
     /// </summary>
-    public BuyOrSellStringClass BuyOrSellString { get; } = new BuyOrSellStringClass();
+    // public virtual BuyOrSellStringClass BuyOrSellString { get; } = new BuyOrSellStringClass();
 
     /// <summary>
     /// 四半期文字列
@@ -334,11 +345,11 @@ internal class CommonUtils : IDisposable
     /// </summary>
     public HttpClient HttpClient { get; internal set; }
 
-    internal static string ReplacePlaceholder(string? input, string placeholder, string newValue)
+    internal static string? ReplacePlaceholder(string? input, string placeholder, string newValue)
     {
         if (string.IsNullOrEmpty(input))
         {
-            throw new ArgumentException("Input cannot be null or empty.", nameof(input));
+            return input;
         }
         return input.Replace(placeholder, newValue);
     }
