@@ -21,7 +21,7 @@ using System.Text.RegularExpressions;
 using static ExecutionList;
 using static StockInfo;
 
-internal class StockInfo
+public class StockInfo
 {
     public StockInfo(WatchList.WatchStock watchStock)
     {
@@ -56,50 +56,50 @@ internal class StockInfo
     /// <summary>
     /// ROE
     /// </summary>
-    public double Roe { get; internal set; }
+    public double Roe { get; set; }
     /// <summary>
     /// PER
     /// </summary>
-    public double Per { get; internal set; }
+    public double Per { get; set; }
     /// <summary>
     /// PBR
     /// </summary>
-    public double Pbr { get; internal set; }
+    public double Pbr { get; set; }
     /// <summary>
     /// 利回り
     /// "3.58%"は"0.0358"で保持。
     /// </summary>
-    public double DividendYield { get; internal set; }
+    public double DividendYield { get; set; }
     /// <summary>
     /// 信用倍率
     /// </summary>
-    public string MarginBalanceRatio { get; internal set; }
+    public string MarginBalanceRatio { get; set; }
     /// <summary>
     /// 時価総額
     /// </summary>
-    public double MarketCap { get; internal set; }
+    public double MarketCap { get; set; }
     /// <summary>
     /// 通期業績履歴
     /// </summary>
     /// <remarks>
     /// [業績推移]タブの履歴
     /// </remarks>
-    public List<FullYearPerformance> FullYearPerformances { get; internal set; }
+    public List<FullYearPerformance> FullYearPerformances { get; set; }
     /// <summary>
     /// 通期業績予想概要（例：増収増益増配（+50%,+50%,+50））
     /// </summary>
-    public string FullYearPerformanceForcastSummary { get; internal set; }
+    public string FullYearPerformanceForcastSummary { get; set; }
     /// <summary>
     /// 通期業績予想履歴
     /// </summary>
     /// <remarks>
     /// [修正履歴]タブの履歴
     /// </remarks>
-    public List<FullYearPerformanceForcast> FullYearPerformancesForcasts { get; internal set; }
+    public List<FullYearPerformanceForcast> FullYearPerformancesForcasts { get; set; }
     /// <summary>
     /// 通期収益履歴
     /// </summary>
-    public List<FullYearProfit> FullYearProfits { get; internal set; }
+    public List<FullYearProfit> FullYearProfits { get; set; }
     /// <summary>
     /// 約定履歴
     /// </summary>
@@ -111,57 +111,57 @@ internal class StockInfo
     /// <summary>
     /// ウォッチリストのメモ
     /// </summary>
-    public string Memo { get; private set; }
+    public string Memo { get; set; }
     /// <summary>
     /// 自己資本比率
     /// </summary>
-    public string EquityRatio { get; internal set; }
+    public string EquityRatio { get; set; }
     /// <summary>
     /// 配当性向
     /// "3.58%"は"0.0358"で保持。
     /// </summary>
-    public double DividendPayoutRatio { get; internal set; }
+    public double DividendPayoutRatio { get; set; }
     /// <summary>
     /// 配当権利確定月
     /// </summary>
-    public string DividendRecordDateMonth { get; internal set; }
+    public string DividendRecordDateMonth { get; set; }
     /// <summary>
     /// 優待利回り
     /// "3.58%"は"0.0358"で保持。
     /// </summary>
-    public double ShareholderBenefitYield { get; internal set; }
+    public double ShareholderBenefitYield { get; set; }
     /// <summary>
     /// 優待発生株数
     /// </summary>
-    public string NumberOfSharesRequiredForBenefits { get; internal set; }
+    public string NumberOfSharesRequiredForBenefits { get; set; }
     /// <summary>
     /// 優待権利確定月
     /// </summary>
-    public string ShareholderBenefitRecordMonth { get; internal set; }
+    public string ShareholderBenefitRecordMonth { get; set; }
     /// <summary>
     /// 優待内容
     /// </summary>
-    public string ShareholderBenefitsDetails { get; internal set; }
+    public string ShareholderBenefitsDetails { get; set; }
     /// <summary>
     /// 市場区分
     /// </summary>
-    public string Section { get; internal set; }
+    public string Section { get; set; }
     /// <summary>
     /// 業種
     /// </summary>
-    public string Industry { get; internal set; }
+    public string Industry { get; set; }
     /// <summary>
     /// 所属する業種の平均PER
     /// </summary>
-    public double AveragePer { get; private set; }
+    public double AveragePer { get; set; }
     /// <summary>
     /// 所属する業種の平均PBR
     /// </summary>
-    public double AveragePbr { get; private set; }
+    public double AveragePbr { get; set; }
     /// <summary>
     /// 決算発表
     /// </summary>
-    public string PressReleaseDate { get; internal set; }
+    public string PressReleaseDate { get; set; }
     /// <summary>
     /// 直近の株価
     /// </summary>
@@ -204,60 +204,60 @@ internal class StockInfo
     /// <remarks>
     /// [修正履歴]タブの実績
     /// </remarks>
-    public List<QuarterlyPerformance> QuarterlyPerformances { get; internal set; }
+    public List<QuarterlyPerformance> QuarterlyPerformances { get; set; }
     /// <summary>
     /// 優待権利確定日
     /// </summary>
-    public object ShareholderBenefitRecordDay { get; internal set; }
+    public object ShareholderBenefitRecordDay { get; set; }
     /// <summary>
     /// 前期通期進捗率
     /// </summary>
-    public double PreviousFullyearProgressRate { get; internal set; }
+    public double PreviousFullyearProgressRate { get; set; }
     /// <summary>
     /// 前期実績発表日
     /// </summary>
-    public DateTime PreviousPerformanceReleaseDate { get; internal set; }
+    public DateTime PreviousPerformanceReleaseDate { get; set; }
     /// <summary>
     /// 決算時期
     /// </summary>
-    public string EarningsPeriod { get; internal set; }
+    public string EarningsPeriod { get; set; }
     /// <summary>
     /// チャート価格（降順）
     /// </summary>
-    public List<ChartPrice> ChartPrices { get; internal set; }
+    public List<ChartPrice> ChartPrices { get; set; }
     /// <summary>
     /// 四半期決算実績の前年同期比の経常利益率
     /// </summary>
-    public double QuarterlyOperatingProfitMarginYoY { get; internal set; }
+    public double QuarterlyOperatingProfitMarginYoY { get; set; }
     /// <summary>
     /// カレントの4Q決算月
     /// </summary>
-    public DateTime CurrentFiscalMonth { get; internal set; }
+    public DateTime CurrentFiscalMonth { get; set; }
     /// <summary>
     /// 信託報酬率
     /// </summary>
     /// <remarks>
     /// "3.58%"は"0.0358"で保持。
     /// </remarks>
-    public double TrustFeeRate { get; internal set; }
+    public double TrustFeeRate { get; set; }
     /// <summary>
     /// 投資信託の運用会社
     /// </summary>
-    public string FundManagementCompany { get; internal set; }
+    public string FundManagementCompany { get; set; }
     /// <summary>
     /// 株主資本配当率
     /// </summary>
     /// <remarks>年間配当総額÷株主資本×100 or 配当性向×自己資本利益率(ROE)×100</remarks>
-    public double Doe { get; internal set; }
+    public double Doe { get; set; }
     /// <summary>
     /// 営業利益率
     /// </summary>
     /// <remarks>営業利益 ÷ 売上高 × 100</remarks>
-    public double OperatingProfitMargin { get; internal set; }
+    public double OperatingProfitMargin { get; set; }
     /// <summary>
     /// 開示情報
     /// </summary>
-    public List<Disclosure> Disclosures { get; private set; }
+    public List<Disclosure> Disclosures { get; set; }
 
     /// <summary>
     /// 現在、所有しているか？
@@ -266,7 +266,7 @@ internal class StockInfo
     /// 買売の株数比較で判定すると、分割時にうまく判定できない。
     /// 約定リストで売り約定が存在していない買い約定が存在しているか否かで判定する。
     /// </remarks>
-    internal bool IsOwnedNow()
+    public bool IsOwnedNow()
     {
         var result = false;
 
@@ -717,7 +717,7 @@ internal class StockInfo
     /// PERが割安か？
     /// </summary>
     /// <param name="isLenient">緩めに判定するか？</param>
-    internal bool IsPERUndervalued(bool isLenient = false)
+    public bool IsPERUndervalued(bool isLenient = false)
     {
         bool result = false;
         double threshold = isLenient ? this.AveragePer * CommonUtils.Instance.LenientFactor : this.AveragePer;
@@ -924,7 +924,7 @@ internal class StockInfo
     /// <summary>
     /// 利回りが高いか？
     /// </summary>
-    internal bool IsHighYield()
+    public bool IsHighYield()
     {
         bool result = false;
 
@@ -2367,7 +2367,7 @@ internal class StockInfo
         }
     }
 
-    internal class ChartPrice : ICloneable
+    public class ChartPrice : ICloneable
     {
         public DateTime Date { get; internal set; }
         public double Price { get; internal set; }
