@@ -17,7 +17,9 @@ internal class YahooScraper
         try
         {
             var htmlDocument = new HtmlDocument();
-            var urlBaseYahooFinance = $"https://finance.yahoo.co.jp/quote/{stockInfo.Code}.T/history?styl=stock&from={from.ToString("yyyyMMdd")}&to={to.ToString("yyyyMMdd")}&timeFrame=d";
+            // サフィックス判定（指数は".O"、それ以外は".T"）
+            string suffix = stockInfo.Classification == CommonUtils.Instance.Classification.Index ? ".O" : ".T";
+            var urlBaseYahooFinance = $"https://finance.yahoo.co.jp/quote/{stockInfo.Code}{suffix}/history?styl=stock&from={from:yyyyMMdd}&to={to:yyyyMMdd}&timeFrame=d";
 
             /** Yahooファイナンス */
             for (int i = 1; i < _pageCountMax; i++)
@@ -36,37 +38,85 @@ internal class YahooScraper
                 // 他の処理
                 htmlDocument.LoadHtml(html);
 
-                var rows = htmlDocument.DocumentNode.SelectNodes("//table[contains(@class, 'StocksEtfReitPriceHistory')]/tbody/tr");
+                // 指数かどうかでXPathを切り替え
+                string xpath;
+                if (stockInfo.Classification == CommonUtils.Instance.Classification.Index)
+                {
+                    // 指数の場合
+                    xpath = "//table[contains(@class, 'table__CO3B')]/tbody/tr";
+                }
+                else
+                {
+                    // 日本株・ETF等
+                    xpath = "//table[contains(@class, 'StocksEtfReitPriceHistory')]/tbody/tr";
+                }
+                var rows = htmlDocument.DocumentNode.SelectNodes(xpath);
 
                 if (rows != null && rows.Count != 0)
                 {
                     rowCount = 0;
 
-                    foreach (var row in rows)
+                    // 指数の場合は1行目（ヘッダー）をスキップ
+                    int startIndex = 0;
+                    if (stockInfo.Classification == CommonUtils.Instance.Classification.Index && rows.Count > 1)
                     {
+                        startIndex = 1;
+                    }
+
+                    for (int r = startIndex; r < rows.Count; r++)
+                    {
+                        var row = rows[r];
                         var columns = row.SelectNodes("td|th");
 
-                        if (columns != null && columns.Count > 6)
+                        if (stockInfo.Classification == CommonUtils.Instance.Classification.Index)
                         {
-                            var date = this.GetDate(columns[0].InnerText.Trim());
-                            var open = CommonUtils.Instance.GetDouble(columns[1].InnerText.Trim());
-                            var high = CommonUtils.Instance.GetDouble(columns[2].InnerText.Trim());
-                            var low = CommonUtils.Instance.GetDouble(columns[3].InnerText.Trim());
-                            var close = CommonUtils.Instance.GetDouble(columns[4].InnerText.Trim());
-                            var volume = CommonUtils.Instance.GetDouble(columns[5].InnerText.Trim());
-                            var adjustedClose = CommonUtils.Instance.GetDouble(columns[6].InnerText.Trim());
-
-                            stockInfo.ScrapedPrices.Add(new StockInfo.ScrapedPrice
+                            // 指数の場合: 日付・始値・高値・安値・終値のみ
+                            if (columns != null && columns.Count >= 5)
                             {
-                                Date = date,
-                                DateYYYYMMDD = date.ToString("yyyyMMdd"),
-                                Open = open,
-                                High = high,
-                                Low = low,
-                                Close = close,
-                                Volume = volume,
-                                AdjustedClose = adjustedClose
-                            });
+                                var date = this.GetDate(columns[0].InnerText.Trim());
+                                var open = CommonUtils.Instance.GetDouble(columns[1].InnerText.Trim());
+                                var high = CommonUtils.Instance.GetDouble(columns[2].InnerText.Trim());
+                                var low = CommonUtils.Instance.GetDouble(columns[3].InnerText.Trim());
+                                var close = CommonUtils.Instance.GetDouble(columns[4].InnerText.Trim());
+
+                                stockInfo.ScrapedPrices.Add(new StockInfo.ScrapedPrice
+                                {
+                                    Date = date,
+                                    DateYYYYMMDD = date.ToString("yyyyMMdd"),
+                                    Open = open,
+                                    High = high,
+                                    Low = low,
+                                    Close = close,
+                                    Volume = 0,         // 指数は出来高なし
+                                    AdjustedClose = close // 指数は調整後終値なし（終値をセット）
+                                });
+                            }
+                        }
+                        else
+                        {
+                            // 日本株・ETF等: 既存の処理
+                            if (columns != null && columns.Count > 6)
+                            {
+                                var date = this.GetDate(columns[0].InnerText.Trim());
+                                var open = CommonUtils.Instance.GetDouble(columns[1].InnerText.Trim());
+                                var high = CommonUtils.Instance.GetDouble(columns[2].InnerText.Trim());
+                                var low = CommonUtils.Instance.GetDouble(columns[3].InnerText.Trim());
+                                var close = CommonUtils.Instance.GetDouble(columns[4].InnerText.Trim());
+                                var volume = CommonUtils.Instance.GetDouble(columns[5].InnerText.Trim());
+                                var adjustedClose = CommonUtils.Instance.GetDouble(columns[6].InnerText.Trim());
+
+                                stockInfo.ScrapedPrices.Add(new StockInfo.ScrapedPrice
+                                {
+                                    Date = date,
+                                    DateYYYYMMDD = date.ToString("yyyyMMdd"),
+                                    Open = open,
+                                    High = high,
+                                    Low = low,
+                                    Close = close,
+                                    Volume = volume,
+                                    AdjustedClose = adjustedClose
+                                });
+                            }
                         }
                         rowCount++;
                     }
@@ -83,7 +133,8 @@ internal class YahooScraper
 
     internal async Task ScrapeProfile(StockInfo stockInfo)
     {
-        var url = $"https://finance.yahoo.co.jp/quote/{stockInfo.Code}.T/profile";
+        string suffix = stockInfo.Classification == CommonUtils.Instance.Classification.Index ? ".O" : ".T";
+        var url = $"https://finance.yahoo.co.jp/quote/{stockInfo.Code}{suffix}/profile";
 
         try
         {
@@ -115,7 +166,8 @@ internal class YahooScraper
     {
         try
         {
-            var url = $"https://finance.yahoo.co.jp/quote/{stockInfo.Code}.T";
+            string suffix = stockInfo.Classification == CommonUtils.Instance.Classification.Index ? ".O" : ".T";
+            var url = $"https://finance.yahoo.co.jp/quote/{stockInfo.Code}{suffix}";
             CommonUtils.Instance.Logger.LogInformation(url);
 
             HttpResponseMessage response = await CommonUtils.Instance.HttpClient.GetAsync(url);
@@ -126,9 +178,23 @@ internal class YahooScraper
             document.LoadHtml(pageContent);
 
             // 名称
-            var title = document.DocumentNode.SelectNodes("//title");
-            string[] parts = title[0].InnerText.Trim().Split('【');
-            stockInfo.Name = parts.Length > 0 ? parts[0] : stockInfo.Name;
+            var titleNode = document.DocumentNode.SelectSingleNode("//title");
+            if (titleNode != null)
+            {
+                var titleText = titleNode.InnerText.Trim();
+                if (stockInfo.Classification == "0") // 指数の場合
+                {
+                    // 「：」または「:」で分割し、最初の部分を取得
+                    var name = titleText.Split(new[] { '：', ':' }, 2)[0].Trim();
+                    stockInfo.Name = name;
+                }
+                else
+                {
+                    // それ以外は従来通り
+                    string[] parts = titleText.Split('【');
+                    stockInfo.Name = parts.Length > 0 ? parts[0] : stockInfo.Name;
+                }
+            }
 
             // 決算発表
             var node = document.DocumentNode.SelectSingleNode("//*[@id=\"summary\"]/div/section[1]/p");
@@ -222,7 +288,8 @@ internal class YahooScraper
 
     internal async Task ScrapeDisclosure(StockInfo stockInfo)
     {
-        var url = $"https://finance.yahoo.co.jp/quote/{stockInfo.Code}.T/disclosure";
+        string suffix = stockInfo.Classification == CommonUtils.Instance.Classification.Index ? ".O" : ".T";
+        var url = $"https://finance.yahoo.co.jp/quote/{stockInfo.Code}{suffix}/disclosure";
 
         try
         {

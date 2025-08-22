@@ -49,7 +49,7 @@ public class CommonUtils : IDisposable
     }
 
     // 例: プロパティやメソッド
-    public virtual double ThresholdOfYield => 0.04;
+    public virtual double ThresholdOfYield => 0.03;
     public virtual BuyOrSellStringClass BuyOrSellString => new BuyOrSellStringClass { Buy = "買", Sell = "売" };
 
     /// <summary>
@@ -198,6 +198,7 @@ public class CommonUtils : IDisposable
 
     public class ClassificationClass
     {
+        //指数: Index
         //日本個別株: JapaneseIndividualStocks
         //日本ETF: Japanese ETFs
         //日本投資信託: Japanese Mutual Funds
@@ -205,17 +206,21 @@ public class CommonUtils : IDisposable
         //米国個別株：USIndividualStocks
 
         /// <summary>
+        /// Gets the index value representing a specific financial category.
+        /// </summary>
+        public string Index { get; } = "0";
+        /// <summary>
         /// 日本個別株
         /// </summary>
         public string JapaneseIndividualStocks { get; } = "1";
         /// <summary>
         /// 日本ETF
         /// </summary>
-        public string JapaneseETFs { get; } = "2";
+        public string JapaneseETFs { get; set; } = "2";
         /// <summary>
         /// 米国個別株
         /// </summary>
-        public string USIndividualStocks { get; } = "5";
+        public string USIndividualStocks { get; set; } = "5";
     }
     public class BuyOrSellStringClass
     {
@@ -328,7 +333,7 @@ public class CommonUtils : IDisposable
     /// <summary>
     /// ロガー
     /// </summary>
-    public ILogger<ConsoleApp1.Program> Logger { get; private set; }
+    public ILogger<ConsoleApp1.Program> Logger { get; set; }
 
     /// <summary>
     /// Yahooの履歴ページをスクレイピングするための最大ページ数

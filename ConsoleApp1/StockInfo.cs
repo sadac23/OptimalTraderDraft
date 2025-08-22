@@ -204,60 +204,60 @@ public class StockInfo
     /// <remarks>
     /// [修正履歴]タブの実績
     /// </remarks>
-    public List<QuarterlyPerformance> QuarterlyPerformances { get; internal set; }
+    public List<QuarterlyPerformance> QuarterlyPerformances { get; set; }
     /// <summary>
     /// 優待権利確定日
     /// </summary>
-    public object ShareholderBenefitRecordDay { get; internal set; }
+    public object ShareholderBenefitRecordDay { get; set; }
     /// <summary>
     /// 前期通期進捗率
     /// </summary>
-    public double PreviousFullyearProgressRate { get; internal set; }
+    public double PreviousFullyearProgressRate { get; set; }
     /// <summary>
     /// 前期実績発表日
     /// </summary>
-    public DateTime PreviousPerformanceReleaseDate { get; internal set; }
+    public DateTime PreviousPerformanceReleaseDate { get; set; }
     /// <summary>
     /// 決算時期
     /// </summary>
-    public string EarningsPeriod { get; internal set; }
+    public string EarningsPeriod { get; set; }
     /// <summary>
     /// チャート価格（降順）
     /// </summary>
-    public List<ChartPrice> ChartPrices { get; internal set; }
+    public List<ChartPrice> ChartPrices { get; set; }
     /// <summary>
     /// 四半期決算実績の前年同期比の経常利益率
     /// </summary>
-    public double QuarterlyOperatingProfitMarginYoY { get; internal set; }
+    public double QuarterlyOperatingProfitMarginYoY { get; set; }
     /// <summary>
     /// カレントの4Q決算月
     /// </summary>
-    public DateTime CurrentFiscalMonth { get; internal set; }
+    public DateTime CurrentFiscalMonth { get; set; }
     /// <summary>
     /// 信託報酬率
     /// </summary>
     /// <remarks>
     /// "3.58%"は"0.0358"で保持。
     /// </remarks>
-    public double TrustFeeRate { get; internal set; }
+    public double TrustFeeRate { get; set; }
     /// <summary>
     /// 投資信託の運用会社
     /// </summary>
-    public string FundManagementCompany { get; internal set; }
+    public string FundManagementCompany { get; set; }
     /// <summary>
     /// 株主資本配当率
     /// </summary>
     /// <remarks>年間配当総額÷株主資本×100 or 配当性向×自己資本利益率(ROE)×100</remarks>
-    public double Doe { get; internal set; }
+    public double Doe { get; set; }
     /// <summary>
     /// 営業利益率
     /// </summary>
     /// <remarks>営業利益 ÷ 売上高 × 100</remarks>
-    public double OperatingProfitMargin { get; internal set; }
+    public double OperatingProfitMargin { get; set; }
     /// <summary>
     /// 開示情報
     /// </summary>
-    public List<Disclosure> Disclosures { get; private set; }
+    public List<Disclosure> Disclosures { get; set; }
 
     /// <summary>
     /// 現在、所有しているか？
