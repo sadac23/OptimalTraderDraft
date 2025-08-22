@@ -7997,23 +7997,23 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\nx04178\\.nuget\\packages\\": {},
+    "C:\\Users\\sator\\.nuget\\packages\\": {},
     "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\repos\\OTDraft\\OptimalTraderDraft\\ConsoleApp1.Tests\\ConsoleApp1.Tests.csproj",
+      "projectUniqueName": "C:\\repos\\OptimalTraderDraft\\ConsoleApp1.Tests\\ConsoleApp1.Tests.csproj",
       "projectName": "ConsoleApp1.Tests",
-      "projectPath": "C:\\repos\\OTDraft\\OptimalTraderDraft\\ConsoleApp1.Tests\\ConsoleApp1.Tests.csproj",
-      "packagesPath": "C:\\Users\\nx04178\\.nuget\\packages\\",
-      "outputPath": "C:\\repos\\OTDraft\\OptimalTraderDraft\\ConsoleApp1.Tests\\obj\\",
+      "projectPath": "C:\\repos\\OptimalTraderDraft\\ConsoleApp1.Tests\\ConsoleApp1.Tests.csproj",
+      "packagesPath": "C:\\Users\\sator\\.nuget\\packages\\",
+      "outputPath": "C:\\repos\\OptimalTraderDraft\\ConsoleApp1.Tests\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
       ],
       "configFilePaths": [
-        "C:\\Users\\nx04178\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\sator\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
@@ -8028,8 +8028,8 @@
         "net8.0": {
           "targetAlias": "net8.0",
           "projectReferences": {
-            "C:\\repos\\OTDraft\\OptimalTraderDraft\\ConsoleApp1\\ConsoleApp1.csproj": {
-              "projectPath": "C:\\repos\\OTDraft\\OptimalTraderDraft\\ConsoleApp1\\ConsoleApp1.csproj"
+            "C:\\repos\\OptimalTraderDraft\\ConsoleApp1\\ConsoleApp1.csproj": {
+              "projectPath": "C:\\repos\\OptimalTraderDraft\\ConsoleApp1\\ConsoleApp1.csproj"
             }
           }
         }
@@ -8042,9 +8042,9 @@
       "restoreAuditProperties": {
         "enableAudit": "true",
         "auditLevel": "low",
-        "auditMode": "direct"
+        "auditMode": "all"
       },
-      "SdkAnalysisLevel": "9.0.300"
+      "SdkAnalysisLevel": "9.0.100"
     },
     "frameworks": {
       "net8.0": {
@@ -8083,8 +8083,60 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.300/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.100/PortableRuntimeIdentifierGraph.json"
       }
     }
-  }
+  },
+  "logs": [
+    {
+      "code": "NU1902",
+      "level": "Warning",
+      "warningLevel": 1,
+      "message": "パッケージ 'System.Data.SqlClient' 4.8.1 に既知の 中 重大度の脆弱性があります、https://github.com/advisories/GHSA-8g2p-5pqh-5jmc",
+      "libraryId": "System.Data.SqlClient",
+      "targetGraphs": [
+        "net8.0"
+      ]
+    },
+    {
+      "code": "NU1903",
+      "level": "Warning",
+      "warningLevel": 1,
+      "message": "パッケージ 'System.Data.SqlClient' 4.8.1 に既知の 高 重大度の脆弱性があります、https://github.com/advisories/GHSA-98g6-xh36-x2p7",
+      "libraryId": "System.Data.SqlClient",
+      "targetGraphs": [
+        "net8.0"
+      ]
+    },
+    {
+      "code": "NU1904",
+      "level": "Warning",
+      "warningLevel": 1,
+      "message": "パッケージ 'System.Drawing.Common' 4.7.0 に既知の クリティカル 重大度の脆弱性があります、https://github.com/advisories/GHSA-rxg9-xrhp-64gj",
+      "libraryId": "System.Drawing.Common",
+      "targetGraphs": [
+        "net8.0"
+      ]
+    },
+    {
+      "code": "NU1903",
+      "level": "Warning",
+      "warningLevel": 1,
+      "message": "パッケージ 'System.Net.Http' 4.3.0 に既知の 高 重大度の脆弱性があります、https://github.com/advisories/GHSA-7jgj-8wvc-jh57",
+      "libraryId": "System.Net.Http",
+      "targetGraphs": [
+        "net8.0"
+      ]
+    },
+    {
+      "code": "NU1903",
+      "level": "Warning",
+      "warningLevel": 1,
+      "message": "パッケージ 'System.Text.RegularExpressions' 4.3.0 に既知の 高 重大度の脆弱性があります、https://github.com/advisories/GHSA-cmhx-cq75-c4mj",
+      "libraryId": "System.Text.RegularExpressions",
+      "targetGraphs": [
+        "net8.0"
+      ]
+    }
+  ]
 }

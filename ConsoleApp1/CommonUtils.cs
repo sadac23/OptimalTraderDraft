@@ -48,10 +48,6 @@ public class CommonUtils : IDisposable
         MailSubject = ConfigurationManager.AppSettings["MailSubject"] ?? "";
     }
 
-    // 例: プロパティやメソッド
-    public virtual double ThresholdOfYield => 0.03;
-    public virtual BuyOrSellStringClass BuyOrSellString => new BuyOrSellStringClass { Buy = "買", Sell = "売" };
-
     /// <summary>
     /// アプリケーション実行日
     /// </summary>
@@ -224,8 +220,8 @@ public class CommonUtils : IDisposable
     }
     public class BuyOrSellStringClass
     {
-        public string Buy { get; set; }
-        public string Sell { get; set; }
+        public string Buy { get; } = "買"; // 購入
+        public string Sell { get; } = "売"; // 売却
     }
     public class QuarterStringClass
     {
@@ -263,7 +259,7 @@ public class CommonUtils : IDisposable
     /// <summary>
     /// 利回り閾値
     /// </summary>
-    // public double ThresholdOfYield { get; } = 0.0300;
+    public double ThresholdOfYield { get; } = 0.0300;
 
     /// <summary>
     /// 時価総額閾値
@@ -303,7 +299,7 @@ public class CommonUtils : IDisposable
     /// <summary>
     /// 売買文字列
     /// </summary>
-    // public virtual BuyOrSellStringClass BuyOrSellString { get; } = new BuyOrSellStringClass();
+    public BuyOrSellStringClass BuyOrSellString { get; } = new BuyOrSellStringClass();
 
     /// <summary>
     /// 四半期文字列

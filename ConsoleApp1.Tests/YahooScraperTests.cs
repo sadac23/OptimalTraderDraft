@@ -18,9 +18,9 @@ namespace ConsoleApp1.Tests
         }
 
         [Theory]
+        [InlineData("998407", "0")] // 指数（例: 日経平均株価）
         [InlineData("7203", "1")] // 日本個別株（例: トヨタ自動車）
         [InlineData("1489", "2")] // ETF
-        [InlineData("998407", "0")] // 指数（例: 日経平均株価）
         public async Task ScrapeHistory_SetsScrapedPrices(string code, string classification)
         {
             // Arrange

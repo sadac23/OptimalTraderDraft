@@ -7,9 +7,6 @@ namespace ConsoleApp1.Tests
     {
         public DummyCommonUtils() : base() { }
 
-        public override double ThresholdOfYield => 0.03;
-        public override BuyOrSellStringClass BuyOrSellString => new BuyOrSellStringClass { Buy = "買", Sell = "売" };
-
         // 設定値を使うプロパティをすべてオーバーライド
         public override string ConnectionString => "DummyConnectionString";
         public override string FilepathOfWatchList => "DummyWatchListPath";
