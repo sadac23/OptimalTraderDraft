@@ -36,6 +36,7 @@ public class CommonUtils : IDisposable
         SetupFlag();
         // HttpClient
         this.HttpClient = new HttpClient();
+        this.HttpClient.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)");
 
         // 設定ファイルから値を取得（テスト用サブクラスでは上書き可能）
         ConnectionString = ConfigurationManager.ConnectionStrings["OTDB"]?.ConnectionString ?? "";

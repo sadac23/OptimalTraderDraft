@@ -29,10 +29,10 @@ internal class MinkabuScraper
 
             /** みんかぶ（配当） */
             url = urlBaseMinkabuDividend;
+            CommonUtils.Instance.Logger.LogInformation(url);
+
             html = await CommonUtils.Instance.HttpClient.GetStringAsync(url);
             htmlDocument.LoadHtml(html);
-
-            CommonUtils.Instance.Logger.LogInformation(url);
 
             // 配当利回り/配当性向/配当権利確定月
             rows = htmlDocument.DocumentNode.SelectNodes("//div[contains(@class, 'ly_col ly_colsize_6 pt10')]/table/tr");
@@ -89,7 +89,7 @@ internal class MinkabuScraper
         }
         catch (Exception e)
         {
-            Console.WriteLine("リクエストエラー: " + e.Message);
+            Console.WriteLine("ScrapeDividend: " + e.Message);
         }
 
     }
