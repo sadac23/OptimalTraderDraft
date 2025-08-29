@@ -8,11 +8,11 @@ cd /d "%repoPath%"
 
 REM 最新のコードをプル
 echo 最新のコードをプルしています...
-git pull
+git pull origin main
 
 REM プロジェクトをリビルド
 echo プロジェクトをリビルドしています...
-dotnet build
+dotnet build "%repoPath%\ConsoleApp1\ConsoleApp1.csproj" -c Debug
 
 REM ビルドが完了したことを通知
 echo ビルドが完了しました。
