@@ -56,4 +56,40 @@ Issue の内容が不十分、不適切、または有効でない場合。
 * area: ui / backend / api
 どの分野に関連するかを分類。
 * type: feature / bugfix / refactor
-タスクの種類を表す。
+
+## GitHub Web上でのブランチ作成手順
+1. 対象リポジトリにアクセス
+GitHubのWebページで、作業したいリポジトリを開きます。
+2. Issueタブを開く
+上部メニューの「Issues」から、対象のIssueを選択。
+3. Issue詳細ページで「Create a branch」ボタンをクリック
+右側の「Development」セクションに「Create a branch for this issue」のリンクがあります。
+4. ブランチ名を確認・編集
+自動生成されるブランチ名（例：issue-123-fix-login-bug）を必要に応じて変更。
+5. 「Checkout locally」または「Open with GitHub Desktop」を選択
+ローカル環境で作業する場合は「Checkout locally」を選び、表示されたGitコマンドをコピーしてターミナルで実行。
+
+## ブランチ名の命名ルール（おすすめ）
+| 種類             | 例                             |
+|------------------|----------------------------------|
+| バグ修正         | bugfix/issue-123-login-error     |
+| 機能追加         | feature/issue-456-add-search     |
+| リファクタリング | refactor/issue-789-cleanup       |
+
+## 🔗 Pull RequestでIssueと自動リンクする方法
+
+Pull Requestの説明欄に以下のようなキーワードを含めることで、該当のIssueと自動的にリンクされ、マージ時にIssueがクローズされます：
+
+- `Closes #123`
+- `Fixes #123`
+- `Resolves #123`
+
+### ✅ 使用例
+
+```text
+このPRではログイン時のバグ (#123) を修正します。
+
+- ログインフォームのバリデーションを改善
+- エラーメッセージの表示を調整
+
+Closes #123
