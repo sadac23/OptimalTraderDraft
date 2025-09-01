@@ -1,4 +1,6 @@
 ﻿// See https://aka.ms/new-console-template for more information
+using ConsoleApp1.ExternalSource;
+using ConsoleApp1.Output;
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Bibliography;
 using DocumentFormat.OpenXml.Drawing;
@@ -23,6 +25,9 @@ using static StockInfo;
 
 public class StockInfo
 {
+    private IExternalSourceUpdatable updater;
+    private IOutputFormattable formatter;
+
     public StockInfo(WatchList.WatchStock watchStock)
     {
         this.Code = watchStock.Code;
@@ -37,6 +42,13 @@ public class StockInfo
         this.ChartPrices = new List<StockInfo.ChartPrice>();
         this.Disclosures = new List<Disclosure>();
     }
+
+    public StockInfo(IExternalSourceUpdatable updater, IOutputFormattable formatter)
+    {
+        this.updater = updater;
+        this.formatter = formatter;
+    }
+
     /// <summary>
     /// コード
     /// </summary>
@@ -1971,7 +1983,15 @@ public class StockInfo
         if ((watchStock.Classification == CommonUtils.Instance.Classification.JapaneseETFs))
         {
             return new JapaneseETFInfo(watchStock);
-        }else {
+        }
+        else if ((watchStock.Classification == CommonUtils.Instance.Classification.Index))
+        {
+            return new IndexInfo(
+                new IndexInfo.IndexUpdater(), 
+                new IndexInfo.IndexFormatter());
+        }
+        else
+        {
             return new StockInfo(watchStock);
         }
     }
