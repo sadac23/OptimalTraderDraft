@@ -1,13 +1,8 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
 
-using DocumentFormat.OpenXml.Wordprocessing;
-using System.Configuration;
-using System.Globalization;
 using System.Net.Mail;
 using System.Net;
-using System.Runtime.ConstrainedExecution;
-using DocumentFormat.OpenXml.Vml;
 using Google.Apis.Auth.OAuth2;
 using Google.Apis.Gmail.v1.Data;
 using Google.Apis.Gmail.v1;
@@ -15,7 +10,6 @@ using Google.Apis.Services;
 using Google.Apis.Util.Store;
 using MimeKit;
 using Microsoft.Extensions.Logging;
-using DocumentFormat.OpenXml.Bibliography;
 
 internal class Alert
 {
@@ -187,52 +181,55 @@ internal class Alert
             .Replace("=", "");
     }
 
-    internal static void SaveFile(List<StockInfo> results)
+    /// <summary>
+    /// アラートファイルを出力する
+    /// </summary>
+    /// <param name="results">通知対象の銘柄リスト</param>
+    /// <param name="policyList">方針リスト</param>
+    internal static void SaveFile(List<StockInfo> results, List<string> policyList)
     {
         var alertFilePath = CommonUtils.ReplacePlaceholder(
             CommonUtils.Instance.FilepathOfAlert, "{yyyyMMdd}", CommonUtils.Instance.ExecusionDate.ToString("yyyyMMdd"));
 
-        using (StreamWriter writer = new StreamWriter(alertFilePath))
+        using var writer = new StreamWriter(alertFilePath);
+
+        // ヘッダー
+        writer.WriteLine($"{DateTime.Today:yyyyMMdd}");
+
+        // 方針
+        writer.WriteLine();
+        writer.WriteLine("方針：");
+        foreach (var s in policyList)
+            writer.WriteLine(s);
+
+        short alertCount = 0;
+
+        foreach (var r in results)
         {
-            // ファイルヘッダー
-            writer.WriteLine($"{DateTime.Today.ToString("yyyyMMdd")}");
+            if (!r.ShouldAlert()) continue;
 
-            short alertCount = 0;
+            alertCount++;
+            var badge = string.Concat(
+                r.IsFavorite ? CommonUtils.Instance.BadgeString.IsFavorite : "",
+                r.LatestPrice.OversoldIndicator() ? CommonUtils.Instance.BadgeString.IsOversold : "",
+                r.IsOwnedNow() ? CommonUtils.Instance.BadgeString.IsOwned : "",
+                r.IsCloseToRecordDate() ? CommonUtils.Instance.BadgeString.IsCloseToRecordDate : "",
+                r.IsRecordDate() ? CommonUtils.Instance.BadgeString.IsRecordDate : "",
+                r.IsAfterRecordDate() ? CommonUtils.Instance.BadgeString.IsAfterRecordDate : "",
+                r.IsQuarterEnd() ? CommonUtils.Instance.BadgeString.IsQuarterEnd : "",
+                r.IsCloseToQuarterEnd() ? CommonUtils.Instance.BadgeString.IsCloseToQuarterEnd : "",
+                r.IsAfterQuarterEnd() ? CommonUtils.Instance.BadgeString.IsAfterQuarterEnd : "",
+                r.IsJustSold() ? CommonUtils.Instance.BadgeString.IsJustSold : "",
+                r.HasDisclosure() ? CommonUtils.Instance.BadgeString.HasDisclosure : ""
+            );
 
-            foreach (StockInfo r in results)
-            {
-                if (r.ShouldAlert())
-                {
-                    string s = string.Empty;
-
-                    alertCount++;
-
-                    // バッジの取得
-                    string badge = string.Empty;
-                    if (r.IsFavorite) badge += CommonUtils.Instance.BadgeString.IsFavorite;
-                    if (r.LatestPrice.OversoldIndicator()) badge += CommonUtils.Instance.BadgeString.IsOversold;
-                    if (r.IsOwnedNow()) badge += CommonUtils.Instance.BadgeString.IsOwned;
-                    if (r.IsCloseToRecordDate()) badge += CommonUtils.Instance.BadgeString.IsCloseToRecordDate;
-                    if (r.IsRecordDate()) badge += CommonUtils.Instance.BadgeString.IsRecordDate;
-                    if (r.IsAfterRecordDate()) badge += CommonUtils.Instance.BadgeString.IsAfterRecordDate;
-                    if (r.IsQuarterEnd()) badge += CommonUtils.Instance.BadgeString.IsQuarterEnd;
-                    if (r.IsCloseToQuarterEnd()) badge += CommonUtils.Instance.BadgeString.IsCloseToQuarterEnd;
-                    if (r.IsAfterQuarterEnd()) badge += CommonUtils.Instance.BadgeString.IsAfterQuarterEnd;
-                    if (r.IsJustSold()) badge += CommonUtils.Instance.BadgeString.IsJustSold;
-                    if (r.HasDisclosure()) badge += CommonUtils.Instance.BadgeString.HasDisclosure;
-                    //if (r.IsGoldenCrossPossible()) badge += CommonUtils.Instance.BadgeString.IsGoldenCrossPossible;
-                    //if (r.IsGranvilleCase1Matched()) badge += CommonUtils.Instance.BadgeString.IsGranvilleCase1Matched;
-                    //if (r.IsGranvilleCase2Matched()) badge += CommonUtils.Instance.BadgeString.IsGranvilleCase2Matched;
-
-                    writer.WriteLine("");
-                    writer.WriteLine($"No.{alertCount.ToString("D2")}{badge}");
-                    writer.WriteLine(r.ToOutputString());
-                }
-            }
-
-            // ファイルフッター
             writer.WriteLine();
-            writer.WriteLine($"出力件数：{alertCount}件");
+            writer.WriteLine($"No.{alertCount:D2}{badge}");
+            writer.WriteLine(r.ToOutputString());
         }
+
+        // フッター
+        writer.WriteLine();
+        writer.WriteLine($"出力件数：{alertCount}件");
     }
 }

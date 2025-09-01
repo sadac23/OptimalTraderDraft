@@ -119,7 +119,7 @@ public class StockInfo
     /// <summary>
     /// お気に入りか？
     /// </summary>
-    public bool IsFavorite { get; set; }
+    public virtual bool IsFavorite { get; set; }
     /// <summary>
     /// ウォッチリストのメモ
     /// </summary>
@@ -177,7 +177,7 @@ public class StockInfo
     /// <summary>
     /// 直近の株価
     /// </summary>
-    public ChartPrice LatestPrice { get { return this.ChartPrices.Count > 0 ? this.ChartPrices[0] : new ChartPrice(); } }
+    public virtual ChartPrice LatestPrice { get { return this.ChartPrices.Count > 0 ? this.ChartPrices[0] : new ChartPrice(); } }
     /// <summary>
     /// 直近の株価日付
     /// </summary>
@@ -278,7 +278,7 @@ public class StockInfo
     /// 買売の株数比較で判定すると、分割時にうまく判定できない。
     /// 約定リストで売り約定が存在していない買い約定が存在しているか否かで判定する。
     /// </remarks>
-    public bool IsOwnedNow()
+    public virtual bool IsOwnedNow()
     {
         var result = false;
 
@@ -729,7 +729,7 @@ public class StockInfo
     /// PERが割安か？
     /// </summary>
     /// <param name="isLenient">緩めに判定するか？</param>
-    public bool IsPERUndervalued(bool isLenient = false)
+    public virtual bool IsPERUndervalued(bool isLenient = false)
     {
         bool result = false;
         double threshold = isLenient ? this.AveragePer * CommonUtils.Instance.LenientFactor : this.AveragePer;
@@ -740,7 +740,7 @@ public class StockInfo
     /// <summary>
     /// PBRが割安か？
     /// </summary>
-    internal bool IsPBRUndervalued(bool isLenient = false)
+    internal virtual bool IsPBRUndervalued(bool isLenient = false)
     {
         bool result = false;
         double threshold = isLenient ? this.AveragePbr * CommonUtils.Instance.LenientFactor : this.AveragePbr;
@@ -906,7 +906,7 @@ public class StockInfo
     /// <summary>
     /// 通期進捗が順調か？
     /// </summary>
-    internal bool IsAnnualProgressOnTrack()
+    internal virtual bool IsAnnualProgressOnTrack()
     {
         bool result = false;
 
@@ -936,7 +936,7 @@ public class StockInfo
     /// <summary>
     /// 利回りが高いか？
     /// </summary>
-    public bool IsHighYield()
+    public virtual bool IsHighYield()
     {
         bool result = false;
 
@@ -948,7 +948,7 @@ public class StockInfo
     /// <summary>
     /// 時価総額が高いか？
     /// </summary>
-    internal bool IsHighMarketCap()
+    internal virtual bool IsHighMarketCap()
     {
         bool result = false;
         if (this.MarketCap > CommonUtils.Instance.ThresholdOfMarketCap) result = true;
@@ -1078,7 +1078,7 @@ public class StockInfo
     /// <summary>
     /// 四半期決算日が近いか？
     /// </summary>
-    internal bool IsCloseToQuarterEnd()
+    internal virtual bool IsCloseToQuarterEnd()
     {
         bool result = false;
 
@@ -1107,7 +1107,7 @@ public class StockInfo
     /// <summary>
     /// 売却直後か？
     /// </summary>
-    internal bool IsJustSold()
+    internal virtual bool IsJustSold()
     {
         bool result = false;
 
@@ -1320,7 +1320,7 @@ public class StockInfo
     /// <summary>
     /// 四半期決算直後であるか？
     /// </summary>
-    internal bool IsAfterQuarterEnd()
+    internal virtual bool IsAfterQuarterEnd()
     {
         bool result = false;
 
@@ -1349,7 +1349,7 @@ public class StockInfo
     /// <summary>
     /// 四半期決算当日であるか？
     /// </summary>
-    internal bool IsQuarterEnd()
+    internal virtual bool IsQuarterEnd()
     {
         bool result = false;
 
@@ -1605,7 +1605,7 @@ public class StockInfo
     /// <summary>
     /// 権利確定日直前か？
     /// </summary>
-    internal bool IsCloseToRecordDate()
+    internal virtual bool IsCloseToRecordDate()
     {
         bool result = false;
 
@@ -1622,7 +1622,7 @@ public class StockInfo
     /// 権利確定日当日か？
     /// </summary>
     /// <returns></returns>
-    internal bool IsRecordDate()
+    internal virtual bool IsRecordDate()
     {
         bool result = false;
 
@@ -1639,7 +1639,7 @@ public class StockInfo
     /// 権利確定日直後か？
     /// </summary>
     /// <returns></returns>
-    internal bool IsAfterRecordDate()
+    internal virtual bool IsAfterRecordDate()
     {
         bool result = false;
 
@@ -1697,7 +1697,7 @@ public class StockInfo
     /// 直近で株式分割が実施されたか？
     /// </summary>
     /// <returns></returns>
-    internal bool HasRecentStockSplitOccurred()
+    internal virtual bool HasRecentStockSplitOccurred()
     {
         bool result = false;
 
@@ -1852,7 +1852,7 @@ public class StockInfo
         await Task.WhenAll(tasks);
     }
 
-    internal bool ShouldAlert()
+    internal virtual bool ShouldAlert()
     {
         // 初期値は通知
         bool result = true;
@@ -1938,7 +1938,7 @@ public class StockInfo
         return result;
     }
 
-    internal bool IsGranvilleCase2Matched()
+    internal virtual bool IsGranvilleCase2Matched()
     {
         bool result = false;
 
@@ -1965,7 +1965,7 @@ public class StockInfo
     /// <summary>
     /// 開示情報があるか？
     /// </summary>
-    internal bool HasDisclosure()
+    internal virtual bool HasDisclosure()
     {
         bool result = false;
         foreach (var item in this.Disclosures)
@@ -2126,7 +2126,7 @@ public class StockInfo
         return sb.ToString();
     }
 
-    internal bool IsGranvilleCase1Matched()
+    internal virtual bool IsGranvilleCase1Matched()
     {
         bool result = false;
 
@@ -2346,7 +2346,7 @@ public class StockInfo
         /// <summary>
         /// 下方修正を含むか？
         /// </summary>
-        internal bool HasDownwardRevision()
+        internal virtual bool HasDownwardRevision()
         {
             bool result = false;
 
@@ -2367,7 +2367,7 @@ public class StockInfo
         /// <summary>
         /// 上方修正を含むか？
         /// </summary>
-        internal bool HasUpwardRevision()
+        internal virtual bool HasUpwardRevision()
         {
             bool result = false;
 
@@ -2424,7 +2424,7 @@ public class StockInfo
             return this.MemberwiseClone();
         }
 
-        internal bool OverboughtIndicator()
+        public virtual bool OverboughtIndicator()
         {
             bool result = false;
 
@@ -2435,7 +2435,7 @@ public class StockInfo
             return result;
         }
 
-        internal bool OversoldIndicator()
+        public virtual bool OversoldIndicator()
         {
             bool result = false;
 
