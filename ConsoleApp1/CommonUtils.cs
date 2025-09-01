@@ -38,6 +38,7 @@ public class CommonUtils : IDisposable
         FilepathOfFilelog = ConfigurationManager.AppSettings["FilelogFilePath"] ?? "";
         FilepathOfAlert = ConfigurationManager.AppSettings["AlertFilePath"] ?? "";
         FilepathOfGmailAPICredential = ConfigurationManager.AppSettings["GmailAPICredentialFilePath"] ?? "";
+        FilepathOfPolicyList = ConfigurationManager.AppSettings["PolicyListFilePath"] ?? "";
         MailSubject = ConfigurationManager.AppSettings["MailSubject"] ?? "";
 
         // ロガー
@@ -83,6 +84,10 @@ public class CommonUtils : IDisposable
     /// 通知ファイルパス
     /// </summary>
     public virtual string FilepathOfAlert { get; set; }
+    /// <summary>
+    /// 方針リストのファイルパス
+    /// </summary>
+    public virtual string FilepathOfPolicyList { get; set; }
     /// <summary>
     /// GmailAPIのCredentialファイルパス
     /// </summary>

@@ -1,45 +1,5 @@
 // See https://aka.ms/new-console-template for more information
-using System.Net.Http.Headers;
-using System.Net.Http.Json;
-using System.Net.Http;
-using HtmlAgilityPack;
-using Newtonsoft.Json;
-using System.Text;
-using Newtonsoft.Json.Linq;
-using System;
-using System.Text.Json.Nodes;
-using System.Data.SQLite;
-using static System.Net.Mime.MediaTypeNames;
-using System.Xml.Linq;
-using System.Runtime.CompilerServices;
-using System.Collections.Generic;
-using System.Reflection.Metadata;
-using static System.Runtime.InteropServices.JavaScript.JSType;
-using System.Data.Entity.Core.Common.CommandTrees.ExpressionBuilder;
-using System.Collections;
-using System.Diagnostics.CodeAnalysis;
-using System.Data.Entity;
-using System.Data;
-using System.Transactions;
-using static System.Data.Entity.Infrastructure.Design.Executor;
-using System.Runtime.InteropServices;
-using System.Configuration;
-using static WatchList;
-using DocumentFormat.OpenXml.ExtendedProperties;
-using DocumentFormat.OpenXml.Bibliography;
-using DocumentFormat.OpenXml.Vml;
-using DocumentFormat.OpenXml.Drawing;
-using System.Linq.Expressions;
-using DocumentFormat.OpenXml.Wordprocessing;
-using System.Runtime.ConstrainedExecution;
-using System.Diagnostics;
 using Microsoft.Extensions.Logging;
-using Google.Apis.Auth.OAuth2;
-using Google.Apis.Gmail.v1;
-using Google.Apis.Gmail.v1.Data;
-using Google.Apis.Services;
-using Google.Apis.Util.Store;
-using NLog;
 
 /* DONE
  * ・済：ETFの処理
@@ -220,8 +180,11 @@ namespace ConsoleApp1
                 // ウォッチリスト取得
                 var watchList = WatchList.LoadXlsx();
 
-                // マスタ取得
+                // マスタリスト取得
                 var masterList = MasterList.LoadXlsx();
+
+                // 方針リスト取得
+                var policyList = PolicyList.LoadXlsx();
 
                 // ウォッチ銘柄毎に処理
                 foreach (var watchStock in watchList)
@@ -258,7 +221,7 @@ namespace ConsoleApp1
                 }
 
                 // ファイル保存
-                Alert.SaveFile(results);
+                Alert.SaveFile(results, policyList);
 
                 // メール送信
                 if (CommonUtils.Instance.ShouldSendMail) Alert.SendGmailViaSmtp();
