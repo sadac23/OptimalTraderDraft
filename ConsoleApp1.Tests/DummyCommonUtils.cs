@@ -1,4 +1,3 @@
-using ConsoleApp1;
 
 // DummyCommonUtils.cs（テスト用サブクラス）
 namespace ConsoleApp1.Tests
@@ -13,7 +12,14 @@ namespace ConsoleApp1.Tests
         public override string FilepathOfExecutionList => "DummyExecutionListPath";
         public override string FilepathOfAveragePerPbrList => "DummyAveragePerPbrListPath";
         public override string FilepathOfFilelog => "C:\\Logs\\DummyLog_{yyyyMMdd}.txt";
-        public override string FilepathOfAlert => "DummyAlertPath";
+
+        private string _filepathOfAlert;
+        public override string FilepathOfAlert
+        {
+            get => _filepathOfAlert;
+            set => _filepathOfAlert = value;
+        }
+
         public override string FilepathOfGmailAPICredential => "DummyGmailAPICredentialPath";
         public override string MailSubject => "DummyMailSubject";
 
