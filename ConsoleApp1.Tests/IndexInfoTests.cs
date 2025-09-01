@@ -6,6 +6,7 @@ using ConsoleApp1.Output;
 
 namespace ConsoleApp1.Tests;
 
+[Collection("CommonUtils collection")]
 public class IndexInfoTests
 {
     // モック用クラス
@@ -17,7 +18,8 @@ public class IndexInfoTests
             WasCalled = true;
             // テスト用にプロパティを変更
             stockInfo.Name = "テストインデックス";
-            stockInfo.Code = "9999";
+            stockInfo.Code = "998407";
+            stockInfo.Classification = "0"; // 指数
             return Task.CompletedTask;
         }
     }
