@@ -3,13 +3,40 @@ using System.Text;
 using ConsoleApp1.ExternalSource;
 using ConsoleApp1.Output;
 
-internal class IndexInfo : StockInfo
+public class IndexInfo : StockInfo
 {
     public IndexInfo(
+        WatchList.WatchStock watchStock,
         IExternalSourceUpdatable updater,
         IOutputFormattable formatter)
-        : base(updater, formatter)
+        : base(watchStock, updater, formatter)
     {
+    }
+
+    /// <summary>
+    /// インデックス用の外部情報取得処理
+    /// </summary>
+    internal override async Task UpdateFromExternalSource()
+    {
+        if (updater != null)
+        {
+            await updater.UpdateFromExternalSourceAsync(this);
+        }
+        // 必要に応じて追加の処理をここに記述
+    }
+
+    /// <summary>
+    /// インデックス種別用の出力処理
+    /// </summary>
+    internal override string ToOutputString()
+    {
+        if (formatter != null)
+        {
+            return formatter.ToOutputString(this);
+        }
+        // 必要に応じて追加の処理をここに記述
+
+        return string.Empty;
     }
 
     // インデックス種別用の外部情報取得処理
@@ -18,11 +45,9 @@ internal class IndexInfo : StockInfo
         public async Task UpdateFromExternalSourceAsync(StockInfo stockInfo)
         {
             // 例: Webスクレイピングでインデックス情報を取得
-            // 実際のURLやパース処理は要件に応じて実装
             using var httpClient = new HttpClient();
             var html = await httpClient.GetStringAsync("https://example.com/indexdata");
             // ここでhtmlをパースしてstockInfoのプロパティを更新
-            // 例: stockInfo.Price = ParsePrice(html);
         }
     }
 
@@ -31,9 +56,42 @@ internal class IndexInfo : StockInfo
     {
         public string ToOutputString(StockInfo stockInfo)
         {
-            // 例: インデックス情報を特定フォーマットで文字列化
-            // 例: return $"Index: {stockInfo.Name}, Price: {stockInfo.Price}";
-            return $"Index情報: {stockInfo}";
+            StringBuilder sb = new StringBuilder();
+
+            var mark = CommonUtils.Instance.BadgeString.ShouldWatch;
+            var count = 0;
+            var s = string.Empty;
+
+            sb.AppendLine($"{stockInfo.Code}：{stockInfo.Name}");
+
+            sb.AppendLine($"株価：{stockInfo.LatestPrice.Price.ToString("N1")}" +
+                $"（{stockInfo.LatestPrice.Date.ToString("yy/MM/dd")}" +
+                $"：S{stockInfo.LatestPrice.RSIS.ToString("N2")}" +
+                $",L{stockInfo.LatestPrice.RSIL.ToString("N2")}" +
+                $"）{(stockInfo.LatestPrice.OversoldIndicator() || (stockInfo.IsOwnedNow() && stockInfo.LatestPrice.OverboughtIndicator()) ? mark : string.Empty)}");
+
+            //チャート：
+            sb.AppendLine($"チャート（RSI）：");
+            foreach (var p in stockInfo.ChartPrices)
+            {
+                sb.AppendLine(
+                    $"{p.Date.ToString("MM/dd")}" +
+                    $"：{p.Price.ToString("N1")}" +
+                    $"：{CommonUtils.Instance.ConvertToPercentage(p.Volatility, true)}" +
+                    $"（S{p.RSIS.ToString("N2")}" +
+                    $",L{p.RSIL.ToString("N2")}）" +
+                    $"{(p.OversoldIndicator() ? mark : string.Empty)}" +
+                    $"");
+            }
+
+            if (!string.IsNullOrEmpty(stockInfo.Memo))
+            {
+                //メモ：
+                sb.AppendLine($"メモ：");
+                sb.AppendLine(stockInfo.Memo);
+            }
+
+            return sb.ToString();
         }
     }
 }

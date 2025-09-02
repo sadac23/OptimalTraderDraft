@@ -25,8 +25,8 @@ using static StockInfo;
 
 public class StockInfo
 {
-    private IExternalSourceUpdatable updater;
-    private IOutputFormattable formatter;
+    protected IExternalSourceUpdatable updater;
+    protected IOutputFormattable formatter;
 
     public StockInfo(WatchList.WatchStock watchStock)
     {
@@ -43,7 +43,8 @@ public class StockInfo
         this.Disclosures = new List<Disclosure>();
     }
 
-    public StockInfo(IExternalSourceUpdatable updater, IOutputFormattable formatter)
+    public StockInfo(WatchList.WatchStock watchStock, IExternalSourceUpdatable updater, IOutputFormattable formatter)
+        : this(watchStock) // ← これが明示的な呼び出し
     {
         this.updater = updater;
         this.formatter = formatter;
@@ -1748,7 +1749,7 @@ public class StockInfo
         }
     }
 
-    internal DateTime GetLastHistoryUpdateDay()
+    protected virtual DateTime GetLastHistoryUpdateDay()
     {
         DateTime result = CommonUtils.Instance.MasterStartDate;
 
@@ -1986,7 +1987,7 @@ public class StockInfo
         }
         else if ((watchStock.Classification == CommonUtils.Instance.Classification.Index))
         {
-            return new IndexInfo(
+            return new IndexInfo(watchStock,
                 new IndexInfo.IndexUpdater(), 
                 new IndexInfo.IndexFormatter());
         }

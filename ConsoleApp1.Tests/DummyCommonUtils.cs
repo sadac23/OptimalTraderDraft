@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging.Abstractions;
 
 // DummyCommonUtils.cs（テスト用サブクラス）
 namespace ConsoleApp1.Tests
@@ -29,7 +30,7 @@ namespace ConsoleApp1.Tests
         }
         protected override void SetupLogger()
         {
-            // テスト時は何もしない
+            this.Logger = NullLogger<ConsoleApp1.Program>.Instance;
         }
     }
 }
