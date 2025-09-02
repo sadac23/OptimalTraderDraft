@@ -53,70 +53,70 @@ public class StockInfo
     /// <summary>
     /// コード
     /// </summary>
-    public string Code { get; set; }
+    public virtual string Code { get; set; }
     /// <summary>
     /// 名称
     /// </summary>
-    public string? Name { get; set; }
+    public virtual string? Name { get; set; }
     /// <summary>
     /// 価格履歴
     /// </summary>
-    public List<ScrapedPrice> ScrapedPrices { get; set; }
+    public virtual List<ScrapedPrice> ScrapedPrices { get; set; }
     /// <summary>
     /// 区分
     /// </summary>
-    public string Classification { get; set; }
+    public virtual string Classification { get; set; }
     /// <summary>
     /// ROE
     /// </summary>
-    public double Roe { get; set; }
+    public virtual double Roe { get; set; }
     /// <summary>
     /// PER
     /// </summary>
-    public double Per { get; set; }
+    public virtual double Per { get; set; }
     /// <summary>
     /// PBR
     /// </summary>
-    public double Pbr { get; set; }
+    public virtual double Pbr { get; set; }
     /// <summary>
     /// 利回り
     /// "3.58%"は"0.0358"で保持。
     /// </summary>
-    public double DividendYield { get; set; }
+    public virtual double DividendYield { get; set; }
     /// <summary>
     /// 信用倍率
     /// </summary>
-    public string MarginBalanceRatio { get; set; }
+    public virtual string MarginBalanceRatio { get; set; }
     /// <summary>
     /// 時価総額
     /// </summary>
-    public double MarketCap { get; set; }
+    public virtual double MarketCap { get; set; }
     /// <summary>
     /// 通期業績履歴
     /// </summary>
     /// <remarks>
     /// [業績推移]タブの履歴
     /// </remarks>
-    public List<FullYearPerformance> FullYearPerformances { get; set; }
+    public virtual List<FullYearPerformance> FullYearPerformances { get; set; }
     /// <summary>
     /// 通期業績予想概要（例：増収増益増配（+50%,+50%,+50））
     /// </summary>
-    public string FullYearPerformanceForcastSummary { get; set; }
+    public virtual string FullYearPerformanceForcastSummary { get; set; }
     /// <summary>
     /// 通期業績予想履歴
     /// </summary>
     /// <remarks>
     /// [修正履歴]タブの履歴
     /// </remarks>
-    public List<FullYearPerformanceForcast> FullYearPerformancesForcasts { get; set; }
+    public virtual List<FullYearPerformanceForcast> FullYearPerformancesForcasts { get; set; }
     /// <summary>
     /// 通期収益履歴
     /// </summary>
-    public List<FullYearProfit> FullYearProfits { get; set; }
+    public virtual List<FullYearProfit> FullYearProfits { get; set; }
     /// <summary>
     /// 約定履歴
     /// </summary>
-    public List<ExecutionList.Execution> Executions { get; set; }
+    public virtual List<ExecutionList.Execution> Executions { get; set; }
     /// <summary>
     /// お気に入りか？
     /// </summary>
@@ -124,29 +124,29 @@ public class StockInfo
     /// <summary>
     /// ウォッチリストのメモ
     /// </summary>
-    public string Memo { get; set; }
+    public virtual string Memo { get; set; }
     /// <summary>
     /// 自己資本比率
     /// </summary>
-    public string EquityRatio { get; set; }
+    public virtual string EquityRatio { get; set; }
     /// <summary>
     /// 配当性向
     /// "3.58%"は"0.0358"で保持。
     /// </summary>
-    public double DividendPayoutRatio { get; set; }
+    public virtual double DividendPayoutRatio { get; set; }
     /// <summary>
     /// 配当権利確定月
     /// </summary>
-    public string DividendRecordDateMonth { get; set; }
+    public virtual string DividendRecordDateMonth { get; set; }
     /// <summary>
     /// 優待利回り
     /// "3.58%"は"0.0358"で保持。
     /// </summary>
-    public double ShareholderBenefitYield { get; set; }
+    public virtual double ShareholderBenefitYield { get; set; }
     /// <summary>
     /// 優待発生株数
     /// </summary>
-    public string NumberOfSharesRequiredForBenefits { get; set; }
+    public virtual string NumberOfSharesRequiredForBenefits { get; set; }
     /// <summary>
     /// 優待権利確定月
     /// </summary>
@@ -2390,34 +2390,34 @@ public class StockInfo
 
     public class ChartPrice : ICloneable
     {
-        public DateTime Date { get; internal set; }
-        public double Price { get; internal set; }
-        public double Volatility { get; internal set; }
-        public double RSIL { get; internal set; }
-        public double RSIS { get; internal set; }
+        public virtual DateTime Date { get; internal set; }
+        public virtual double Price { get; internal set; }
+        public virtual double Volatility { get; internal set; }
+        public virtual double RSIL { get; internal set; }
+        public virtual double RSIS { get; internal set; }
         /// <summary>
         /// 単純移動平均値（25日）
         /// </summary>
-        public double SMA25 { get; internal set; }
+        public virtual double SMA25 { get; internal set; }
         /// <summary>
         /// 単純移動平均値（75日）
         /// </summary>
-        public double SMA75 { get; internal set; }
+        public virtual double SMA75 { get; internal set; }
 
         /// <summary>
         /// Moving Average Deviation（平均移動乖離）
         /// 25日
         /// </summary>
-        public double MADS { get; internal set; }
+        public virtual double MADS { get; internal set; }
         /// <summary>
         /// Moving Average Deviation（平均移動乖離）
         /// 75日
         /// </summary>
-        public double MADL { get; internal set; }
+        public virtual double MADL { get; internal set; }
         /// <summary>
         /// SMA25、SMA75の乖離値
         /// </summary>
-        public double SMAdev { get; internal set; }
+        public virtual double SMAdev { get; internal set; }
 
         public object Clone()
         {
