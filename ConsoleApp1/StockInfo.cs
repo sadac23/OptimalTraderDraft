@@ -1749,7 +1749,7 @@ public class StockInfo
         }
     }
 
-    protected virtual DateTime GetLastHistoryUpdateDay()
+    public virtual DateTime GetLastHistoryUpdateDay()
     {
         DateTime result = CommonUtils.Instance.MasterStartDate;
 

@@ -1,14 +1,7 @@
 using Moq;
-using Moq.Protected; // Protected()拡張メソッド用
-using System.Threading.Tasks;
-using Xunit;
-using ConsoleApp1;
 using ConsoleApp1.ExternalSource;
 using ConsoleApp1.Output;
 using static StockInfo;
-using System.Net;
-using System.Net.Http;
-using System.Threading;
 
 namespace ConsoleApp1.Tests;
 
@@ -57,9 +50,18 @@ public class IndexInfoTests
         _formatter = new MockFormatter();
 
         // MoqでIndexInfoのGetLastHistoryUpdateDayをモック
-        var mock = new Mock<IndexInfo>(_watchStock, _updater, _formatter) { CallBase = true };
-        mock.Protected()
-            .Setup<DateTime>("GetLastHistoryUpdateDay")
+        var mock = new Mock<IndexInfo>(
+            new WatchList.WatchStock
+            {
+                Code = "9999",
+                Classification = "0",
+                IsFavorite = "1",
+                Memo = "テスト用"
+            },
+            new IndexInfo.IndexUpdater(),
+            new IndexInfo.IndexFormatter()
+        ) { CallBase = true };
+        mock.Setup(x => x.GetLastHistoryUpdateDay())
             .Returns(new DateTime(2024, 1, 1));
 
         _indexInfo = mock.Object;
@@ -149,52 +151,53 @@ public class IndexFormatterTests
     }
 }
 
+[Collection("CommonUtils collection")]
 public class IndexUpdaterTests
 {
-    private class TestStockInfo : StockInfo
-    {
-        public TestStockInfo() : base(new WatchList.WatchStock()) { }
-        public override string Code { get; set; }
-        public override string Name { get; set; }
-    }
-
-    private class MockHttpMessageHandler : HttpMessageHandler
-    {
-        private readonly string _response;
-        public MockHttpMessageHandler(string response)
-        {
-            _response = response;
-        }
-        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
-        {
-            return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
-            {
-                Content = new StringContent(_response)
-            });
-        }
-    }
-
     [Fact]
     public async Task UpdateFromExternalSourceAsync_UpdatesStockInfoFromHtml()
     {
         // Arrange
-        var html = "<html><body>dummy index data</body></html>";
-        var handler = new MockHttpMessageHandler(html);
-        var httpClient = new HttpClient(handler);
-
-        // IndexUpdaterのHttpClientを差し替えるには、DIやプロパティ注入が必要ですが、
-        // ここではIndexUpdaterの実装が直接newしているため、実際の通信は行われません。
-        // 実装が変更可能なら、HttpClientを注入できるようにするのが理想です。
+        var mock = new Mock<IndexInfo>(
+            new WatchList.WatchStock
+            {
+                Code = "998407",
+                Name = "ダミーインデックス",
+                Classification = "0",
+                IsFavorite = "1",
+                Memo = "テスト用"
+            },
+            new IndexInfo.IndexUpdater(),
+            new IndexInfo.IndexFormatter()
+        ) { CallBase = true };
+        mock.Setup(x => x.GetLastHistoryUpdateDay())
+            .Returns(new DateTime(2024, 1, 1));
 
         var updater = new IndexInfo.IndexUpdater();
-        var stockInfo = new TestStockInfo();
+        IndexInfo stockInfo = mock.Object;
 
         // Act
         await updater.UpdateFromExternalSourceAsync(stockInfo);
 
         // Assert
-        // 実装例ではhtmlパースやプロパティ更新が未実装なので、ここでは通信が例外なく完了することのみ検証
-        // 実装に応じてstockInfoのプロパティ検証を追加してください
-        Assert.True(true);
+        // 名称
+        Assert.Equal("日経平均株価", stockInfo.Name);
+        // コード
+        Assert.Equal("998407", stockInfo.Code);
+        // 区分
+        Assert.Equal("0", stockInfo.Classification);
+
+        // 履歴（ScrapedPrices）が1件以上取得されていること
+        Assert.NotNull(stockInfo.ScrapedPrices);
+        Assert.NotEmpty(stockInfo.ScrapedPrices);
+
+        // 1件目の履歴の主要プロパティが妥当な値であること
+        var price = stockInfo.ScrapedPrices[0];
+        Assert.True(price.Date > DateTime.MinValue);
+        Assert.True(price.Open >= 0);
+        Assert.True(price.High >= 0);
+        Assert.True(price.Low >= 0);
+        Assert.True(price.Close >= 0);
+        Assert.Equal(price.Close, price.AdjustedClose); // 指数の場合
     }
 }

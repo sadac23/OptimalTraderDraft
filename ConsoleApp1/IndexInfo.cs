@@ -44,10 +44,31 @@ public class IndexInfo : StockInfo
     {
         public async Task UpdateFromExternalSourceAsync(StockInfo stockInfo)
         {
-            // 例: Webスクレイピングでインデックス情報を取得
-            using var httpClient = new HttpClient();
-            var html = await httpClient.GetStringAsync("https://example.com/indexdata");
-            // ここでhtmlをパースしてstockInfoのプロパティを更新
+            List<Task> tasks = new List<Task>();
+
+            var yahooScraper = new YahooScraper();
+
+            Task yahooTop = Task.Run(async () =>
+            {
+                await yahooScraper.ScrapeTop(stockInfo);
+            });
+            tasks.Add(yahooTop);
+
+            Task yahooHistory = Task.Run(async () =>
+            {
+                // 履歴更新の最終日を取得（なければ基準開始日を取得）
+                var lastUpdateDay = stockInfo.GetLastHistoryUpdateDay();
+
+                // 最終更新後に直近営業日がある場合は履歴取得
+                if (CommonUtils.Instance.GetLastTradingDay() > lastUpdateDay)
+                {
+                    await yahooScraper.ScrapeHistory(stockInfo, lastUpdateDay, CommonUtils.Instance.ExecusionDate);
+                }
+            });
+            tasks.Add(yahooHistory);
+
+            // タスクの実行待ち
+            await Task.WhenAll(tasks);
         }
     }
 
