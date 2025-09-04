@@ -28,7 +28,7 @@ public class StockInfo
     protected IExternalSourceUpdatable updater;
     protected IOutputFormattable formatter;
 
-    public StockInfo(WatchList.WatchStock watchStock)
+    protected StockInfo(WatchList.WatchStock watchStock)
     {
         this.Code = watchStock.Code;
         this.Classification = watchStock.Classification;
@@ -62,6 +62,10 @@ public class StockInfo
     /// 価格履歴
     /// </summary>
     public virtual List<ScrapedPrice> ScrapedPrices { get; set; }
+    /// <summary>
+    /// 最新の価格履歴
+    /// </summary>
+    public virtual ScrapedPrice LatestScrapedPrice { get; set; }
     /// <summary>
     /// 区分
     /// </summary>
@@ -186,19 +190,19 @@ public class StockInfo
     /// <summary>
     /// 信用買残
     /// </summary>
-    public object MarginBuyBalance { get; internal set; }
+    public string MarginBuyBalance { get; internal set; }
     /// <summary>
     /// 直近の出来高
     /// </summary>
-    public object LatestTradingVolume { get; internal set; }
+    public string LatestTradingVolume { get; internal set; }
     /// <summary>
     /// 信用売残
     /// </summary>
-    public object MarginSellBalance { get; internal set; }
+    public string MarginSellBalance { get; internal set; }
     /// <summary>
     /// 信用残更新日付
     /// </summary>
-    public object MarginBalanceDate { get; internal set; }
+    public string MarginBalanceDate { get; internal set; }
     /// <summary>
     /// 直近の四半期決算期間
     /// </summary>
@@ -1014,7 +1018,7 @@ public class StockInfo
     {
         using (SQLiteConnection connection = new SQLiteConnection(CommonUtils.Instance.ConnectionString))
         {
-            connection.Open();
+　            connection.Open();
 
             // プライマリーキーに条件を設定したクエリ
             string query =
@@ -1068,6 +1072,35 @@ public class StockInfo
                         // 前回分の保持
                         previousPrice = (ChartPrice)price.Clone();
                     }
+
+                    // --- ここから追加 ---
+                    // LatestScrapedPriceの日付がリストに存在しない場合のみ追加
+                    if (this.LatestScrapedPrice != null &&
+                        !prices.Any(p => p.Date == this.LatestScrapedPrice.Date))
+                    {
+                        double close = this.LatestScrapedPrice.Close;
+                        DateTime date = this.LatestScrapedPrice.Date;
+
+                        double sma25 = Analyzer.GetSMA(25, date, this.Code);
+                        double sma75 = Analyzer.GetSMA(75, date, this.Code);
+
+                        ChartPrice latest = new ChartPrice()
+                        {
+                            Date = date,
+                            Price = close,
+                            Volatility = previousPrice != null ? (close / previousPrice.Price) - 1 : 0,
+                            RSIL = Analyzer.GetCutlerRSI(CommonUtils.Instance.RSILongPeriodDays, date, this.Code),
+                            RSIS = Analyzer.GetCutlerRSI(CommonUtils.Instance.RSIShortPeriodDays, date, this.Code),
+                            SMA25 = sma25,
+                            SMA75 = sma75,
+                            SMAdev = sma25 - sma75,
+                            MADS = (close - sma25) / sma25,
+                            MADL = (close - sma75) / sma75,
+                        };
+
+                        prices.Add(latest);
+                    }
+                    // --- ここまで追加 ---
 
                     // 件数を絞って日付降順でソート
                     this.ChartPrices = prices.OrderByDescending(p => p.Date).Take(CommonUtils.Instance.ChartDays).ToList();

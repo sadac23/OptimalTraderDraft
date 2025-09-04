@@ -4,13 +4,14 @@ using Xunit;
 
 namespace ConsoleApp1.Tests
 {
+    [Collection("CommonUtils collection")]
     public class YahooScraperTests
     {
         [Fact]
         public async Task ScrapeHistory_DoesNotThrowException()
         {
             var scraper = new YahooScraper();
-            var stockInfo = new StockInfo(new WatchList.WatchStock { Code = "1234" });
+            var stockInfo = StockInfo.GetInstance(new WatchList.WatchStock { Code = "1234" });
             var from = DateTime.Now.AddDays(-10);
             var to = DateTime.Now;
             await scraper.ScrapeHistory(stockInfo, from, to);
@@ -29,7 +30,7 @@ namespace ConsoleApp1.Tests
             CommonUtils.SetInstanceForTest(dummyUtils);
 
             var scraper = new YahooScraper();
-            var stockInfo = new StockInfo(new WatchList.WatchStock { Code = code, Classification = classification });
+            var stockInfo = StockInfo.GetInstance(new WatchList.WatchStock { Code = code, Classification = classification });
             var from = DateTime.Now.AddDays(-30);
             var to = DateTime.Now;
 
@@ -57,7 +58,7 @@ namespace ConsoleApp1.Tests
         public async Task ScrapeProfile_DoesNotThrowException()
         {
             var scraper = new YahooScraper();
-            var stockInfo = new StockInfo(new WatchList.WatchStock { Code = "1234" });
+            var stockInfo = StockInfo.GetInstance(new WatchList.WatchStock { Code = "1234" });
             await scraper.ScrapeProfile(stockInfo);
             // 例外が発生しないことのみを確認
         }
@@ -73,62 +74,109 @@ namespace ConsoleApp1.Tests
             CommonUtils.SetInstanceForTest(dummyUtils);
 
             var scraper = new YahooScraper();
-            var stockInfo = new StockInfo(new WatchList.WatchStock { Code = "1489" });
+            var stockInfo = StockInfo.GetInstance(new WatchList.WatchStock { Code = "1489" });
             await scraper.ScrapeTop(stockInfo);
             // 例外が発生しないことのみを確認
         }
 
+        // ETF用
         [Theory]
         [InlineData("1489", "2")] // ETF
-        [InlineData("7203", "1")] // 日本個別株（例: トヨタ自動車）
-        [InlineData("998407", "0")] // 指数（例: 日経平均株価）
-        public async Task ScrapeTop_SetsStockInfoProperties(string code, string classification)
+        public async Task ScrapeTop_ValidatesAllScrapedProperties_ForETF(string code, string classification)
         {
-            // ダミーCommonUtilsをセットし、必要なプロパティを設定
-            var dummyUtils = new DummyCommonUtils();
-            dummyUtils.Logger = new Microsoft.Extensions.Logging.Abstractions.NullLogger<ConsoleApp1.Program>();
-            // dummyUtils.HttpClient = new System.Net.Http.HttpClient(); // ← この行を削除
-
-            CommonUtils.SetInstanceForTest(dummyUtils);
-
             var scraper = new YahooScraper();
-            var stockInfo = new StockInfo(new WatchList.WatchStock { Code = code, Classification = classification });
+            var stockInfo = StockInfo.GetInstance(new WatchList.WatchStock { Code = code, Classification = classification });
+
             await scraper.ScrapeTop(stockInfo);
 
-            // 取得結果の検証（値は実際のページ内容に依存）
             Assert.False(string.IsNullOrEmpty(stockInfo.Name));
+            Assert.False(string.IsNullOrEmpty(stockInfo.Code));
+            Assert.False(string.IsNullOrEmpty(stockInfo.Classification));
+            Assert.NotNull(stockInfo.LatestScrapedPrice);
 
-            // ETF（classification "2"）または指数（classification "0"）以外のみアサート
-            if (stockInfo.Classification != CommonUtils.Instance.Classification.JapaneseETFs
-                && stockInfo.Classification != CommonUtils.Instance.Classification.Index)
-            {
-                Assert.NotNull(stockInfo.PressReleaseDate);
-                Assert.NotNull(stockInfo.LatestTradingVolume);
-            }
+            // LatestScrapedPriceの各メンバの検証
+            Assert.True(stockInfo.LatestScrapedPrice.Date == CommonUtils.Instance.GetLastTradingDay());
+            Assert.False(string.IsNullOrEmpty(stockInfo.LatestScrapedPrice.DateYYYYMMDD));
+            Assert.True(stockInfo.LatestScrapedPrice.Open > 0);
+            Assert.True(stockInfo.LatestScrapedPrice.High > 0);
+            Assert.True(stockInfo.LatestScrapedPrice.Low > 0);
+            Assert.True(stockInfo.LatestScrapedPrice.Close > 0);
+            Assert.True(stockInfo.LatestScrapedPrice.Volume >= 0);
+            Assert.True(stockInfo.LatestScrapedPrice.AdjustedClose >= 0);
 
-            // 指数（classification "0"）以外はアサートする
-            if (stockInfo.Classification != CommonUtils.Instance.Classification.Index)
-            {
-                Assert.NotNull(stockInfo.MarginBuyBalance);
-                Assert.NotNull(stockInfo.MarginSellBalance);
-                Assert.NotNull(stockInfo.MarginBalanceDate);
-            }
+            Assert.False(string.IsNullOrEmpty(stockInfo.EarningsPeriod));
+            Assert.False(string.IsNullOrEmpty(stockInfo.FundManagementCompany));
+            Assert.True(stockInfo.TrustFeeRate >= 0);
+            // ETF共通の他の検証...
+        }
 
-            // ETFの場合の追加情報
-            if (stockInfo.Classification == CommonUtils.Instance.Classification.JapaneseETFs)
-            {
-                Assert.NotNull(stockInfo.EarningsPeriod);
-                Assert.NotNull(stockInfo.FundManagementCompany);
-                // TrustFeeRateはdouble型なので0以上であることを確認
-                Assert.True(stockInfo.TrustFeeRate >= 0);
-            }
+        // 個別株用
+        [Theory]
+        [InlineData("7203", "1")] // トヨタ自動車
+        [InlineData("6503", "1")] // 三菱電機
+        public async Task ScrapeTop_ValidatesAllScrapedProperties_ForJapaneseIndividualStocks(string code, string classification)
+        {
+            var scraper = new YahooScraper();
+            var stockInfo = StockInfo.GetInstance(new WatchList.WatchStock { Code = code, Classification = classification });
+
+            await scraper.ScrapeTop(stockInfo);
+
+            Assert.False(string.IsNullOrEmpty(stockInfo.Name));
+            Assert.False(string.IsNullOrEmpty(stockInfo.Code));
+            Assert.False(string.IsNullOrEmpty(stockInfo.Classification));
+            Assert.NotNull(stockInfo.LatestScrapedPrice);
+
+            // LatestScrapedPriceの各メンバの検証
+            Assert.True(stockInfo.LatestScrapedPrice.Date == CommonUtils.Instance.GetLastTradingDay());
+            Assert.False(string.IsNullOrEmpty(stockInfo.LatestScrapedPrice.DateYYYYMMDD));
+            Assert.True(stockInfo.LatestScrapedPrice.Open > 0);
+            Assert.True(stockInfo.LatestScrapedPrice.High > 0);
+            Assert.True(stockInfo.LatestScrapedPrice.Low > 0);
+            Assert.True(stockInfo.LatestScrapedPrice.Close > 0);
+            Assert.True(stockInfo.LatestScrapedPrice.Volume >= 0);
+            Assert.True(stockInfo.LatestScrapedPrice.AdjustedClose >= 0);
+
+            Assert.False(string.IsNullOrEmpty(stockInfo.PressReleaseDate));
+            Assert.NotNull(stockInfo.LatestTradingVolume);
+            Assert.NotNull(stockInfo.MarginBuyBalance);
+            Assert.NotNull(stockInfo.MarginSellBalance);
+            Assert.NotNull(stockInfo.MarginBalanceDate);
+            // 個別株共通の他の検証...
+        }
+
+        // 指数用
+        [Theory]
+        [InlineData("998407", "0")] // 指数
+        public async Task ScrapeTop_ValidatesAllScrapedProperties_ForIndex(string code, string classification)
+        {
+            var scraper = new YahooScraper();
+            var stockInfo = StockInfo.GetInstance(new WatchList.WatchStock { Code = code, Classification = classification });
+
+            await scraper.ScrapeTop(stockInfo);
+
+            Assert.False(string.IsNullOrEmpty(stockInfo.Name));
+            Assert.False(string.IsNullOrEmpty(stockInfo.Code));
+            Assert.False(string.IsNullOrEmpty(stockInfo.Classification));
+            Assert.NotNull(stockInfo.LatestScrapedPrice);
+
+            // LatestScrapedPriceの各メンバの検証
+            Assert.True(stockInfo.LatestScrapedPrice.Date == CommonUtils.Instance.GetLastTradingDay());
+            Assert.False(string.IsNullOrEmpty(stockInfo.LatestScrapedPrice.DateYYYYMMDD));
+            Assert.True(stockInfo.LatestScrapedPrice.Open > 0);
+            Assert.True(stockInfo.LatestScrapedPrice.High > 0);
+            Assert.True(stockInfo.LatestScrapedPrice.Low > 0);
+            Assert.True(stockInfo.LatestScrapedPrice.Close > 0);
+            Assert.True(stockInfo.LatestScrapedPrice.Volume >= 0);
+            Assert.True(stockInfo.LatestScrapedPrice.AdjustedClose >= 0);
+
+            // 指数共通の他の検証...
         }
 
         [Fact]
         public async Task ScrapeDisclosure_DoesNotThrowException()
         {
             var scraper = new YahooScraper();
-            var stockInfo = new StockInfo(new WatchList.WatchStock { Code = "1234" });
+            var stockInfo = StockInfo.GetInstance(new WatchList.WatchStock { Code = "1234" });
             await scraper.ScrapeDisclosure(stockInfo);
             // 例外が発生しないことのみを確認
         }

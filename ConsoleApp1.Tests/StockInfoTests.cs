@@ -6,6 +6,7 @@ using ConsoleApp1.Tests; // DummyCommonUtilsを参照するため追加
 
 namespace ConsoleApp1.Tests
 {
+    [Collection("CommonUtils collection")]
     public class StockInfoTests
     {
         // ダミー WatchStock クラス
@@ -21,7 +22,7 @@ namespace ConsoleApp1.Tests
         public void Constructor_InitializesProperties()
         {
             var watchStock = new DummyWatchStock();
-            var stockInfo = new StockInfo(new WatchList.WatchStock
+            var stockInfo = StockInfo.GetInstance(new WatchList.WatchStock
             {
                 Code = watchStock.Code,
                 Classification = watchStock.Classification,
@@ -352,7 +353,7 @@ namespace ConsoleApp1.Tests
         // ヘルパー
         private StockInfo CreateStockInfo()
         {
-            return new StockInfo(new WatchList.WatchStock
+            return StockInfo.GetInstance(new WatchList.WatchStock
             {
                 Code = "1234",
                 Classification = "1",

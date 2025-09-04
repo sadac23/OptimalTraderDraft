@@ -182,7 +182,7 @@ internal class YahooScraper
             if (titleNode != null)
             {
                 var titleText = titleNode.InnerText.Trim();
-                if (stockInfo.Classification == "0") // 指数の場合
+                if (stockInfo.Classification == CommonUtils.Instance.Classification.Index) // 指数の場合
                 {
                     // 「：」または「:」で分割し、最初の部分を取得
                     var name = titleText.Split(new[] { '：', ':' }, 2)[0].Trim();
@@ -255,6 +255,42 @@ internal class YahooScraper
                     stockInfo.TrustFeeRate = ConvertToDouble(trustFeeRateNode.InnerText.Trim());
                 }
             }
+
+            // 最新の株価情報
+
+            string xpath_open, xpath_high, xpath_low, xpath_close;
+            if (stockInfo.Classification == CommonUtils.Instance.Classification.Index)
+            {
+                // 指数の場合
+                xpath_open = "//*[@id=\"detail\"]/div/div/dl[2]/dd/span[1]";
+                xpath_high = "//*[@id=\"detail\"]/div/div/dl[3]/dd/span[1]";
+                xpath_low = "//*[@id=\"detail\"]/div/div/dl[4]/dd/span[1]";
+                xpath_close = "//*[@id=\"root\"]/main/div/section/div[2]/div[2]/div[1]/span/span/span";
+            }
+            else
+            {
+                // それ以外
+                xpath_open = "//*[@id=\"detail\"]/section[1]/div/ul/li[2]/dl/dd/span[1]/span/span";
+                xpath_high = "//*[@id=\"detail\"]/section[1]/div/ul/li[3]/dl/dd/span[1]/span/span";
+                xpath_low = "//*[@id=\"detail\"]/section[1]/div/ul/li[4]/dl/dd/span[1]/span/span";
+                xpath_close = "//*[@id=\"root\"]/main/div/section/div[2]/div[2]/div[1]/span/span/span";
+            }
+            var date = CommonUtils.Instance.GetLastTradingDay();
+            var open = document.DocumentNode.SelectSingleNode(xpath_open);
+            var high = document.DocumentNode.SelectSingleNode(xpath_high);
+            var low = document.DocumentNode.SelectSingleNode(xpath_low);
+            var close = document.DocumentNode.SelectSingleNode(xpath_close);
+            stockInfo.LatestScrapedPrice = new StockInfo.ScrapedPrice()
+            {
+                Date = date,
+                DateYYYYMMDD = date.ToString("yyyyMMdd"),
+                Open = open != null ? CommonUtils.Instance.GetDouble(open.InnerText.Trim()) : 0,
+                High = high != null ? CommonUtils.Instance.GetDouble(high.InnerText.Trim()) : 0,
+                Low = low != null ? CommonUtils.Instance.GetDouble(low.InnerText.Trim()) : 0,
+                Close = close != null ? CommonUtils.Instance.GetDouble(close.InnerText.Trim()) : 0,
+                Volume = 0, // 出来高はここでは取得しないため0をセット
+                AdjustedClose = close != null ? CommonUtils.Instance.GetDouble(close.InnerText.Trim()) : 0
+            };
         }
         catch (Exception e)
         {
