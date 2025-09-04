@@ -1,8 +1,9 @@
 using System;
 using System.Threading.Tasks;
 using Xunit;
+using ConsoleApp1.Tests.Utils;
 
-namespace ConsoleApp1.Tests
+namespace ConsoleApp1.Tests.Scraper
 {
     [Collection("CommonUtils collection")]
     public class YahooScraperTests
@@ -26,7 +27,7 @@ namespace ConsoleApp1.Tests
         {
             // Arrange
             var dummyUtils = new DummyCommonUtils();
-            dummyUtils.Logger = new Microsoft.Extensions.Logging.Abstractions.NullLogger<ConsoleApp1.Program>();
+            dummyUtils.Logger = new Microsoft.Extensions.Logging.Abstractions.NullLogger<Program>();
             CommonUtils.SetInstanceForTest(dummyUtils);
 
             var scraper = new YahooScraper();
@@ -68,7 +69,7 @@ namespace ConsoleApp1.Tests
         {
             // ダミーCommonUtilsをセットし、必要なプロパティを設定
             var dummyUtils = new DummyCommonUtils();
-            dummyUtils.Logger = new Microsoft.Extensions.Logging.Abstractions.NullLogger<ConsoleApp1.Program>();
+            dummyUtils.Logger = new Microsoft.Extensions.Logging.Abstractions.NullLogger<Program>();
             // dummyUtils.HttpClient = new System.Net.Http.HttpClient(); // ← この行を削除
 
             CommonUtils.SetInstanceForTest(dummyUtils);

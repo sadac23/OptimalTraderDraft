@@ -1,7 +1,7 @@
 ﻿// See https://aka.ms/new-console-template for more information
 using ClosedXML.Excel;
 
-namespace ConsoleApp1
+namespace ConsoleApp1.ExternalMaster
 {
     public class PolicyList
     {

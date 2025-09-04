@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using Xunit;
 
-namespace ConsoleApp1.Tests
+namespace ConsoleApp1.Tests.Analisys
 {
     [Collection("CommonUtils collection")]
     public class AlertTests
@@ -51,9 +51,9 @@ namespace ConsoleApp1.Tests
             public StockInfoMock() : base(new DummyWatchStock()) 
             {
                 // 必要なコレクションも初期化（テスト安定化のため）
-                this.Executions = new List<ExecutionList.Execution>();
-                this.Disclosures = new List<Disclosure>();
-                this.ChartPrices = new List<StockInfo.ChartPrice>();
+                Executions = new List<ExecutionList.Execution>();
+                Disclosures = new List<Disclosure>();
+                ChartPrices = new List<ChartPrice>();
             }
 
             internal override bool ShouldAlert() => ShouldAlertResult;
@@ -70,9 +70,9 @@ namespace ConsoleApp1.Tests
             internal override bool IsAfterQuarterEnd() => false;
             internal override bool IsJustSold() => false;
             internal override bool HasDisclosure() => false;
-            public override StockInfo.ChartPrice LatestPrice => new LatestPriceMock();
+            public override ChartPrice LatestPrice => new LatestPriceMock();
 
-            private class LatestPriceMock : StockInfo.ChartPrice
+            private class LatestPriceMock : ChartPrice
             {
                 public override bool OversoldIndicator() => false;
             }
@@ -83,10 +83,10 @@ namespace ConsoleApp1.Tests
         {
             public DummyWatchStock()
             {
-                this.Code = "TEST";
-                this.Classification = "1";
-                this.IsFavorite = "0";
-                this.Memo = "テスト";
+                Code = "TEST";
+                Classification = "1";
+                IsFavorite = "0";
+                Memo = "テスト";
             }
         }
     }

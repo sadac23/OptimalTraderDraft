@@ -1,7 +1,7 @@
 using Moq;
 using static StockInfo;
 
-namespace ConsoleApp1.Tests;
+namespace ConsoleApp1.Tests.Stocks;
 
 [Collection("CommonUtils collection")]
 public class IndexInfoTests
@@ -96,7 +96,7 @@ public class IndexFormatterTests
         })
         {
             // ChartPricesにMockChartPriceインスタンスを追加
-            this.ChartPrices = new List<ChartPrice>
+            ChartPrices = new List<ChartPrice>
             {
                 new MockChartPrice()
             };

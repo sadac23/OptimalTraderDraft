@@ -1,6 +1,6 @@
 using Xunit;
 
-namespace ConsoleApp1.Tests
+namespace ConsoleApp1.Tests.Utils
 {
     [CollectionDefinition("CommonUtils collection")]
     public class CommonUtilsCollection : ICollectionFixture<CommonUtilsFixture>

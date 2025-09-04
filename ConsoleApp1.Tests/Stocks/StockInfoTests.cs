@@ -1,10 +1,9 @@
 using System;
 using System.Collections.Generic;
 using Xunit;
-using ConsoleApp1;
-using ConsoleApp1.Tests; // DummyCommonUtilsÇéQè∆Ç∑ÇÈÇΩÇﬂí«â¡
+using ConsoleApp1.Tests.Utils;
 
-namespace ConsoleApp1.Tests
+namespace ConsoleApp1.Tests.Stocks
 {
     [Collection("CommonUtils collection")]
     public class StockInfoTests

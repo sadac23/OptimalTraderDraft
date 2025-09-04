@@ -2,8 +2,9 @@ using Xunit;
 using ClosedXML.Excel;
 using System.IO;
 using System.Collections.Generic;
+using ConsoleApp1.ExternalMaster;
 
-namespace ConsoleApp1.Tests
+namespace ConsoleApp1.Tests.ExternalMaster
 {
     [Collection("CommonUtils collection")]
     public class PolicyListTests

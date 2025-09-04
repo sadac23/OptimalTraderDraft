@@ -1,7 +1,7 @@
 using Microsoft.Extensions.Logging.Abstractions;
 
 // DummyCommonUtils.cs（テスト用サブクラス）
-namespace ConsoleApp1.Tests
+namespace ConsoleApp1.Tests.Utils
 {
     public class DummyCommonUtils : CommonUtils
     {
@@ -30,7 +30,7 @@ namespace ConsoleApp1.Tests
         }
         protected override void SetupLogger()
         {
-            this.Logger = NullLogger<ConsoleApp1.Program>.Instance;
+            Logger = NullLogger<Program>.Instance;
         }
     }
 }

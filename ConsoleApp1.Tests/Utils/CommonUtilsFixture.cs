@@ -1,7 +1,7 @@
 using System;
 using Xunit;
 
-namespace ConsoleApp1.Tests
+namespace ConsoleApp1.Tests.Utils
 {
     public class CommonUtilsFixture : IDisposable
     {
