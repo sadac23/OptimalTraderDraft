@@ -1,14 +1,6 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
-using DocumentFormat.OpenXml.Drawing.Charts;
-using DocumentFormat.OpenXml.Math;
-using DocumentFormat.OpenXml.Wordprocessing;
 using System.Data.SQLite;
-using System.Runtime.CompilerServices;
-using System.Runtime.ConstrainedExecution;
-using System.Runtime.Intrinsics.X86;
-using static Analyzer;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 internal class Analyzer
 {
@@ -110,8 +102,8 @@ internal class Analyzer
         }
 
         // RSIの算出
-        endIndexRSIS = GetCutlerRSI(CommonUtils.Instance.RSIShortPeriodDays, endDate, item.Code);
-        endIndexRS1L = GetCutlerRSI(CommonUtils.Instance.RSILongPeriodDays, endDate, item.Code);
+        endIndexRSIS = GetCutlerRSI(CommonUtils.Instance.RSIShortPeriodDays, endDate, item);
+        endIndexRS1L = GetCutlerRSI(CommonUtils.Instance.RSILongPeriodDays, endDate, item);
 
         AnalysisResult.PriceVolatility result = new()
         {
@@ -164,23 +156,76 @@ internal class Analyzer
     /// </summary>
     /// <param name="v"></param>
     /// <param name="endDate"></param>
-    /// <param name="code"></param>
+    /// <param name="stockInfo"></param>
     /// <returns></returns>
     /// <remarks>
     /// https://kabu.com/investment/guide/technical/08.html
     /// https://ad-van.co.jp/technical/article/rsi-calculation/
     /// </remarks>
-    public static double GetCutlerRSI(int v, DateTime endDate, string code)
+    public double GetCutlerRSI(int v, DateTime endDate, StockInfo stockInfo)
     {
-        double result = 0;
+        var priceTuples = GetCutlerRsiPrices(v, endDate, stockInfo.Code);
+
+        // 直近営業日のデータが含まれていない場合は追加
+        if (priceTuples.Count > 0 && priceTuples.Last().Item1 < CommonUtils.Instance.GetLastTradingDay())
+        {
+            var latestPrice = stockInfo.LatestScrapedPrice;
+            if (latestPrice != null && latestPrice.Date.Date <= CommonUtils.Instance.GetLastTradingDay())
+            {
+                if (priceTuples.Last().Item1 != latestPrice.Date.Date)
+                {
+                    priceTuples.Add((latestPrice.Date.Date, latestPrice.Close));
+                    while (priceTuples.Count > v + 1)
+                    {
+                        priceTuples.RemoveAt(0);
+                    }
+                }
+            }
+        }
+
+        var prices = priceTuples.Select(x => x.Item2).ToList();
+        return CalcCutlerRSI(v, prices);
+    }
+
+    /// <summary>
+    /// カトラー方式RSI計算ロジック（DB非依存テスト用）
+    /// </summary>
+    internal static double CalcCutlerRSI(int v, List<double> prices)
+    {
+        if (prices == null || prices.Count < 2)
+            return 0;
+
         double plus = 0;
         double minus = 0;
+
+        for (int i = 1; i < prices.Count; i++)
+        {
+            double diff = prices[i] - prices[i - 1];
+            if (diff >= 0)
+                plus += diff;
+            else
+                minus += -diff;
+        }
+
+        double A = plus / v;
+        double B = minus / v;
+
+        if (A + B == 0) return 0;
+
+        return (A / (A + B)) * 100;
+    }
+
+    /// <summary>
+    /// RSI計算用の価格リストをDBから取得（テスト容易性のため分離）
+    /// </summary>
+    internal virtual List<(DateTime, double)> GetCutlerRsiPrices(int v, DateTime endDate, string code)
+    {
+        var prices = new List<(DateTime, double)>();
 
         using (SQLiteConnection connection = new SQLiteConnection(CommonUtils.Instance.ConnectionString))
         {
             connection.Open();
 
-            // プライマリーキーに条件を設定したクエリ
             string query =
                 "SELECT date, close FROM (" +
                 " SELECT date, close" +
@@ -192,74 +237,23 @@ internal class Analyzer
 
             using (SQLiteCommand command = new SQLiteCommand(query, connection))
             {
-                // パラメータを設定
                 command.Parameters.AddWithValue("@date", endDate.ToString("yyyy-MM-dd 23:59:59"));
                 command.Parameters.AddWithValue("@code", code);
                 command.Parameters.AddWithValue("@limit", v + 1);
 
-                // データリーダーを使用して結果を取得
                 using (SQLiteDataReader reader = command.ExecuteReader())
                 {
-                    double close = 0;
-                    short count = 0;
-
-                    // 結果を読み取り
                     while (reader.Read())
                     {
-                        if (count > 0) 
-                        {
-                            // 値上りした場合
-                            if (reader.GetDouble(reader.GetOrdinal("close")) >= close)
-                            {
-                                plus += reader.GetDouble(reader.GetOrdinal("close")) - close;
-                            }
-                            // 値下りした場合
-                            else
-                            {
-                                minus += close - reader.GetDouble(reader.GetOrdinal("close"));
-                            }
-                        }
-
-                        // カラム名を指定してデータを取得
-                        DateTime date = reader.GetDateTime(reader.GetOrdinal("date"));
-                        close = reader.GetDouble(reader.GetOrdinal("close"));
-
-                        count++;
+                        var date = reader.GetDateTime(reader.GetOrdinal("date"));
+                        var close = reader.GetDouble(reader.GetOrdinal("close"));
+                        prices.Add((date, close));
                     }
                 }
             }
         }
 
-        double A = plus / v;
-        double B = minus / v;
-
-        result = (A / (A + B)) * 100;
-
-        return result;
-    }
-
-    private DateTime AdjustToFriday(DateTime date)
-    {
-        // 曜日を取得
-        DayOfWeek dayOfWeek = date.DayOfWeek;
-
-        // 金曜日、土曜日、日曜日の場合の処理
-        if (dayOfWeek == DayOfWeek.Friday)
-        {
-            return date; // すでに金曜日
-        }
-        else if (dayOfWeek == DayOfWeek.Saturday)
-        {
-            return date.AddDays(-1); // 土曜日の場合、前日の金曜日に補正
-        }
-        else if (dayOfWeek == DayOfWeek.Sunday)
-        {
-            return date.AddDays(-2); // 日曜日の場合、2日前の金曜日に補正
-        }
-        else
-        {
-            return date; // 月～木曜日の場合、そのままの入力日を返す
-        }
+        return prices;
     }
 
     internal class AnalysisResult
@@ -439,7 +433,7 @@ internal class Analyzer
     /// MACDの取得
     /// </summary>
     /// <param name="date"></param>
-    /// <param name="code"></param>
+    /// <param="code"></param>
     /// <returns></returns>
     internal static double GetMACD(DateTime date, string code)
     {

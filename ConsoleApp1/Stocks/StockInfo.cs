@@ -2,26 +2,13 @@
 using ConsoleApp1.ExternalSource;
 using ConsoleApp1.Output;
 using DocumentFormat.OpenXml;
-using DocumentFormat.OpenXml.Bibliography;
-using DocumentFormat.OpenXml.Drawing;
-using DocumentFormat.OpenXml.Drawing.Charts;
-using DocumentFormat.OpenXml.Drawing.Diagrams;
-using DocumentFormat.OpenXml.Office2016.Excel;
-using DocumentFormat.OpenXml.Spreadsheet;
-using DocumentFormat.OpenXml.Wordprocessing;
 using Microsoft.Extensions.Logging;
-using SixLabors.Fonts;
 using System.Data.Entity;
-using System.Data.Entity.Core.Metadata.Edm;
 using System.Data.SQLite;
 using System.Globalization;
-using System.Reflection;
-using System.Runtime.ConstrainedExecution;
-using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
 using static ExecutionList;
-using static StockInfo;
 
 public class StockInfo
 {
@@ -43,7 +30,7 @@ public class StockInfo
         this.Disclosures = new List<Disclosure>();
     }
 
-    public StockInfo(WatchList.WatchStock watchStock, IExternalSourceUpdatable updater, IOutputFormattable formatter)
+    protected StockInfo(WatchList.WatchStock watchStock, IExternalSourceUpdatable updater, IOutputFormattable formatter)
         : this(watchStock) // ← これが明示的な呼び出し
     {
         this.updater = updater;
@@ -300,27 +287,6 @@ public class StockInfo
     /// </summary>
     internal void UpdateFullYearPerformanceForcastSummary()
     {
-
-        //使っていないので削除予定
-        //this.FullYearPerformanceForcastSummary = string.Empty;
-
-        //// リストの件数が3件以上あるか確認
-        //if (this.FullYearPerformances.Count >= 3)
-        //{
-        //    // 最後から3件前の値（前期）
-        //    var secondLastValue = this.FullYearPerformances[this.FullYearPerformances.Count - 3];
-        //    // 最後から2件前の値（今期）
-        //    var lastValue = this.FullYearPerformances[this.FullYearPerformances.Count - 2];
-
-        //    // "増収増益増配（+50%,+50%,+50）"
-        //    this.FullYearPerformanceForcastSummary += GetRevenueIncreasedSummary(lastValue.Revenue, secondLastValue.Revenue);
-        //    this.FullYearPerformanceForcastSummary += GetOrdinaryIncomeIncreasedSummary(lastValue.OrdinaryProfit, secondLastValue.OrdinaryProfit);
-        //    this.FullYearPerformanceForcastSummary += GetDividendPerShareIncreasedSummary(lastValue.AdjustedDividendPerShare, secondLastValue.AdjustedDividendPerShare);
-        //    this.FullYearPerformanceForcastSummary += $"（{GetIncreasedRate(lastValue.Revenue, secondLastValue.Revenue)}";
-        //    this.FullYearPerformanceForcastSummary += $",{GetIncreasedRate(lastValue.OrdinaryProfit, secondLastValue.OrdinaryProfit)}";
-        //    this.FullYearPerformanceForcastSummary += $",{GetDividendPerShareIncreased(lastValue.AdjustedDividendPerShare, secondLastValue.AdjustedDividendPerShare)}）";
-        //}
-
         foreach (var p in this.FullYearPerformancesForcasts)
         {
             // 最後から3件前の値（前期）
@@ -632,46 +598,7 @@ public class StockInfo
     /// <remarks>配当権利確定日が当月以内の場合にtrueを返す。</remarks>
     internal bool IsCloseToDividendRecordDate()
     {
-        // TODO: 次回権利日の閾値以内かを判定する
-        //bool result = false;
-
-        //List<DateTime> recordDays = this.GetRecordDays();
-
-        //foreach (var day in recordDays)
-        //{
-        //    // 権利日のN日前 <= 実行日 < 権利日
-        //    if (day.AddDays(-1 * 14) <= CommonUtils.Instance.ExecusionDate 
-        //        && CommonUtils.Instance.ExecusionDate < day)
-        //    {
-        //        result = true;
-        //    }
-        //}
-
-        //return result;
-
         return IsWithinMonths(this.DividendRecordDateMonth, 0);
-    }
-
-    private List<DateTime> GetRecordDays()
-    {
-        List <DateTime> days = new List<DateTime>();
-
-        if (!string.IsNullOrEmpty(this.DividendRecordDateMonth))
-        {
-            // 月文字列を分割してリストに変換
-            string[] monthArray = this.DividendRecordDateMonth.Split(',');
-            List<int> months = new List<int>();
-
-            foreach (string monthStr in monthArray)
-            {
-                int month = ParseMonth(monthStr.Trim());
-                months.Add(month);
-            }
-        }
-
-        // TODO
-
-        return days;
     }
 
     public static bool IsWithinMonths(string monthsStr, short m)
@@ -714,7 +641,6 @@ public class StockInfo
         }
         catch (Exception ex)
         {
-//            Console.WriteLine($"IsWithinTwoMonthsエラー： {ex.ToString()}");
             return false;
         }
     }
@@ -827,24 +753,6 @@ public class StockInfo
 
         return result;
     }
-
-    //private FullYearPerformance GetFullYearForecast(string period)
-    //{
-    //    FullYearPerformance result = new FullYearPerformance();
-
-    //    // 今期は2、前期は3
-    //    var refIndex = period == CommonUtils.Instance.PeriodString.Current ? 2 : 3;
-
-    //    // 通期進捗率の算出
-    //    if (this.FullYearPerformances.Count >= refIndex)
-    //    {
-    //        // TODO: Q4の時は既に来期の予想しか取得できないため、キャッシュから取得する必要がある。（現状は2件前の通期実績を格納している。よって常に100%になる。）
-    //        refIndex = this.LastQuarterPeriod == CommonUtils.Instance.QuarterString.Quarter4 ? refIndex + 1 : refIndex;
-    //        result = this.FullYearPerformances[this.FullYearPerformances.Count - refIndex];
-    //    }
-
-    //    return result;
-    //}
 
     /// <summary>
     /// 通期予想の取得
@@ -1016,6 +924,8 @@ public class StockInfo
 
     private void UpdateChartPrices()
     {
+        var analizer = new Analyzer();
+
         using (SQLiteConnection connection = new SQLiteConnection(CommonUtils.Instance.ConnectionString))
         {
 　            connection.Open();
@@ -1058,8 +968,8 @@ public class StockInfo
                             Date = date,
                             Price = close,
                             Volatility = previousPrice != null ? (close / previousPrice.Price) - 1 : 0,
-                            RSIL = Analyzer.GetCutlerRSI(CommonUtils.Instance.RSILongPeriodDays, date, this.Code),
-                            RSIS = Analyzer.GetCutlerRSI(CommonUtils.Instance.RSIShortPeriodDays, date, this.Code),
+                            RSIL = analizer.GetCutlerRSI(CommonUtils.Instance.RSILongPeriodDays, date, this),
+                            RSIS = analizer.GetCutlerRSI(CommonUtils.Instance.RSIShortPeriodDays, date, this),
                             SMA25 = sma25,
                             SMA75 = sma75,
                             SMAdev = sma25 - sma75,
@@ -1089,8 +999,8 @@ public class StockInfo
                             Date = date,
                             Price = close,
                             Volatility = previousPrice != null ? (close / previousPrice.Price) - 1 : 0,
-                            RSIL = Analyzer.GetCutlerRSI(CommonUtils.Instance.RSILongPeriodDays, date, this.Code),
-                            RSIS = Analyzer.GetCutlerRSI(CommonUtils.Instance.RSIShortPeriodDays, date, this.Code),
+                            RSIL = analizer.GetCutlerRSI(CommonUtils.Instance.RSILongPeriodDays, date, this),
+                            RSIS = analizer.GetCutlerRSI(CommonUtils.Instance.RSIShortPeriodDays, date, this),
                             SMA25 = sma25,
                             SMA75 = sma75,
                             SMAdev = sma25 - sma75,
