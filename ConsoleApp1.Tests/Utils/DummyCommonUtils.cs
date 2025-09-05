@@ -1,0 +1,36 @@
+using Microsoft.Extensions.Logging.Abstractions;
+
+// DummyCommonUtils.cs（テスト用サブクラス）
+namespace ConsoleApp1.Tests.Utils
+{
+    public class DummyCommonUtils : CommonUtils
+    {
+        public DummyCommonUtils() : base() { }
+
+        // 設定値を使うプロパティをすべてオーバーライド
+        public override string ConnectionString => "DummyConnectionString";
+        public override string FilepathOfWatchList => "DummyWatchListPath";
+        public override string FilepathOfExecutionList => "DummyExecutionListPath";
+        public override string FilepathOfAveragePerPbrList => "DummyAveragePerPbrListPath";
+        public override string FilepathOfFilelog => "C:\\Logs\\DummyLog_{yyyyMMdd}.txt";
+
+        private string _filepathOfAlert;
+        public override string FilepathOfAlert
+        {
+            get => _filepathOfAlert;
+            set => _filepathOfAlert = value;
+        }
+
+        public override string FilepathOfGmailAPICredential => "DummyGmailAPICredentialPath";
+        public override string MailSubject => "DummyMailSubject";
+
+        protected override void SetupFlag()
+        {
+            // テスト時は何もしない
+        }
+        protected override void SetupLogger()
+        {
+            Logger = NullLogger<Program>.Instance;
+        }
+    }
+}

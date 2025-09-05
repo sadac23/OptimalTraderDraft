@@ -1,4 +1,5 @@
 // See https://aka.ms/new-console-template for more information
+using ConsoleApp1.ExternalMaster;
 using Microsoft.Extensions.Logging;
 
 /* DONE
@@ -193,7 +194,6 @@ namespace ConsoleApp1
                     if (!string.IsNullOrEmpty(watchStock.DeleteDate)) continue;
 
                     // インスタンスの初期化
-                    //                    var stockInfo = new StockInfo(watchStock);
                     var stockInfo = StockInfo.GetInstance(watchStock);
 
                     try
