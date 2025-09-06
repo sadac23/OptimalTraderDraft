@@ -166,18 +166,22 @@ internal class Analyzer
     {
         var priceTuples = GetCutlerRsiPrices(v, endDate, stockInfo.Code);
 
-        // 直近営業日のデータが含まれていない場合は追加
-        if (priceTuples.Count > 0 && priceTuples.Last().Item1 < CommonUtils.Instance.GetLastTradingDay())
+        // 算出対象日が直近営業日の場合は、DBに登録されていない可能性があるため、最新価格を追加
+        if (endDate.Date >= CommonUtils.Instance.LastTradingDate)
         {
-            var latestPrice = stockInfo.LatestScrapedPrice;
-            if (latestPrice != null && latestPrice.Date.Date <= CommonUtils.Instance.GetLastTradingDay())
+            // 直近営業日のデータが含まれていない場合は追加
+            if (priceTuples.Count > 0 && priceTuples.Last().Item1 < CommonUtils.Instance.LastTradingDate)
             {
-                if (priceTuples.Last().Item1 != latestPrice.Date.Date)
+                var latestPrice = stockInfo.LatestScrapedPrice;
+                if (latestPrice != null && latestPrice.Date.Date <= CommonUtils.Instance.LastTradingDate)
                 {
-                    priceTuples.Add((latestPrice.Date.Date, latestPrice.Close));
-                    while (priceTuples.Count > v + 1)
+                    if (priceTuples.Last().Item1 != latestPrice.Date.Date)
                     {
-                        priceTuples.RemoveAt(0);
+                        priceTuples.Add((latestPrice.Date.Date, latestPrice.Close));
+                        while (priceTuples.Count > v + 1)
+                        {
+                            priceTuples.RemoveAt(0);
+                        }
                     }
                 }
             }

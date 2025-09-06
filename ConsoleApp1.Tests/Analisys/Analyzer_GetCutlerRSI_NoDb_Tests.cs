@@ -26,7 +26,7 @@ namespace ConsoleApp1.Tests.Analisys
         {
             int v = 14;
             var baseDate = new DateTime(2024, 1, 1);
-            var lastTradingDay = CommonUtils.Instance.GetLastTradingDay();
+            var lastTradingDay = CommonUtils.Instance.LastTradingDate;
 
             // 1. 直近営業日データが無い & latestPriceが有効（追加される）
             var prices1 = new List<(DateTime, double)>();

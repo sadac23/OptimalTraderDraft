@@ -97,7 +97,7 @@ internal class JapaneseETFInfo : StockInfo
             var lastUpdateDay = this.GetLastHistoryUpdateDay();
 
             // 最終更新後に直近営業日がある場合は履歴取得
-            if (CommonUtils.Instance.GetLastTradingDay() > lastUpdateDay)
+            if (CommonUtils.Instance.LastTradingDate > lastUpdateDay)
             {
                 await yahooScraper.ScrapeHistory(this, lastUpdateDay, CommonUtils.Instance.ExecusionDate);
 

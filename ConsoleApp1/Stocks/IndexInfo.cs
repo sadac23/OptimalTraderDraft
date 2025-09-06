@@ -60,7 +60,7 @@ public class IndexInfo : StockInfo
                 var lastUpdateDay = stockInfo.GetLastHistoryUpdateDay();
 
                 // 最終更新後に直近営業日がある場合は履歴取得
-                if (CommonUtils.Instance.GetLastTradingDay() > lastUpdateDay)
+                if (CommonUtils.Instance.LastTradingDate > lastUpdateDay)
                 {
                     await yahooScraper.ScrapeHistory(stockInfo, lastUpdateDay, CommonUtils.Instance.ExecusionDate);
                 }

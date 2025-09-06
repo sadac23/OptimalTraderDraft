@@ -1,5 +1,4 @@
 ﻿// See https://aka.ms/new-console-template for more information
-using DocumentFormat.OpenXml.Bibliography;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NLog.Config;
@@ -8,7 +7,6 @@ using NLog;
 using NLog.Extensions.Logging;
 using System.Configuration;
 using System.Globalization;
-using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
 using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
@@ -50,6 +48,9 @@ public class CommonUtils : IDisposable
         // HttpClient
         this.HttpClient = new HttpClient();
         this.HttpClient.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64)");
+
+        // 直近の東証営業日
+        this.LastTradingDate = GetLastTradingDay();
     }
 
     /// <summary>
@@ -60,6 +61,10 @@ public class CommonUtils : IDisposable
     /// 株価履歴の取得開始日
     /// </summary>
     public DateTime MasterStartDate { get; set; } = DateTime.Parse("2023/01/01");
+    /// <summary>
+    /// 直近の東証営業日
+    /// </summary>
+    public DateTime LastTradingDate { get; set; }
     /// <summary>
     /// データベースの接続文字列
     /// </summary>
@@ -437,7 +442,7 @@ public class CommonUtils : IDisposable
     /// <returns></returns>
     internal DateTime GetLastTradingDay()
     {
-        DateTime date = CommonUtils.Instance.ExecusionDate.Date;
+        DateTime date = ExecusionDate.Date;
 
         // 土日または祝日の場合、前日を確認
         while (TSEHolidayChecker.IsTSEHoliday(date))

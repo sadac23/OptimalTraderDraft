@@ -275,7 +275,7 @@ internal class YahooScraper
                 xpath_low = "//*[@id=\"detail\"]/section[1]/div/ul/li[4]/dl/dd/span[1]/span/span";
                 xpath_close = "//*[@id=\"root\"]/main/div/section/div[2]/div[2]/div[1]/span/span/span";
             }
-            var date = CommonUtils.Instance.GetLastTradingDay();
+            var date = CommonUtils.Instance.LastTradingDate;
             var open = document.DocumentNode.SelectSingleNode(xpath_open);
             var high = document.DocumentNode.SelectSingleNode(xpath_high);
             var low = document.DocumentNode.SelectSingleNode(xpath_low);

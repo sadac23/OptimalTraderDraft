@@ -96,7 +96,7 @@ namespace ConsoleApp1.Tests.Scraper
             Assert.NotNull(stockInfo.LatestScrapedPrice);
 
             // LatestScrapedPriceの各メンバの検証
-            Assert.True(stockInfo.LatestScrapedPrice.Date == CommonUtils.Instance.GetLastTradingDay());
+            Assert.True(stockInfo.LatestScrapedPrice.Date == CommonUtils.Instance.LastTradingDate);
             Assert.False(string.IsNullOrEmpty(stockInfo.LatestScrapedPrice.DateYYYYMMDD));
             Assert.True(stockInfo.LatestScrapedPrice.Open > 0);
             Assert.True(stockInfo.LatestScrapedPrice.High > 0);
@@ -128,7 +128,7 @@ namespace ConsoleApp1.Tests.Scraper
             Assert.NotNull(stockInfo.LatestScrapedPrice);
 
             // LatestScrapedPriceの各メンバの検証
-            Assert.True(stockInfo.LatestScrapedPrice.Date == CommonUtils.Instance.GetLastTradingDay());
+            Assert.True(stockInfo.LatestScrapedPrice.Date == CommonUtils.Instance.LastTradingDate);
             Assert.False(string.IsNullOrEmpty(stockInfo.LatestScrapedPrice.DateYYYYMMDD));
             Assert.True(stockInfo.LatestScrapedPrice.Open > 0);
             Assert.True(stockInfo.LatestScrapedPrice.High > 0);
@@ -161,7 +161,7 @@ namespace ConsoleApp1.Tests.Scraper
             Assert.NotNull(stockInfo.LatestScrapedPrice);
 
             // LatestScrapedPriceの各メンバの検証
-            Assert.True(stockInfo.LatestScrapedPrice.Date == CommonUtils.Instance.GetLastTradingDay());
+            Assert.True(stockInfo.LatestScrapedPrice.Date == CommonUtils.Instance.LastTradingDate);
             Assert.False(string.IsNullOrEmpty(stockInfo.LatestScrapedPrice.DateYYYYMMDD));
             Assert.True(stockInfo.LatestScrapedPrice.Open > 0);
             Assert.True(stockInfo.LatestScrapedPrice.High > 0);
