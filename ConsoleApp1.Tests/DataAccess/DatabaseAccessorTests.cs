@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Xunit;
 using System.Data.SQLite;
 
-public class DatabaseAccessor
+public class DatabaseAccessorTests
 {
     private const string InMemoryConnectionString = "Data Source=:memory:;Version=3;New=True;";
 
@@ -29,7 +29,7 @@ public class DatabaseAccessor
         connection.Open();
         SetupTestTable(connection);
 
-        var accessor = new DatabaseAccessor(InMemoryConnectionString);
+        var accessor = new DatabaseAccessor(connection); // C³: Ú‘±‚ð’¼Ú“n‚·
         var query = "SELECT * FROM test_table WHERE value > @minValue";
         var parameters = new Dictionary<string, object> { { "@minValue", 150 } };
 
@@ -48,7 +48,7 @@ public class DatabaseAccessor
         connection.Open();
         SetupTestTable(connection);
 
-        var accessor = new DatabaseAccessor(InMemoryConnectionString);
+        var accessor = new DatabaseAccessor(connection); // C³: Ú‘±‚ð’¼Ú“n‚·
         var query = "SELECT * FROM test_table WHERE value > @minValue";
         var parameters = new Dictionary<string, object> { { "@minValue", 1000 } };
 

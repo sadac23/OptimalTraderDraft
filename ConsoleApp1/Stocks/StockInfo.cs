@@ -922,7 +922,7 @@ public class StockInfo
         return result;
     }
 
-    private void UpdateChartPrices()
+    private void SetupChartPrices()
     {
         var analizer = new Analyzer();
 
@@ -1337,7 +1337,7 @@ public class StockInfo
         UpdateFullYearPerformanceForcastSummary();
 
         // チャート情報を更新
-        UpdateChartPrices();
+        SetupChartPrices();
     }
 
     /// <summary>
