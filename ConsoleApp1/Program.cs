@@ -1,4 +1,5 @@
 // See https://aka.ms/new-console-template for more information
+using ConsoleApp1.Database;
 using ConsoleApp1.ExternalMaster;
 using Microsoft.Extensions.Logging;
 
@@ -15,6 +16,9 @@ namespace ConsoleApp1
             {
                 // 開始
                 CommonUtils.Instance.Logger.LogInformation(CommonUtils.Instance.MessageAtApplicationStartup);
+
+                // DB接続初期化
+                DbConnectionFactory.Initialize(CommonUtils.Instance.ConnectionString);
 
                 // OneDriveリフレッシュ
                 if (CommonUtils.Instance.ShouldRefreshOneDrive) CommonUtils.Instance.OneDriveRefresh();
@@ -80,6 +84,17 @@ namespace ConsoleApp1
             {
                 // ログ出力
                 CommonUtils.Instance.Logger.LogError($"Message:{ex.Message}, StackTrace:{ex.StackTrace}", ex);
+            }
+            finally
+            {
+                // DB接続を閉じる
+                ConsoleApp1.Database.DbConnectionFactory.Dispose();
+
+                // ロガーを閉じる
+                if (CommonUtils.Instance.Logger is IDisposable disposableLogger)
+                {
+                    disposableLogger.Dispose();
+                }
             }
         }
     }

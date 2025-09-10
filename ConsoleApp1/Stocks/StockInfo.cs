@@ -9,6 +9,7 @@ using System.Globalization;
 using System.Text;
 using System.Text.RegularExpressions;
 using static ExecutionList;
+using ConsoleApp1.Database;
 
 public class StockInfo
 {
@@ -926,10 +927,8 @@ public class StockInfo
     {
         var analizer = new Analyzer();
 
-        using (SQLiteConnection connection = new SQLiteConnection(CommonUtils.Instance.ConnectionString))
+        using (SQLiteConnection connection = DbConnectionFactory.GetConnection())
         {
-　            connection.Open();
-
             // プライマリーキーに条件を設定したクエリ
             string query =
                 "SELECT * FROM (" +
@@ -1099,10 +1098,8 @@ public class StockInfo
     /// <param name="f"></param>
     private void RegisterForcastHistory(FullYearPerformanceForcast f)
     {
-        using (SQLiteConnection connection = new SQLiteConnection(CommonUtils.Instance.ConnectionString))
+        using (SQLiteConnection connection = DbConnectionFactory.GetConnection())
         {
-            connection.Open();
-
             // 挿入クエリ
             string query = "INSERT INTO forcast_history (" +
                 "code" +
@@ -1161,10 +1158,8 @@ public class StockInfo
     /// <returns></returns>
     private bool IsInForcastHistory(FullYearPerformanceForcast f)
     {
-        using (SQLiteConnection connection = new SQLiteConnection(CommonUtils.Instance.ConnectionString))
+        using (SQLiteConnection connection = DbConnectionFactory.GetConnection())
         {
-            connection.Open();
-
             // プライマリーキーに条件を設定したクエリ
             string query = "SELECT count(code) as count FROM forcast_history WHERE code = @code and revision_date_string = @revision_date_string";
 
@@ -1188,10 +1183,8 @@ public class StockInfo
     /// <param name="p"></param>
     private void RegisterHistory(ScrapedPrice p)
     {
-        using (SQLiteConnection connection = new SQLiteConnection(CommonUtils.Instance.ConnectionString))
+        using (SQLiteConnection connection = DbConnectionFactory.GetConnection())
         {
-            connection.Open();
-
             // 挿入クエリ
             string query = "INSERT INTO history (" +
                 "code" +
@@ -1239,10 +1232,8 @@ public class StockInfo
     /// </summary>
     private bool IsInHistory(ScrapedPrice p)
     {
-        using (SQLiteConnection connection = new SQLiteConnection(CommonUtils.Instance.ConnectionString))
+        using (SQLiteConnection connection = DbConnectionFactory.GetConnection())
         {
-            connection.Open();
-
             // プライマリーキーに条件を設定したクエリ
             string query = "SELECT count(code) as count FROM history WHERE code = @code and date_string = @date_string";
 
@@ -1402,10 +1393,8 @@ public class StockInfo
             // カレント決算月が取得できていない場合は抜ける
             if (this.CurrentFiscalMonth == DateTime.MinValue) return result;
 
-            using (SQLiteConnection connection = new SQLiteConnection(CommonUtils.Instance.ConnectionString))
+            using (SQLiteConnection connection = DbConnectionFactory.GetConnection())
             {
-                connection.Open();
-
                 // プライマリーキーに条件を設定したクエリ
                 string query = "SELECT * FROM forcast_history WHERE code = @code and fiscal_period = @fiscal_period ORDER BY revision_date";
 
@@ -1670,10 +1659,8 @@ public class StockInfo
     /// <param name="target"></param>
     internal void DeleteHistory(DateTime target)
     {
-        using (SQLiteConnection connection = new SQLiteConnection(CommonUtils.Instance.ConnectionString))
+        using (SQLiteConnection connection = DbConnectionFactory.GetConnection())
         {
-            connection.Open();
-
             // 挿入クエリ
             string query = "DELETE FROM history WHERE code = @code and date <= @date";
 
@@ -1696,10 +1683,8 @@ public class StockInfo
     {
         DateTime result = CommonUtils.Instance.MasterStartDate;
 
-        using (SQLiteConnection connection = new SQLiteConnection(CommonUtils.Instance.ConnectionString))
+        using (SQLiteConnection connection = DbConnectionFactory.GetConnection())
         {
-            connection.Open();
-
             // プライマリーキーに条件を設定したクエリ
             string query = $"SELECT IFNULL(MAX(date), @max_date) FROM history WHERE code = @code";
 

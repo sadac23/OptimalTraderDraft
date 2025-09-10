@@ -1,5 +1,6 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
+using ConsoleApp1.Database;
 using System.Data.SQLite;
 
 internal class Analyzer
@@ -89,10 +90,8 @@ internal class Analyzer
     {
         var prices = new List<(DateTime, double)>();
 
-        using (SQLiteConnection connection = new SQLiteConnection(CommonUtils.Instance.ConnectionString))
+        using (SQLiteConnection connection = DbConnectionFactory.GetConnection())
         {
-            connection.Open();
-
             string query =
                 "SELECT date, close FROM (" +
                 " SELECT date, close" +
@@ -325,10 +324,8 @@ internal class Analyzer
     {
         double result = 0;
 
-        using (SQLiteConnection connection = new SQLiteConnection(CommonUtils.Instance.ConnectionString))
+        using (SQLiteConnection connection = DbConnectionFactory.GetConnection())
         {
-            connection.Open();
-
             // プライマリーキーに条件を設定したクエリ
             string query =
                 "SELECT date, close FROM (" +
