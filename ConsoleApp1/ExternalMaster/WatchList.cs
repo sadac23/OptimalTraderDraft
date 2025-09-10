@@ -17,26 +17,26 @@ public class WatchList
 
         List<WatchStock> results = new List<WatchStock>();
 
-        using (SQLiteConnection connection = DbConnectionFactory.GetConnection())
-        {
-            using (SQLiteCommand command = new SQLiteCommand(query, connection))
-            {
-//                command.Parameters.AddWithValue("@yourValue", "some_value");
+        SQLiteConnection connection = DbConnectionFactory.GetConnection();
 
-                using (SQLiteDataReader reader = command.ExecuteReader())
+        using (SQLiteCommand command = new SQLiteCommand(query, connection))
+        {
+            //                command.Parameters.AddWithValue("@yourValue", "some_value");
+
+            using (SQLiteDataReader reader = command.ExecuteReader())
+            {
+                while (reader.Read())
+
                 {
-                    while (reader.Read())
-                    
+                    WatchStock data = new WatchStock
                     {
-                        WatchStock data = new WatchStock
-                        {
-                            Code = reader.GetString(0)
-                        };
-                        results.Add(data);
-                    }
+                        Code = reader.GetString(0)
+                    };
+                    results.Add(data);
                 }
             }
         }
+
         return results;
     }
 

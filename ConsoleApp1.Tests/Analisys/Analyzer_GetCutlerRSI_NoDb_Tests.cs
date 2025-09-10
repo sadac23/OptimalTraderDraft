@@ -15,7 +15,7 @@ namespace ConsoleApp1.Tests.Analisys
                 _testPrices = testPrices;
             }
 
-            internal override List<(DateTime, double)> GetCutlerRsiPrices(int v, DateTime endDate, string code)
+            internal override List<(DateTime, double)> GetCutlerRsiPrices(int v, DateTime endDate, StockInfo stockInfo)
             {
                 return _testPrices;
             }
@@ -90,7 +90,7 @@ namespace ConsoleApp1.Tests.Analisys
             };
             double rsi5 = analyzer5.GetCutlerRSI(v, lastTradingDay, stockInfo5);
             // v+1åèÇ…í≤êÆÇ≥ÇÍÇƒÇ¢ÇÈÇ±Ç∆ÇämîF
-            var resultPrices = analyzer5.GetCutlerRsiPrices(v, lastTradingDay, stockInfo5.Code);
+            var resultPrices = analyzer5.GetCutlerRsiPrices(v, lastTradingDay, stockInfo5);
             Assert.True(resultPrices.Count <= v + 1);
             Assert.InRange(rsi5, 0, 100);
         }

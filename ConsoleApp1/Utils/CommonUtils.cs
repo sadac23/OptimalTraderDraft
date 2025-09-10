@@ -262,7 +262,7 @@ public class CommonUtils : IDisposable
     /// <summary>
     /// チャートの表示日数
     /// </summary>
-    public short ChartDays { get; } = 14;
+    public short ChartDays { get; set; } = 14;
 
     /// <summary>
     /// ナンピン閾値

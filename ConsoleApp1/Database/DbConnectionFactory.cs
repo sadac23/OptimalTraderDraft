@@ -65,5 +65,21 @@ namespace ConsoleApp1.Database
                 }
             }
         }
+
+        /// <summary>
+        /// テスト用: 外部で生成したSQLiteConnectionを直接セットする
+        /// </summary>
+        public static void SetConnection(SQLiteConnection connection)
+        {
+            lock (_lock)
+            {
+                if (_singletonConnection != null && !object.ReferenceEquals(_singletonConnection, connection))
+                {
+                    _singletonConnection.Dispose();
+                }
+                _singletonConnection = connection;
+                _connectionString = connection.ConnectionString;
+            }
+        }
     }
 }

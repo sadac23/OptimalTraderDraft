@@ -88,7 +88,7 @@ namespace ConsoleApp1
             finally
             {
                 // DB接続を閉じる
-                ConsoleApp1.Database.DbConnectionFactory.Dispose();
+                DbConnectionFactory.Dispose();
 
                 // ロガーを閉じる
                 if (CommonUtils.Instance.Logger is IDisposable disposableLogger)
