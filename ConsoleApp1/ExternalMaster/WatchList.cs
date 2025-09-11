@@ -1,6 +1,7 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
 using ClosedXML.Excel;
+using ConsoleApp1.Database;
 using DocumentFormat.OpenXml.Office2013.Word;
 using System.Collections.Generic;
 using System.Data.SQLite;
@@ -16,28 +17,26 @@ public class WatchList
 
         List<WatchStock> results = new List<WatchStock>();
 
-        using (SQLiteConnection connection = new SQLiteConnection(connectionString))
+        SQLiteConnection connection = DbConnectionFactory.GetConnection();
+
+        using (SQLiteCommand command = new SQLiteCommand(query, connection))
         {
-            connection.Open();
+            //                command.Parameters.AddWithValue("@yourValue", "some_value");
 
-            using (SQLiteCommand command = new SQLiteCommand(query, connection))
+            using (SQLiteDataReader reader = command.ExecuteReader())
             {
-//                command.Parameters.AddWithValue("@yourValue", "some_value");
+                while (reader.Read())
 
-                using (SQLiteDataReader reader = command.ExecuteReader())
                 {
-                    while (reader.Read())
-                    
+                    WatchStock data = new WatchStock
                     {
-                        WatchStock data = new WatchStock
-                        {
-                            Code = reader.GetString(0)
-                        };
-                        results.Add(data);
-                    }
+                        Code = reader.GetString(0)
+                    };
+                    results.Add(data);
                 }
             }
         }
+
         return results;
     }
 

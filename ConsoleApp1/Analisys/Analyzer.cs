@@ -1,5 +1,6 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
+using ConsoleApp1.Database;
 using System.Data.SQLite;
 
 internal class Analyzer
@@ -14,143 +15,6 @@ internal class Analyzer
         this._connectionString = CommonUtils.Instance.ConnectionString;
     }
 
-    internal AnalysisResult Analize(StockInfo item)
-    {
-        var result = new AnalysisResult(item);
-
-        // 週間変動値取得
-        for (int i = 1; i <= _volatilityTermMax; i++)
-        {
-            result.PriceVolatilities.Add(Weeklyfluctuation(item, i));
-        }
-
-        return result;
-    }
-
-    AnalysisResult.PriceVolatility Weeklyfluctuation(StockInfo item, int term)
-    {
-        double startindex = 0;
-        double endIndex = 0;
-        DateTime startindexDate = _currentDate;
-        DateTime endIndexDate = _currentDate;
-        double endIndexRS1L = 0;
-        double endIndexRSIS = 0;
-        double lastFridayIndex = 0;
-        DateTime lastFridayIndexDate = _currentDate;
-
-        DateTime startDate = _currentDate;
-        DateTime endDate = _currentDate;
-
-        // 実行日が土日の場合は、終了日を金とする
-        if (_currentDate.DayOfWeek == DayOfWeek.Saturday || _currentDate.DayOfWeek == DayOfWeek.Sunday)
-        {
-            endDate = GetLastFriday(_currentDate);
-        }
-        startDate = GetLastFriday(endDate).AddDays((term - 1) * -7);
-
-        // 結果生成
-        using (SQLiteConnection connection = new SQLiteConnection(_connectionString))
-        {
-            connection.Open();
-
-            // プライマリーキーに条件を設定したクエリ
-            string query = "SELECT * FROM history WHERE code = @code and date BETWEEN @date_start and @date_end ORDER BY date";
-
-            using (SQLiteCommand command = new SQLiteCommand(query, connection))
-            {
-                // パラメータを設定
-                command.Parameters.AddWithValue("@code", item.Code);
-                command.Parameters.AddWithValue("@date_start", startDate.ToString("yyyy-MM-dd 00:00:00"));    // 前週の金曜日
-                command.Parameters.AddWithValue("@date_end", endDate.ToString("yyyy-MM-dd 23:59:59"));
-
-                // データリーダーを使用して結果を取得
-                using (SQLiteDataReader reader = command.ExecuteReader())
-                {
-                    // 結果を読み取り
-                    while (reader.Read())
-                    {
-                        // カラム名を指定してデータを取得
-                        string code = reader.GetString(reader.GetOrdinal("code"));
-                        DateTime date = reader.GetDateTime(reader.GetOrdinal("date"));
-                        string dateString = date.ToString("yyyyMMdd");
-                        double open = reader.GetDouble(reader.GetOrdinal("open"));
-                        double high = reader.GetDouble(reader.GetOrdinal("high"));
-                        double low = reader.GetDouble(reader.GetOrdinal("low"));
-                        double close = reader.GetDouble(reader.GetOrdinal("close"));
-                        double volume = reader.GetDouble(reader.GetOrdinal("volume"));
-
-                        // 結果をコンソールに出力
-                        //Console.WriteLine($"code: {code}, date: {date}, close: {close}");
-
-                        if (startindex == 0)
-                        {
-                            startindex = close;
-                            startindexDate = date;
-                        }
-                        endIndex = close;
-                        endIndexDate = date;
-
-                        // 実行日の前週金曜日の指数を取得しておく
-                        if (dateString == GetLastFriday(_currentDate).ToString("yyyyMMdd"))
-                        {
-                            lastFridayIndex = close;
-                            lastFridayIndexDate = date;
-                        }
-                    }
-                }
-            }
-        }
-
-        // RSIの算出
-        endIndexRSIS = GetCutlerRSI(CommonUtils.Instance.RSIShortPeriodDays, endDate, item);
-        endIndexRS1L = GetCutlerRSI(CommonUtils.Instance.RSILongPeriodDays, endDate, item);
-
-        AnalysisResult.PriceVolatility result = new()
-        {
-            DateString = _currentDate.ToString("yyyyMMdd"),
-            Date = _currentDate,
-            VolatilityRate = (endIndex / startindex) - 1,
-            VolatilityRateIndex1 = startindex,
-            VolatilityRateIndex1Date = startindexDate,
-            VolatilityRateIndex2 = endIndex,
-            VolatilityRateIndex2Date = endIndexDate,
-            VolatilityTerm = term,
-            ShouldAlert = false,
-            VolatilityRateIndex1RSI5 = endIndexRSIS,
-            VolatilityRateIndex1RSI14 = endIndexRS1L,
-        };
-
-        // 個別
-        if (item.Classification == CommonUtils.Instance.Classification.JapaneseIndividualStocks)
-        {
-            // -10.0%以下（10week以内の下落幅）
-            if (!result.ShouldAlert && result.VolatilityRate <= -0.100) { result.ShouldAlert = true; }
-
-            // -9.9%～-9.0%（3week以内の下落幅）
-            if (!result.ShouldAlert && (result.VolatilityRate <= -0.090 & result.VolatilityRate >= -0.099) & result.VolatilityTerm <= 3) { result.ShouldAlert = true; }
-
-            // -8.9%～-8.0%（2week以内の下落幅）
-            if (!result.ShouldAlert && (result.VolatilityRate <= -0.080 & result.VolatilityRate >= -0.089) & result.VolatilityTerm <= 2) { result.ShouldAlert = true; }
-
-            // -7.9%～-7.0%（2week以内の下落幅）
-            if (!result.ShouldAlert && (result.VolatilityRate <= -0.070 & result.VolatilityRate >= -0.079) & result.VolatilityTerm <= 2) { result.ShouldAlert = true; }
-
-            // -50.0%以下は株式分割の異常値である可能性が高いためアラートしない
-            if (result.VolatilityRate <= -0.500) { result.ShouldAlert = false; }
-
-            // 上昇は一旦、除外。
-            // 10.0%以上（10week以内の上昇幅）
-            //if (!result.ShouldAlert && result.VolatilityRate >= 0.100) { result.ShouldAlert = true; }
-        }
-        // ETF
-        if (item.Classification == CommonUtils.Instance.Classification.JapaneseETFs)
-        {
-            // -5.0%以下（10week以内の下落幅）
-            if (!result.ShouldAlert && result.VolatilityRate <= -0.050) { result.ShouldAlert = true; }
-        }
-
-        return result;
-    }
     /// <summary>
     /// カトラー方式RSIの取得
     /// </summary>
@@ -164,29 +28,7 @@ internal class Analyzer
     /// </remarks>
     public double GetCutlerRSI(int v, DateTime endDate, StockInfo stockInfo)
     {
-        var priceTuples = GetCutlerRsiPrices(v, endDate, stockInfo.Code);
-
-        // 算出対象日が直近営業日の場合は、DBに登録されていない可能性があるため、最新価格を追加
-        if (endDate.Date >= CommonUtils.Instance.LastTradingDate)
-        {
-            // 直近営業日のデータが含まれていない場合は追加
-            if (priceTuples.Count > 0 && priceTuples.Last().Item1 < CommonUtils.Instance.LastTradingDate)
-            {
-                var latestPrice = stockInfo.LatestScrapedPrice;
-                if (latestPrice != null && latestPrice.Date.Date <= CommonUtils.Instance.LastTradingDate)
-                {
-                    if (priceTuples.Last().Item1 != latestPrice.Date.Date)
-                    {
-                        priceTuples.Add((latestPrice.Date.Date, latestPrice.Close));
-                        while (priceTuples.Count > v + 1)
-                        {
-                            priceTuples.RemoveAt(0);
-                        }
-                    }
-                }
-            }
-        }
-
+        var priceTuples = GetCutlerRsiPrices(v, endDate, stockInfo);
         var prices = priceTuples.Select(x => x.Item2).ToList();
         return CalcCutlerRSI(v, prices);
     }
@@ -222,39 +64,65 @@ internal class Analyzer
     /// <summary>
     /// RSI計算用の価格リストをDBから取得（テスト容易性のため分離）
     /// </summary>
-    internal virtual List<(DateTime, double)> GetCutlerRsiPrices(int v, DateTime endDate, string code)
+    internal virtual List<(DateTime, double)> GetCutlerRsiPrices(int v, DateTime endDate, StockInfo stockInfo)
     {
         var prices = new List<(DateTime, double)>();
 
-        using (SQLiteConnection connection = new SQLiteConnection(CommonUtils.Instance.ConnectionString))
+        // コネクション取得
+        SQLiteConnection connection = DbConnectionFactory.GetConnection();
+        // GenericRepositoryのインスタンス生成
+        var repo = new GenericRepository(connection);
+
+        // パラメータ設定
+        var parameters = new Dictionary<string, object>
         {
-            connection.Open();
+            { "@date", endDate.ToString("yyyy-MM-dd 23:59:59") },
+            { "@code", stockInfo.Code }
+        };
 
-            string query =
-                "SELECT date, close FROM (" +
-                " SELECT date, close" +
-                " FROM history" +
-                " WHERE date <= @date and code = @code" +
-                " ORDER BY date DESC" +
-                " LIMIT @limit)" +
-                " ORDER BY date ASC;";
+        // historyテーブルから該当データを取得（ORDER BY DESC, LIMIT, その後昇順ソート）
+        var rows = repo.GetRows(
+            table: "history",
+            whereClause: "date <= @date and code = @code",
+            parameters: parameters,
+            orderBy: "date DESC",
+            limit: v + 1
+        );
 
-            using (SQLiteCommand command = new SQLiteCommand(query, connection))
+        // endDateが直近営業日(stockInfo.LatestScrapedPrice.Date)、かつ、rowsに直近営業日の日付のデータが存在しなかった場合、rowsにスクレイピングした最新の株価データを追加する
+        if (endDate.Date >= CommonUtils.Instance.LastTradingDate)
+        {
+            // 直近営業日のデータが含まれていない場合は追加
+            if (rows.Count > 0 && ((DateTime)rows.Last()["date"]).Date < CommonUtils.Instance.LastTradingDate)
             {
-                command.Parameters.AddWithValue("@date", endDate.ToString("yyyy-MM-dd 23:59:59"));
-                command.Parameters.AddWithValue("@code", code);
-                command.Parameters.AddWithValue("@limit", v + 1);
-
-                using (SQLiteDataReader reader = command.ExecuteReader())
+                var latestPrice = stockInfo.LatestScrapedPrice;
+                if (latestPrice != null && latestPrice.Date.Date <= CommonUtils.Instance.LastTradingDate)
                 {
-                    while (reader.Read())
+                    if (rows.Count == 0 || ((DateTime)rows.Last()["date"]).Date != latestPrice.Date.Date)
                     {
-                        var date = reader.GetDateTime(reader.GetOrdinal("date"));
-                        var close = reader.GetDouble(reader.GetOrdinal("close"));
-                        prices.Add((date, close));
+                        rows.Add(new Dictionary<string, object>
+                        {
+                            { "date", latestPrice.Date.Date },
+                            { "close", latestPrice.Close }
+                        });
+                        // 追加後、件数がv+1を超える場合は最古のデータを削除
+                        while (rows.Count > v + 1)
+                        {
+                            rows.RemoveAt(0);
+                        }
                     }
                 }
             }
+        }
+
+        // 昇順に並び替え
+        rows.Sort((a, b) => ((DateTime)a["date"]).CompareTo((DateTime)b["date"]));
+
+        foreach (var row in rows)
+        {
+            var date = (DateTime)row["date"];
+            var close = Convert.ToDouble(row["close"]);
+            prices.Add((date, close));
         }
 
         return prices;
@@ -455,49 +323,46 @@ internal class Analyzer
     /// 移動平均値の取得
     /// </summary>
     /// <param name="v"></param>
-    /// <param name="date"></param>
-    /// <param name="code"></param>
+    /// <param="date"></param>
+    /// <param="code"></param>
     /// <returns></returns>
     internal static double GetSMA(int v, DateTime date, string code)
     {
         double result = 0;
 
-        using (SQLiteConnection connection = new SQLiteConnection(CommonUtils.Instance.ConnectionString))
+        SQLiteConnection connection = DbConnectionFactory.GetConnection();
+
+        // プライマリーキーに条件を設定したクエリ
+        string query =
+            "SELECT date, close FROM (" +
+            " SELECT date, close" +
+            " FROM history" +
+            " WHERE date <= @date and code = @code" +
+            " ORDER BY date DESC" +
+            " LIMIT @limit)" +
+            " ORDER BY date ASC;";
+
+        using (SQLiteCommand command = new SQLiteCommand(query, connection))
         {
-            connection.Open();
+            // パラメータを設定
+            command.Parameters.AddWithValue("@date", date.ToString("yyyy-MM-dd 23:59:59"));
+            command.Parameters.AddWithValue("@code", code);
+            command.Parameters.AddWithValue("@limit", v);
 
-            // プライマリーキーに条件を設定したクエリ
-            string query =
-                "SELECT date, close FROM (" +
-                " SELECT date, close" +
-                " FROM history" +
-                " WHERE date <= @date and code = @code" +
-                " ORDER BY date DESC" +
-                " LIMIT @limit)" +
-                " ORDER BY date ASC;";
+            double sum = 0;
 
-            using (SQLiteCommand command = new SQLiteCommand(query, connection))
+            // データリーダーを使用して結果を取得
+            using (SQLiteDataReader reader = command.ExecuteReader())
             {
-                // パラメータを設定
-                command.Parameters.AddWithValue("@date", date.ToString("yyyy-MM-dd 23:59:59"));
-                command.Parameters.AddWithValue("@code", code);
-                command.Parameters.AddWithValue("@limit", v);
 
-                double sum = 0;
-
-                // データリーダーを使用して結果を取得
-                using (SQLiteDataReader reader = command.ExecuteReader())
+                // 結果を読み取り
+                while (reader.Read())
                 {
-
-                    // 結果を読み取り
-                    while (reader.Read())
-                    {
-                        sum += reader.GetDouble(reader.GetOrdinal("close"));
-                    }
+                    sum += reader.GetDouble(reader.GetOrdinal("close"));
                 }
-
-                result = sum / v;
             }
+
+            result = sum / v;
         }
 
         return result;

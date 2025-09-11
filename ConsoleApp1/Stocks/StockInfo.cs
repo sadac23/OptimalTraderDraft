@@ -9,6 +9,7 @@ using System.Globalization;
 using System.Text;
 using System.Text.RegularExpressions;
 using static ExecutionList;
+using ConsoleApp1.Database;
 
 public class StockInfo
 {
@@ -922,101 +923,82 @@ public class StockInfo
         return result;
     }
 
-    private void UpdateChartPrices()
+    internal void SetupChartPrices()
     {
         var analizer = new Analyzer();
 
-        using (SQLiteConnection connection = new SQLiteConnection(CommonUtils.Instance.ConnectionString))
+        // GenericRepositoryを利用してhistoryテーブルからデータ取得
+        var repo = new GenericRepository(DbConnectionFactory.GetConnection());
+        var parameters = new Dictionary<string, object>
         {
-　            connection.Open();
+            { "@code", this.Code }
+        };
+        // サブクエリの代わりにORDER BY DESC, LIMIT, その後昇順ソート
+        var rows = repo.GetRows(
+            "history",
+            "code = @code",
+            parameters,
+            "date DESC",
+            CommonUtils.Instance.ChartDays + 1
+        );
 
-            // プライマリーキーに条件を設定したクエリ
-            string query =
-                "SELECT * FROM (" +
-                "SELECT * FROM history WHERE code = @code ORDER BY date DESC LIMIT @limit" +
-                ") ORDER BY date ASC;";
-
-            using (SQLiteCommand command = new SQLiteCommand(query, connection))
+        // rowsに直近営業日の日付のデータが存在しなかった場合、rowsにスクレイピングした最新の株価データを追加する
+        if (this.LatestScrapedPrice != null &&
+            !rows.Any(r => ((DateTime)r["date"]) == this.LatestScrapedPrice.Date))
+        {
+            var latestRow = new Dictionary<string, object>
             {
-                // パラメータを設定
-                command.Parameters.AddWithValue("@code", this.Code);
-                command.Parameters.AddWithValue("@limit", CommonUtils.Instance.ChartDays + 1);
-
-                using (SQLiteDataReader reader = command.ExecuteReader())
-                {
-                    ChartPrice previousPrice = null;
-                    List<ChartPrice> prices = new List<ChartPrice>();
-
-                    // 結果を読み取り
-                    while (reader.Read())
-                    {
-                        // カラム名を指定してデータを取得
-                        string code = reader.GetString(reader.GetOrdinal("code"));
-                        DateTime date = reader.GetDateTime(reader.GetOrdinal("date"));
-                        string dateString = date.ToString("yyyyMMdd");
-                        double open = reader.GetDouble(reader.GetOrdinal("open"));
-                        double high = reader.GetDouble(reader.GetOrdinal("high"));
-                        double low = reader.GetDouble(reader.GetOrdinal("low"));
-                        double close = reader.GetDouble(reader.GetOrdinal("close"));
-                        double volume = reader.GetDouble(reader.GetOrdinal("volume"));
-
-                        double sma25 = Analyzer.GetSMA(25, date, this.Code);
-                        double sma75 = Analyzer.GetSMA(75, date, this.Code);
-
-                        ChartPrice price = new ChartPrice()
-                        {
-                            Date = date,
-                            Price = close,
-                            Volatility = previousPrice != null ? (close / previousPrice.Price) - 1 : 0,
-                            RSIL = analizer.GetCutlerRSI(CommonUtils.Instance.RSILongPeriodDays, date, this),
-                            RSIS = analizer.GetCutlerRSI(CommonUtils.Instance.RSIShortPeriodDays, date, this),
-                            SMA25 = sma25,
-                            SMA75 = sma75,
-                            SMAdev = sma25 - sma75,
-                            MADS = (close - sma25) / sma25,
-                            MADL = (close - sma75) / sma75,
-                        };
-
-                        prices.Add(price);
-
-                        // 前回分の保持
-                        previousPrice = (ChartPrice)price.Clone();
-                    }
-
-                    // --- ここから追加 ---
-                    // LatestScrapedPriceの日付がリストに存在しない場合のみ追加
-                    if (this.LatestScrapedPrice != null &&
-                        !prices.Any(p => p.Date == this.LatestScrapedPrice.Date))
-                    {
-                        double close = this.LatestScrapedPrice.Close;
-                        DateTime date = this.LatestScrapedPrice.Date;
-
-                        double sma25 = Analyzer.GetSMA(25, date, this.Code);
-                        double sma75 = Analyzer.GetSMA(75, date, this.Code);
-
-                        ChartPrice latest = new ChartPrice()
-                        {
-                            Date = date,
-                            Price = close,
-                            Volatility = previousPrice != null ? (close / previousPrice.Price) - 1 : 0,
-                            RSIL = analizer.GetCutlerRSI(CommonUtils.Instance.RSILongPeriodDays, date, this),
-                            RSIS = analizer.GetCutlerRSI(CommonUtils.Instance.RSIShortPeriodDays, date, this),
-                            SMA25 = sma25,
-                            SMA75 = sma75,
-                            SMAdev = sma25 - sma75,
-                            MADS = (close - sma25) / sma25,
-                            MADL = (close - sma75) / sma75,
-                        };
-
-                        prices.Add(latest);
-                    }
-                    // --- ここまで追加 ---
-
-                    // 件数を絞って日付降順でソート
-                    this.ChartPrices = prices.OrderByDescending(p => p.Date).Take(CommonUtils.Instance.ChartDays).ToList();
-                }
-            }
+                { "code", this.Code },
+                { "date", this.LatestScrapedPrice.Date },
+                { "open", this.LatestScrapedPrice.Open },
+                { "high", this.LatestScrapedPrice.High },
+                { "low", this.LatestScrapedPrice.Low },
+                { "close", this.LatestScrapedPrice.Close },
+                { "volume", this.LatestScrapedPrice.Volume }
+            };
+            rows.Add(latestRow);
         }
+
+        // 昇順に並び替え
+        rows.Sort((a, b) => ((DateTime)a["date"]).CompareTo((DateTime)b["date"]));
+
+        ChartPrice previousPrice = null;
+        List<ChartPrice> prices = new List<ChartPrice>();
+
+        foreach (var row in rows)
+        {
+            string code = row["code"].ToString();
+            DateTime date = (DateTime)row["date"];
+            string dateString = date.ToString("yyyyMMdd");
+            double open = Convert.ToDouble(row["open"]);
+            double high = Convert.ToDouble(row["high"]);
+            double low = Convert.ToDouble(row["low"]);
+            double close = Convert.ToDouble(row["close"]);
+            double volume = Convert.ToDouble(row["volume"]);
+
+            double sma25 = Analyzer.GetSMA(25, date, this.Code);
+            double sma75 = Analyzer.GetSMA(75, date, this.Code);
+
+            ChartPrice price = new ChartPrice()
+            {
+                Date = date,
+                Price = close,
+                Volatility = previousPrice != null ? (close / previousPrice.Price) - 1 : 0,
+                RSIL = analizer.GetCutlerRSI(CommonUtils.Instance.RSILongPeriodDays, date, this),
+                RSIS = analizer.GetCutlerRSI(CommonUtils.Instance.RSIShortPeriodDays, date, this),
+                SMA25 = sma25,
+                SMA75 = sma75,
+                SMAdev = sma25 - sma75,
+                MADS = (close - sma25) / sma25,
+                MADL = (close - sma75) / sma75,
+            };
+
+            prices.Add(price);
+            previousPrice = (ChartPrice)price.Clone();
+        }
+
+        // 件数を絞って日付降順でソート
+        this.ChartPrices = prices.OrderByDescending(p => p.Date).Take(CommonUtils.Instance.ChartDays).ToList();
     }
 
     /// <summary>
@@ -1099,58 +1081,55 @@ public class StockInfo
     /// <param name="f"></param>
     private void RegisterForcastHistory(FullYearPerformanceForcast f)
     {
-        using (SQLiteConnection connection = new SQLiteConnection(CommonUtils.Instance.ConnectionString))
+        SQLiteConnection connection = DbConnectionFactory.GetConnection();
+
+        // 挿入クエリ
+        string query = "INSERT INTO forcast_history (" +
+            "code" +
+            ", revision_date_string" +
+            ", revision_date" +
+            ", fiscal_period" +
+            ", category" +
+            ", revision_direction" +
+            ", revenue" +
+            ", operating_profit" +
+            ", ordinary_income" +
+            ", net_profit" +
+            ", revised_dividend" +
+            ") VALUES (" +
+            "@code" +
+            ", @revision_date_string" +
+            ", @revision_date" +
+            ", @fiscal_period" +
+            ", @category" +
+            ", @revision_direction" +
+            ", @revenue" +
+            ", @operating_profit" +
+            ", @ordinary_income" +
+            ", @net_profit" +
+            ", @revised_dividend" +
+            ")";
+
+        using (SQLiteCommand command = new SQLiteCommand(query, connection))
         {
-            connection.Open();
+            // パラメータを設定
+            command.Parameters.AddWithValue("@code", this.Code);
+            command.Parameters.AddWithValue("@revision_date_string", f.RevisionDate.ToString("yyyyMMdd"));
+            command.Parameters.AddWithValue("@revision_date", f.RevisionDate);
+            command.Parameters.AddWithValue("@fiscal_period", f.FiscalPeriod);
+            command.Parameters.AddWithValue("@category", f.Category);
+            command.Parameters.AddWithValue("@revision_direction", f.RevisionDirection);
+            command.Parameters.AddWithValue("@revenue", CommonUtils.Instance.GetDouble(f.Revenue));
+            command.Parameters.AddWithValue("@operating_profit", CommonUtils.Instance.GetDouble(f.OperatingProfit));
+            command.Parameters.AddWithValue("@ordinary_income", CommonUtils.Instance.GetDouble(f.OrdinaryProfit));
+            command.Parameters.AddWithValue("@net_profit", CommonUtils.Instance.GetDouble(f.NetProfit));
+            command.Parameters.AddWithValue("@revised_dividend", CommonUtils.Instance.GetDouble(f.RevisedDividend));
 
-            // 挿入クエリ
-            string query = "INSERT INTO forcast_history (" +
-                "code" +
-                ", revision_date_string" +
-                ", revision_date" +
-                ", fiscal_period" +
-                ", category" +
-                ", revision_direction" +
-                ", revenue" +
-                ", operating_profit" +
-                ", ordinary_income" +
-                ", net_profit" +
-                ", revised_dividend" +
-                ") VALUES (" +
-                "@code" +
-                ", @revision_date_string" +
-                ", @revision_date" +
-                ", @fiscal_period" +
-                ", @category" +
-                ", @revision_direction" +
-                ", @revenue" +
-                ", @operating_profit" +
-                ", @ordinary_income" +
-                ", @net_profit" +
-                ", @revised_dividend" +
-                ")";
+            // クエリを実行
+            int rowsAffected = command.ExecuteNonQuery();
 
-            using (SQLiteCommand command = new SQLiteCommand(query, connection))
-            {
-                // パラメータを設定
-                command.Parameters.AddWithValue("@code", this.Code);
-                command.Parameters.AddWithValue("@revision_date_string", f.RevisionDate.ToString("yyyyMMdd"));
-                command.Parameters.AddWithValue("@revision_date", f.RevisionDate);
-                command.Parameters.AddWithValue("@fiscal_period", f.FiscalPeriod);
-                command.Parameters.AddWithValue("@category", f.Category);
-                command.Parameters.AddWithValue("@revision_direction", f.RevisionDirection);
-                command.Parameters.AddWithValue("@revenue", CommonUtils.Instance.GetDouble(f.Revenue));
-                command.Parameters.AddWithValue("@operating_profit", CommonUtils.Instance.GetDouble(f.OperatingProfit));
-                command.Parameters.AddWithValue("@ordinary_income", CommonUtils.Instance.GetDouble(f.OrdinaryProfit));
-                command.Parameters.AddWithValue("@net_profit", CommonUtils.Instance.GetDouble(f.NetProfit));
-                command.Parameters.AddWithValue("@revised_dividend", CommonUtils.Instance.GetDouble(f.RevisedDividend));
-
-                // クエリを実行
-                int rowsAffected = command.ExecuteNonQuery();
-
-                // 結果を表示
-                CommonUtils.Instance.Logger.LogInformation("forcast_history rows inserted: " + rowsAffected);
-            }
+            // 結果を表示
+            CommonUtils.Instance.Logger.LogInformation("forcast_history rows inserted: " + rowsAffected);
         }
     }
 
@@ -1161,25 +1140,22 @@ public class StockInfo
     /// <returns></returns>
     private bool IsInForcastHistory(FullYearPerformanceForcast f)
     {
-        using (SQLiteConnection connection = new SQLiteConnection(CommonUtils.Instance.ConnectionString))
+        SQLiteConnection connection = DbConnectionFactory.GetConnection();
+
+        // プライマリーキーに条件を設定したクエリ
+        string query = "SELECT count(code) as count FROM forcast_history WHERE code = @code and revision_date_string = @revision_date_string";
+
+        using (SQLiteCommand command = new SQLiteCommand(query, connection))
         {
-            connection.Open();
+            // パラメータを設定
+            command.Parameters.AddWithValue("@code", this.Code);
+            command.Parameters.AddWithValue("@revision_date_string", f.RevisionDate.ToString("yyyyMMdd"));
 
-            // プライマリーキーに条件を設定したクエリ
-            string query = "SELECT count(code) as count FROM forcast_history WHERE code = @code and revision_date_string = @revision_date_string";
+            // COUNTの結果を取得
+            object result = command.ExecuteScalar();
+            int count = Convert.ToInt32(result);
 
-            using (SQLiteCommand command = new SQLiteCommand(query, connection))
-            {
-                // パラメータを設定
-                command.Parameters.AddWithValue("@code", this.Code);
-                command.Parameters.AddWithValue("@revision_date_string", f.RevisionDate.ToString("yyyyMMdd"));
-
-                // COUNTの結果を取得
-                object result = command.ExecuteScalar();
-                int count = Convert.ToInt32(result);
-
-                return count > 0;
-            }
+            return count > 0;
         }
     }
     /// <summary>
@@ -1188,49 +1164,46 @@ public class StockInfo
     /// <param name="p"></param>
     private void RegisterHistory(ScrapedPrice p)
     {
-        using (SQLiteConnection connection = new SQLiteConnection(CommonUtils.Instance.ConnectionString))
+        SQLiteConnection connection = DbConnectionFactory.GetConnection();
+
+        // 挿入クエリ
+        string query = "INSERT INTO history (" +
+            "code" +
+            ", date_string" +
+            ", date" +
+            ", open" +
+            ", high" +
+            ", low" +
+            ", close" +
+            ", volume" +
+            ") VALUES (" +
+            "@code" +
+            ", @date_string" +
+            ", @date" +
+            ", @open" +
+            ", @high" +
+            ", @low" +
+            ", @close" +
+            ", @volume" +
+            ")";
+
+        using (SQLiteCommand command = new SQLiteCommand(query, connection))
         {
-            connection.Open();
+            // パラメータを設定
+            command.Parameters.AddWithValue("@code", this.Code);
+            command.Parameters.AddWithValue("@date_string", p.DateYYYYMMDD);
+            command.Parameters.AddWithValue("@date", p.Date);
+            command.Parameters.AddWithValue("@open", p.Open);
+            command.Parameters.AddWithValue("@high", p.High);
+            command.Parameters.AddWithValue("@low", p.Low);
+            command.Parameters.AddWithValue("@close", p.AdjustedClose);     //調整後終値を格納
+            command.Parameters.AddWithValue("@volume", p.Volume);
 
-            // 挿入クエリ
-            string query = "INSERT INTO history (" +
-                "code" +
-                ", date_string" +
-                ", date" +
-                ", open" +
-                ", high" +
-                ", low" +
-                ", close" +
-                ", volume" +
-                ") VALUES (" +
-                "@code" +
-                ", @date_string" +
-                ", @date" +
-                ", @open" +
-                ", @high" +
-                ", @low" +
-                ", @close" +
-                ", @volume" +
-                ")";
+            // クエリを実行
+            int rowsAffected = command.ExecuteNonQuery();
 
-            using (SQLiteCommand command = new SQLiteCommand(query, connection))
-            {
-                // パラメータを設定
-                command.Parameters.AddWithValue("@code", this.Code);
-                command.Parameters.AddWithValue("@date_string", p.DateYYYYMMDD);
-                command.Parameters.AddWithValue("@date", p.Date);
-                command.Parameters.AddWithValue("@open", p.Open);
-                command.Parameters.AddWithValue("@high", p.High);
-                command.Parameters.AddWithValue("@low", p.Low);
-                command.Parameters.AddWithValue("@close", p.AdjustedClose);     //調整後終値を格納
-                command.Parameters.AddWithValue("@volume", p.Volume);
-
-                // クエリを実行
-                int rowsAffected = command.ExecuteNonQuery();
-
-                // 結果を表示
-                CommonUtils.Instance.Logger.LogInformation("history rows inserted: " + rowsAffected);
-            }
+            // 結果を表示
+            CommonUtils.Instance.Logger.LogInformation("history rows inserted: " + rowsAffected);
         }
     }
 
@@ -1239,25 +1212,22 @@ public class StockInfo
     /// </summary>
     private bool IsInHistory(ScrapedPrice p)
     {
-        using (SQLiteConnection connection = new SQLiteConnection(CommonUtils.Instance.ConnectionString))
+        SQLiteConnection connection = DbConnectionFactory.GetConnection();
+
+        // プライマリーキーに条件を設定したクエリ
+        string query = "SELECT count(code) as count FROM history WHERE code = @code and date_string = @date_string";
+
+        using (SQLiteCommand command = new SQLiteCommand(query, connection))
         {
-            connection.Open();
+            // パラメータを設定
+            command.Parameters.AddWithValue("@code", this.Code);
+            command.Parameters.AddWithValue("@date_string", p.DateYYYYMMDD);
 
-            // プライマリーキーに条件を設定したクエリ
-            string query = "SELECT count(code) as count FROM history WHERE code = @code and date_string = @date_string";
+            // COUNTの結果を取得
+            object result = command.ExecuteScalar();
+            int count = Convert.ToInt32(result);
 
-            using (SQLiteCommand command = new SQLiteCommand(query, connection))
-            {
-                // パラメータを設定
-                command.Parameters.AddWithValue("@code", this.Code);
-                command.Parameters.AddWithValue("@date_string", p.DateYYYYMMDD);
-
-                // COUNTの結果を取得
-                object result = command.ExecuteScalar();
-                int count = Convert.ToInt32(result);
-
-                return count > 0;
-            }
+            return count > 0;
         }
     }
 
@@ -1337,7 +1307,7 @@ public class StockInfo
         UpdateFullYearPerformanceForcastSummary();
 
         // チャート情報を更新
-        UpdateChartPrices();
+        SetupChartPrices();
     }
 
     /// <summary>
@@ -1402,59 +1372,56 @@ public class StockInfo
             // カレント決算月が取得できていない場合は抜ける
             if (this.CurrentFiscalMonth == DateTime.MinValue) return result;
 
-            using (SQLiteConnection connection = new SQLiteConnection(CommonUtils.Instance.ConnectionString))
+            SQLiteConnection connection = DbConnectionFactory.GetConnection();
+
+            // プライマリーキーに条件を設定したクエリ
+            string query = "SELECT * FROM forcast_history WHERE code = @code and fiscal_period = @fiscal_period ORDER BY revision_date";
+
+            using (SQLiteCommand command = new SQLiteCommand(query, connection))
             {
-                connection.Open();
+                // パラメータを設定
+                command.Parameters.AddWithValue("@code", this.Code);
+                command.Parameters.AddWithValue("@fiscal_period", this.CurrentFiscalMonth.AddYears(-1).ToString("yyyy.MM"));
 
-                // プライマリーキーに条件を設定したクエリ
-                string query = "SELECT * FROM forcast_history WHERE code = @code and fiscal_period = @fiscal_period ORDER BY revision_date";
-
-                using (SQLiteCommand command = new SQLiteCommand(query, connection))
+                using (SQLiteDataReader reader = command.ExecuteReader())
                 {
-                    // パラメータを設定
-                    command.Parameters.AddWithValue("@code", this.Code);
-                    command.Parameters.AddWithValue("@fiscal_period", this.CurrentFiscalMonth.AddYears(-1).ToString("yyyy.MM"));
+                    FullYearPerformanceForcast cloneF = null;
 
-                    using (SQLiteDataReader reader = command.ExecuteReader())
+                    while (reader.Read())
                     {
-                        FullYearPerformanceForcast cloneF = null;
+                        // カラム名を指定してデータを取得
+                        string code = reader.GetString(reader.GetOrdinal("code"));
+                        string revisionDateString = reader.GetString(reader.GetOrdinal("revision_date_string"));
+                        DateTime revisionDate = reader.GetDateTime(reader.GetOrdinal("revision_date"));
+                        string fiscalPeriod = reader.GetString(reader.GetOrdinal("fiscal_period"));
+                        string category = reader.GetString(reader.GetOrdinal("category"));
+                        string revisionDirection = reader.GetString(reader.GetOrdinal("revision_direction"));
 
-                        while (reader.Read())
+                        // 不具合でdouble項目に文字列が格納されているため、どちらも読むための対策
+                        double revenue = GetDouble(reader, "revenue");
+                        double operatingProfit = GetDouble(reader, "operating_profit");
+                        double ordinaryIncome = GetDouble(reader, "ordinary_income");
+                        double netProfit = GetDouble(reader, "net_profit");
+                        double revisedDividend = GetDouble(reader, "revised_dividend");
+
+                        FullYearPerformanceForcast f = new FullYearPerformanceForcast()
                         {
-                            // カラム名を指定してデータを取得
-                            string code = reader.GetString(reader.GetOrdinal("code"));
-                            string revisionDateString = reader.GetString(reader.GetOrdinal("revision_date_string"));
-                            DateTime revisionDate = reader.GetDateTime(reader.GetOrdinal("revision_date"));
-                            string fiscalPeriod = reader.GetString(reader.GetOrdinal("fiscal_period"));
-                            string category = reader.GetString(reader.GetOrdinal("category"));
-                            string revisionDirection = reader.GetString(reader.GetOrdinal("revision_direction"));
+                            Category = category,
+                            FiscalPeriod = fiscalPeriod,
+                            RevisionDate = revisionDate,
+                            NetProfit = netProfit.ToString(),
+                            OperatingProfit = operatingProfit.ToString(),
+                            OrdinaryProfit = ordinaryIncome.ToString(),
+                            RevisionDirection = revisionDirection,
+                            Revenue = revenue.ToString(),
+                            RevisedDividend = revisedDividend.ToString(),
+                            Summary = string.Empty,
+                            PreviousForcast = cloneF,
+                        };
+                        // 前回分の保持
+                        cloneF = (FullYearPerformanceForcast)f.Clone();
 
-                            // 不具合でdouble項目に文字列が格納されているため、どちらも読むための対策
-                            double revenue = GetDouble(reader, "revenue");
-                            double operatingProfit = GetDouble(reader, "operating_profit");
-                            double ordinaryIncome = GetDouble(reader, "ordinary_income");
-                            double netProfit = GetDouble(reader, "net_profit");
-                            double revisedDividend = GetDouble(reader, "revised_dividend");
-
-                            FullYearPerformanceForcast f = new FullYearPerformanceForcast()
-                            {
-                                Category = category,
-                                FiscalPeriod = fiscalPeriod,
-                                RevisionDate = revisionDate,
-                                NetProfit = netProfit.ToString(),
-                                OperatingProfit = operatingProfit.ToString(),
-                                OrdinaryProfit = ordinaryIncome.ToString(),
-                                RevisionDirection = revisionDirection,
-                                Revenue = revenue.ToString(),
-                                RevisedDividend = revisedDividend.ToString(),
-                                Summary = string.Empty,
-                                PreviousForcast = cloneF,
-                            };
-                            // 前回分の保持
-                            cloneF = (FullYearPerformanceForcast)f.Clone();
-
-                            result.Add(f);
-                        }
+                        result.Add(f);
                     }
                 }
             }
@@ -1670,25 +1637,21 @@ public class StockInfo
     /// <param name="target"></param>
     internal void DeleteHistory(DateTime target)
     {
-        using (SQLiteConnection connection = new SQLiteConnection(CommonUtils.Instance.ConnectionString))
+        SQLiteConnection connection = DbConnectionFactory.GetConnection();
+        // 挿入クエリ
+        string query = "DELETE FROM history WHERE code = @code and date <= @date";
+
+        using (SQLiteCommand command = new SQLiteCommand(query, connection))
         {
-            connection.Open();
+            // パラメータを設定
+            command.Parameters.AddWithValue("@code", this.Code);
+            command.Parameters.AddWithValue("@date", target);
 
-            // 挿入クエリ
-            string query = "DELETE FROM history WHERE code = @code and date <= @date";
+            // クエリを実行
+            int rowsAffected = command.ExecuteNonQuery();
 
-            using (SQLiteCommand command = new SQLiteCommand(query, connection))
-            {
-                // パラメータを設定
-                command.Parameters.AddWithValue("@code", this.Code);
-                command.Parameters.AddWithValue("@date", target);
-
-                // クエリを実行
-                int rowsAffected = command.ExecuteNonQuery();
-
-                // 結果を表示
-                CommonUtils.Instance.Logger.LogInformation($"History Rows deleted: {rowsAffected}");
-            }
+            // 結果を表示
+            CommonUtils.Instance.Logger.LogInformation($"History Rows deleted: {rowsAffected}");
         }
     }
 
@@ -1696,26 +1659,23 @@ public class StockInfo
     {
         DateTime result = CommonUtils.Instance.MasterStartDate;
 
-        using (SQLiteConnection connection = new SQLiteConnection(CommonUtils.Instance.ConnectionString))
+        SQLiteConnection connection = DbConnectionFactory.GetConnection();
+
+        // プライマリーキーに条件を設定したクエリ
+        string query = $"SELECT IFNULL(MAX(date), @max_date) FROM history WHERE code = @code";
+
+        using (SQLiteCommand command = new SQLiteCommand(query, connection))
         {
-            connection.Open();
+            // パラメータを設定
+            command.Parameters.AddWithValue("@code", this.Code);
+            command.Parameters.AddWithValue("@max_date", CommonUtils.Instance.MasterStartDate);
 
-            // プライマリーキーに条件を設定したクエリ
-            string query = $"SELECT IFNULL(MAX(date), @max_date) FROM history WHERE code = @code";
-
-            using (SQLiteCommand command = new SQLiteCommand(query, connection))
+            // データリーダーを使用して結果を取得
+            using (SQLiteDataReader reader = command.ExecuteReader())
             {
-                // パラメータを設定
-                command.Parameters.AddWithValue("@code", this.Code);
-                command.Parameters.AddWithValue("@max_date", CommonUtils.Instance.MasterStartDate);
-
-                // データリーダーを使用して結果を取得
-                using (SQLiteDataReader reader = command.ExecuteReader())
+                if (reader.HasRows && reader.Read())
                 {
-                    if (reader.HasRows && reader.Read())
-                    {
-                        result = reader.GetDateTime(0);
-                    }
+                    result = reader.GetDateTime(0);
                 }
             }
         }

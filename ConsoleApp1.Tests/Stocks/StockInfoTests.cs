@@ -1,7 +1,6 @@
-using System;
-using System.Collections.Generic;
-using Xunit;
+using System.Data.SQLite;
 using ConsoleApp1.Tests.Utils;
+using ConsoleApp1.Database;
 
 namespace ConsoleApp1.Tests.Stocks
 {
@@ -347,6 +346,154 @@ namespace ConsoleApp1.Tests.Stocks
 
             var result = StockInfo.IsWithinMonths(monthsStr, m);
             Assert.Equal(expected, result);
+        }
+
+        [Fact]
+        public void SetupChartPrices_ReflectsHistoryTableData()
+        {
+            // Arrange
+            // テスト用のインメモリSQLite DBを用意
+            using var connection = new SQLiteConnection("Data Source=:memory:;Version=3;");
+            connection.Open();
+
+            // テーブル作成
+            using (var cmd = new SQLiteCommand(
+                @"CREATE TABLE history (
+                    code TEXT,
+                    date DATETIME,
+                    open REAL,
+                    high REAL,
+                    low REAL,
+                    close REAL,
+                    volume REAL
+                );", connection))
+            {
+                cmd.ExecuteNonQuery();
+            }
+
+            // テストデータ挿入
+            var code = "1234";
+            var baseDate = DateTime.Today.AddDays(-2);
+            for (int i = 0; i < 3; i++)
+            {
+                using var insert = new SQLiteCommand(
+                    "INSERT INTO history (code, date, open, high, low, close, volume) VALUES (@code, @date, @open, @high, @low, @close, @volume);", connection);
+                insert.Parameters.AddWithValue("@code", code);
+                insert.Parameters.AddWithValue("@date", baseDate.AddDays(i));
+                insert.Parameters.AddWithValue("@open", 100 + i);
+                insert.Parameters.AddWithValue("@high", 110 + i);
+                insert.Parameters.AddWithValue("@low", 90 + i);
+                insert.Parameters.AddWithValue("@close", 105 + i);
+                insert.Parameters.AddWithValue("@volume", 1000 + i * 10);
+                insert.ExecuteNonQuery();
+            }
+
+            // DbConnectionFactoryのコネクションを差し替え
+            DbConnectionFactory.SetConnection(connection); // ここでテスト用コネクションをセット
+
+            var stockInfo = StockInfo.GetInstance(new WatchList.WatchStock
+            {
+                Code = code,
+                Classification = "1",
+                IsFavorite = "1",
+                Memo = "テスト"
+            });
+
+            // ChartDaysを3に設定
+            CommonUtils.Instance.ChartDays = 3;
+
+            // Act
+            // internalメソッドを直接呼び出し
+            stockInfo.SetupChartPrices();
+
+            // Assert
+            Assert.NotNull(stockInfo.ChartPrices);
+            Assert.Equal(3, stockInfo.ChartPrices.Count);
+            Assert.All(stockInfo.ChartPrices, cp => Assert.Equal(code, stockInfo.Code));
+            // 日付降順で格納されていること
+            for (int i = 1; i < stockInfo.ChartPrices.Count; i++)
+            {
+                Assert.True(stockInfo.ChartPrices[i - 1].Date >= stockInfo.ChartPrices[i].Date);
+            }
+            // 価格がhistoryテーブルのclose値と一致すること
+            var expectedCloses = new List<double> { 107, 106, 105 }; // 挿入順に降順
+            for (int i = 0; i < expectedCloses.Count; i++)
+            {
+                Assert.Equal(expectedCloses[i], stockInfo.ChartPrices[i].Price);
+            }
+        }
+
+        [Fact]
+        public void SetupChartPrices_AddsLatestScrapedPrice_WhenNotInHistory()
+        {
+            // Arrange
+            using var connection = new SQLiteConnection("Data Source=:memory:;Version=3;");
+            connection.Open();
+
+            // テーブル作成
+            using (var cmd = new SQLiteCommand(
+                @"CREATE TABLE history (
+                    code TEXT,
+                    date DATETIME,
+                    open REAL,
+                    high REAL,
+                    low REAL,
+                    close REAL,
+                    volume REAL
+                );", connection))
+            {
+                cmd.ExecuteNonQuery();
+            }
+
+            // historyにはLastTradingDateより前の日付のみ
+            var code = "1234";
+            var baseDate = DateTime.Today.AddDays(-3);
+            for (int i = 0; i < 2; i++)
+            {
+                using var insert = new SQLiteCommand(
+                    "INSERT INTO history (code, date, open, high, low, close, volume) VALUES (@code, @date, @open, @high, @low, @close, @volume);", connection);
+                insert.Parameters.AddWithValue("@code", code);
+                insert.Parameters.AddWithValue("@date", baseDate.AddDays(i));
+                insert.Parameters.AddWithValue("@open", 100 + i);
+                insert.Parameters.AddWithValue("@high", 110 + i);
+                insert.Parameters.AddWithValue("@low", 90 + i);
+                insert.Parameters.AddWithValue("@close", 105 + i);
+                insert.Parameters.AddWithValue("@volume", 1000 + i * 10);
+                insert.ExecuteNonQuery();
+            }
+
+            DbConnectionFactory.SetConnection(connection);
+
+            var stockInfo = StockInfo.GetInstance(new WatchList.WatchStock
+            {
+                Code = code,
+                Classification = "1",
+                IsFavorite = "1",
+                Memo = "テスト"
+            });
+
+            CommonUtils.Instance.ChartDays = 3;
+
+            // 直近営業日をセット
+            var lastTradingDate = DateTime.Today;
+            CommonUtils.Instance.LastTradingDate = lastTradingDate;
+
+            // LatestScrapedPriceを直近営業日でセット
+            stockInfo.LatestScrapedPrice = new StockInfo.ScrapedPrice
+            {
+                Date = lastTradingDate,
+                Close = 999 // 特異値
+            };
+
+            // Act
+            stockInfo.SetupChartPrices();
+
+            // Assert
+            Assert.NotNull(stockInfo.ChartPrices);
+            // 直近営業日分が追加されているか
+            Assert.Contains(stockInfo.ChartPrices, cp => cp.Date.Date == lastTradingDate && cp.Price == 999);
+            // 件数はChartDays件であること
+            Assert.Equal(3, stockInfo.ChartPrices.Count);
         }
 
         // ヘルパー
