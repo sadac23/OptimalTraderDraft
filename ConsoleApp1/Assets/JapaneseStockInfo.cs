@@ -156,6 +156,8 @@ public class JapaneseStockFormatter : IOutputFormattable
         sb.AppendLine($"PER：{CommonUtils.Instance.ConvertToMultiplierString(stockInfo.Per)}" +
             $"（{stockInfo.AveragePer.ToString("N1")}）{(stockInfo.IsPERUndervalued() ? mark : string.Empty)}");
 
+        sb.AppendLine($"PEGレシオ：{stockInfo.PEGRatio.ToString("N2")}");
+
         sb.AppendLine($"PBR：{CommonUtils.Instance.ConvertToMultiplierString(stockInfo.Pbr)}" +
             $"（{stockInfo.AveragePbr.ToString("N1")}）{(stockInfo.IsPBRUndervalued() ? mark : string.Empty)}");
 

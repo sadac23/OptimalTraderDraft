@@ -99,6 +99,7 @@ public abstract class AssetInfo
     /// </summary>
     /// <remarks>
     /// [業績推移]タブの履歴
+    /// ※末尾はサマリー行のため、実際の履歴はCount-1件
     /// </remarks>
     public virtual List<FullYearPerformance> FullYearPerformances { get; set; }
     /// <summary>
@@ -266,6 +267,10 @@ public abstract class AssetInfo
     /// 開示情報
     /// </summary>
     public List<Disclosure> Disclosures { get; set; }
+    /// <summary>
+    /// PEGレシオ
+    /// </summary>
+    public double PEGRatio { get; set; }
 
     /// <summary>
     /// 現在、所有しているか？
@@ -1125,8 +1130,39 @@ public abstract class AssetInfo
         // 通期予想のサマリを更新
         UpdateFullYearPerformanceForcastSummary();
 
+        // PEGレシオの更新
+        SetupPEGRatio();
+
         // チャート情報を更新
         SetupChartPrices();
+    }
+
+    /// <summary>
+    /// PEGレシオの設定
+    /// </summary>
+    /// <remarks>
+    /// 算出式：PER ÷ EPS成長率
+    /// </remarks>
+    internal void SetupPEGRatio()
+    {
+        if (FullYearPerformances.Count < 2)
+        {
+            this.PEGRatio = 0;
+            return;
+        }
+        var last = FullYearPerformances[^2];
+        var prev = FullYearPerformances[^3];
+        if (double.TryParse(last.AdjustedEarningsPerShare, out var eps1) &&
+            double.TryParse(prev.AdjustedEarningsPerShare, out var eps0) &&
+            eps0 != 0 && this.Per > 0)
+        {
+            var growth = ((eps1 - eps0) / eps0) * 100;
+            this.PEGRatio = growth != 0 ? this.Per / growth : 0;
+        }
+        else
+        {
+            this.PEGRatio = 0;
+        }
     }
 
     /// <summary>
