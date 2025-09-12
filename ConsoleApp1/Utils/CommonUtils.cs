@@ -208,7 +208,7 @@ public class CommonUtils : IDisposable
     public class ClassificationClass
     {
         //指数: Index
-        //日本個別株: JapaneseIndividualStocks
+        //日本個別株: JapaneseStocks
         //日本ETF: Japanese ETFs
         //日本投資信託: Japanese Mutual Funds
         //米国ETF: U.S.ETFs
@@ -217,11 +217,11 @@ public class CommonUtils : IDisposable
         /// <summary>
         /// Gets the index value representing a specific financial category.
         /// </summary>
-        public string Index { get; } = "0";
+        public string Indexs { get; } = "0";
         /// <summary>
         /// 日本個別株
         /// </summary>
-        public string JapaneseIndividualStocks { get; } = "1";
+        public string JapaneseStocks { get; } = "1";
         /// <summary>
         /// 日本ETF
         /// </summary>
@@ -229,7 +229,7 @@ public class CommonUtils : IDisposable
         /// <summary>
         /// 米国個別株
         /// </summary>
-        public string USIndividualStocks { get; set; } = "5";
+        public string USStocks { get; set; } = "5";
     }
     public class BuyOrSellStringClass
     {
