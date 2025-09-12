@@ -1,11 +1,12 @@
 using System.Data.SQLite;
 using ConsoleApp1.Tests.Utils;
 using ConsoleApp1.Database;
+using ConsoleApp1.Assets;
 
-namespace ConsoleApp1.Tests.Stocks
+namespace ConsoleApp1.Tests.Assets
 {
     [Collection("CommonUtils collection")]
-    public class StockInfoTests
+    public class AssetInfoTests
     {
         // ダミー WatchStock クラス
         private class DummyWatchStock
@@ -20,7 +21,7 @@ namespace ConsoleApp1.Tests.Stocks
         public void Constructor_InitializesProperties()
         {
             var watchStock = new DummyWatchStock();
-            var stockInfo = StockInfo.GetInstance(new WatchList.WatchStock
+            var stockInfo = AssetInfo.GetInstance(new WatchList.WatchStock
             {
                 Code = watchStock.Code,
                 Classification = watchStock.Classification,
@@ -177,9 +178,9 @@ namespace ConsoleApp1.Tests.Stocks
         public void CanSetAndGet_QuarterlyPerformances()
         {
             var stockInfo = CreateStockInfo();
-            var list = new List<StockInfo.QuarterlyPerformance>
+            var list = new List<AssetInfo.QuarterlyPerformance>
             {
-                new StockInfo.QuarterlyPerformance
+                new AssetInfo.QuarterlyPerformance
                 {
                     FiscalPeriod = "2023Q1",
                     Revenue = "1000",
@@ -190,7 +191,7 @@ namespace ConsoleApp1.Tests.Stocks
                     AdjustedDividendPerShare = "5",
                     ReleaseDate = "2023-04-01"
                 },
-                new StockInfo.QuarterlyPerformance
+                new AssetInfo.QuarterlyPerformance
                 {
                     FiscalPeriod = "2023Q2",
                     Revenue = "1100",
@@ -210,11 +211,11 @@ namespace ConsoleApp1.Tests.Stocks
         public void CanSetAndGet_ChartPrices()
         {
             var stockInfo = CreateStockInfo();
-            var prices = new List<StockInfo.ChartPrice>
+            var prices = new List<AssetInfo.ChartPrice>
             {
-                new StockInfo.ChartPrice { Date = DateTime.Now, Price = 100 },
-                new StockInfo.ChartPrice { Date = DateTime.Now.AddDays(1), Price = 200 },
-                new StockInfo.ChartPrice { Date = DateTime.Now.AddDays(2), Price = 300 }
+                new AssetInfo.ChartPrice { Date = DateTime.Now, Price = 100 },
+                new AssetInfo.ChartPrice { Date = DateTime.Now.AddDays(1), Price = 200 },
+                new AssetInfo.ChartPrice { Date = DateTime.Now.AddDays(2), Price = 300 }
             };
             stockInfo.ChartPrices = prices;
             Assert.Equal(prices, stockInfo.ChartPrices);
@@ -224,9 +225,9 @@ namespace ConsoleApp1.Tests.Stocks
         public void CanSetAndGet_FullYearPerformancesForcasts()
         {
             var stockInfo = CreateStockInfo();
-            var forecasts = new List<StockInfo.FullYearPerformanceForcast>
+            var forecasts = new List<AssetInfo.FullYearPerformanceForcast>
             {
-                new StockInfo.FullYearPerformanceForcast
+                new AssetInfo.FullYearPerformanceForcast
                 {
                     FiscalPeriod = "2023",
                     RevisionDate = DateTime.Now,
@@ -239,7 +240,7 @@ namespace ConsoleApp1.Tests.Stocks
                     RevisedDividend = "10",
                     Summary = "Forecast Summary"
                 },
-                new StockInfo.FullYearPerformanceForcast
+                new AssetInfo.FullYearPerformanceForcast
                 {
                     FiscalPeriod = "2024",
                     RevisionDate = DateTime.Now.AddMonths(1),
@@ -261,11 +262,11 @@ namespace ConsoleApp1.Tests.Stocks
         public void CanSetAndGet_ScrapedPrices()
         {
             var stockInfo = CreateStockInfo();
-            var scraped = new List<StockInfo.ScrapedPrice>
+            var scraped = new List<AssetInfo.ScrapedPrice>
             {
-                new StockInfo.ScrapedPrice { Date = DateTime.Now, Close = 1 },
-                new StockInfo.ScrapedPrice { Date = DateTime.Now.AddDays(1), Close = 2 },
-                new StockInfo.ScrapedPrice { Date = DateTime.Now.AddDays(2), Close = 3 }
+                new AssetInfo.ScrapedPrice { Date = DateTime.Now, Close = 1 },
+                new AssetInfo.ScrapedPrice { Date = DateTime.Now.AddDays(1), Close = 2 },
+                new AssetInfo.ScrapedPrice { Date = DateTime.Now.AddDays(2), Close = 3 }
             };
             stockInfo.ScrapedPrices = scraped;
             Assert.Equal(scraped, stockInfo.ScrapedPrices);
@@ -275,9 +276,9 @@ namespace ConsoleApp1.Tests.Stocks
         public void CanSetAndGet_FullYearProfits()
         {
             var stockInfo = CreateStockInfo();
-            var profits = new List<StockInfo.FullYearProfit>
+            var profits = new List<AssetInfo.FullYearProfit>
             {
-                new StockInfo.FullYearProfit
+                new AssetInfo.FullYearProfit
                 {
                     FiscalPeriod = "2023",
                     Revenue = "1000",
@@ -288,7 +289,7 @@ namespace ConsoleApp1.Tests.Stocks
                     TotalAssetTurnover = "1.5",
                     AdjustedEarningsPerShare = "15"
                 },
-                new StockInfo.FullYearProfit
+                new AssetInfo.FullYearProfit
                 {
                     FiscalPeriod = "2024",
                     Revenue = "1100",
@@ -344,7 +345,7 @@ namespace ConsoleApp1.Tests.Stocks
                 return;
             }
 
-            var result = StockInfo.IsWithinMonths(monthsStr, m);
+            var result = AssetInfo.IsWithinMonths(monthsStr, m);
             Assert.Equal(expected, result);
         }
 
@@ -391,7 +392,7 @@ namespace ConsoleApp1.Tests.Stocks
             // DbConnectionFactoryのコネクションを差し替え
             DbConnectionFactory.SetConnection(connection); // ここでテスト用コネクションをセット
 
-            var stockInfo = StockInfo.GetInstance(new WatchList.WatchStock
+            var stockInfo = AssetInfo.GetInstance(new WatchList.WatchStock
             {
                 Code = code,
                 Classification = "1",
@@ -464,7 +465,7 @@ namespace ConsoleApp1.Tests.Stocks
 
             DbConnectionFactory.SetConnection(connection);
 
-            var stockInfo = StockInfo.GetInstance(new WatchList.WatchStock
+            var stockInfo = AssetInfo.GetInstance(new WatchList.WatchStock
             {
                 Code = code,
                 Classification = "1",
@@ -479,7 +480,7 @@ namespace ConsoleApp1.Tests.Stocks
             CommonUtils.Instance.LastTradingDate = lastTradingDate;
 
             // LatestScrapedPriceを直近営業日でセット
-            stockInfo.LatestScrapedPrice = new StockInfo.ScrapedPrice
+            stockInfo.LatestScrapedPrice = new AssetInfo.ScrapedPrice
             {
                 Date = lastTradingDate,
                 Close = 999 // 特異値
@@ -497,9 +498,9 @@ namespace ConsoleApp1.Tests.Stocks
         }
 
         // ヘルパー
-        private StockInfo CreateStockInfo()
+        private AssetInfo CreateStockInfo()
         {
-            return StockInfo.GetInstance(new WatchList.WatchStock
+            return AssetInfo.GetInstance(new WatchList.WatchStock
             {
                 Code = "1234",
                 Classification = "1",

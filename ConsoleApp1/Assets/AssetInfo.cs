@@ -6,32 +6,33 @@ using Microsoft.Extensions.Logging;
 using System.Data.Entity;
 using System.Data.SQLite;
 using System.Globalization;
-using System.Text;
 using System.Text.RegularExpressions;
 using static ExecutionList;
 using ConsoleApp1.Database;
 
-public class StockInfo
+namespace ConsoleApp1.Assets;
+
+public abstract class AssetInfo
 {
     protected IExternalSourceUpdatable updater;
     protected IOutputFormattable formatter;
 
-    protected StockInfo(WatchList.WatchStock watchStock)
+    protected AssetInfo(WatchList.WatchStock watchStock)
     {
         this.Code = watchStock.Code;
         this.Classification = watchStock.Classification;
         this.IsFavorite = watchStock.IsFavorite == "1" ? true : false;
         this.Memo = watchStock.Memo;
-        this.ScrapedPrices = new List<StockInfo.ScrapedPrice>();
-        this.FullYearPerformances = new List<StockInfo.FullYearPerformance>();
+        this.ScrapedPrices = new List<AssetInfo.ScrapedPrice>();
+        this.FullYearPerformances = new List<AssetInfo.FullYearPerformance>();
         this.FullYearProfits = new List<FullYearProfit>();
-        this.QuarterlyPerformances = new List<StockInfo.QuarterlyPerformance>();
+        this.QuarterlyPerformances = new List<AssetInfo.QuarterlyPerformance>();
         this.FullYearPerformancesForcasts = new List<FullYearPerformanceForcast>();
-        this.ChartPrices = new List<StockInfo.ChartPrice>();
+        this.ChartPrices = new List<AssetInfo.ChartPrice>();
         this.Disclosures = new List<Disclosure>();
     }
 
-    protected StockInfo(WatchList.WatchStock watchStock, IExternalSourceUpdatable updater, IOutputFormattable formatter)
+    protected AssetInfo(WatchList.WatchStock watchStock, IExternalSourceUpdatable updater, IOutputFormattable formatter)
         : this(watchStock) // ← これが明示的な呼び出し
     {
         this.updater = updater;
@@ -174,7 +175,7 @@ public class StockInfo
     /// <summary>
     /// 直近の株価日付
     /// </summary>
-//    public DateTime LatestPriceDate { get; internal set; }
+    //    public DateTime LatestPriceDate { get; internal set; }
     /// <summary>
     /// 信用買残
     /// </summary>
@@ -515,49 +516,49 @@ public class StockInfo
         {
             // 市場区分(マスタ, 外部サイト)
             Dictionary<string, string> sectionTable = new Dictionary<string, string>
-            {
-                { "スタンダード市場", "東証Ｓ" },
-                { "プライム市場", "東証Ｐ" },
-                { "グロース市場", "東証Ｇ" },
-            };
+        {
+            { "スタンダード市場", "東証Ｓ" },
+            { "プライム市場", "東証Ｐ" },
+            { "グロース市場", "東証Ｇ" },
+        };
 
             // 種別(マスタ, 外部サイト)
             Dictionary<string, string> industryTable = new Dictionary<string, string>
-            {
-                { "1 水産・農林業", "水産・農林業" },
-                { "2 鉱業", "鉱業" },
-                { "3 建設業", "建設業" },
-                { "4 食料品", "食料品" },
-                { "5 繊維製品", "繊維製品" },
-                { "6 パルプ・紙", "パルプ・紙" },
-                { "7 化学", "化学" },
-                { "8 医薬品", "医薬品" },
-                { "9 石油・石炭製品", "石油・石炭製品" },
-                { "10 ゴム製品", "ゴム製品" },
-                { "11 ガラス・土石製品", "ガラス・土石" },
-                { "12 鉄鋼", "鉄鋼" },
-                { "13 非鉄金属", "非鉄金属" },
-                { "14 金属製品", "金属製品" },
-                { "15 機械", "機械" },
-                { "16 電気機器", "電気機器" },
-                { "17 輸送用機器", "輸送用機器" },
-                { "18 精密機器", "精密機器" },
-                { "19 その他製品", "その他製品" },
-                { "20 電気・ガス業", "電気・ガス" },
-                { "21 陸運業", "陸運業" },
-                { "22 海運業", "海運業" },
-                { "23 空運業", "空運業" },
-                { "24 倉庫・運輸関連業", "倉庫・運輸" },
-                { "25 情報・通信業", "情報・通信" },
-                { "26 卸売業", "卸売業" },
-                { "27 小売業", "小売業" },
-                { "28 銀行業", "銀行業" },
-                { "29 証券、商品先物取引業", "証券" },
-                { "30 保険業", "保険" },
-                { "31 その他金融業", "その他金融" },
-                { "32 不動産業", "不動産" },
-                { "33 サービス業", "サービス" },
-            };
+        {
+            { "1 水産・農林業", "水産・農林業" },
+            { "2 鉱業", "鉱業" },
+            { "3 建設業", "建設業" },
+            { "4 食料品", "食料品" },
+            { "5 繊維製品", "繊維製品" },
+            { "6 パルプ・紙", "パルプ・紙" },
+            { "7 化学", "化学" },
+            { "8 医薬品", "医薬品" },
+            { "9 石油・石炭製品", "石油・石炭製品" },
+            { "10 ゴム製品", "ゴム製品" },
+            { "11 ガラス・土石製品", "ガラス・土石" },
+            { "12 鉄鋼", "鉄鋼" },
+            { "13 非鉄金属", "非鉄金属" },
+            { "14 金属製品", "金属製品" },
+            { "15 機械", "機械" },
+            { "16 電気機器", "電気機器" },
+            { "17 輸送用機器", "輸送用機器" },
+            { "18 精密機器", "精密機器" },
+            { "19 その他製品", "その他製品" },
+            { "20 電気・ガス業", "電気・ガス" },
+            { "21 陸運業", "陸運業" },
+            { "22 海運業", "海運業" },
+            { "23 空運業", "空運業" },
+            { "24 倉庫・運輸関連業", "倉庫・運輸" },
+            { "25 情報・通信業", "情報・通信" },
+            { "26 卸売業", "卸売業" },
+            { "27 小売業", "小売業" },
+            { "28 銀行業", "銀行業" },
+            { "29 証券、商品先物取引業", "証券" },
+            { "30 保険業", "保険" },
+            { "31 その他金融業", "その他金融" },
+            { "32 不動産業", "不動産" },
+            { "33 サービス業", "サービス" },
+        };
 
             foreach (var details in masterList)
             {
@@ -589,7 +590,8 @@ public class StockInfo
                 }
             }
         }
-        catch (Exception ex) { 
+        catch (Exception ex)
+        {
             Console.WriteLine(ex.Message);
         }
     }
@@ -777,7 +779,7 @@ public class StockInfo
             {
                 var previousFinalForcast = this.FullYearPerformancesForcasts.Where(forcast =>
                 forcast.FiscalPeriod == this.CurrentFiscalMonth.AddYears(-1).ToString("yyyy.MM")
-                && (forcast.Category == CommonUtils.Instance.ForecastCategoryString.Initial 
+                && (forcast.Category == CommonUtils.Instance.ForecastCategoryString.Initial
                 || forcast.Category == CommonUtils.Instance.ForecastCategoryString.Revised)).LastOrDefault();
 
                 if (previousFinalForcast != null)
@@ -930,9 +932,9 @@ public class StockInfo
         // GenericRepositoryを利用してhistoryテーブルからデータ取得
         var repo = new GenericRepository(DbConnectionFactory.GetConnection());
         var parameters = new Dictionary<string, object>
-        {
-            { "@code", this.Code }
-        };
+    {
+        { "@code", this.Code }
+    };
         // サブクエリの代わりにORDER BY DESC, LIMIT, その後昇順ソート
         var rows = repo.GetRows(
             "history",
@@ -947,15 +949,15 @@ public class StockInfo
             !rows.Any(r => ((DateTime)r["date"]) == this.LatestScrapedPrice.Date))
         {
             var latestRow = new Dictionary<string, object>
-            {
-                { "code", this.Code },
-                { "date", this.LatestScrapedPrice.Date },
-                { "open", this.LatestScrapedPrice.Open },
-                { "high", this.LatestScrapedPrice.High },
-                { "low", this.LatestScrapedPrice.Low },
-                { "close", this.LatestScrapedPrice.Close },
-                { "volume", this.LatestScrapedPrice.Volume }
-            };
+        {
+            { "code", this.Code },
+            { "date", this.LatestScrapedPrice.Date },
+            { "open", this.LatestScrapedPrice.Open },
+            { "high", this.LatestScrapedPrice.High },
+            { "low", this.LatestScrapedPrice.Low },
+            { "close", this.LatestScrapedPrice.Close },
+            { "volume", this.LatestScrapedPrice.Volume }
+        };
             rows.Add(latestRow);
         }
 
@@ -1426,7 +1428,8 @@ public class StockInfo
                 }
             }
         }
-        catch { 
+        catch
+        {
             // 例外は無視する。
         }
 
@@ -1612,7 +1615,8 @@ public class StockInfo
     {
         bool result = false;
 
-        foreach (var item in this.ScrapedPrices) {
+        foreach (var item in this.ScrapedPrices)
+        {
             // 調整後終値と異なる場合は分割実施と判断
             if (item.Close != item.AdjustedClose)
             {
@@ -1688,73 +1692,7 @@ public class StockInfo
     /// </summary>
     /// <remarks>各サイトの情報を非同期で取得してインスタンスに設定する。</remarks>
     internal virtual async Task UpdateFromExternalSource()
-    {
-        List<Task> tasks = new List<Task>();
-
-        var yahooScraper = new YahooScraper();
-        var kabutanScraper = new KabutanScraper();
-        var minkabuScraper = new MinkabuScraper();
-
-        Task kabutanFinance = Task.Run(async () =>
-        {
-            await kabutanScraper.ScrapeFinance(this);
-        });
-        tasks.Add(kabutanFinance);
-
-        Task minkabuDividend = Task.Run(async () =>
-        {
-            await minkabuScraper.ScrapeDividend(this);
-        });
-        tasks.Add(minkabuDividend);
-
-        Task minkabuYutai = Task.Run(async () =>
-        {
-            await minkabuScraper.ScrapeYutai(this);
-        });
-        tasks.Add(minkabuYutai);
-
-        Task yahooTop = Task.Run(async () =>
-        {
-            await yahooScraper.ScrapeTop(this);
-        });
-        tasks.Add(yahooTop);
-
-        Task yahooProfile = Task.Run(async () =>
-        {
-            await yahooScraper.ScrapeProfile(this);
-        });
-        tasks.Add(yahooProfile);
-
-        //Task yahooDisclosure = Task.Run(async () =>
-        //{
-        //    await yahooScraper.ScrapeDisclosure(this);
-        //});
-        //tasks.Add(yahooDisclosure);
-
-        Task yahooHistory = Task.Run(async () =>
-        {
-            // 履歴更新の最終日を取得（なければ基準開始日を取得）
-            var lastUpdateDay = this.GetLastHistoryUpdateDay();
-
-            // 最終更新後に直近営業日がある場合は履歴取得
-            if (CommonUtils.Instance.LastTradingDate > lastUpdateDay)
-            {
-                await yahooScraper.ScrapeHistory(this, lastUpdateDay, CommonUtils.Instance.ExecusionDate);
-
-                // 株式分割がある場合は履歴をクリアして再取得
-                if (this.HasRecentStockSplitOccurred() && lastUpdateDay != CommonUtils.Instance.MasterStartDate)
-                {
-                    this.DeleteHistory(CommonUtils.Instance.ExecusionDate);
-                    this.ScrapedPrices.Clear();
-                    await yahooScraper.ScrapeHistory(this, CommonUtils.Instance.MasterStartDate, CommonUtils.Instance.ExecusionDate);
-                }
-            }
-        });
-        tasks.Add(yahooHistory);
-
-        // タスクの実行待ち
-        await Task.WhenAll(tasks);
-    }
+     => await updater.UpdateFromExternalSourceAsync(this);
 
     internal virtual bool ShouldAlert()
     {
@@ -1882,7 +1820,7 @@ public class StockInfo
         return result;
     }
 
-    internal static StockInfo GetInstance(WatchList.WatchStock watchStock)
+    internal static AssetInfo GetInstance(WatchList.WatchStock watchStock)
     {
         if ((watchStock.Classification == CommonUtils.Instance.Classification.JapaneseETFs))
         {
@@ -1891,144 +1829,17 @@ public class StockInfo
         else if ((watchStock.Classification == CommonUtils.Instance.Classification.Index))
         {
             return new IndexInfo(watchStock,
-                new IndexInfo.IndexUpdater(), 
+                new IndexInfo.IndexUpdater(),
                 new IndexInfo.IndexFormatter());
         }
         else
         {
-            return new StockInfo(watchStock);
+            return new JapaneseStockInfo(watchStock);
         }
     }
 
     internal virtual string ToOutputString()
-    {
-        StringBuilder sb = new StringBuilder();
-
-        var mark = CommonUtils.Instance.BadgeString.ShouldWatch;
-        var count = 0;
-        var s = string.Empty;
-
-        sb.AppendLine($"{this.Code}：{this.Name}");
-
-        sb.AppendLine($"株価：{this.LatestPrice.Price.ToString("N1")}" +
-            $"（{this.LatestPrice.Date.ToString("yy/MM/dd")}" +
-            $"：S{this.LatestPrice.RSIS.ToString("N2")}" +
-            $",L{this.LatestPrice.RSIL.ToString("N2")}" +
-            $"）{(this.LatestPrice.OversoldIndicator() || (this.IsOwnedNow() && this.LatestPrice.OverboughtIndicator()) ? mark : string.Empty)}");
-
-        sb.AppendLine($"市場/業種：{this.Section}{(!string.IsNullOrEmpty(this.Industry) ? $"/{this.Industry}" : string.Empty)}");
-
-        sb.AppendLine($"配当利回り：{CommonUtils.Instance.ConvertToPercentage(this.DividendYield)}" +
-            $"（{CommonUtils.Instance.ConvertToPercentage(this.DividendPayoutRatio)}" +
-            $",{CommonUtils.Instance.ConvertToPercentage(this.Doe)}" +
-            $",{this.DividendRecordDateMonth}" +
-            $"）{(this.IsCloseToDividendRecordDate() ? mark : string.Empty)}");
-
-        if (!string.IsNullOrEmpty(this.ShareholderBenefitsDetails))
-        sb.AppendLine($"優待利回り：{CommonUtils.Instance.ConvertToPercentage(this.ShareholderBenefitYield)}" +
-            $"（{this.ShareholderBenefitsDetails}" +
-            $",{this.NumberOfSharesRequiredForBenefits}" +
-            $",{this.ShareholderBenefitRecordMonth}" +
-            $",{this.ShareholderBenefitRecordDay}" +
-            $"）{(this.IsCloseToShareholderBenefitRecordDate() ? mark : string.Empty)}");
-
-        // 通期予想履歴
-        foreach (var p in this.FullYearPerformancesForcasts)
-        {
-            if (count == 0) sb.AppendLine($"通期予想（前期比）：");
-            sb.AppendLine($"{p.Category}" +
-                $"：{p.RevisionDate.ToString("yy/MM/dd")}" +
-                $"：{p.Summary}{(p.HasUpwardRevision() ? mark : string.Empty)}");
-            count++;
-        }
-
-        sb.AppendLine($"通期進捗：{this.LastQuarterPeriod}" +
-            $"：{CommonUtils.Instance.ConvertToPercentage(this.QuarterlyFullyearProgressRate)}" +
-            $"（{this.QuarterlyPerformanceReleaseDate.ToString("yy/MM/dd")}" +
-            $"：{CommonUtils.Instance.ConvertToPercentage(this.QuarterlyOperatingProfitMarginYoY, true)}）" +
-            $"{(this.IsAnnualProgressOnTrack() ? mark : string.Empty)}");
-
-        sb.AppendLine($"前期進捗：{this.LastQuarterPeriod}" +
-            $"：{CommonUtils.Instance.ConvertToPercentage(this.PreviousFullyearProgressRate)}" +
-            $"（{this.PreviousPerformanceReleaseDate.ToString("yy/MM/dd")}）");
-
-        sb.AppendLine($"時価総額：{CommonUtils.Instance.ConvertToYenNotation(this.MarketCap)}");
-
-        count = 0;
-        s = string.Empty;
-        foreach (StockInfo.FullYearProfit p in this.FullYearProfits)
-        {
-            if (count > 0) s += "→";
-            s += p.Roe;
-            count++;
-        }
-        if (!string.IsNullOrEmpty(s)) 
-        sb.AppendLine($"ROE：{s}{(this.IsROEAboveThreshold() ? mark : string.Empty)}");
-
-        sb.AppendLine($"PER：{CommonUtils.Instance.ConvertToMultiplierString(this.Per)}" +
-            $"（{this.AveragePer.ToString("N1")}）{(this.IsPERUndervalued() ? mark : string.Empty)}");
-
-        sb.AppendLine($"PBR：{CommonUtils.Instance.ConvertToMultiplierString(this.Pbr)}" +
-            $"（{this.AveragePbr.ToString("N1")}）{(this.IsPBRUndervalued() ? mark : string.Empty)}");
-
-        sb.AppendLine($"営業利益率：{CommonUtils.Instance.ConvertToPercentage(this.OperatingProfitMargin)}");
-
-        sb.AppendLine($"信用倍率：{this.MarginBalanceRatio}");
-
-        sb.AppendLine($"信用残：{this.MarginBuyBalance}/{this.MarginSellBalance}（{this.MarginBalanceDate}）");
-        
-        sb.AppendLine($"出来高：{this.LatestTradingVolume}");
-
-        sb.AppendLine($"自己資本比率：{this.EquityRatio}");
-
-        sb.AppendLine($"決算：{this.EarningsPeriod}");
-
-        s = string.Empty;
-        if (!string.IsNullOrEmpty(this.PressReleaseDate))
-        {
-            s += this.PressReleaseDate;
-            s += this.ExtractAndValidateDateWithinOneMonth() ? mark : string.Empty;
-            sb.AppendLine($"{s}");
-        }
-
-        count = 0;
-        s = string.Empty;
-        foreach (ExecutionList.Execution e in this.Executions)
-        {
-            if (count == 0) sb.AppendLine($"約定履歴：");
-
-            sb.AppendLine($"{e.BuyOrSell}" +
-                $"：{e.Date.ToString("yy/MM/dd")}" +
-                $"：{e.Price.ToString("N1")}*{e.Quantity}" +
-                $"：{CommonUtils.Instance.ConvertToPercentage((this.LatestPrice.Price / e.Price) - 1, true)}" +
-                $"{(this.ShouldAverageDown(e) ? mark : string.Empty)}");
-
-            count++;
-        }
-
-        //チャート：
-        sb.AppendLine($"チャート（RSI）：");
-        foreach (var p in this.ChartPrices)
-        {
-            sb.AppendLine(
-                $"{p.Date.ToString("MM/dd")}" +
-                $"：{p.Price.ToString("N1")}" +
-                $"：{CommonUtils.Instance.ConvertToPercentage(p.Volatility, true)}" +
-                $"（S{p.RSIS.ToString("N2")}" +
-                $",L{p.RSIL.ToString("N2")}）" +
-                $"{(p.OversoldIndicator() ? mark : string.Empty)}" +
-                $"");
-        }
-
-        if (!string.IsNullOrEmpty(this.Memo))
-        {
-            //メモ：
-            sb.AppendLine($"メモ：");
-            sb.AppendLine(this.Memo);
-        }
-
-        return sb.ToString();
-    }
+        => formatter.ToOutputString(this);
 
     internal virtual bool IsGranvilleCase1Matched()
     {
@@ -2254,7 +2065,7 @@ public class StockInfo
         {
             bool result = false;
 
-            if (this.Category != CommonUtils.Instance.ForecastCategoryString.Initial 
+            if (this.Category != CommonUtils.Instance.ForecastCategoryString.Initial
                 && this.Category != CommonUtils.Instance.ForecastCategoryString.Final)
             {
                 // 売上
@@ -2357,3 +2168,5 @@ public class StockInfo
         public string Header { get; internal set; }
     }
 }
+
+

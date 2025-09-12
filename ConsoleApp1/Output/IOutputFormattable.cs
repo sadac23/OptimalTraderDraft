@@ -1,6 +1,8 @@
+using ConsoleApp1.Assets;
+
 namespace ConsoleApp1.Output;
 
 public interface IOutputFormattable
 {
-    string ToOutputString(StockInfo stockInfo);
+    string ToOutputString(AssetInfo stockInfo);
 }

@@ -1,7 +1,8 @@
+using ConsoleApp1.Assets;
 using Moq;
-using static StockInfo;
+using static ConsoleApp1.Assets.AssetInfo;
 
-namespace ConsoleApp1.Tests.Stocks;
+namespace ConsoleApp1.Tests.Assets;
 
 [Collection("CommonUtils collection")]
 public class IndexInfoTests
@@ -84,7 +85,7 @@ public class IndexFormatterTests
         public override bool OverboughtIndicator() => false;
     }
 
-    private class MockStockInfo : StockInfo
+    private class MockStockInfo : AssetInfo
     {
         public MockStockInfo() : base(new WatchList.WatchStock
         {

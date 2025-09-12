@@ -1,9 +1,10 @@
 ﻿// See https://aka.ms/new-console-template for more information
 using System.Text;
+using ConsoleApp1.Assets;
 using ConsoleApp1.ExternalSource;
 using ConsoleApp1.Output;
 
-public class IndexInfo : StockInfo
+public class IndexInfo : AssetInfo
 {
     public IndexInfo(
         WatchList.WatchStock watchStock,
@@ -42,7 +43,7 @@ public class IndexInfo : StockInfo
     // インデックス種別用の外部情報取得処理
     public class IndexUpdater : IExternalSourceUpdatable
     {
-        public async Task UpdateFromExternalSourceAsync(StockInfo stockInfo)
+        public async Task UpdateFromExternalSourceAsync(AssetInfo stockInfo)
         {
             List<Task> tasks = new List<Task>();
 
@@ -75,7 +76,7 @@ public class IndexInfo : StockInfo
     // インデックス種別用の出力処理
     public class IndexFormatter : IOutputFormattable
     {
-        public string ToOutputString(StockInfo stockInfo)
+        public string ToOutputString(AssetInfo stockInfo)
         {
             StringBuilder sb = new StringBuilder();
 

@@ -1,7 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using Xunit;
+using ConsoleApp1.Assets;
 
 namespace ConsoleApp1.Tests.Analisys
 {
@@ -18,7 +15,7 @@ namespace ConsoleApp1.Tests.Analisys
 
             var policyList = new List<string> { "方針A", "方針B" };
             var stockInfoMock = new StockInfoMock { ShouldAlertResult = true, OutputString = "テスト出力" };
-            var results = new List<StockInfo> { stockInfoMock };
+            var results = new List<AssetInfo> { stockInfoMock };
 
             try
             {
@@ -43,7 +40,7 @@ namespace ConsoleApp1.Tests.Analisys
         }
 
         // StockInfoのテスト用モック
-        private class StockInfoMock : StockInfo
+        private class StockInfoMock : AssetInfo
         {
             public bool ShouldAlertResult { get; set; }
             public string OutputString { get; set; } = "";

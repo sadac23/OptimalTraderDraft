@@ -1,5 +1,6 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
+using ConsoleApp1.Assets;
 using ConsoleApp1.Database;
 using System.Data.SQLite;
 
@@ -26,7 +27,7 @@ internal class Analyzer
     /// https://kabu.com/investment/guide/technical/08.html
     /// https://ad-van.co.jp/technical/article/rsi-calculation/
     /// </remarks>
-    public double GetCutlerRSI(int v, DateTime endDate, StockInfo stockInfo)
+    public double GetCutlerRSI(int v, DateTime endDate, AssetInfo stockInfo)
     {
         var priceTuples = GetCutlerRsiPrices(v, endDate, stockInfo);
         var prices = priceTuples.Select(x => x.Item2).ToList();
@@ -64,7 +65,7 @@ internal class Analyzer
     /// <summary>
     /// RSI計算用の価格リストをDBから取得（テスト容易性のため分離）
     /// </summary>
-    internal virtual List<(DateTime, double)> GetCutlerRsiPrices(int v, DateTime endDate, StockInfo stockInfo)
+    internal virtual List<(DateTime, double)> GetCutlerRsiPrices(int v, DateTime endDate, AssetInfo stockInfo)
     {
         var prices = new List<(DateTime, double)>();
 
@@ -130,7 +131,7 @@ internal class Analyzer
 
     internal class AnalysisResult
     {
-        public AnalysisResult(StockInfo stockInfo)
+        public AnalysisResult(AssetInfo stockInfo)
         {
             this.StockInfo = stockInfo;
             this.PriceVolatilities = new List<PriceVolatility>();
@@ -138,7 +139,7 @@ internal class Analyzer
         /// <summary>
         /// 銘柄
         /// </summary>
-        public StockInfo StockInfo { get; set; }
+        public AssetInfo StockInfo { get; set; }
         /// <summary>
         /// 値幅履歴
         /// </summary>

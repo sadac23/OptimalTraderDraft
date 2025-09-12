@@ -1,8 +1,8 @@
 ﻿// See https://aka.ms/new-console-template for more information
-using DocumentFormat.OpenXml.Bibliography;
+using ConsoleApp1.Assets;
 using System.Text;
 
-internal class JapaneseETFInfo : StockInfo
+internal class JapaneseETFInfo : AssetInfo
 {
     public JapaneseETFInfo(WatchList.WatchStock watchStock) : base(watchStock)
     {

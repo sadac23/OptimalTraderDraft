@@ -10,6 +10,7 @@ using Google.Apis.Services;
 using Google.Apis.Util.Store;
 using MimeKit;
 using Microsoft.Extensions.Logging;
+using ConsoleApp1.Assets;
 
 internal class Alert
 {
@@ -186,7 +187,7 @@ internal class Alert
     /// </summary>
     /// <param name="results">通知対象の銘柄リスト</param>
     /// <param name="policyList">方針リスト</param>
-    internal static void SaveFile(List<StockInfo> results, List<string> policyList)
+    internal static void SaveFile(List<AssetInfo> results, List<string> policyList)
     {
         var alertFilePath = CommonUtils.ReplacePlaceholder(
             CommonUtils.Instance.FilepathOfAlert, "{yyyyMMdd}", CommonUtils.Instance.ExecusionDate.ToString("yyyyMMdd"));

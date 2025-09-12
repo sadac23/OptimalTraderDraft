@@ -1,16 +1,13 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
-using DocumentFormat.OpenXml.Bibliography;
+using ConsoleApp1.Assets;
 using HtmlAgilityPack;
 using Microsoft.Extensions.Logging;
 using System.Globalization;
-using System.Security.Policy;
-using static System.Runtime.InteropServices.JavaScript.JSType;
-using static WatchList;
 
 internal class YahooScraper
 {
-    internal async Task ScrapeHistory(StockInfo stockInfo, DateTime from, DateTime to)
+    internal async Task ScrapeHistory(AssetInfo stockInfo, DateTime from, DateTime to)
     {
         int _pageCountMax = CommonUtils.Instance.MaxPageCountToScrapeYahooHistory;
 
@@ -79,7 +76,7 @@ internal class YahooScraper
                                 var low = CommonUtils.Instance.GetDouble(columns[3].InnerText.Trim());
                                 var close = CommonUtils.Instance.GetDouble(columns[4].InnerText.Trim());
 
-                                stockInfo.ScrapedPrices.Add(new StockInfo.ScrapedPrice
+                                stockInfo.ScrapedPrices.Add(new AssetInfo.ScrapedPrice
                                 {
                                     Date = date,
                                     DateYYYYMMDD = date.ToString("yyyyMMdd"),
@@ -105,7 +102,7 @@ internal class YahooScraper
                                 var volume = CommonUtils.Instance.GetDouble(columns[5].InnerText.Trim());
                                 var adjustedClose = CommonUtils.Instance.GetDouble(columns[6].InnerText.Trim());
 
-                                stockInfo.ScrapedPrices.Add(new StockInfo.ScrapedPrice
+                                stockInfo.ScrapedPrices.Add(new AssetInfo.ScrapedPrice
                                 {
                                     Date = date,
                                     DateYYYYMMDD = date.ToString("yyyyMMdd"),
@@ -131,7 +128,7 @@ internal class YahooScraper
         }
     }
 
-    internal async Task ScrapeProfile(StockInfo stockInfo)
+    internal async Task ScrapeProfile(AssetInfo stockInfo)
     {
         string suffix = stockInfo.Classification == CommonUtils.Instance.Classification.Index ? ".O" : ".T";
         var url = $"https://finance.yahoo.co.jp/quote/{stockInfo.Code}{suffix}/profile";
@@ -162,7 +159,7 @@ internal class YahooScraper
             Console.WriteLine("ScrapeProfile: " + e.Message);
         }
     }
-    internal async Task ScrapeTop(StockInfo stockInfo)
+    internal async Task ScrapeTop(AssetInfo stockInfo)
     {
         try
         {
@@ -280,7 +277,7 @@ internal class YahooScraper
             var high = document.DocumentNode.SelectSingleNode(xpath_high);
             var low = document.DocumentNode.SelectSingleNode(xpath_low);
             var close = document.DocumentNode.SelectSingleNode(xpath_close);
-            stockInfo.LatestScrapedPrice = new StockInfo.ScrapedPrice()
+            stockInfo.LatestScrapedPrice = new AssetInfo.ScrapedPrice()
             {
                 Date = date,
                 DateYYYYMMDD = date.ToString("yyyyMMdd"),
@@ -322,7 +319,7 @@ internal class YahooScraper
         }
     }
 
-    internal async Task ScrapeDisclosure(StockInfo stockInfo)
+    internal async Task ScrapeDisclosure(AssetInfo stockInfo)
     {
         string suffix = stockInfo.Classification == CommonUtils.Instance.Classification.Index ? ".O" : ".T";
         var url = $"https://finance.yahoo.co.jp/quote/{stockInfo.Code}{suffix}/disclosure";
@@ -356,7 +353,7 @@ internal class YahooScraper
                     {
                         datetime = this.ConvertToDatetime(nodeDate.InnerText.Trim());
                     }
-                    stockInfo.Disclosures.Add(new StockInfo.Disclosure
+                    stockInfo.Disclosures.Add(new AssetInfo.Disclosure
                     {
                         Header = header,
                         Datetime = datetime,
