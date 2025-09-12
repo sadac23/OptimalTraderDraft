@@ -151,7 +151,7 @@
    **サンプル構成イメージ**
 
    - ConsoleApp1\Assets\Repositories\IAssetRepository.cs
-   - ConsoleApp1\Assets\Repositories\AssetHistoryRepository.cs
+   - ConsoleApp1\Assets\Repositories\AssetRepository.cs
 
 3. **計算・判定ロジックのStrategy化**
    - PER計算や利回り判定などをIAssetCalculator/StockCalculator等に分離

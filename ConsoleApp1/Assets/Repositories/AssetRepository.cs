@@ -13,7 +13,7 @@ namespace ConsoleApp1.Assets.Repositories
         public async Task<List<ScrapedPrice>> LoadHistoryAsync(string code)
         {
             var result = new List<ScrapedPrice>();
-            using var connection = DbConnectionFactory.GetConnection();
+            var connection = DbConnectionFactory.GetConnection();
             await connection.OpenAsync();
 
             string query = "SELECT * FROM history WHERE code = @code ORDER BY date DESC";
@@ -41,7 +41,7 @@ namespace ConsoleApp1.Assets.Repositories
 
         public async Task SaveHistoryAsync(string code, List<ScrapedPrice> prices)
         {
-            using var connection = DbConnectionFactory.GetConnection();
+            var connection = DbConnectionFactory.GetConnection();
             await connection.OpenAsync();
 
             foreach (var price in prices)
@@ -64,7 +64,7 @@ namespace ConsoleApp1.Assets.Repositories
 
         public async Task DeleteHistoryAsync(string code, DateTime targetDate)
         {
-            using var connection = DbConnectionFactory.GetConnection();
+            var connection = DbConnectionFactory.GetConnection();
             await connection.OpenAsync();
 
             string query = "DELETE FROM history WHERE code = @code AND date = @date";
@@ -79,7 +79,7 @@ namespace ConsoleApp1.Assets.Repositories
             var result = new List<FullYearPerformanceForcast>();
             try
             {
-                using var connection = DbConnectionFactory.GetConnection();
+                var connection = DbConnectionFactory.GetConnection();
                 string query = "SELECT * FROM forcast_history WHERE code = @code and fiscal_period = @fiscal_period ORDER BY revision_date";
                 using var command = new SQLiteCommand(query, connection);
                 command.Parameters.AddWithValue("@code", code);
@@ -130,7 +130,7 @@ namespace ConsoleApp1.Assets.Repositories
             DateTime result = CommonUtils.Instance.MasterStartDate;
             try
             {
-                using var connection = DbConnectionFactory.GetConnection();
+                var connection = DbConnectionFactory.GetConnection();
                 string query = "SELECT IFNULL(MAX(date), @max_date) FROM history WHERE code = @code";
                 using var command = new SQLiteCommand(query, connection);
                 command.Parameters.AddWithValue("@code", code);
@@ -154,7 +154,7 @@ namespace ConsoleApp1.Assets.Repositories
             var result = new List<Dictionary<string, object>>();
             try
             {
-                using var connection = DbConnectionFactory.GetConnection();
+                var connection = DbConnectionFactory.GetConnection();
                 string query = $"SELECT code, date, open, high, low, close, volume FROM history WHERE code = @code ORDER BY date DESC LIMIT @limit";
                 using var command = new SQLiteCommand(query, connection);
                 command.Parameters.AddWithValue("@code", code);
