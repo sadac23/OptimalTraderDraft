@@ -5,6 +5,7 @@ using System.Globalization;
 using Microsoft.Extensions.Logging;
 using ConsoleApp1.Assets;
 using static ConsoleApp1.Assets.AssetInfo;
+using ConsoleApp1.Assets.Models;
 
 internal class KabutanScraper
 {
@@ -14,11 +15,11 @@ internal class KabutanScraper
 
     internal async Task ScrapeFinance(AssetInfo stockInfo)
     {
-        if (stockInfo.Classification == CommonUtils.Instance.Classification.JapaneseIndividualStocks) 
+        if (stockInfo.Classification == CommonUtils.Instance.Classification.JapaneseStocks) 
         {
             await this.ScrapeFinanceJP(stockInfo);
         }
-        else if (stockInfo.Classification == CommonUtils.Instance.Classification.USIndividualStocks)
+        else if (stockInfo.Classification == CommonUtils.Instance.Classification.USStocks)
         {
             await this.ScrapeFinanceUS(stockInfo);
         }

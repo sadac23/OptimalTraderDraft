@@ -1,4 +1,5 @@
 using ConsoleApp1.Assets;
+using ConsoleApp1.Assets.Models;
 
 namespace ConsoleApp1.Tests.Analisys
 {

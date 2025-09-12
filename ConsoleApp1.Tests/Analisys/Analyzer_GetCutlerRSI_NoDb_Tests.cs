@@ -1,4 +1,5 @@
 using ConsoleApp1.Assets;
+using ConsoleApp1.Assets.Models;
 
 namespace ConsoleApp1.Tests.Analisys
 {
@@ -33,7 +34,7 @@ namespace ConsoleApp1.Tests.Analisys
             // 最後の日付は lastTradingDay より前
             var analyzer1 = new TestAnalyzer(prices1);
             var stockInfo1 = AssetInfo.GetInstance(new WatchList.WatchStock { Code = "TEST1", Name = "Test1" });
-            stockInfo1.LatestScrapedPrice = new AssetInfo.ScrapedPrice
+            stockInfo1.LatestScrapedPrice = new ScrapedPrice
             {
                 Date = lastTradingDay,
                 Close = 200
@@ -48,7 +49,7 @@ namespace ConsoleApp1.Tests.Analisys
             };
             var analyzer2 = new TestAnalyzer(prices2);
             var stockInfo2 = AssetInfo.GetInstance(new WatchList.WatchStock { Code = "TEST2", Name = "Test2" });
-            stockInfo2.LatestScrapedPrice = new AssetInfo.ScrapedPrice
+            stockInfo2.LatestScrapedPrice = new ScrapedPrice
             {
                 Date = lastTradingDay,
                 Close = 200
@@ -66,7 +67,7 @@ namespace ConsoleApp1.Tests.Analisys
             // 4. latestPrice.Date.Date > 直近営業日（追加されない）
             var analyzer4 = new TestAnalyzer(prices1);
             var stockInfo4 = AssetInfo.GetInstance(new WatchList.WatchStock { Code = "TEST4", Name = "Test4" });
-            stockInfo4.LatestScrapedPrice = new AssetInfo.ScrapedPrice
+            stockInfo4.LatestScrapedPrice = new ScrapedPrice
             {
                 Date = lastTradingDay.AddDays(1), // 将来日付
                 Close = 999
@@ -81,7 +82,7 @@ namespace ConsoleApp1.Tests.Analisys
             // 最後の日付は lastTradingDay より前
             var analyzer5 = new TestAnalyzer(prices5);
             var stockInfo5 = AssetInfo.GetInstance(new WatchList.WatchStock { Code = "TEST5", Name = "Test5" });
-            stockInfo5.LatestScrapedPrice = new AssetInfo.ScrapedPrice
+            stockInfo5.LatestScrapedPrice = new ScrapedPrice
             {
                 Date = lastTradingDay,
                 Close = 999

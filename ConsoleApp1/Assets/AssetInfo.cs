@@ -9,6 +9,7 @@ using System.Globalization;
 using System.Text.RegularExpressions;
 using static ExecutionList;
 using ConsoleApp1.Database;
+using ConsoleApp1.Assets.Models;
 
 namespace ConsoleApp1.Assets;
 
@@ -23,12 +24,12 @@ public abstract class AssetInfo
         this.Classification = watchStock.Classification;
         this.IsFavorite = watchStock.IsFavorite == "1" ? true : false;
         this.Memo = watchStock.Memo;
-        this.ScrapedPrices = new List<AssetInfo.ScrapedPrice>();
-        this.FullYearPerformances = new List<AssetInfo.FullYearPerformance>();
+        this.ScrapedPrices = new List<ScrapedPrice>();
+        this.FullYearPerformances = new List<FullYearPerformance>();
         this.FullYearProfits = new List<FullYearProfit>();
-        this.QuarterlyPerformances = new List<AssetInfo.QuarterlyPerformance>();
+        this.QuarterlyPerformances = new List<QuarterlyPerformance>();
         this.FullYearPerformancesForcasts = new List<FullYearPerformanceForcast>();
-        this.ChartPrices = new List<AssetInfo.ChartPrice>();
+        this.ChartPrices = new List<ChartPrice>();
         this.Disclosures = new List<Disclosure>();
     }
 
@@ -1824,17 +1825,21 @@ public abstract class AssetInfo
     {
         if ((watchStock.Classification == CommonUtils.Instance.Classification.JapaneseETFs))
         {
-            return new JapaneseETFInfo(watchStock);
+            return new JapaneseETFInfo(watchStock,
+                new JapaneseETFUpdater(),
+                new JapaneseETFFormatter());
         }
-        else if ((watchStock.Classification == CommonUtils.Instance.Classification.Index))
+        else if ((watchStock.Classification == CommonUtils.Instance.Classification.Indexs))
         {
             return new IndexInfo(watchStock,
-                new IndexInfo.IndexUpdater(),
-                new IndexInfo.IndexFormatter());
+                new IndexUpdater(),
+                new IndexFormatter());
         }
         else
         {
-            return new JapaneseStockInfo(watchStock);
+            return new JapaneseStockInfo(watchStock,
+                new JapaneseStockUpdater(),
+                new JapaneseStockFormatter());
         }
     }
 
@@ -1854,318 +1859,6 @@ public abstract class AssetInfo
         if (start < 0 && end > 0) result = true;
 
         return result;
-    }
-
-    /// <summary>
-    /// 日次価格情報
-    /// </summary>
-    public class ScrapedPrice
-    {
-        /// <summary>
-        /// 日付
-        /// </summary>
-        public DateTime Date { get; set; }
-        /// <summary>
-        /// 日付文字列
-        /// </summary>
-        public string DateYYYYMMDD { get; set; }
-        /// <summary>
-        /// 始値
-        /// </summary>
-        public double Open { get; set; }
-        /// <summary>
-        /// 高値
-        /// </summary>
-        public double High { get; set; }
-        /// <summary>
-        /// 安値
-        /// </summary>
-        public double Low { get; set; }
-        /// <summary>
-        /// 終値
-        /// </summary>
-        public double Close { get; set; }
-        /// <summary>
-        /// 出来高
-        /// </summary>
-        public double Volume { get; set; }
-        /// <summary>
-        /// 調整後終値
-        /// </summary>
-        public double AdjustedClose { get; internal set; }
-    }
-
-    public class FullYearPerformance
-    {
-        /// <summary>
-        /// 決算期
-        /// </summary>
-        public string FiscalPeriod { get; set; }
-        /// <summary>
-        /// 売上高
-        /// </summary>
-        public string Revenue { get; set; }
-        /// <summary>
-        /// 営業益
-        /// </summary>
-        public string OperatingProfit { get; set; }
-        /// <summary>
-        /// 経常益
-        /// </summary>
-        public string OrdinaryProfit { get; set; }
-        /// <summary>
-        /// 最終益
-        /// </summary>
-        public string NetProft { get; set; }
-        /// <summary>
-        /// 修正1株益
-        /// </summary>
-        public string AdjustedEarningsPerShare { get; set; }
-        /// <summary>
-        /// 修正1株配
-        /// </summary>
-        public string AdjustedDividendPerShare { get; set; }
-        /// <summary>
-        /// 発表日
-        /// </summary>
-        public string AnnouncementDate { get; set; }
-    }
-
-    public class FullYearProfit
-    {
-        /// <summary>
-        /// 決算期
-        /// </summary>
-        public string FiscalPeriod { get; set; }
-        /// <summary>
-        /// 売上高
-        /// </summary>
-        public string Revenue { get; set; }
-        /// <summary>
-        /// 営業益
-        /// </summary>
-        public string OperatingIncome { get; set; }
-        /// <summary>
-        /// 売上営業利益率
-        /// </summary>
-        public string OperatingMargin { get; set; }
-        /// <summary>
-        /// ＲＯＥ
-        /// </summary>
-        public double Roe { get; set; }
-        /// <summary>
-        /// ＲＯＡ
-        /// </summary>
-        public double Roa { get; set; }
-        /// <summary>
-        /// 総資産回転率
-        /// </summary>
-        public string TotalAssetTurnover { get; set; }
-        /// <summary>
-        /// 修正1株益
-        /// </summary>
-        public string AdjustedEarningsPerShare { get; set; }
-    }
-    public class QuarterlyPerformance
-    {
-        /// <summary>
-        /// 決算期
-        /// </summary>
-        public string FiscalPeriod { get; set; }
-        /// <summary>
-        /// 売上高
-        /// </summary>
-        public string Revenue { get; set; }
-        /// <summary>
-        /// 営業益
-        /// </summary>
-        public string OperatingProfit { get; set; }
-        /// <summary>
-        /// 経常益
-        /// </summary>
-        public double OrdinaryProfit { get; internal set; }
-        /// <summary>
-        /// 最終益
-        /// </summary>
-        public string NetProfit { get; internal set; }
-        /// <summary>
-        /// 修正一株益
-        /// </summary>
-        public string AdjustedEarningsPerShare { get; set; }
-        /// <summary>
-        /// 修正一株配
-        /// </summary>
-        public string AdjustedDividendPerShare { get; internal set; }
-        /// <summary>
-        /// 発表日
-        /// </summary>
-        public string ReleaseDate { get; internal set; }
-    }
-
-    /// <summary>
-    /// 通期予想
-    /// </summary>
-    public class FullYearPerformanceForcast : ICloneable
-    {
-        /// <summary>
-        /// 決算期
-        /// </summary>
-        public string FiscalPeriod { get; internal set; }
-        /// <summary>
-        /// 修正日
-        /// </summary>
-        public DateTime RevisionDate { get; internal set; }
-        /// <summary>
-        /// 区分
-        /// </summary>
-        public string Category { get; internal set; }
-        /// <summary>
-        /// 修正方向
-        /// </summary>
-        public string RevisionDirection { get; internal set; }
-        /// <summary>
-        /// 売上高
-        /// </summary>
-        public string Revenue { get; internal set; }
-        /// <summary>
-        /// 営業益
-        /// </summary>
-        public string OperatingProfit { get; internal set; }
-        /// <summary>
-        /// 経常益
-        /// </summary>
-        public string OrdinaryProfit { get; internal set; }
-        /// <summary>
-        /// 最終益
-        /// </summary>
-        public string NetProfit { get; internal set; }
-        /// <summary>
-        /// 修正配当
-        /// </summary>
-        public string RevisedDividend { get; internal set; }
-        /// <summary>
-        /// 予想概要
-        /// </summary>
-        public string Summary { get; internal set; }
-        /// <summary>
-        /// 前回の予想
-        /// </summary>
-        public FullYearPerformanceForcast PreviousForcast { get; internal set; }
-
-        public object Clone()
-        {
-            // 浅いコピー（メンバーコピー）を返す
-            return this.MemberwiseClone();
-        }
-
-        /// <summary>
-        /// 下方修正を含むか？
-        /// </summary>
-        internal virtual bool HasDownwardRevision()
-        {
-            bool result = false;
-
-            if (this.Category != CommonUtils.Instance.ForecastCategoryString.Initial
-                && this.Category != CommonUtils.Instance.ForecastCategoryString.Final)
-            {
-                // 売上
-                if (CommonUtils.Instance.GetDouble(this.Revenue) < CommonUtils.Instance.GetDouble(this.PreviousForcast.Revenue)) result = true;
-                // 経常利益
-                if (CommonUtils.Instance.GetDouble(this.OrdinaryProfit) < CommonUtils.Instance.GetDouble(this.PreviousForcast.OrdinaryProfit)) result = true;
-                // 配当
-                if (CommonUtils.Instance.GetDouble(this.RevisedDividend) < CommonUtils.Instance.GetDouble(this.PreviousForcast.RevisedDividend)) result = true;
-            }
-
-            return result;
-        }
-
-        /// <summary>
-        /// 上方修正を含むか？
-        /// </summary>
-        internal virtual bool HasUpwardRevision()
-        {
-            bool result = false;
-
-            if (this.PreviousForcast == null) return result;
-
-            if (this.Category != CommonUtils.Instance.ForecastCategoryString.Initial)
-            {
-                // 売上
-                if (CommonUtils.Instance.GetDouble(this.Revenue) > CommonUtils.Instance.GetDouble(this.PreviousForcast.Revenue)) result = true;
-                // 経常利益
-                if (CommonUtils.Instance.GetDouble(this.OrdinaryProfit) > CommonUtils.Instance.GetDouble(this.PreviousForcast.OrdinaryProfit)) result = true;
-                // 配当
-                if (CommonUtils.Instance.GetDouble(this.RevisedDividend) > CommonUtils.Instance.GetDouble(this.PreviousForcast.RevisedDividend)) result = true;
-            }
-
-            return result;
-        }
-    }
-
-    public class ChartPrice : ICloneable
-    {
-        public virtual DateTime Date { get; internal set; }
-        public virtual double Price { get; internal set; }
-        public virtual double Volatility { get; internal set; }
-        public virtual double RSIL { get; internal set; }
-        public virtual double RSIS { get; internal set; }
-        /// <summary>
-        /// 単純移動平均値（25日）
-        /// </summary>
-        public virtual double SMA25 { get; internal set; }
-        /// <summary>
-        /// 単純移動平均値（75日）
-        /// </summary>
-        public virtual double SMA75 { get; internal set; }
-
-        /// <summary>
-        /// Moving Average Deviation（平均移動乖離）
-        /// 25日
-        /// </summary>
-        public virtual double MADS { get; internal set; }
-        /// <summary>
-        /// Moving Average Deviation（平均移動乖離）
-        /// 75日
-        /// </summary>
-        public virtual double MADL { get; internal set; }
-        /// <summary>
-        /// SMA25、SMA75の乖離値
-        /// </summary>
-        public virtual double SMAdev { get; internal set; }
-
-        public object Clone()
-        {
-            // 浅いコピー（メンバーコピー）を返す
-            return this.MemberwiseClone();
-        }
-
-        public virtual bool OverboughtIndicator()
-        {
-            bool result = false;
-
-            // RSIが閾値以下の場合
-            if (this.RSIL >= CommonUtils.Instance.ThresholdOfOverboughtRSI) result = true;
-            if (this.RSIS >= CommonUtils.Instance.ThresholdOfOverboughtRSI) result = true;
-
-            return result;
-        }
-
-        public virtual bool OversoldIndicator()
-        {
-            bool result = false;
-
-            // RSIが閾値以下の場合
-            if (this.RSIL <= CommonUtils.Instance.ThresholdOfOversoldRSI) result = true;
-            if (this.RSIS <= CommonUtils.Instance.ThresholdOfOversoldRSI) result = true;
-
-            return result;
-        }
-    }
-
-    public class Disclosure
-    {
-        public DateTime Datetime { get; internal set; }
-        public string Header { get; internal set; }
     }
 }
 

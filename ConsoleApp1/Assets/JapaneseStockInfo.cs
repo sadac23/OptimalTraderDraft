@@ -1,12 +1,18 @@
 using ConsoleApp1.Assets;
+using ConsoleApp1.Assets.Models;
 using ConsoleApp1.ExternalSource;
 using ConsoleApp1.Output;
 using System.Text;
 
 public class JapaneseStockInfo : AssetInfo
 {
-    public JapaneseStockInfo(WatchList.WatchStock watchStock)
-        : base(watchStock, new JapaneseStockUpdater(), new JapaneseStockFormatter()) { }
+    public JapaneseStockInfo(
+        WatchList.WatchStock watchStock,
+        IExternalSourceUpdatable updater,
+        IOutputFormattable formatter)
+        : base(watchStock, updater, formatter)
+    {
+    }
 
     // 必要に応じて日本株固有のプロパティやメソッドを追加可能
 }
@@ -147,7 +153,7 @@ public class JapaneseStockFormatter : IOutputFormattable
 
         count = 0;
         s = string.Empty;
-        foreach (AssetInfo.FullYearProfit p in stockInfo.FullYearProfits)
+        foreach (FullYearProfit p in stockInfo.FullYearProfits)
         {
             if (count > 0) s += "→";
             s += p.Roe;

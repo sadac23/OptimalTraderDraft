@@ -2,6 +2,7 @@ using System.Data.SQLite;
 using ConsoleApp1.Tests.Utils;
 using ConsoleApp1.Database;
 using ConsoleApp1.Assets;
+using ConsoleApp1.Assets.Models;
 
 namespace ConsoleApp1.Tests.Assets
 {
@@ -178,9 +179,9 @@ namespace ConsoleApp1.Tests.Assets
         public void CanSetAndGet_QuarterlyPerformances()
         {
             var stockInfo = CreateStockInfo();
-            var list = new List<AssetInfo.QuarterlyPerformance>
+            var list = new List<QuarterlyPerformance>
             {
-                new AssetInfo.QuarterlyPerformance
+                new QuarterlyPerformance
                 {
                     FiscalPeriod = "2023Q1",
                     Revenue = "1000",
@@ -191,7 +192,7 @@ namespace ConsoleApp1.Tests.Assets
                     AdjustedDividendPerShare = "5",
                     ReleaseDate = "2023-04-01"
                 },
-                new AssetInfo.QuarterlyPerformance
+                new QuarterlyPerformance
                 {
                     FiscalPeriod = "2023Q2",
                     Revenue = "1100",
@@ -211,11 +212,11 @@ namespace ConsoleApp1.Tests.Assets
         public void CanSetAndGet_ChartPrices()
         {
             var stockInfo = CreateStockInfo();
-            var prices = new List<AssetInfo.ChartPrice>
+            var prices = new List<ChartPrice>
             {
-                new AssetInfo.ChartPrice { Date = DateTime.Now, Price = 100 },
-                new AssetInfo.ChartPrice { Date = DateTime.Now.AddDays(1), Price = 200 },
-                new AssetInfo.ChartPrice { Date = DateTime.Now.AddDays(2), Price = 300 }
+                new ChartPrice { Date = DateTime.Now, Price = 100 },
+                new ChartPrice { Date = DateTime.Now.AddDays(1), Price = 200 },
+                new ChartPrice { Date = DateTime.Now.AddDays(2), Price = 300 }
             };
             stockInfo.ChartPrices = prices;
             Assert.Equal(prices, stockInfo.ChartPrices);
@@ -225,9 +226,9 @@ namespace ConsoleApp1.Tests.Assets
         public void CanSetAndGet_FullYearPerformancesForcasts()
         {
             var stockInfo = CreateStockInfo();
-            var forecasts = new List<AssetInfo.FullYearPerformanceForcast>
+            var forecasts = new List<FullYearPerformanceForcast>
             {
-                new AssetInfo.FullYearPerformanceForcast
+                new FullYearPerformanceForcast
                 {
                     FiscalPeriod = "2023",
                     RevisionDate = DateTime.Now,
@@ -240,7 +241,7 @@ namespace ConsoleApp1.Tests.Assets
                     RevisedDividend = "10",
                     Summary = "Forecast Summary"
                 },
-                new AssetInfo.FullYearPerformanceForcast
+                new FullYearPerformanceForcast
                 {
                     FiscalPeriod = "2024",
                     RevisionDate = DateTime.Now.AddMonths(1),
@@ -262,11 +263,11 @@ namespace ConsoleApp1.Tests.Assets
         public void CanSetAndGet_ScrapedPrices()
         {
             var stockInfo = CreateStockInfo();
-            var scraped = new List<AssetInfo.ScrapedPrice>
+            var scraped = new List<ScrapedPrice>
             {
-                new AssetInfo.ScrapedPrice { Date = DateTime.Now, Close = 1 },
-                new AssetInfo.ScrapedPrice { Date = DateTime.Now.AddDays(1), Close = 2 },
-                new AssetInfo.ScrapedPrice { Date = DateTime.Now.AddDays(2), Close = 3 }
+                new ScrapedPrice { Date = DateTime.Now, Close = 1 },
+                new ScrapedPrice { Date = DateTime.Now.AddDays(1), Close = 2 },
+                new ScrapedPrice { Date = DateTime.Now.AddDays(2), Close = 3 }
             };
             stockInfo.ScrapedPrices = scraped;
             Assert.Equal(scraped, stockInfo.ScrapedPrices);
@@ -276,9 +277,9 @@ namespace ConsoleApp1.Tests.Assets
         public void CanSetAndGet_FullYearProfits()
         {
             var stockInfo = CreateStockInfo();
-            var profits = new List<AssetInfo.FullYearProfit>
+            var profits = new List<FullYearProfit>
             {
-                new AssetInfo.FullYearProfit
+                new FullYearProfit
                 {
                     FiscalPeriod = "2023",
                     Revenue = "1000",
@@ -289,7 +290,7 @@ namespace ConsoleApp1.Tests.Assets
                     TotalAssetTurnover = "1.5",
                     AdjustedEarningsPerShare = "15"
                 },
-                new AssetInfo.FullYearProfit
+                new FullYearProfit
                 {
                     FiscalPeriod = "2024",
                     Revenue = "1100",
@@ -480,7 +481,7 @@ namespace ConsoleApp1.Tests.Assets
             CommonUtils.Instance.LastTradingDate = lastTradingDate;
 
             // LatestScrapedPriceを直近営業日でセット
-            stockInfo.LatestScrapedPrice = new AssetInfo.ScrapedPrice
+            stockInfo.LatestScrapedPrice = new ScrapedPrice
             {
                 Date = lastTradingDate,
                 Close = 999 // 特異値

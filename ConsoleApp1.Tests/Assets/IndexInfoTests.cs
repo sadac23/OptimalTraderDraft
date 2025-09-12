@@ -1,4 +1,5 @@
 using ConsoleApp1.Assets;
+using ConsoleApp1.Assets.Models;
 using Moq;
 using static ConsoleApp1.Assets.AssetInfo;
 
@@ -20,8 +21,8 @@ public class IndexInfoTests
                 IsFavorite = "1",
                 Memo = "テスト用"
             },
-            new IndexInfo.IndexUpdater(),
-            new IndexInfo.IndexFormatter()
+            new IndexUpdater(),
+            new IndexFormatter()
         ) { CallBase = true };
         mock.Setup(x => x.GetLastHistoryUpdateDay())
             .Returns(new DateTime(2024, 1, 1));
@@ -113,7 +114,7 @@ public class IndexFormatterTests
     public void ToOutputString_FormatsIndexInfoCorrectly()
     {
         // Arrange
-        var formatter = new IndexInfo.IndexFormatter();
+        var formatter = new IndexFormatter();
 
         // StockInfoのモック
         var stockInfo = new MockStockInfo();

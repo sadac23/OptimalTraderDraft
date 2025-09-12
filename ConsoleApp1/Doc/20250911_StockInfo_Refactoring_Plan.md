@@ -38,4 +38,107 @@
 - `StockInfo`の肥大化を防ぎ、派生クラスの実装を統一
 - 今後の拡張やテストが容易な設計に刷新することで、保守性・品質向上を実現
 
-ご参考ください。
+---
+
+## AssetInfoクラス リファクタリング案
+
+### 肥大化の主な要因
+
+- プロパティ数が非常に多く、データ構造とロジックが混在している
+- データ取得・計算・判定・DBアクセス・出力など異なる責務のメソッドが1クラスに集約されている
+- 内部クラス（ScrapedPrice, FullYearPerformance等）も多く、1ファイルの行数が膨大
+- Strategyパターンの導入は一部（updater/formatter）のみ
+
+### リファクタリング方針
+
+1. **責務ごとにクラス分割**
+   - AssetInfoは「データ保持」と「ロジック委譲」のみ担当
+   - 計算・判定・DBアクセス等は専用クラス/サービスに委譲
+
+2. **Strategyパターンの適用範囲拡大**
+   - 計算・判定ロジックもStrategy化し、差し替え可能に
+
+3. **内部クラスの外部化・共通化**
+   - ScrapedPrice, FullYearPerformance等は独立ファイル化し、再利用性を高める
+
+4. **DBアクセスのリポジトリパターン化**
+   - DB操作はRepositoryクラスに集約し、AssetInfoからDBアクセスを排除
+
+5. **派生クラスの責務明確化**
+   - 派生クラスはStrategyの組み合わせ指定のみとし、個別ロジックはStrategy実装側に集約
+
+### サンプル構成イメージ
+
+---
+
+## AssetInfoリファクタリング 段階的実施案
+
+### 段階的リファクタリングステップ
+
+1. **データクラスの外部化・整理**
+   - ScrapedPrice, FullYearPerformanceなどの内部クラスを独立ファイル化
+   - AssetInfoのプロパティ定義を整理し、データ構造の明確化
+
+   #### 外部化対象データクラス一覧
+
+   AssetInfoクラスから外部化すべきデータクラスは以下の通りです。これらは `ConsoleApp1.Assets.Models` 名前空間配下に独立ファイルとして整理します。
+
+   | クラス名                        | 主な役割・内容                           |
+   |----------------------------------|------------------------------------------|
+   | ScrapedPrice                    | 日次価格情報（株価履歴）                 |
+   | FullYearPerformance             | 通期業績情報                             |
+   | FullYearProfit                  | 通期収益情報                             |
+   | QuarterlyPerformance            | 四半期業績情報                           |
+   | FullYearPerformanceForcast      | 通期業績予想（および予想履歴）           |
+   | ChartPrice                      | チャート用価格情報（テクニカル指標含む） |
+   | Disclosure                      | 開示情報                                 |
+
+   **配置・名前空間例**
+
+   - ConsoleApp1\Assets\Models\ScrapedPrice.cs
+   - ConsoleApp1\Assets\Models\FullYearPerformance.cs
+   - ConsoleApp1\Assets\Models\FullYearProfit.cs
+   - ConsoleApp1\Assets\Models\QuarterlyPerformance.cs
+   - ConsoleApp1\Assets\Models\FullYearPerformanceForcast.cs
+   - ConsoleApp1\Assets\Models\ChartPrice.cs
+   - ConsoleApp1\Assets\Models\Disclosure.cs
+
+   すべて `namespace ConsoleApp1.Assets.Models` で統一します。
+
+2. **DBアクセスの分離**
+   - DBアクセス処理（履歴取得・保存など）をIAssetRepository/AssetHistoryRepositoryへ移動
+   - AssetInfoからDBアクセスコードを削除し、Repository経由に切り替え
+
+3. **計算・判定ロジックのStrategy化**
+   - PER計算や利回り判定などをIAssetCalculator/StockCalculator等に分離
+   - AssetInfoはStrategyインターフェース経由でロジックを呼び出す形に変更
+
+4. **アラート判定のStrategy化**
+   - アラート判定ロジックをIAlertEvaluator/DefaultAlertEvaluatorに分離
+   - AssetInfoはアラート判定もStrategy経由で実行
+
+5. **派生クラスの整理・統一**
+   - JapaneseStockInfo, JapaneseETFInfo, IndexInfo等の派生クラスをStrategyの組み合わせ指定のみで構築
+   - 個別ロジックはStrategy実装側に集約
+
+6. **テスト・リファクタリングの完了**
+   - 各Strategy/Repositoryの単体テストを作成
+   - AssetInfoの責務が「データ保持＋委譲」のみになっていることを確認
+
+---
+
+### 進め方のポイント
+
+- 各ステップごとに既存の動作確認・テストを必ず実施
+- 1ステップごとにコミットし、問題があればすぐにロールバックできるようにする
+- 既存利用箇所への影響を最小限に抑えつつ、段階的に移行
+
+---
+
+### まとめ
+
+- データ・ロジック・DBアクセス・出力・判定を明確に分離
+- Strategy/Repositoryパターンを徹底し、拡張性・テスト容易性・保守性を向上
+- 内部クラスや共通ロジックは独立ファイル化し再利用性を高める
+
+---

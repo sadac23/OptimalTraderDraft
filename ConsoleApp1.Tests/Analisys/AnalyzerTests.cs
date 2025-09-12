@@ -1,6 +1,7 @@
 using System.Data.SQLite;
 using ConsoleApp1.Database;
 using ConsoleApp1.Assets;
+using ConsoleApp1.Assets.Models;
 
 namespace ConsoleApp1.Tests.Analisys
 {
@@ -62,7 +63,7 @@ namespace ConsoleApp1.Tests.Analisys
             CommonUtils.Instance.LastTradingDate = lastTradingDate;
 
             // LatestScrapedPriceをhistoryに存在しない日付でセット
-            stockInfo.LatestScrapedPrice = new AssetInfo.ScrapedPrice
+            stockInfo.LatestScrapedPrice = new ScrapedPrice
             {
                 Date = lastTradingDate,
                 Close = 999 // テスト用の特異値
