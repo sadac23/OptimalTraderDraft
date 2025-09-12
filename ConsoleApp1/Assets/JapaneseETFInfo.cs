@@ -1,5 +1,6 @@
 ﻿// See https://aka.ms/new-console-template for more information
 using ConsoleApp1.Assets;
+using ConsoleApp1.Assets.Repositories;
 using ConsoleApp1.ExternalSource;
 using ConsoleApp1.Output;
 using System.Text;
@@ -9,8 +10,9 @@ internal class JapaneseETFInfo : AssetInfo
     public JapaneseETFInfo(
         WatchList.WatchStock watchStock,
         IExternalSourceUpdatable updater,
-        IOutputFormattable formatter)
-        : base(watchStock, updater, formatter)
+        IOutputFormattable formatter,
+        IAssetRepository repository)
+        : base(watchStock, updater, formatter, repository)
     {
     }
 
@@ -22,7 +24,6 @@ internal class JapaneseETFUpdater : IExternalSourceUpdatable
     public async Task UpdateFromExternalSourceAsync(AssetInfo assetInfo)
     {
         // ETF用の外部情報取得処理をここに実装
-        // 例: 各種スクレイパーやAPIを呼び出してassetInfoのプロパティを更新
         List<Task> tasks = new List<Task>();
 
         var yahooScraper = new YahooScraper();
@@ -46,7 +47,7 @@ internal class JapaneseETFUpdater : IExternalSourceUpdatable
                 // 株式分割がある場合は履歴をクリアして再取得
                 if (assetInfo.HasRecentStockSplitOccurred() && lastUpdateDay != CommonUtils.Instance.MasterStartDate)
                 {
-                    assetInfo.DeleteHistory(CommonUtils.Instance.ExecusionDate);
+                    await assetInfo.DeleteHistoryAsync(CommonUtils.Instance.ExecusionDate);
                     assetInfo.ScrapedPrices.Clear();
                     await yahooScraper.ScrapeHistory(assetInfo, CommonUtils.Instance.MasterStartDate, CommonUtils.Instance.ExecusionDate);
                 }
@@ -56,8 +57,6 @@ internal class JapaneseETFUpdater : IExternalSourceUpdatable
 
         // タスクの実行待ち
         await Task.WhenAll(tasks);
-
-        await Task.CompletedTask;
     }
 }
 

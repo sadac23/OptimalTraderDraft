@@ -46,7 +46,7 @@ namespace ConsoleApp1.Tests.Analisys
             public bool ShouldAlertResult { get; set; }
             public string OutputString { get; set; } = "";
 
-            public StockInfoMock() : base(new DummyWatchStock()) 
+            public StockInfoMock() : base(new WatchList.WatchStock())
             {
                 // 必要なコレクションも初期化（テスト安定化のため）
                 Executions = new List<ExecutionList.Execution>();

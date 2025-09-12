@@ -106,8 +106,52 @@
    すべて `namespace ConsoleApp1.Assets.Models` で統一します。
 
 2. **DBアクセスの分離**
-   - DBアクセス処理（履歴取得・保存など）をIAssetRepository/AssetHistoryRepositoryへ移動
+   - DBアクセス処理（履歴取得・保存など）をIAssetRepository/AssetRepositoryへ移動
    - AssetInfoからDBアクセスコードを削除し、Repository経由に切り替え
+
+   #### AssetInfoクラス内でIAssetRepositoryに処理を移譲すべきメソッド一覧
+
+   - `LoadHistoryAsync()`  
+     履歴データの取得。既にrepository経由で呼び出し済み。
+   - `SaveHistoryAsync()`  
+     履歴データの保存。既にrepository経由で呼び出し済み。
+   - `DeleteHistoryAsync(DateTime targetDate)`  
+     履歴データの削除。既にrepository経由で呼び出し済み。
+   - `GetPreviousForcasts()`  
+     通期業績予想履歴の取得。DBアクセス処理をrepositoryに移譲すべき。
+   - `GetLastHistoryUpdateDay()`  
+     履歴テーブルから最新日付を取得。DBアクセス処理をrepositoryに移譲すべき。
+   - `SetupChartPrices()`  
+     historyテーブルからチャート用データを取得。DBアクセス処理をrepositoryに移譲すべき。
+
+   ※上記メソッドは、直接`SQLiteConnection`や`SQLiteCommand`等でDBアクセスしている、またはリポジトリ経由にすべきデータ取得・保存処理を含みます。
+
+   - これらのメソッドのDBアクセス部分をIAssetRepositoryインターフェースで定義し、AssetRepository等の実装クラスに移動してください。
+   - AssetInfoはIAssetRepository経由でのみDB操作を行うようにリファクタリングします。
+
+   #### 具体的な実施案
+
+   - AssetInfoクラス内に存在するDBアクセス関連メソッド（例：履歴の取得・保存、キャッシュ登録、履歴削除など）をすべて抽出し、IAssetRepositoryインターフェースで定義する。
+   - DBアクセスの実装はAssetHistoryRepositoryクラスに集約し、SQLiteや他のDBアクセスロジックをこのクラスに移動する。
+   - AssetInfoはIAssetRepository型のフィールド/プロパティを持ち、必要なDB操作はRepository経由で呼び出す。
+   - 例：
+     - `Task<List<ScrapedPrice>> LoadHistoryAsync(string code);`
+     - `Task SaveHistoryAsync(string code, List<ScrapedPrice> prices);`
+     - `Task DeleteHistoryAsync(string code, DateTime targetDate);`
+   - テスト容易性向上のため、IAssetRepositoryはMock実装も容易にできるように設計する。
+   - 既存のDBアクセスコード（SQLiteCommand等）はAssetInfoから完全に排除し、Repositoryクラスにのみ存在させる。
+   - DI（依存性注入）を活用し、AssetInfoの利用側でリポジトリ実装を差し替え可能にする。
+
+   **メリット**
+   - DBアクセスの責務が明確になり、AssetInfoの肥大化を防止
+   - テスト時にDBアクセスをMockに差し替えやすくなる
+   - DBアクセスの共通化・再利用性向上
+   - DBアクセス層の変更（例：SQLite→SQL Server等）もRepository実装の差し替えのみで対応可能
+
+   **サンプル構成イメージ**
+
+   - ConsoleApp1\Assets\Repositories\IAssetRepository.cs
+   - ConsoleApp1\Assets\Repositories\AssetHistoryRepository.cs
 
 3. **計算・判定ロジックのStrategy化**
    - PER計算や利回り判定などをIAssetCalculator/StockCalculator等に分離

@@ -1,5 +1,6 @@
 using ConsoleApp1.Assets;
 using ConsoleApp1.Assets.Models;
+using ConsoleApp1.Assets.Repositories;
 using Moq;
 using static ConsoleApp1.Assets.AssetInfo;
 
@@ -22,7 +23,8 @@ public class IndexInfoTests
                 Memo = "テスト用"
             },
             new IndexUpdater(),
-            new IndexFormatter()
+            new IndexFormatter(),
+            new AssetRepository()
         ) { CallBase = true };
         mock.Setup(x => x.GetLastHistoryUpdateDay())
             .Returns(new DateTime(2024, 1, 1));

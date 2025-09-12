@@ -8,15 +8,16 @@ using System.Data.SQLite;
 using System.Globalization;
 using System.Text.RegularExpressions;
 using static ExecutionList;
-using ConsoleApp1.Database;
 using ConsoleApp1.Assets.Models;
+using ConsoleApp1.Assets.Repositories;
 
 namespace ConsoleApp1.Assets;
 
 public abstract class AssetInfo
 {
-    protected IExternalSourceUpdatable updater;
-    protected IOutputFormattable formatter;
+    protected IExternalSourceUpdatable _updater;
+    protected IOutputFormattable _formatter;
+    protected IAssetRepository _repository;
 
     protected AssetInfo(WatchList.WatchStock watchStock)
     {
@@ -33,12 +34,20 @@ public abstract class AssetInfo
         this.Disclosures = new List<Disclosure>();
     }
 
-    protected AssetInfo(WatchList.WatchStock watchStock, IExternalSourceUpdatable updater, IOutputFormattable formatter)
-        : this(watchStock) // ← これが明示的な呼び出し
+    protected AssetInfo(
+        WatchList.WatchStock watchStock
+        , IExternalSourceUpdatable updater
+        , IOutputFormattable formatter
+        , IAssetRepository repository)
+        : this(watchStock)
     {
-        this.updater = updater;
-        this.formatter = formatter;
+        this._updater = updater;
+        this._formatter = formatter;
+        this._repository = repository;
     }
+
+    // Repositoryプロパティを公開するためのアクセサを追加
+    public IAssetRepository Repository => _repository;
 
     /// <summary>
     /// コード
@@ -92,10 +101,6 @@ public abstract class AssetInfo
     /// [業績推移]タブの履歴
     /// </remarks>
     public virtual List<FullYearPerformance> FullYearPerformances { get; set; }
-    /// <summary>
-    /// 通期業績予想概要（例：増収増益増配（+50%,+50%,+50））
-    /// </summary>
-    public virtual string FullYearPerformanceForcastSummary { get; set; }
     /// <summary>
     /// 通期業績予想履歴
     /// </summary>
@@ -173,10 +178,6 @@ public abstract class AssetInfo
     /// 直近の株価
     /// </summary>
     public virtual ChartPrice LatestPrice { get { return this.ChartPrices.Count > 0 ? this.ChartPrices[0] : new ChartPrice(); } }
-    /// <summary>
-    /// 直近の株価日付
-    /// </summary>
-    //    public DateTime LatestPriceDate { get; internal set; }
     /// <summary>
     /// 信用買残
     /// </summary>
@@ -285,9 +286,21 @@ public abstract class AssetInfo
         return result;
     }
 
-    /// <summary>
-    /// 通期予想のサマリを更新する
-    /// </summary>
+    public async Task LoadHistoryAsync()
+    {
+        this.ScrapedPrices = await _repository.LoadHistoryAsync(this.Code);
+    }
+
+    public async Task SaveHistoryAsync()
+    {
+        await _repository.SaveHistoryAsync(this.Code, this.ScrapedPrices);
+    }
+
+    public async Task DeleteHistoryAsync(DateTime targetDate)
+    {
+        await _repository.DeleteHistoryAsync(this.Code, targetDate);
+    }
+
     internal void UpdateFullYearPerformanceForcastSummary()
     {
         foreach (var p in this.FullYearPerformancesForcasts)
@@ -930,35 +943,23 @@ public abstract class AssetInfo
     {
         var analizer = new Analyzer();
 
-        // GenericRepositoryを利用してhistoryテーブルからデータ取得
-        var repo = new GenericRepository(DbConnectionFactory.GetConnection());
-        var parameters = new Dictionary<string, object>
-    {
-        { "@code", this.Code }
-    };
-        // サブクエリの代わりにORDER BY DESC, LIMIT, その後昇順ソート
-        var rows = repo.GetRows(
-            "history",
-            "code = @code",
-            parameters,
-            "date DESC",
-            CommonUtils.Instance.ChartDays + 1
-        );
+        // Repository経由でチャート用履歴データを取得
+        var rows = _repository.GetChartPriceRows(this.Code, CommonUtils.Instance.ChartDays + 1);
 
         // rowsに直近営業日の日付のデータが存在しなかった場合、rowsにスクレイピングした最新の株価データを追加する
         if (this.LatestScrapedPrice != null &&
             !rows.Any(r => ((DateTime)r["date"]) == this.LatestScrapedPrice.Date))
         {
             var latestRow = new Dictionary<string, object>
-        {
-            { "code", this.Code },
-            { "date", this.LatestScrapedPrice.Date },
-            { "open", this.LatestScrapedPrice.Open },
-            { "high", this.LatestScrapedPrice.High },
-            { "low", this.LatestScrapedPrice.Low },
-            { "close", this.LatestScrapedPrice.Close },
-            { "volume", this.LatestScrapedPrice.Volume }
-        };
+            {
+                { "code", this.Code },
+                { "date", this.LatestScrapedPrice.Date },
+                { "open", this.LatestScrapedPrice.Open },
+                { "high", this.LatestScrapedPrice.High },
+                { "low", this.LatestScrapedPrice.Low },
+                { "close", this.LatestScrapedPrice.Close },
+                { "volume", this.LatestScrapedPrice.Volume }
+            };
             rows.Add(latestRow);
         }
 
@@ -1053,188 +1054,6 @@ public abstract class AssetInfo
     }
 
     /// <summary>
-    /// データベースへのキャッシュ登録
-    /// </summary>
-    private void RegisterCache()
-    {
-        // 株価履歴の登録
-        foreach (var p in this.ScrapedPrices)
-        {
-            if (!IsInHistory(p))
-            {
-                this.RegisterHistory(p);
-            }
-        }
-
-        // 株価履歴の削除
-        this.DeleteHistory(CommonUtils.Instance.ExecusionDate.AddMonths(-1 * CommonUtils.Instance.StockPriceHistoryMonths));
-
-        // 修正履歴の登録
-        foreach (var f in this.FullYearPerformancesForcasts)
-        {
-            if (!IsInForcastHistory(f))
-            {
-                RegisterForcastHistory(f);
-            }
-        }
-    }
-    /// <summary>
-    /// 通期予想履歴の登録
-    /// </summary>
-    /// <param name="f"></param>
-    private void RegisterForcastHistory(FullYearPerformanceForcast f)
-    {
-        SQLiteConnection connection = DbConnectionFactory.GetConnection();
-
-        // 挿入クエリ
-        string query = "INSERT INTO forcast_history (" +
-            "code" +
-            ", revision_date_string" +
-            ", revision_date" +
-            ", fiscal_period" +
-            ", category" +
-            ", revision_direction" +
-            ", revenue" +
-            ", operating_profit" +
-            ", ordinary_income" +
-            ", net_profit" +
-            ", revised_dividend" +
-            ") VALUES (" +
-            "@code" +
-            ", @revision_date_string" +
-            ", @revision_date" +
-            ", @fiscal_period" +
-            ", @category" +
-            ", @revision_direction" +
-            ", @revenue" +
-            ", @operating_profit" +
-            ", @ordinary_income" +
-            ", @net_profit" +
-            ", @revised_dividend" +
-            ")";
-
-        using (SQLiteCommand command = new SQLiteCommand(query, connection))
-        {
-            // パラメータを設定
-            command.Parameters.AddWithValue("@code", this.Code);
-            command.Parameters.AddWithValue("@revision_date_string", f.RevisionDate.ToString("yyyyMMdd"));
-            command.Parameters.AddWithValue("@revision_date", f.RevisionDate);
-            command.Parameters.AddWithValue("@fiscal_period", f.FiscalPeriod);
-            command.Parameters.AddWithValue("@category", f.Category);
-            command.Parameters.AddWithValue("@revision_direction", f.RevisionDirection);
-            command.Parameters.AddWithValue("@revenue", CommonUtils.Instance.GetDouble(f.Revenue));
-            command.Parameters.AddWithValue("@operating_profit", CommonUtils.Instance.GetDouble(f.OperatingProfit));
-            command.Parameters.AddWithValue("@ordinary_income", CommonUtils.Instance.GetDouble(f.OrdinaryProfit));
-            command.Parameters.AddWithValue("@net_profit", CommonUtils.Instance.GetDouble(f.NetProfit));
-            command.Parameters.AddWithValue("@revised_dividend", CommonUtils.Instance.GetDouble(f.RevisedDividend));
-
-            // クエリを実行
-            int rowsAffected = command.ExecuteNonQuery();
-
-            // 結果を表示
-            CommonUtils.Instance.Logger.LogInformation("forcast_history rows inserted: " + rowsAffected);
-        }
-    }
-
-    /// <summary>
-    /// 予想履歴の存在するか？
-    /// </summary>
-    /// <param name="f"></param>
-    /// <returns></returns>
-    private bool IsInForcastHistory(FullYearPerformanceForcast f)
-    {
-        SQLiteConnection connection = DbConnectionFactory.GetConnection();
-
-        // プライマリーキーに条件を設定したクエリ
-        string query = "SELECT count(code) as count FROM forcast_history WHERE code = @code and revision_date_string = @revision_date_string";
-
-        using (SQLiteCommand command = new SQLiteCommand(query, connection))
-        {
-            // パラメータを設定
-            command.Parameters.AddWithValue("@code", this.Code);
-            command.Parameters.AddWithValue("@revision_date_string", f.RevisionDate.ToString("yyyyMMdd"));
-
-            // COUNTの結果を取得
-            object result = command.ExecuteScalar();
-            int count = Convert.ToInt32(result);
-
-            return count > 0;
-        }
-    }
-    /// <summary>
-    /// 株価履歴の登録
-    /// </summary>
-    /// <param name="p"></param>
-    private void RegisterHistory(ScrapedPrice p)
-    {
-        SQLiteConnection connection = DbConnectionFactory.GetConnection();
-
-        // 挿入クエリ
-        string query = "INSERT INTO history (" +
-            "code" +
-            ", date_string" +
-            ", date" +
-            ", open" +
-            ", high" +
-            ", low" +
-            ", close" +
-            ", volume" +
-            ") VALUES (" +
-            "@code" +
-            ", @date_string" +
-            ", @date" +
-            ", @open" +
-            ", @high" +
-            ", @low" +
-            ", @close" +
-            ", @volume" +
-            ")";
-
-        using (SQLiteCommand command = new SQLiteCommand(query, connection))
-        {
-            // パラメータを設定
-            command.Parameters.AddWithValue("@code", this.Code);
-            command.Parameters.AddWithValue("@date_string", p.DateYYYYMMDD);
-            command.Parameters.AddWithValue("@date", p.Date);
-            command.Parameters.AddWithValue("@open", p.Open);
-            command.Parameters.AddWithValue("@high", p.High);
-            command.Parameters.AddWithValue("@low", p.Low);
-            command.Parameters.AddWithValue("@close", p.AdjustedClose);     //調整後終値を格納
-            command.Parameters.AddWithValue("@volume", p.Volume);
-
-            // クエリを実行
-            int rowsAffected = command.ExecuteNonQuery();
-
-            // 結果を表示
-            CommonUtils.Instance.Logger.LogInformation("history rows inserted: " + rowsAffected);
-        }
-    }
-
-    /// <summary>
-    /// 履歴に存在するか？
-    /// </summary>
-    private bool IsInHistory(ScrapedPrice p)
-    {
-        SQLiteConnection connection = DbConnectionFactory.GetConnection();
-
-        // プライマリーキーに条件を設定したクエリ
-        string query = "SELECT count(code) as count FROM history WHERE code = @code and date_string = @date_string";
-
-        using (SQLiteCommand command = new SQLiteCommand(query, connection))
-        {
-            // パラメータを設定
-            command.Parameters.AddWithValue("@code", this.Code);
-            command.Parameters.AddWithValue("@date_string", p.DateYYYYMMDD);
-
-            // COUNTの結果を取得
-            object result = command.ExecuteScalar();
-            int count = Convert.ToInt32(result);
-
-            return count > 0;
-        }
-    }
-
-    /// <summary>
     /// 四半期決算直後であるか？
     /// </summary>
     internal virtual bool IsAfterQuarterEnd()
@@ -1294,9 +1113,6 @@ public abstract class AssetInfo
     /// </summary>
     internal void Setup()
     {
-        // キャッシュ最新化
-        RegisterCache();
-
         // 通期予想の更新
         UpdateFullYearPerformancesForcasts();
 
@@ -1363,121 +1179,26 @@ public abstract class AssetInfo
     }
 
     /// <summary>
-    /// 前期の通期予測を取得する
+    /// 前期の通期予測を取得する（リポジトリパターン対応）
     /// </summary>
     /// <returns></returns>
     private List<FullYearPerformanceForcast> GetPreviousForcasts()
     {
-        List<FullYearPerformanceForcast> result = new List<FullYearPerformanceForcast>();
+        // カレント決算月が取得できていない場合は空リストを返す
+        if (this.CurrentFiscalMonth == DateTime.MinValue) return new List<FullYearPerformanceForcast>();
 
+        // repositoryに取得処理を委譲（IAssetRepositoryにGetPreviousForcastsを追加しておくこと）
         try
         {
-            // カレント決算月が取得できていない場合は抜ける
-            if (this.CurrentFiscalMonth == DateTime.MinValue) return result;
-
-            SQLiteConnection connection = DbConnectionFactory.GetConnection();
-
-            // プライマリーキーに条件を設定したクエリ
-            string query = "SELECT * FROM forcast_history WHERE code = @code and fiscal_period = @fiscal_period ORDER BY revision_date";
-
-            using (SQLiteCommand command = new SQLiteCommand(query, connection))
-            {
-                // パラメータを設定
-                command.Parameters.AddWithValue("@code", this.Code);
-                command.Parameters.AddWithValue("@fiscal_period", this.CurrentFiscalMonth.AddYears(-1).ToString("yyyy.MM"));
-
-                using (SQLiteDataReader reader = command.ExecuteReader())
-                {
-                    FullYearPerformanceForcast cloneF = null;
-
-                    while (reader.Read())
-                    {
-                        // カラム名を指定してデータを取得
-                        string code = reader.GetString(reader.GetOrdinal("code"));
-                        string revisionDateString = reader.GetString(reader.GetOrdinal("revision_date_string"));
-                        DateTime revisionDate = reader.GetDateTime(reader.GetOrdinal("revision_date"));
-                        string fiscalPeriod = reader.GetString(reader.GetOrdinal("fiscal_period"));
-                        string category = reader.GetString(reader.GetOrdinal("category"));
-                        string revisionDirection = reader.GetString(reader.GetOrdinal("revision_direction"));
-
-                        // 不具合でdouble項目に文字列が格納されているため、どちらも読むための対策
-                        double revenue = GetDouble(reader, "revenue");
-                        double operatingProfit = GetDouble(reader, "operating_profit");
-                        double ordinaryIncome = GetDouble(reader, "ordinary_income");
-                        double netProfit = GetDouble(reader, "net_profit");
-                        double revisedDividend = GetDouble(reader, "revised_dividend");
-
-                        FullYearPerformanceForcast f = new FullYearPerformanceForcast()
-                        {
-                            Category = category,
-                            FiscalPeriod = fiscalPeriod,
-                            RevisionDate = revisionDate,
-                            NetProfit = netProfit.ToString(),
-                            OperatingProfit = operatingProfit.ToString(),
-                            OrdinaryProfit = ordinaryIncome.ToString(),
-                            RevisionDirection = revisionDirection,
-                            Revenue = revenue.ToString(),
-                            RevisedDividend = revisedDividend.ToString(),
-                            Summary = string.Empty,
-                            PreviousForcast = cloneF,
-                        };
-                        // 前回分の保持
-                        cloneF = (FullYearPerformanceForcast)f.Clone();
-
-                        result.Add(f);
-                    }
-                }
-            }
+            string fiscalPeriod = this.CurrentFiscalMonth.AddYears(-1).ToString("yyyy.MM");
+            var result = _repository.GetPreviousForcasts(this.Code, fiscalPeriod);
+            return result ?? new List<FullYearPerformanceForcast>();
         }
         catch
         {
-            // 例外は無視する。
+            // 例外は無視し、空リストを返す
+            return new List<FullYearPerformanceForcast>();
         }
-
-        return result;
-    }
-
-    private double GetDouble(SQLiteDataReader reader, string v)
-    {
-        double result = 0;
-        try
-        {
-            // まずstringで取得
-            result = ConvertToDouble(reader.GetString(reader.GetOrdinal(v)));
-        }
-        catch
-        {
-            // 失敗したらobjectで取得
-            result = ConvertToDouble(reader.GetValue(reader.GetOrdinal(v)));
-        }
-        return result;
-    }
-
-    private double ConvertToDouble(object input)
-    {
-        if (input == null) return 0;
-
-        // 文字列の場合はカンマを除去
-        if (input is string strInput)
-        {
-            strInput = strInput.Replace(",", "");
-            if (double.TryParse(strInput, NumberStyles.Any, CultureInfo.InvariantCulture, out double value))
-            {
-                return value;
-            }
-        }
-        // 数値型ならそのまま変換
-        else if (input is IConvertible)
-        {
-            try
-            {
-                return Convert.ToDouble(input, CultureInfo.InvariantCulture);
-            }
-            catch (FormatException) { }
-            catch (InvalidCastException) { }
-        }
-
-        return 0;
     }
 
     /// <summary>
@@ -1636,56 +1357,19 @@ public abstract class AssetInfo
 
         return result;
     }
-    /// <summary>
-    /// 株価履歴の削除
-    /// </summary>
-    /// <param name="target"></param>
-    internal void DeleteHistory(DateTime target)
-    {
-        SQLiteConnection connection = DbConnectionFactory.GetConnection();
-        // 挿入クエリ
-        string query = "DELETE FROM history WHERE code = @code and date <= @date";
-
-        using (SQLiteCommand command = new SQLiteCommand(query, connection))
-        {
-            // パラメータを設定
-            command.Parameters.AddWithValue("@code", this.Code);
-            command.Parameters.AddWithValue("@date", target);
-
-            // クエリを実行
-            int rowsAffected = command.ExecuteNonQuery();
-
-            // 結果を表示
-            CommonUtils.Instance.Logger.LogInformation($"History Rows deleted: {rowsAffected}");
-        }
-    }
 
     public virtual DateTime GetLastHistoryUpdateDay()
     {
-        DateTime result = CommonUtils.Instance.MasterStartDate;
-
-        SQLiteConnection connection = DbConnectionFactory.GetConnection();
-
-        // プライマリーキーに条件を設定したクエリ
-        string query = $"SELECT IFNULL(MAX(date), @max_date) FROM history WHERE code = @code";
-
-        using (SQLiteCommand command = new SQLiteCommand(query, connection))
+        // repositoryに処理を委譲する形にリファクタリング
+        try
         {
-            // パラメータを設定
-            command.Parameters.AddWithValue("@code", this.Code);
-            command.Parameters.AddWithValue("@max_date", CommonUtils.Instance.MasterStartDate);
-
-            // データリーダーを使用して結果を取得
-            using (SQLiteDataReader reader = command.ExecuteReader())
-            {
-                if (reader.HasRows && reader.Read())
-                {
-                    result = reader.GetDateTime(0);
-                }
-            }
+            return _repository.GetLastHistoryUpdateDay(this.Code);
         }
-
-        return result;
+        catch
+        {
+            // 例外時は従来通りMasterStartDateを返す
+            return CommonUtils.Instance.MasterStartDate;
+        }
     }
 
     /// <summary>
@@ -1693,7 +1377,7 @@ public abstract class AssetInfo
     /// </summary>
     /// <remarks>各サイトの情報を非同期で取得してインスタンスに設定する。</remarks>
     internal virtual async Task UpdateFromExternalSource()
-     => await updater.UpdateFromExternalSourceAsync(this);
+     => await _updater.UpdateFromExternalSourceAsync(this);
 
     internal virtual bool ShouldAlert()
     {
@@ -1825,26 +1509,32 @@ public abstract class AssetInfo
     {
         if ((watchStock.Classification == CommonUtils.Instance.Classification.JapaneseETFs))
         {
-            return new JapaneseETFInfo(watchStock,
+            return new JapaneseETFInfo(
+                watchStock,
                 new JapaneseETFUpdater(),
-                new JapaneseETFFormatter());
+                new JapaneseETFFormatter(),
+                new AssetRepository());
         }
         else if ((watchStock.Classification == CommonUtils.Instance.Classification.Indexs))
         {
-            return new IndexInfo(watchStock,
+            return new IndexInfo(
+                watchStock,
                 new IndexUpdater(),
-                new IndexFormatter());
+                new IndexFormatter(),
+                new AssetRepository());
         }
         else
         {
-            return new JapaneseStockInfo(watchStock,
+            return new JapaneseStockInfo(
+                watchStock,
                 new JapaneseStockUpdater(),
-                new JapaneseStockFormatter());
+                new JapaneseStockFormatter(),
+                new AssetRepository());
         }
     }
 
     internal virtual string ToOutputString()
-        => formatter.ToOutputString(this);
+        => _formatter.ToOutputString(this);
 
     internal virtual bool IsGranvilleCase1Matched()
     {

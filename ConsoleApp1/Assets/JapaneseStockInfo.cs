@@ -1,20 +1,24 @@
 using ConsoleApp1.Assets;
 using ConsoleApp1.Assets.Models;
+using ConsoleApp1.Assets.Repositories;
 using ConsoleApp1.ExternalSource;
 using ConsoleApp1.Output;
 using System.Text;
 
 public class JapaneseStockInfo : AssetInfo
 {
+    // 新しいRepository対応のコンストラクタ（推奨）
     public JapaneseStockInfo(
         WatchList.WatchStock watchStock,
         IExternalSourceUpdatable updater,
-        IOutputFormattable formatter)
-        : base(watchStock, updater, formatter)
+        IOutputFormattable formatter,
+        IAssetRepository repository)
+        : base(watchStock, updater, formatter, repository)
     {
     }
 
     // 必要に応じて日本株固有のプロパティやメソッドを追加可能
+
 }
 
 public class JapaneseStockUpdater : IExternalSourceUpdatable
@@ -22,7 +26,6 @@ public class JapaneseStockUpdater : IExternalSourceUpdatable
     public async Task UpdateFromExternalSourceAsync(AssetInfo stockInfo)
     {
         // 日本株用の外部情報取得処理をここに実装
-        // 例: 各種スクレイパーやAPIを呼び出してstockInfoのプロパティを更新
         List<Task> tasks = new List<Task>();
 
         var yahooScraper = new YahooScraper();
@@ -59,26 +62,19 @@ public class JapaneseStockUpdater : IExternalSourceUpdatable
         });
         tasks.Add(yahooProfile);
 
-        //Task yahooDisclosure = Task.Run(async () =>
-        //{
-        //    await yahooScraper.ScrapeDisclosure(this);
-        //});
-        //tasks.Add(yahooDisclosure);
-
         Task yahooHistory = Task.Run(async () =>
         {
-            // 履歴更新の最終日を取得（なければ基準開始日を取得）
             var lastUpdateDay = stockInfo.GetLastHistoryUpdateDay();
 
-            // 最終更新後に直近営業日がある場合は履歴取得
             if (CommonUtils.Instance.LastTradingDate > lastUpdateDay)
             {
                 await yahooScraper.ScrapeHistory(stockInfo, lastUpdateDay, CommonUtils.Instance.ExecusionDate);
 
-                // 株式分割がある場合は履歴をクリアして再取得
                 if (stockInfo.HasRecentStockSplitOccurred() && lastUpdateDay != CommonUtils.Instance.MasterStartDate)
                 {
-                    stockInfo.DeleteHistory(CommonUtils.Instance.ExecusionDate);
+                    // Repositoryパターン対応：DB削除は非同期メソッドを利用
+                    if (stockInfo.Repository != null)
+                        await stockInfo.DeleteHistoryAsync(CommonUtils.Instance.ExecusionDate);
                     stockInfo.ScrapedPrices.Clear();
                     await yahooScraper.ScrapeHistory(stockInfo, CommonUtils.Instance.MasterStartDate, CommonUtils.Instance.ExecusionDate);
                 }
@@ -86,10 +82,7 @@ public class JapaneseStockUpdater : IExternalSourceUpdatable
         });
         tasks.Add(yahooHistory);
 
-        // タスクの実行待ち
         await Task.WhenAll(tasks);
-
-        await Task.CompletedTask;
     }
 }
 
@@ -97,8 +90,7 @@ public class JapaneseStockFormatter : IOutputFormattable
 {
     public string ToOutputString(AssetInfo stockInfo)
     {
-        // 日本株用の出力処理をここに実装
-        // 必要に応じてstockInfoのプロパティを参照し、出力フォーマットを整形
+        // 既存の出力処理をそのまま維持
         StringBuilder sb = new StringBuilder();
 
         var mark = CommonUtils.Instance.BadgeString.ShouldWatch;
@@ -129,7 +121,6 @@ public class JapaneseStockFormatter : IOutputFormattable
                 $",{stockInfo.ShareholderBenefitRecordDay}" +
                 $"）{(stockInfo.IsCloseToShareholderBenefitRecordDate() ? mark : string.Empty)}");
 
-        // 通期予想履歴
         foreach (var p in stockInfo.FullYearPerformancesForcasts)
         {
             if (count == 0) sb.AppendLine($"通期予想（前期比）：");
@@ -203,7 +194,6 @@ public class JapaneseStockFormatter : IOutputFormattable
             count++;
         }
 
-        //チャート：
         sb.AppendLine($"チャート（RSI）：");
         foreach (var p in stockInfo.ChartPrices)
         {
@@ -219,7 +209,6 @@ public class JapaneseStockFormatter : IOutputFormattable
 
         if (!string.IsNullOrEmpty(stockInfo.Memo))
         {
-            //メモ：
             sb.AppendLine($"メモ：");
             sb.AppendLine(stockInfo.Memo);
         }
