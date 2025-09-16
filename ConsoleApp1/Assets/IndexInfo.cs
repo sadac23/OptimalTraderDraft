@@ -1,19 +1,22 @@
 ﻿// See https://aka.ms/new-console-template for more information
 using System.Text;
 using ConsoleApp1.Assets;
+using ConsoleApp1.Assets.Calculators;
 using ConsoleApp1.Assets.Repositories;
 using ConsoleApp1.ExternalSource;
 using ConsoleApp1.Output;
 
 public class IndexInfo : AssetInfo
 {
+
     // Repository対応の新コンストラクタ（推奨）
     public IndexInfo(
         WatchList.WatchStock watchStock,
         IExternalSourceUpdatable updater,
         IOutputFormattable formatter,
-        IAssetRepository repository)
-        : base(watchStock, updater, formatter, repository)
+        IAssetRepository repository,
+        IAssetJudgementStrategy judgementStrategy)
+        : base(watchStock, updater, formatter, repository, judgementStrategy)
     {
         // 必要に応じて初期化処理を追加
     }

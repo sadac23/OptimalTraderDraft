@@ -1,4 +1,5 @@
 using ConsoleApp1.Assets;
+using ConsoleApp1.Assets.Calculators;
 using ConsoleApp1.Assets.Models;
 using ConsoleApp1.Assets.Repositories;
 using ConsoleApp1.ExternalSource;
@@ -12,8 +13,9 @@ public class JapaneseStockInfo : AssetInfo
         WatchList.WatchStock watchStock,
         IExternalSourceUpdatable updater,
         IOutputFormattable formatter,
-        IAssetRepository repository)
-        : base(watchStock, updater, formatter, repository)
+        IAssetRepository repository,
+        IAssetJudgementStrategy judgementStrategy)
+        : base(watchStock, updater, formatter, repository, judgementStrategy)
     {
     }
 

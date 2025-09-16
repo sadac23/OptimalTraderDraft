@@ -10,6 +10,7 @@ using System.Text.RegularExpressions;
 using static ExecutionList;
 using ConsoleApp1.Assets.Models;
 using ConsoleApp1.Assets.Repositories;
+using ConsoleApp1.Assets.Calculators;
 
 namespace ConsoleApp1.Assets;
 
@@ -18,6 +19,9 @@ public abstract class AssetInfo
     protected IExternalSourceUpdatable _updater;
     protected IOutputFormattable _formatter;
     protected IAssetRepository _repository;
+
+    // 判定系ストラテジー
+    protected IAssetJudgementStrategy _judgementStrategy;
 
     protected AssetInfo(WatchList.WatchStock watchStock)
     {
@@ -38,12 +42,14 @@ public abstract class AssetInfo
         WatchList.WatchStock watchStock
         , IExternalSourceUpdatable updater
         , IOutputFormattable formatter
-        , IAssetRepository repository)
+        , IAssetRepository repository
+        , IAssetJudgementStrategy judgementStrategy)
         : this(watchStock)
     {
         this._updater = updater;
         this._formatter = formatter;
         this._repository = repository;
+        this._judgementStrategy = judgementStrategy;
     }
 
     // Repositoryプロパティを公開するためのアクセサを追加
@@ -267,24 +273,78 @@ public abstract class AssetInfo
     /// </summary>
     public List<Disclosure> Disclosures { get; set; }
 
-    /// <summary>
-    /// 現在、所有しているか？
-    /// </summary>
-    /// <remarks>
-    /// 買売の株数比較で判定すると、分割時にうまく判定できない。
-    /// 約定リストで売り約定が存在していない買い約定が存在しているか否かで判定する。
-    /// </remarks>
+    // --- 判定系メソッドはすべてストラテジー委譲に統一 ---
+
+    public virtual bool IsPERUndervalued(bool isLenient = false)
+        => _judgementStrategy.IsPERUndervalued(this, isLenient);
+
+    internal virtual bool IsPBRUndervalued(bool isLenient = false)
+        => _judgementStrategy.IsPBRUndervalued(this, isLenient);
+
+    internal bool IsROEAboveThreshold()
+        => _judgementStrategy.IsROEAboveThreshold(this);
+
+    internal virtual bool IsAnnualProgressOnTrack()
+        => _judgementStrategy.IsAnnualProgressOnTrack(this);
+
+    public virtual bool IsHighYield()
+        => _judgementStrategy.IsHighYield(this);
+
+    internal virtual bool IsHighMarketCap()
+        => _judgementStrategy.IsHighMarketCap(this);
+
+    internal bool IsCloseToDividendRecordDate()
+        => _judgementStrategy.IsCloseToDividendRecordDate(this);
+
+    internal bool IsCloseToShareholderBenefitRecordDate()
+        => _judgementStrategy.IsCloseToShareholderBenefitRecordDate(this);
+
+    internal virtual bool IsCloseToQuarterEnd()
+        => _judgementStrategy.IsCloseToQuarterEnd(this);
+
+    internal virtual bool IsAfterQuarterEnd()
+        => _judgementStrategy.IsAfterQuarterEnd(this);
+
+    internal virtual bool IsQuarterEnd()
+        => _judgementStrategy.IsQuarterEnd(this);
+
+    internal virtual bool IsJustSold()
+        => _judgementStrategy.IsJustSold(this);
+
     public virtual bool IsOwnedNow()
-    {
-        var result = false;
+        => _judgementStrategy.IsOwnedNow(this);
 
-        foreach (var e in this.Executions)
-        {
-            if (e.BuyOrSell == CommonUtils.Instance.BuyOrSellString.Buy && !e.HasSellExecuted) result = true;
-        }
+    internal bool IsGoldenCrossPossible()
+        => _judgementStrategy.IsGoldenCrossPossible(this);
 
-        return result;
-    }
+    internal virtual bool HasRecentStockSplitOccurred()
+        => _judgementStrategy.HasRecentStockSplitOccurred(this);
+
+    internal bool ShouldAverageDown(Execution e)
+        => _judgementStrategy.ShouldAverageDown(this, e);
+
+    internal virtual bool IsGranvilleCase1Matched()
+        => _judgementStrategy.IsGranvilleCase1Matched(this);
+
+    internal virtual bool IsGranvilleCase2Matched()
+        => _judgementStrategy.IsGranvilleCase2Matched(this);
+
+    internal virtual bool HasDisclosure()
+        => _judgementStrategy.HasDisclosure(this);
+
+    internal virtual bool IsRecordDate()
+        => _judgementStrategy.IsRecordDate(this);
+
+    internal virtual bool IsAfterRecordDate()
+        => _judgementStrategy.IsAfterRecordDate(this);
+
+    internal virtual bool IsCloseToRecordDate()
+        => _judgementStrategy.IsCloseToRecordDate(this);
+
+    internal bool ExtractAndValidateDateWithinOneMonth()
+        => _judgementStrategy.ExtractAndValidateDateWithinOneMonth(this);
+
+    // --- 既存のデータ取得・計算・DBアクセス・出力等のメソッドはそのまま残す ---
 
     public async Task LoadHistoryAsync()
     {
@@ -609,99 +669,7 @@ public abstract class AssetInfo
             Console.WriteLine(ex.Message);
         }
     }
-    /// <summary>
-    /// 配当権利確定日が近いか？
-    /// </summary>
-    /// <remarks>配当権利確定日が当月以内の場合にtrueを返す。</remarks>
-    internal bool IsCloseToDividendRecordDate()
-    {
-        return IsWithinMonths(this.DividendRecordDateMonth, 0);
-    }
 
-    public static bool IsWithinMonths(string monthsStr, short m)
-    {
-        try
-        {
-            if (string.IsNullOrEmpty(monthsStr)) return false;
-
-            // 現在の月を取得
-            int currentMonth = DateTime.Now.Month;
-
-            // 月文字列を分割してリストに変換
-            string[] monthArray = monthsStr.Split(',');
-            List<int> months = new List<int>();
-
-            foreach (string monthStr in monthArray)
-            {
-                int month = ParseMonth(monthStr.Trim());
-                months.Add(month);
-            }
-
-            // 当月から指定月数以内の月をリストにする
-            List<int> validMonths = new List<int>();
-            for (int i = 0; i <= m; i++)
-            {
-                int validMonth = (currentMonth + i - 1) % 12 + 1;
-                validMonths.Add(validMonth);
-            }
-
-            // 指定された月が当月から1か月以内に含まれているかを判定
-            foreach (int month in months)
-            {
-                if (validMonths.Contains(month))
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-        catch (Exception ex)
-        {
-            return false;
-        }
-    }
-
-    private static int ParseMonth(string monthStr)
-    {
-        // "3月"のような文字列から月を抽出
-        if (monthStr.EndsWith("月"))
-        {
-            monthStr = monthStr.Substring(0, monthStr.Length - 1);
-        }
-
-        // 月を整数に変換
-        return int.Parse(monthStr, CultureInfo.InvariantCulture);
-    }
-    /// <summary>
-    /// PERが割安か？
-    /// </summary>
-    /// <param name="isLenient">緩めに判定するか？</param>
-    public virtual bool IsPERUndervalued(bool isLenient = false)
-    {
-        bool result = false;
-        double threshold = isLenient ? this.AveragePer * CommonUtils.Instance.LenientFactor : this.AveragePer;
-        if (this.Per > 0 && this.Per < threshold) result = true;
-        return result;
-    }
-
-    /// <summary>
-    /// PBRが割安か？
-    /// </summary>
-    internal virtual bool IsPBRUndervalued(bool isLenient = false)
-    {
-        bool result = false;
-        double threshold = isLenient ? this.AveragePbr * CommonUtils.Instance.LenientFactor : this.AveragePbr;
-        if (this.Pbr > 0 && this.Pbr < threshold) result = true;
-        return result;
-    }
-    /// <summary>
-    /// 最新のROE予想が基準値以上か？
-    /// </summary>
-    internal bool IsROEAboveThreshold()
-    {
-        return (this.FullYearProfits[this.FullYearProfits.Count - 1].Roe >= CommonUtils.Instance.ThresholdOfROE ? true : false);
-    }
     internal void UpdateProgress()
     {
         double fullYearOrdinaryIncome = 0;
@@ -833,111 +801,6 @@ public abstract class AssetInfo
             return DateTime.Now;
         }
     }
-    /// <summary>
-    /// 通期進捗が順調か？
-    /// </summary>
-    internal virtual bool IsAnnualProgressOnTrack()
-    {
-        bool result = false;
-
-        // 前期以上かつ、進捗良好の判定基準値以上か？
-        if (this.QuarterlyFullyearProgressRate >= this.PreviousFullyearProgressRate)
-        {
-            if (this.LastQuarterPeriod == CommonUtils.Instance.QuarterString.Quarter1)
-            {
-                if (this.QuarterlyFullyearProgressRate >= CommonUtils.Instance.ThresholdOfProgressSuccess.Q1) result = true;
-            }
-            else if (this.LastQuarterPeriod == CommonUtils.Instance.QuarterString.Quarter2)
-            {
-                if (this.QuarterlyFullyearProgressRate >= CommonUtils.Instance.ThresholdOfProgressSuccess.Q2) result = true;
-            }
-            else if (this.LastQuarterPeriod == CommonUtils.Instance.QuarterString.Quarter3)
-            {
-                if (this.QuarterlyFullyearProgressRate >= CommonUtils.Instance.ThresholdOfProgressSuccess.Q3) result = true;
-            }
-            else if (this.LastQuarterPeriod == CommonUtils.Instance.QuarterString.Quarter4)
-            {
-                if (this.QuarterlyFullyearProgressRate >= CommonUtils.Instance.ThresholdOfProgressSuccess.Q4) result = true;
-            }
-        }
-
-        return result;
-    }
-    /// <summary>
-    /// 利回りが高いか？
-    /// </summary>
-    public virtual bool IsHighYield()
-    {
-        bool result = false;
-
-        if ((this.DividendYield + this.ShareholderBenefitYield) > CommonUtils.Instance.ThresholdOfYield) result = true;
-
-        return result;
-    }
-
-    /// <summary>
-    /// 時価総額が高いか？
-    /// </summary>
-    internal virtual bool IsHighMarketCap()
-    {
-        bool result = false;
-        if (this.MarketCap > CommonUtils.Instance.ThresholdOfMarketCap) result = true;
-        return result;
-    }
-
-    /// <summary>
-    /// 優待権利確定日が近いか？
-    /// </summary>
-    /// <remarks>優待権利確定日が当月以内の場合にtrueを返す。</remarks>
-    internal bool IsCloseToShareholderBenefitRecordDate()
-    {
-        return IsWithinMonths(this.ShareholderBenefitRecordMonth, 0);
-    }
-
-    internal bool ExtractAndValidateDateWithinOneMonth()
-    {
-        if (string.IsNullOrEmpty(this.PressReleaseDate)) return false;
-
-        // 正規表現を使用して日付を抽出
-        var datePattern = @"\d{4}年\d{1,2}月\d{1,2}日";
-        var match = Regex.Match(this.PressReleaseDate, datePattern);
-
-        if (match.Success)
-        {
-            // 抽出した日付をDateTimeに変換
-            if (DateTime.TryParseExact(match.Value, "yyyy年M月d日", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime extractedDate))
-            {
-                // 指定日付から前後1か月以内かを判定
-                var oneMonthBefore = CommonUtils.Instance.ExecusionDate.AddMonths(-1);
-                var oneMonthAfter = CommonUtils.Instance.ExecusionDate.AddMonths(1);
-
-                return extractedDate >= oneMonthBefore && extractedDate <= oneMonthAfter;
-            }
-        }
-
-        // 日付が抽出できなかった場合、または変換に失敗した場合はfalseを返す
-        return false;
-    }
-
-    /// <summary>
-    /// 対象約定はナンピンするべきか？
-    /// </summary>
-    internal bool ShouldAverageDown(Execution e)
-    {
-        var result = false;
-
-        // 売却済でない買約定
-        if (e.BuyOrSell == CommonUtils.Instance.BuyOrSellString.Buy && !e.HasSellExecuted)
-        {
-            // 変動率がナンピン閾値以下の場合
-            if (((this.LatestPrice.Price / e.Price) - 1) <= CommonUtils.Instance.ThresholdOfAverageDown)
-            {
-                result = true;
-            }
-        }
-
-        return result;
-    }
 
     internal void SetupChartPrices()
     {
@@ -1005,112 +868,6 @@ public abstract class AssetInfo
         this.ChartPrices = prices.OrderByDescending(p => p.Date).Take(CommonUtils.Instance.ChartDays).ToList();
     }
 
-    /// <summary>
-    /// 四半期決算日が近いか？
-    /// </summary>
-    internal virtual bool IsCloseToQuarterEnd()
-    {
-        bool result = false;
-
-        if (string.IsNullOrEmpty(this.PressReleaseDate)) return result;
-
-        // 正規表現を使用して日付を抽出
-        var datePattern = @"\d{4}年\d{1,2}月\d{1,2}日";
-        var match = Regex.Match(this.PressReleaseDate, datePattern);
-
-        if (match.Success)
-        {
-            // 抽出した日付をDateTimeに変換
-            if (DateTime.TryParseExact(match.Value, "yyyy年M月d日", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime extractedDate))
-            {
-                // 指定日付から閾値日数以内かを判定
-                // 実行日（before） < 決算日（extracted） <= 閾値日数(after)
-                var oneMonthBefore = CommonUtils.Instance.ExecusionDate;
-                var oneMonthAfter = CommonUtils.Instance.ExecusionDate.AddDays(CommonUtils.Instance.ThresholdOfDaysToQuarterEnd);
-                result = extractedDate > oneMonthBefore && extractedDate <= oneMonthAfter;
-            }
-        }
-
-        return result;
-    }
-
-    /// <summary>
-    /// 売却直後か？
-    /// </summary>
-    internal virtual bool IsJustSold()
-    {
-        bool result = false;
-
-        foreach (var execution in Executions)
-        {
-            if (execution.BuyOrSell == CommonUtils.Instance.BuyOrSellString.Sell
-                && execution.Date >= CommonUtils.Instance.ExecusionDate.AddDays(-1 * CommonUtils.Instance.ThresholdOfDaysJustSold))
-            {
-                result = true;
-            }
-        }
-
-        return result;
-    }
-
-    /// <summary>
-    /// 四半期決算直後であるか？
-    /// </summary>
-    internal virtual bool IsAfterQuarterEnd()
-    {
-        bool result = false;
-
-        if (string.IsNullOrEmpty(this.PressReleaseDate)) return result;
-
-        // 正規表現を使用して日付を抽出
-        var datePattern = @"\d{4}年\d{1,2}月\d{1,2}日";
-        var match = Regex.Match(this.PressReleaseDate, datePattern);
-
-        if (match.Success)
-        {
-            // 抽出した日付をDateTimeに変換
-            if (DateTime.TryParseExact(match.Value, "yyyy年M月d日", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime extractedDate))
-            {
-                // 指定日付より閾値日数以内かを判定
-                // 閾値日数（before） <= 決算日（extracted） < 実行日(after)
-                var oneMonthBefore = CommonUtils.Instance.ExecusionDate.AddDays(CommonUtils.Instance.ThresholdOfDaysFromQuarterEnd * -1);
-                var oneMonthAfter = CommonUtils.Instance.ExecusionDate;
-                result = extractedDate >= oneMonthBefore && extractedDate < oneMonthAfter;
-            }
-        }
-
-        return result;
-    }
-
-    /// <summary>
-    /// 四半期決算当日であるか？
-    /// </summary>
-    internal virtual bool IsQuarterEnd()
-    {
-        bool result = false;
-
-        if (string.IsNullOrEmpty(this.PressReleaseDate)) return result;
-
-        // 正規表現を使用して日付を抽出
-        var datePattern = @"\d{4}年\d{1,2}月\d{1,2}日";
-        var match = Regex.Match(this.PressReleaseDate, datePattern);
-
-        if (match.Success)
-        {
-            // 抽出した日付をDateTimeに変換
-            if (DateTime.TryParseExact(match.Value, "yyyy年M月d日", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime extractedDate))
-            {
-                // 指定日付と一致するかを判定
-                result = CommonUtils.Instance.ExecusionDate.ToString("yyyyMMdd") == extractedDate.ToString("yyyyMMdd");
-            }
-        }
-
-        return result;
-    }
-
-    /// <summary>
-    /// 情報更新
-    /// </summary>
     internal void Setup()
     {
         // 通期予想の更新
@@ -1129,9 +886,6 @@ public abstract class AssetInfo
         SetupChartPrices();
     }
 
-    /// <summary>
-    /// 通期予想履歴の更新
-    /// </summary>
     private void UpdateFullYearPerformancesForcasts()
     {
         if (this.QuarterlyPerformances.Count < 2) return;
@@ -1178,10 +932,6 @@ public abstract class AssetInfo
         }
     }
 
-    /// <summary>
-    /// 前期の通期予測を取得する（リポジトリパターン対応）
-    /// </summary>
-    /// <returns></returns>
     private List<FullYearPerformanceForcast> GetPreviousForcasts()
     {
         // カレント決算月が取得できていない場合は空リストを返す
@@ -1201,163 +951,6 @@ public abstract class AssetInfo
         }
     }
 
-    /// <summary>
-    /// 配当権利確定日か？
-    /// </summary>
-    internal bool IsDividendRecordDate()
-    {
-        // TODO
-        return false;
-    }
-
-    /// <summary>
-    /// 優待権利確定日か？
-    /// </summary>
-    internal bool IsShareholderBenefitRecordDate()
-    {
-        // TODO
-        return false;
-    }
-
-    /// <summary>
-    /// 配当権利確定日直後か？
-    /// </summary>
-    internal bool IsAfterDividendRecordDate()
-    {
-        // TODO
-        return false;
-    }
-
-    /// <summary>
-    /// 優待権利確定日直後か？
-    /// </summary>
-    /// <returns></returns>
-    internal bool IsAfterShareholderBenefitRecordDate()
-    {
-        // TODO
-        return false;
-    }
-
-    /// <summary>
-    /// 権利確定日直前か？
-    /// </summary>
-    internal virtual bool IsCloseToRecordDate()
-    {
-        bool result = false;
-
-        // 配当
-        if (this.IsCloseToDividendRecordDate()) result = true;
-
-        // 優待
-        if (this.IsCloseToShareholderBenefitRecordDate()) result = true;
-
-        return result;
-    }
-
-    /// <summary>
-    /// 権利確定日当日か？
-    /// </summary>
-    /// <returns></returns>
-    internal virtual bool IsRecordDate()
-    {
-        bool result = false;
-
-        // 配当
-        if (this.IsDividendRecordDate()) result = true;
-
-        // 優待
-        if (this.IsShareholderBenefitRecordDate()) result = true;
-
-        return result;
-    }
-
-    /// <summary>
-    /// 権利確定日直後か？
-    /// </summary>
-    /// <returns></returns>
-    internal virtual bool IsAfterRecordDate()
-    {
-        bool result = false;
-
-        // 配当
-        if (this.IsAfterDividendRecordDate()) result = true;
-
-        // 優待
-        if (this.IsAfterShareholderBenefitRecordDate()) result = true;
-
-        return result;
-    }
-
-    /// <summary>
-    /// ゴールデンクロス発生可能性があるか？
-    /// </summary>
-    /// <returns></returns>
-    /// <remarks>
-    /// 短期/長期の移動平均乖離値がマイナスから0に近づいているかを判定する。
-    /// </remarks>
-    internal bool IsGoldenCrossPossible()
-    {
-        bool result = true;
-
-        // TODO
-        //        if (this.IsDivergenceDecreasing(this.ChartPrices, 3)) result = true;
-
-        double tempSMAdev = 0;
-        short count = 0;
-
-        // 最新から遡って判定
-        foreach (var item in this.ChartPrices)
-        {
-            // 判定日数を超過した場合は終了
-            if (count > 7) break;
-
-            // 既に発生している場合
-            if (item.SMAdev > 0) result = false;
-
-            // 2件目以降
-            if (count > 0)
-            {
-                // 遡って乖離値が減少している場合（SMA25が上昇していない場合）
-                if (item.SMAdev >= tempSMAdev) result = false;
-            }
-
-            tempSMAdev = item.SMAdev;
-
-            count++;
-        }
-
-        return result;
-    }
-
-    /// <summary>
-    /// 直近で株式分割が実施されたか？
-    /// </summary>
-    /// <returns></returns>
-    internal virtual bool HasRecentStockSplitOccurred()
-    {
-        bool result = false;
-
-        foreach (var item in this.ScrapedPrices)
-        {
-            // 調整後終値と異なる場合は分割実施と判断
-            if (item.Close != item.AdjustedClose)
-            {
-                result = true;
-
-                CommonUtils.Instance.Logger.LogInformation($"" +
-                    $"Code:{this.Code}, " +
-                    $"Message:株式分割あり（" +
-                    $"日付：{item.Date.ToString("yyyyMMdd")}, " +
-                    $"終値：{item.Close}, " +
-                    $"調整後終値：{item.AdjustedClose}）");
-
-                break;
-            }
-        }
-
-        return result;
-    }
-
     public virtual DateTime GetLastHistoryUpdateDay()
     {
         // repositoryに処理を委譲する形にリファクタリング
@@ -1372,12 +965,11 @@ public abstract class AssetInfo
         }
     }
 
-    /// <summary>
-    /// 外部サイトからの取得情報を埋める
-    /// </summary>
-    /// <remarks>各サイトの情報を非同期で取得してインスタンスに設定する。</remarks>
     internal virtual async Task UpdateFromExternalSource()
      => await _updater.UpdateFromExternalSourceAsync(this);
+
+    internal virtual string ToOutputString()
+        => _formatter.ToOutputString(this);
 
     internal virtual bool ShouldAlert()
     {
@@ -1465,44 +1057,97 @@ public abstract class AssetInfo
         return result;
     }
 
-    internal virtual bool IsGranvilleCase2Matched()
+    public static bool IsWithinMonths(string monthsStr, short m)
     {
-        bool result = false;
-
-        if (this.ChartPrices.Count == 0) return result;
-
-        var start = this.ChartPrices.First().Price - this.ChartPrices.First().SMA25;
-        var end = this.ChartPrices.Last().Price - this.ChartPrices.Last().SMA25;
-
-        // 乖離値の開始がプラス、終了がプラスの場合
-        if (start > 0 && end > 0)
+        try
         {
-            foreach (var item in this.ChartPrices)
+            if (string.IsNullOrEmpty(monthsStr)) return false;
+
+            // 現在の月を取得
+            int currentMonth = DateTime.Now.Month;
+
+            // 月文字列を分割してリストに変換
+            string[] monthArray = monthsStr.Split(',');
+            List<int> months = new List<int>();
+
+            foreach (string monthStr in monthArray)
             {
-                var dev = item.Price - item.SMA25;
-
-                // マイナスが存在する場合
-                if (dev < 0) result = true;
+                int month = ParseMonth(monthStr.Trim());
+                months.Add(month);
             }
-        }
 
-        return result;
+            // 当月から指定月数以内の月をリストにする
+            List<int> validMonths = new List<int>();
+            for (int i = 0; i <= m; i++)
+            {
+                int validMonth = (currentMonth + i - 1) % 12 + 1;
+                validMonths.Add(validMonth);
+            }
+
+            // 指定された月が当月から1か月以内に含まれているかを判定
+            foreach (int month in months)
+            {
+                if (validMonths.Contains(month))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+        catch (Exception ex)
+        {
+            return false;
+        }
     }
 
     /// <summary>
-    /// 開示情報があるか？
+    /// 配当権利確定日か？
     /// </summary>
-    internal virtual bool HasDisclosure()
+    internal bool IsDividendRecordDate()
     {
-        bool result = false;
-        foreach (var item in this.Disclosures)
+        // TODO
+        return false;
+    }
+
+    /// <summary>
+    /// 優待権利確定日か？
+    /// </summary>
+    internal bool IsShareholderBenefitRecordDate()
+    {
+        // TODO
+        return false;
+    }
+
+    /// <summary>
+    /// 配当権利確定日直後か？
+    /// </summary>
+    internal bool IsAfterDividendRecordDate()
+    {
+        // TODO
+        return false;
+    }
+
+    /// <summary>
+    /// 優待権利確定日直後か？
+    /// </summary>
+    /// <returns></returns>
+    internal bool IsAfterShareholderBenefitRecordDate()
+    {
+        // TODO
+        return false;
+    }
+
+    private static int ParseMonth(string monthStr)
+    {
+        // "3月"のような文字列から月を抽出
+        if (monthStr.EndsWith("月"))
         {
-            if (item.Datetime.ToString("yyyyMMdd") == CommonUtils.Instance.ExecusionDate.ToString("yyyyMMdd"))
-            {
-                result = true;
-            }
+            monthStr = monthStr.Substring(0, monthStr.Length - 1);
         }
-        return result;
+
+        // 月を整数に変換
+        return int.Parse(monthStr, CultureInfo.InvariantCulture);
     }
 
     internal static AssetInfo GetInstance(WatchList.WatchStock watchStock)
@@ -1513,7 +1158,8 @@ public abstract class AssetInfo
                 watchStock,
                 new JapaneseETFUpdater(),
                 new JapaneseETFFormatter(),
-                new AssetRepository());
+                new AssetRepository(),
+                new DefaultAssetJudgementStrategy());
         }
         else if ((watchStock.Classification == CommonUtils.Instance.Classification.Indexs))
         {
@@ -1521,7 +1167,8 @@ public abstract class AssetInfo
                 watchStock,
                 new IndexUpdater(),
                 new IndexFormatter(),
-                new AssetRepository());
+                new AssetRepository(),
+                new DefaultAssetJudgementStrategy());
         }
         else
         {
@@ -1529,26 +1176,9 @@ public abstract class AssetInfo
                 watchStock,
                 new JapaneseStockUpdater(),
                 new JapaneseStockFormatter(),
-                new AssetRepository());
+                new AssetRepository(),
+                new DefaultAssetJudgementStrategy());
         }
-    }
-
-    internal virtual string ToOutputString()
-        => _formatter.ToOutputString(this);
-
-    internal virtual bool IsGranvilleCase1Matched()
-    {
-        bool result = false;
-
-        if (this.ChartPrices.Count == 0) return result;
-
-        var start = this.ChartPrices.First().Price - this.ChartPrices.First().SMA25;
-        var end = this.ChartPrices.Last().Price - this.ChartPrices.Last().SMA25;
-
-        // 乖離値の開始がマイナス、終了がプラスの場合
-        if (start < 0 && end > 0) result = true;
-
-        return result;
     }
 }
 

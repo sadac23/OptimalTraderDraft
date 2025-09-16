@@ -157,6 +157,62 @@
    - PER計算や利回り判定などをIAssetCalculator/StockCalculator等に分離
    - AssetInfoはStrategyインターフェース経由でロジックを呼び出す形に変更
 
+   #### 具体的な実施案
+
+   - 計算・判定ロジックごとにインターフェースを定義し、Strategyパターンで差し替え可能にする。
+     - 例：`IAssetCalculator`（資産全般の計算用）、`IStockCalculator`（株式固有の計算用）など
+   - 代表的な計算・判定ロジック例
+     - PER（株価収益率）計算
+     - PBR（株価純資産倍率）計算
+     - 配当利回り計算
+     - 増配判定
+     - 業績成長判定
+     - 株価トレンド判定
+   - 各ロジックは個別のStrategyクラスとして実装し、必要に応じて組み合わせて利用できるようにする。
+     - 例：`DefaultStockCalculator`、`GrowthStockCalculator`、`EtfCalculator`など
+   - AssetInfoや派生クラスは、コンストラクタ等で利用するCalculator（Strategy）を受け取り、計算・判定処理はStrategy経由で実行する。
+   - テスト容易性向上のため、各CalculatorはMock化しやすい設計とする。
+
+   > **補足：Strategy化の対象範囲について**
+   >
+   > Strategyパターンで分離・差し替え可能にするのは「算出値（計算や判定によって導出される値）」のみとする。
+   > 外部から取得した情報（例：株価、業績データ、配当金などの生データ）はAssetInfoや関連データクラスがそのまま保持し、
+   > それらの値をもとに算出・判定するロジック部分のみをStrategyとして実装する。
+   >
+   > - **Strategy化の対象**：PER、PBR、配当利回り、成長判定など「計算・判定によって導出される値や判定結果」
+   > - **Strategy化の対象外**：APIやDB等から直接取得した「生データ」（株価、業績、配当など）
+   >
+   > **Strategy化の対象となる処理一覧（コード解析結果）**
+   > 
+   > - `IsPERUndervalued`（PER割安判定）
+   > - `IsPBRUndervalued`（PBR割安判定）
+   > - `IsROEAboveThreshold`（ROE基準判定）
+   > - `IsAnnualProgressOnTrack`（通期進捗順調判定）
+   > - `IsHighYield`（利回り高判定）
+   > - `IsHighMarketCap`（時価総額高判定）
+   > - `IsCloseToDividendRecordDate`（配当権利確定日接近判定）
+   > - `IsCloseToShareholderBenefitRecordDate`（優待権利確定日接近判定）
+   > - `IsCloseToQuarterEnd`（四半期決算日接近判定）
+   > - `IsAfterQuarterEnd`（四半期決算直後判定）
+   > - `IsQuarterEnd`（四半期決算当日判定）
+   > - `IsJustSold`（売却直後判定）
+   > - `IsOwnedNow`（現在保有判定）
+   > - `IsGoldenCrossPossible`（ゴールデンクロス発生可能性判定）
+   > - `HasRecentStockSplitOccurred`（株式分割発生判定）
+   > - `ShouldAverageDown`（ナンピン判定）
+   > - `IsGranvilleCase1Matched`（グランビル第1法則判定）
+   > - `IsGranvilleCase2Matched`（グランビル第2法則判定）
+   > - `HasDisclosure`（開示情報有無判定）
+   > - `IsRecordDate`（権利確定日当日判定）
+   > - `IsAfterRecordDate`（権利確定日直後判定）
+   > - `IsCloseToRecordDate`（権利確定日直前判定）
+   > - `ExtractAndValidateDateWithinOneMonth`（日付抽出・1か月以内判定）
+   > - `UpdateProgress`（進捗率・営業利益率等の算出）
+   > - `UpdateDividendPayoutRatio`（配当性向・DOE算出）
+   > - `UpdateFullYearPerformanceForcastSummary`（業績・配当増減サマリ算出）
+   > - `SetupChartPrices`（チャート用指標算出：SMA, RSI, 乖離率等）
+   > - その他、`GetDividendPayoutRatio`、`GetDOE`、`GetIncreasedRate`、`GetDividendPerShareIncreased` などの算出系privateメソッド
+
 4. **アラート判定のStrategy化**
    - アラート判定ロジックをIAlertEvaluator/DefaultAlertEvaluatorに分離
    - AssetInfoはアラート判定もStrategy経由で実行

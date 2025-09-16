@@ -1,5 +1,6 @@
 ﻿// See https://aka.ms/new-console-template for more information
 using ConsoleApp1.Assets;
+using ConsoleApp1.Assets.Calculators;
 using ConsoleApp1.Assets.Repositories;
 using ConsoleApp1.ExternalSource;
 using ConsoleApp1.Output;
@@ -11,8 +12,9 @@ internal class JapaneseETFInfo : AssetInfo
         WatchList.WatchStock watchStock,
         IExternalSourceUpdatable updater,
         IOutputFormattable formatter,
-        IAssetRepository repository)
-        : base(watchStock, updater, formatter, repository)
+        IAssetRepository repository,
+        IAssetJudgementStrategy judgementStrategy)
+        : base(watchStock, updater, formatter, repository, judgementStrategy)
     {
     }
 
