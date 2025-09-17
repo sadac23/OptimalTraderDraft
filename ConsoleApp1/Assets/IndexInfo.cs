@@ -1,55 +1,23 @@
 ﻿// See https://aka.ms/new-console-template for more information
 using System.Text;
 using ConsoleApp1.Assets;
-using ConsoleApp1.Assets.Calculators;
-using ConsoleApp1.Assets.Repositories;
 using ConsoleApp1.ExternalSource;
 using ConsoleApp1.Output;
 
 public class IndexInfo : AssetInfo
 {
-
-    // Repository対応の新コンストラクタ（推奨）
-    public IndexInfo(
-        WatchList.WatchStock watchStock,
-        IExternalSourceUpdatable updater,
-        IOutputFormattable formatter,
-        IAssetRepository repository,
-        IAssetJudgementStrategy judgementStrategy)
-        : base(watchStock, updater, formatter, repository, judgementStrategy)
+    // Factory以外からの直接生成を禁止
+    internal IndexInfo(
+        WatchList.WatchStock watchStock, 
+        AssetInfoDependencies deps)
+        : base(watchStock, deps)
     {
-        // 必要に応じて初期化処理を追加
     }
 
-    /// <summary>
-    /// インデックス用の外部情報取得処理
-    /// </summary>
-    internal override async Task UpdateFromExternalSource()
-    {
-        if (_updater != null)
-        {
-            await _updater.UpdateFromExternalSourceAsync(this);
-        }
-        // 必要に応じて追加の処理をここに記述
-    }
-
-    /// <summary>
-    /// インデックス種別用の出力処理
-    /// </summary>
-    internal override string ToOutputString()
-    {
-        if (_formatter != null)
-        {
-            return _formatter.ToOutputString(this);
-        }
-        // 必要に応じて追加の処理をここに記述
-
-        return string.Empty;
-    }
 }
 
 // インデックス種別用の外部情報取得処理
-public class IndexUpdater : IExternalSourceUpdatable
+internal class IndexUpdater : IExternalSourceUpdatable
 {
     public async Task UpdateFromExternalSourceAsync(AssetInfo stockInfo)
     {

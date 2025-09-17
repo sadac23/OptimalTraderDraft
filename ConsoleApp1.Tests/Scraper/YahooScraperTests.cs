@@ -10,7 +10,7 @@ namespace ConsoleApp1.Tests.Scraper
         public async Task ScrapeHistory_DoesNotThrowException()
         {
             var scraper = new YahooScraper();
-            var stockInfo = AssetInfo.GetInstance(new WatchList.WatchStock { Code = "1234" });
+            var stockInfo = AssetInfoFactory.Create(new WatchList.WatchStock { Code = "1234" });
             var from = DateTime.Now.AddDays(-10);
             var to = DateTime.Now;
             await scraper.ScrapeHistory(stockInfo, from, to);
@@ -29,7 +29,7 @@ namespace ConsoleApp1.Tests.Scraper
             CommonUtils.SetInstanceForTest(dummyUtils);
 
             var scraper = new YahooScraper();
-            var stockInfo = AssetInfo.GetInstance(new WatchList.WatchStock { Code = code, Classification = classification });
+            var stockInfo = AssetInfoFactory.Create(new WatchList.WatchStock { Code = code, Classification = classification });
             var from = DateTime.Now.AddDays(-30);
             var to = DateTime.Now;
 
@@ -57,7 +57,7 @@ namespace ConsoleApp1.Tests.Scraper
         public async Task ScrapeProfile_DoesNotThrowException()
         {
             var scraper = new YahooScraper();
-            var stockInfo = AssetInfo.GetInstance(new WatchList.WatchStock { Code = "1234" });
+            var stockInfo = AssetInfoFactory.Create(new WatchList.WatchStock { Code = "1234" });
             await scraper.ScrapeProfile(stockInfo);
             // 例外が発生しないことのみを確認
         }
@@ -73,7 +73,7 @@ namespace ConsoleApp1.Tests.Scraper
             CommonUtils.SetInstanceForTest(dummyUtils);
 
             var scraper = new YahooScraper();
-            var stockInfo = AssetInfo.GetInstance(new WatchList.WatchStock { Code = "1489" });
+            var stockInfo = AssetInfoFactory.Create(new WatchList.WatchStock { Code = "1489" });
             await scraper.ScrapeTop(stockInfo);
             // 例外が発生しないことのみを確認
         }
@@ -84,7 +84,7 @@ namespace ConsoleApp1.Tests.Scraper
         public async Task ScrapeTop_ValidatesAllScrapedProperties_ForETF(string code, string classification)
         {
             var scraper = new YahooScraper();
-            var stockInfo = AssetInfo.GetInstance(new WatchList.WatchStock { Code = code, Classification = classification });
+            var stockInfo = AssetInfoFactory.Create(new WatchList.WatchStock { Code = code, Classification = classification });
 
             await scraper.ScrapeTop(stockInfo);
 
@@ -116,7 +116,7 @@ namespace ConsoleApp1.Tests.Scraper
         public async Task ScrapeTop_ValidatesAllScrapedProperties_ForJapaneseIndividualStocks(string code, string classification)
         {
             var scraper = new YahooScraper();
-            var stockInfo = AssetInfo.GetInstance(new WatchList.WatchStock { Code = code, Classification = classification });
+            var stockInfo = AssetInfoFactory.Create(new WatchList.WatchStock { Code = code, Classification = classification });
 
             await scraper.ScrapeTop(stockInfo);
 
@@ -149,7 +149,7 @@ namespace ConsoleApp1.Tests.Scraper
         public async Task ScrapeTop_ValidatesAllScrapedProperties_ForIndex(string code, string classification)
         {
             var scraper = new YahooScraper();
-            var stockInfo = AssetInfo.GetInstance(new WatchList.WatchStock { Code = code, Classification = classification });
+            var stockInfo = AssetInfoFactory.Create(new WatchList.WatchStock { Code = code, Classification = classification });
 
             await scraper.ScrapeTop(stockInfo);
 
@@ -175,7 +175,7 @@ namespace ConsoleApp1.Tests.Scraper
         public async Task ScrapeDisclosure_DoesNotThrowException()
         {
             var scraper = new YahooScraper();
-            var stockInfo = AssetInfo.GetInstance(new WatchList.WatchStock { Code = "1234" });
+            var stockInfo = AssetInfoFactory.Create(new WatchList.WatchStock { Code = "1234" });
             await scraper.ScrapeDisclosure(stockInfo);
             // 例外が発生しないことのみを確認
         }

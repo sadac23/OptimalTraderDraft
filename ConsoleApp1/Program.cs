@@ -46,7 +46,7 @@ namespace ConsoleApp1
                     if (!string.IsNullOrEmpty(watchStock.DeleteDate)) continue;
 
                     // インスタンスの初期化
-                    var stockInfo = AssetInfo.GetInstance(watchStock);
+                    var stockInfo = AssetInfoFactory.Create(watchStock);
 
                     try
                     {

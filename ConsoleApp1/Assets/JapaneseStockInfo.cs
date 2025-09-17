@@ -1,21 +1,14 @@
 using ConsoleApp1.Assets;
-using ConsoleApp1.Assets.Calculators;
 using ConsoleApp1.Assets.Models;
-using ConsoleApp1.Assets.Repositories;
 using ConsoleApp1.ExternalSource;
 using ConsoleApp1.Output;
 using System.Text;
 
 public class JapaneseStockInfo : AssetInfo
 {
-    // 新しいRepository対応のコンストラクタ（推奨）
-    public JapaneseStockInfo(
-        WatchList.WatchStock watchStock,
-        IExternalSourceUpdatable updater,
-        IOutputFormattable formatter,
-        IAssetRepository repository,
-        IAssetJudgementStrategy judgementStrategy)
-        : base(watchStock, updater, formatter, repository, judgementStrategy)
+    // Factory以外からの直接生成を禁止
+    internal JapaneseStockInfo(WatchList.WatchStock watchStock, AssetInfoDependencies deps)
+        : base(watchStock, deps)
     {
     }
 

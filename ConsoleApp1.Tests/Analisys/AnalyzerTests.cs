@@ -50,7 +50,7 @@ namespace ConsoleApp1.Tests.Analisys
             // DbConnectionFactoryのコネクションを差し替え
             DbConnectionFactory.SetConnection(connection);
 
-            var stockInfo = AssetInfo.GetInstance(new WatchList.WatchStock
+            var stockInfo = AssetInfoFactory.Create(new WatchList.WatchStock
             {
                 Code = code,
                 Classification = "1",

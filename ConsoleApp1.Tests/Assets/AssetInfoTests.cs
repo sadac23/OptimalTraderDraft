@@ -22,7 +22,7 @@ namespace ConsoleApp1.Tests.Assets
         public void Constructor_InitializesProperties()
         {
             var watchStock = new DummyWatchStock();
-            var stockInfo = AssetInfo.GetInstance(new WatchList.WatchStock
+            var stockInfo = AssetInfoFactory.Create(new WatchList.WatchStock
             {
                 Code = watchStock.Code,
                 Classification = watchStock.Classification,
@@ -393,7 +393,7 @@ namespace ConsoleApp1.Tests.Assets
             // DbConnectionFactoryのコネクションを差し替え
             DbConnectionFactory.SetConnection(connection); // ここでテスト用コネクションをセット
 
-            var stockInfo = AssetInfo.GetInstance(new WatchList.WatchStock
+            var stockInfo = AssetInfoFactory.Create(new WatchList.WatchStock
             {
                 Code = code,
                 Classification = "1",
@@ -466,7 +466,7 @@ namespace ConsoleApp1.Tests.Assets
 
             DbConnectionFactory.SetConnection(connection);
 
-            var stockInfo = AssetInfo.GetInstance(new WatchList.WatchStock
+            var stockInfo = AssetInfoFactory.Create(new WatchList.WatchStock
             {
                 Code = code,
                 Classification = "1",
@@ -501,7 +501,7 @@ namespace ConsoleApp1.Tests.Assets
         // ヘルパー
         private AssetInfo CreateStockInfo()
         {
-            return AssetInfo.GetInstance(new WatchList.WatchStock
+            return AssetInfoFactory.Create(new WatchList.WatchStock
             {
                 Code = "1234",
                 Classification = "1",

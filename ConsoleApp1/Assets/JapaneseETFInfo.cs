@@ -1,20 +1,16 @@
 ﻿// See https://aka.ms/new-console-template for more information
 using ConsoleApp1.Assets;
-using ConsoleApp1.Assets.Calculators;
-using ConsoleApp1.Assets.Repositories;
 using ConsoleApp1.ExternalSource;
 using ConsoleApp1.Output;
 using System.Text;
 
-internal class JapaneseETFInfo : AssetInfo
+public class JapaneseETFInfo : AssetInfo
 {
-    public JapaneseETFInfo(
+    // Factory以外からの直接生成を禁止
+    internal JapaneseETFInfo(
         WatchList.WatchStock watchStock,
-        IExternalSourceUpdatable updater,
-        IOutputFormattable formatter,
-        IAssetRepository repository,
-        IAssetJudgementStrategy judgementStrategy)
-        : base(watchStock, updater, formatter, repository, judgementStrategy)
+        AssetInfoDependencies deps)
+        : base(watchStock, deps)
     {
     }
 
