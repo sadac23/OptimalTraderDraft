@@ -1,11 +1,16 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
 using HtmlAgilityPack;
+using static StockInfo;
+using System.Net.Http;
+using System.Security.Policy;
+using static WatchList;
 using System.Globalization;
+using System.Data;
+using DocumentFormat.OpenXml.Office2016.Excel;
 using Microsoft.Extensions.Logging;
-using ConsoleApp1.Assets;
-using static ConsoleApp1.Assets.AssetInfo;
-using ConsoleApp1.Assets.Models;
+using DocumentFormat.OpenXml.Wordprocessing;
+using System.Linq;
 
 internal class KabutanScraper
 {
@@ -13,19 +18,19 @@ internal class KabutanScraper
     {
     }
 
-    internal async Task ScrapeFinance(AssetInfo stockInfo)
+    internal async Task ScrapeFinance(StockInfo stockInfo)
     {
-        if (stockInfo.Classification == CommonUtils.Instance.Classification.JapaneseStocks) 
+        if (stockInfo.Classification == CommonUtils.Instance.Classification.JapaneseIndividualStocks) 
         {
             await this.ScrapeFinanceJP(stockInfo);
         }
-        else if (stockInfo.Classification == CommonUtils.Instance.Classification.USStocks)
+        else if (stockInfo.Classification == CommonUtils.Instance.Classification.USIndividualStocks)
         {
             await this.ScrapeFinanceUS(stockInfo);
         }
     }
 
-    private async Task ScrapeFinanceUS(AssetInfo stockInfo)
+    private async Task ScrapeFinanceUS(StockInfo stockInfo)
     {
         try
         {
@@ -308,7 +313,7 @@ internal class KabutanScraper
     /// </summary>
     /// <param name="stockInfo"></param>
     /// <returns></returns>
-    private async Task ScrapeFinanceJP(AssetInfo stockInfo)
+    private async Task ScrapeFinanceJP(StockInfo stockInfo)
     {
         try
         {

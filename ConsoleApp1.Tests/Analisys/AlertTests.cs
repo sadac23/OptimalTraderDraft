@@ -1,5 +1,7 @@
-using ConsoleApp1.Assets;
-using ConsoleApp1.Assets.Models;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using Xunit;
 
 namespace ConsoleApp1.Tests.Analisys
 {
@@ -16,7 +18,7 @@ namespace ConsoleApp1.Tests.Analisys
 
             var policyList = new List<string> { "方針A", "方針B" };
             var stockInfoMock = new StockInfoMock { ShouldAlertResult = true, OutputString = "テスト出力" };
-            var results = new List<AssetInfo> { stockInfoMock };
+            var results = new List<StockInfo> { stockInfoMock };
 
             try
             {
@@ -41,12 +43,12 @@ namespace ConsoleApp1.Tests.Analisys
         }
 
         // StockInfoのテスト用モック
-        private class StockInfoMock : AssetInfo
+        private class StockInfoMock : StockInfo
         {
             public bool ShouldAlertResult { get; set; }
             public string OutputString { get; set; } = "";
 
-            public StockInfoMock() : base(new WatchList.WatchStock())
+            public StockInfoMock() : base(new DummyWatchStock()) 
             {
                 // 必要なコレクションも初期化（テスト安定化のため）
                 Executions = new List<ExecutionList.Execution>();

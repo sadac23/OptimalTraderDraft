@@ -1,9 +1,13 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
-using ConsoleApp1.Assets;
 using HtmlAgilityPack;
 using Microsoft.Extensions.Logging;
+using System;
 using System.Globalization;
+using System.Net.Http;
+using System.Security.Policy;
+using System.Text.RegularExpressions;
+using static WatchList;
 
 internal class MinkabuScraper
 {
@@ -11,7 +15,7 @@ internal class MinkabuScraper
     {
     }
 
-    internal async Task ScrapeDividend(AssetInfo stockInfo)
+    internal async Task ScrapeDividend(StockInfo stockInfo)
     {
         try
         {
@@ -79,7 +83,7 @@ internal class MinkabuScraper
         }
     }
 
-    internal async Task ScrapeYutai(AssetInfo stockInfo)
+    internal async Task ScrapeYutai(StockInfo stockInfo)
     {
         try
         {
