@@ -3,6 +3,15 @@ using ConsoleApp1.Tests.Utils;
 using ConsoleApp1.Database;
 using ConsoleApp1.Assets;
 using ConsoleApp1.Assets.Models;
+using ConsoleApp1.Assets.Repositories;
+using ConsoleApp1.Assets.Calculators;
+using ConsoleApp1.Assets.Setups;
+using Xunit;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using ConsoleApp1.ExternalSource;
+using ConsoleApp1.Output;
 
 namespace ConsoleApp1.Tests.Assets
 {
@@ -496,6 +505,195 @@ namespace ConsoleApp1.Tests.Assets
             Assert.Contains(stockInfo.ChartPrices, cp => cp.Date.Date == lastTradingDate && cp.Price == 999);
             // 件数はChartDays件であること
             Assert.Equal(3, stockInfo.ChartPrices.Count);
+        }
+
+        [Fact]
+        public async Task RegisterCacheAsync_ActuallyInsertsDataToDatabase()
+        {
+            // Arrange: インメモリDB初期化とテーブル作成
+            DbConnectionFactory.Initialize("Data Source=:memory:;Version=3;New=True;");
+            var conn = DbConnectionFactory.GetConnection();
+            using (var cmd = conn.CreateCommand())
+            {
+                cmd.CommandText = @"
+CREATE TABLE history (
+    code TEXT,
+    date_string TEXT,
+    date DATETIME,
+    open REAL,
+    high REAL,
+    low REAL,
+    close REAL,
+    volume INTEGER
+);
+CREATE TABLE forcast_history (
+    code TEXT,
+    revision_date_string TEXT,
+    revision_date DATETIME,
+    fiscal_period TEXT,
+    category TEXT,
+    revision_direction TEXT,
+    revenue REAL,
+    operating_profit REAL,
+    ordinary_income REAL,
+    net_profit REAL,
+    revised_dividend REAL
+);";
+                cmd.ExecuteNonQuery();
+            }
+
+            var stock = new WatchList.WatchStock
+            {
+                Code = "1234",
+                Classification = "Test",
+                IsFavorite = "1",
+                Memo = ""
+            };
+
+            // 複数レコードを用意
+            var scrapedPrices = new List<ScrapedPrice>
+            {
+                new ScrapedPrice { DateYYYYMMDD = "20250101", Date = new DateTime(2025, 1, 1), Open = 100, High = 110, Low = 90, AdjustedClose = 105, Volume = 1000 },
+                new ScrapedPrice { DateYYYYMMDD = "20250102", Date = new DateTime(2025, 1, 2), Open = 101, High = 111, Low = 91, AdjustedClose = 106, Volume = 1100 }
+            };
+            var forcasts = new List<FullYearPerformanceForcast>
+            {
+                new FullYearPerformanceForcast { RevisionDate = new DateTime(2025, 1, 1), FiscalPeriod = "2025.03", Category = "予想", RevisionDirection = "", Revenue = "1000", OperatingProfit = "100", OrdinaryProfit = "90", NetProfit = "80", RevisedDividend = "10" },
+                new FullYearPerformanceForcast { RevisionDate = new DateTime(2025, 2, 1), FiscalPeriod = "2025.03", Category = "修正", RevisionDirection = "上方", Revenue = "1100", OperatingProfit = "120", OrdinaryProfit = "100", NetProfit = "90", RevisedDividend = "12" }
+            };
+
+            // ファクトリ経由でコネクションを取得し、リポジトリに渡す
+            var repo = new AssetRepository();
+
+            var deps = new AssetInfoDependencies
+            {
+                Updater = new DummyUpdater(),
+                Formatter = new DummyFormatter(),
+                Repository = repo,
+                JudgementStrategy = new DummyJudgementStrategy(),
+                Calculator = new DummyCalculator(),
+                SetupStrategy = new DummySetupStrategy()
+            };
+
+            var assetInfo = AssetInfoFactory.Create(stock);
+            assetInfo.ScrapedPrices = scrapedPrices;
+            assetInfo.FullYearPerformancesForcasts = forcasts;
+            assetInfo.Repository = repo; // リポジトリをセット
+
+            // テスト用にCommonUtils.Instance.ExecusionDateとStockPriceHistoryMonthsをセット
+            CommonUtils.Instance.ExecusionDate = new DateTime(2025, 1, 1);
+            CommonUtils.Instance.StockPriceHistoryMonths = 12;
+
+            // Act
+            await assetInfo.RegisterCacheAsync();
+
+            // Assert: historyテーブルにデータが全件入っているか
+            using (var checkCmd = conn.CreateCommand())
+            {
+                checkCmd.CommandText = "SELECT COUNT(*) FROM history WHERE code = '1234'";
+                var count = Convert.ToInt32(checkCmd.ExecuteScalar());
+                Assert.Equal(scrapedPrices.Count, count);
+            }
+            // Assert: forcast_historyテーブルにデータが全件入っているか
+            using (var checkCmd = conn.CreateCommand())
+            {
+                checkCmd.CommandText = "SELECT COUNT(*) FROM forcast_history WHERE code = '1234'";
+                var count = Convert.ToInt32(checkCmd.ExecuteScalar());
+                Assert.Equal(forcasts.Count, count);
+            }
+        }
+
+        // --- 必要に応じてダミー実装 ---
+        private class DummyUpdater : IExternalSourceUpdatable
+        {
+            public Task UpdateFromExternalSourceAsync(AssetInfo stockInfo) => Task.CompletedTask;
+        }
+        private class DummyFormatter : IOutputFormattable
+        {
+            public string ToOutputString(AssetInfo stockInfo) => "";
+        }
+        private class DummyJudgementStrategy : IAssetJudgementStrategy
+        {
+            public bool IsPERUndervalued(AssetInfo asset, bool isLenient = false) => true;
+            public bool IsPBRUndervalued(AssetInfo asset, bool isLenient = false) => true;
+            public bool IsROEAboveThreshold(AssetInfo asset) => true;
+            public bool IsAnnualProgressOnTrack(AssetInfo asset) => true;
+            public bool IsHighYield(AssetInfo asset) => true;
+            public bool IsHighMarketCap(AssetInfo asset) => true;
+            public bool IsCloseToDividendRecordDate(AssetInfo asset) => false;
+            public bool IsCloseToShareholderBenefitRecordDate(AssetInfo asset) => false;
+            public bool IsCloseToQuarterEnd(AssetInfo asset) => false;
+            public bool IsAfterQuarterEnd(AssetInfo asset) => false;
+            public bool IsQuarterEnd(AssetInfo asset) => false;
+            public bool IsJustSold(AssetInfo asset) => false;
+            public bool IsOwnedNow(AssetInfo asset) => false;
+            public bool IsGoldenCrossPossible(AssetInfo asset) => false;
+            public bool HasRecentStockSplitOccurred(AssetInfo asset) => false;
+            public bool ShouldAverageDown(AssetInfo asset, ExecutionList.Execution e) => false;
+            public bool IsGranvilleCase1Matched(AssetInfo asset) => false;
+            public bool IsGranvilleCase2Matched(AssetInfo asset) => false;
+            public bool HasDisclosure(AssetInfo asset) => false;
+            public bool IsRecordDate(AssetInfo asset) => false;
+            public bool IsAfterRecordDate(AssetInfo asset) => false;
+            public bool IsCloseToRecordDate(AssetInfo asset) => false;
+            public bool ExtractAndValidateDateWithinOneMonth(AssetInfo asset) => false;
+        }
+        private class DummyCalculator : IAssetCalculator
+        {
+            public void UpdateProgress(AssetInfo asset) { }
+            public void UpdateDividendPayoutRatio(AssetInfo asset) { }
+            public void UpdateFullYearPerformanceForcastSummary(AssetInfo asset) { }
+            public void SetupChartPrices(AssetInfo asset) { }
+
+            public double GetDividendPayoutRatio(string adjustedDividendPerShare, string adjustedEarningsPerShare)
+            {
+                return 0.0; // ダミー実装
+            }
+
+            public double GetDOE(double dividendPayoutRatio, double roe)
+            {
+                return 0.0; // ダミー実装
+            }
+
+            public string GetDividendPerShareIncreased(string adjustedDividendPerShare1, string adjustedDividendPerShare2)
+            {
+                return string.Empty; // ダミー実装
+            }
+
+            public string GetIncreasedRate(string lastValue, string secondLastValue)
+            {
+                return string.Empty; // ダミー実装
+            }
+
+            public string GetRevenueIncreasedSummary(string revenue1, string revenue2)
+            {
+                return string.Empty; // ダミー実装
+            }
+
+            public string GetOrdinaryIncomeIncreasedSummary(string ordinaryIncome1, string ordinaryIncome2)
+            {
+                return string.Empty; // ダミー実装
+            }
+
+            public string GetDividendPerShareIncreasedSummary(string adjustedDividendPerShare1, string adjustedDividendPerShare2)
+            {
+                return string.Empty; // ダミー実装
+            }
+
+            public string ConvertToPercentageStringWithSign(double v)
+            {
+                return string.Empty; // ダミー実装
+            }
+
+            public string ConvertToStringWithSign(double number)
+            {
+                return string.Empty; // ダミー実装
+            }
+        }
+        private class DummySetupStrategy : IAssetSetupStrategy
+        {
+            public void UpdateExecutions(AssetInfo asset, List<ExecutionList.ListDetail> executionList) { }
+            public void UpdateAveragePerPbr(AssetInfo asset, List<MasterList.AveragePerPbrDetails> masterList) { }
         }
 
         // ヘルパー

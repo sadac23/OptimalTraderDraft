@@ -22,5 +22,9 @@ namespace ConsoleApp1.Assets.Repositories
         /// <param name="limit">取得件数</param>
         /// <returns>履歴データのリスト（各行はカラム名→値のDictionary）</returns>
         List<Dictionary<string, object>> GetChartPriceRows(string code, int limit);
+
+        Task RegisterHistoryAsync(string code, List<ScrapedPrice> prices);
+        Task DeleteOldHistoryAsync(string code, DateTime beforeDate);
+        Task RegisterForcastHistoryAsync(string code, List<FullYearPerformanceForcast> forcasts);
     }
 }

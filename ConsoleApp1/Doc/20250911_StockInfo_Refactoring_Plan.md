@@ -242,3 +242,105 @@
 - 内部クラスや共通ロジックは独立ファイル化し再利用性を高める
 
 ---
+
+## [2025/09/18] 旧AssetInfo→新AssetInfoリファクタリング移行状況・調査結果
+
+### 1. 判定・計算ロジックの委譲とカバー状況
+
+- 旧AssetInfoの判定・計算系メソッド（例：IsPERUndervalued, IsHighYield, UpdateFullYearPerformanceForcastSummary等）は、新AssetInfoでIAssetJudgementStrategy/IAssetCalculator等のStrategyパターンに委譲されている。
+- これにより、ロジック自体は外部クラスに移動しているため、AssetInfo本体には直接的な実装がない。
+- 参照先クラス（IAssetCalculator等）のインターフェースには必要なメソッドが定義されているが、**実装クラスで旧AssetInfoのロジックが正確に再現されているかは実装ファイルの確認が必要**。
+  - 特に「増収増益増配記号や率計算」「Summaryの組み立て」など、旧クラスの細かいロジックが抜けていないか要注意。
+
+### 2. DB操作・ログ出力
+
+- DB操作（履歴登録・削除・重複チェック）は、旧クラスでは直接SQLiteを操作し、CommonUtils.Instance.Logger.LogInformationでログ出力していた。
+- 新クラスではIAssetRepository経由の非同期メソッドに移行し、RegisterCacheAsync内でRegisterHistoryAsyncやRegisterForcastHistoryAsync、DeleteOldHistoryAsyncを呼び出している。
+- **ログ出力については、Repository実装側でCommonUtils.Instance.Loggerを使って出力する設計にする必要がある**。
+  - 旧クラス同様、DB登録・削除時にLogInformationが呼ばれているか、Repository実装を必ず確認すること。
+
+### 3. FullYearPerformanceForcastSummaryプロパティ
+
+- 旧クラスにはFullYearPerformanceForcastSummaryプロパティがあったが、新クラスには存在しない。
+- 旧クラスのUpdateFullYearPerformanceForcastSummaryは、各FullYearPerformanceForcastのSummaryを組み立てていた。
+- **新クラスでは、Summaryは各Forcastのプロパティとして保持されているため、クラス全体のSummaryプロパティは不要**。
+  - もし「全体サマリ文字列」が必要な場合は、FullYearPerformancesForcasts.Select(f => f.Summary).Join(",")のように都度組み立てれば十分。
+
+### 4. 不要なプロパティ
+
+- FullYearPerformanceForcastSummaryは使われていないため不要（新設不要）。
+- その他のプロパティは新旧でほぼ一致しており、不要なものはなし。
+
+### 5. 重複チェック・個別登録ロジック
+
+- 旧クラスのIsInHistoryやIsInForcastHistoryのような重複チェックは、新クラスではRepository側で担保されている。
+- RegisterCacheAsyncのコメントにも「重複チェックはRepository側で実装」と明記されている。
+
+### 6. 参照先クラスのカバー状況
+
+- IAssetCalculator, IAssetJudgementStrategy, IAssetRepositoryのインターフェースは新クラスで正しく利用されている。
+- ただし、**実装クラス（例：AssetCalculator, AssetRepositoryなど）で旧クラスのロジックが正確に再現されているかは、実装ファイルの確認が必要**。
+  - 特に「DB操作時のログ出力」「Summary組み立てロジック」「重複チェック」など。
+
+### 7. ログ出力要件
+
+- **DB操作時のログ出力は新設計でも必須**。
+- 旧クラス同様、CommonUtils.Instance.Logger.LogInformationをRepository実装の各DB操作メソッド内で必ず呼び出すこと。
+
+---
+
+#### 結論・アクション
+
+- 機能的な抜けは基本的にないが、Repository/Calculator等の実装で
+  - 旧クラスのロジック（特にSummary組み立て、DB操作時のログ出力、重複チェック）が正確に再現されているかを必ず確認すること。
+- FullYearPerformanceForcastSummaryプロパティは不要。
+- DB操作時のログ出力はRepository実装で必ず行うこと。
+
+---
+
+#### 補足
+
+- IAssetCalculatorやIAssetRepositoryの実装ファイルが必要であれば、パスを指定して内容を取得し、追加調査可能。
+
+---
+
+## [2025/09/18] 旧クラスロジック再現性 検証結果
+
+### 1. DBアクセス・重複チェック・履歴操作（AssetRepository）
+
+- 履歴・予想履歴の重複チェック（`IsInHistoryAsync`, `IsInForcastHistoryAsync`）を経て、重複がなければINSERTするロジックは新実装でも再現されている。
+- 履歴の取得・保存・削除、予想履歴の取得、チャート用データの取得、最新履歴日付の取得など、旧クラスのDB操作ロジックはすべてAssetRepositoryでカバーされている。
+- 例外時のデフォルト値返却や握りつぶしも旧クラス同様。
+- **結論：DBアクセス・重複チェック・履歴操作ロジックは正しく再現されている。**
+
+### 2. 計算・サマリ・進捗率等（DefaultAssetCalculator）
+
+- 配当性向・DOE、進捗率・営業利益率・前年同期比成長率の計算、サマリ（増収増益増配記号や率）の組み立て、チャート用指標（SMA, RSI, 乖離率等）の計算など、旧クラスの計算・サマリロジックはDefaultAssetCalculatorで再現されている。
+- 各種privateメソッド（符号付き文字列、パーセント変換等）も移植済み。
+- **結論：計算・サマリ・進捗率・チャート指標ロジックは正しく再現されている。**
+
+### 3. 例外処理・デフォルト値
+
+- 例外時のデフォルト値返却（例：日付取得失敗時はDateTime.NowやMasterStartDate）は旧クラスと同じ挙動。
+
+### 4. ログ出力
+
+- AssetRepository内で**DB操作時のログ出力（CommonUtils.Instance.Logger.LogInformation等）が未実装**。
+- 旧クラス同様、履歴登録・削除・予想履歴登録等の操作ログ出力をRepository内で追加実装する必要あり。
+
+---
+
+#### 総合結論
+
+- **DBアクセス・重複チェック・計算・サマリ・進捗率等のロジックは、旧クラスの内容が新実装で正しく再現されている。**
+- **ただし、DB操作時のログ出力（LogInformation）はAssetRepositoryに追加実装が必要。**
+- それ以外のロジック再現性は高く、旧クラスの機能要件を満たしている。
+
+---
+
+#### アクション推奨
+
+- AssetRepositoryの各DB操作メソッド（履歴登録・削除・予想履歴登録等）で、  
+  `CommonUtils.Instance.Logger.LogInformation`による操作ログ出力を追加すること。
+
+---

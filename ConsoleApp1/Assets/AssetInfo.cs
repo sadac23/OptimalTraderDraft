@@ -7,6 +7,7 @@ using ConsoleApp1.Assets.Models;
 using ConsoleApp1.Assets.Repositories;
 using ConsoleApp1.Assets.Calculators;
 using ConsoleApp1.Assets.Setups;
+using System.Threading.Tasks;
 
 namespace ConsoleApp1.Assets;
 
@@ -50,7 +51,11 @@ public abstract class AssetInfo
     }
 
     // Repositoryプロパティを公開するためのアクセサを追加
-    public IAssetRepository Repository => _repository;
+    public IAssetRepository Repository
+    {
+        get => _repository;
+        set => _repository = value;
+    }
 
     /// <summary>
     /// コード
@@ -370,8 +375,11 @@ public abstract class AssetInfo
     internal void SetupChartPrices()
         => _calculator.SetupChartPrices(this);
 
-    internal void Setup()
+    internal async Task SetupAsync()
     {
+        // キャッシュ最新化
+        await RegisterCacheAsync();
+
         // 通期予想の更新
         UpdateFullYearPerformancesForcasts();
 
@@ -667,6 +675,28 @@ public abstract class AssetInfo
         catch
         {
             return DateTime.Now;
+        }
+    }
+
+    /// <summary>
+    /// キャッシュ（履歴・予想履歴）のDB登録・整理
+    /// </summary>
+    internal async Task RegisterCacheAsync()
+    {
+        // 株価履歴の登録（重複チェックはRepository側で実装）
+        if (this.ScrapedPrices?.Count > 0)
+        {
+            await _repository.RegisterHistoryAsync(this.Code, this.ScrapedPrices);
+        }
+
+        // 古い履歴の削除
+        var deleteBefore = CommonUtils.Instance.ExecusionDate.AddMonths(-1 * CommonUtils.Instance.StockPriceHistoryMonths);
+        await _repository.DeleteOldHistoryAsync(this.Code, deleteBefore);
+
+        // 通期予想履歴の登録（重複チェックはRepository側で実装）
+        if (this.FullYearPerformancesForcasts?.Count > 0)
+        {
+            await _repository.RegisterForcastHistoryAsync(this.Code, this.FullYearPerformancesForcasts);
         }
     }
 }

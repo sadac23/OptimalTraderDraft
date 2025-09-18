@@ -60,7 +60,7 @@ namespace ConsoleApp1
                         stockInfo.UpdateAveragePerPbr(masterList);
 
                         // 情報更新
-                        stockInfo.Setup();
+                        await stockInfo.SetupAsync();
 
                         // 結果登録
                         results.Add(stockInfo);
