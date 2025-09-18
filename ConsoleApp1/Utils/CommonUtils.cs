@@ -128,7 +128,7 @@ public class CommonUtils : IDisposable
     /// <summary>
     /// 株価履歴を保持しておく月数
     /// </summary>
-    public short StockPriceHistoryMonths { get; } = 6;
+    public short StockPriceHistoryMonths { get; set; } = 6;
 
     /// <summary>
     /// 長期RSIの日数

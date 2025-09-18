@@ -2,6 +2,7 @@ using System.Data.SQLite;
 using System.Globalization;
 using ConsoleApp1.Assets.Models;
 using ConsoleApp1.Database;
+using Microsoft.Extensions.Logging;
 
 namespace ConsoleApp1.Assets.Repositories
 {
@@ -59,6 +60,10 @@ namespace ConsoleApp1.Assets.Repositories
                 command.Parameters.AddWithValue("@volume", price.Volume);
                 command.Parameters.AddWithValue("@adjusted_close", price.AdjustedClose);
                 await command.ExecuteNonQueryAsync();
+
+                // ログ出力
+                CommonUtils.Instance.Logger.LogInformation(
+                    $"[SaveHistory] code={code}, date={price.Date:yyyy-MM-dd}, open={price.Open}, close={price.Close}");
             }
         }
 
@@ -71,7 +76,11 @@ namespace ConsoleApp1.Assets.Repositories
             using var command = new SQLiteCommand(query, connection);
             command.Parameters.AddWithValue("@code", code);
             command.Parameters.AddWithValue("@date", targetDate);
-            await command.ExecuteNonQueryAsync();
+            int affected = await command.ExecuteNonQueryAsync();
+
+            // ログ出力
+            CommonUtils.Instance.Logger.LogInformation(
+                $"[DeleteHistory] code={code}, date={targetDate:yyyy-MM-dd}, affectedRows={affected}");
         }
 
         public List<FullYearPerformanceForcast> GetPreviousForcasts(string code, string fiscalPeriod)
@@ -117,10 +126,14 @@ namespace ConsoleApp1.Assets.Repositories
                     cloneF = (FullYearPerformanceForcast)f.Clone();
                     result.Add(f);
                 }
+                // ログ出力
+                CommonUtils.Instance.Logger.LogInformation(
+                    $"[GetPreviousForcasts] code={code}, fiscalPeriod={fiscalPeriod}, count={result.Count}");
             }
-            catch
+            catch (Exception ex)
             {
-                // 例外は無視
+                CommonUtils.Instance.Logger.LogInformation(
+                    $"[GetPreviousForcasts][Error] code={code}, fiscalPeriod={fiscalPeriod}, error={ex.Message}");
             }
             return result;
         }
@@ -141,10 +154,14 @@ namespace ConsoleApp1.Assets.Repositories
                 {
                     result = reader.GetDateTime(0);
                 }
+                // ログ出力
+                CommonUtils.Instance.Logger.LogInformation(
+                    $"[GetLastHistoryUpdateDay] code={code}, lastDate={result:yyyy-MM-dd}");
             }
-            catch
+            catch (Exception ex)
             {
-                // 例外時はMasterStartDateを返す
+                CommonUtils.Instance.Logger.LogInformation(
+                    $"[GetLastHistoryUpdateDay][Error] code={code}, error={ex.Message}");
             }
             return result;
         }
@@ -175,10 +192,14 @@ namespace ConsoleApp1.Assets.Repositories
                     };
                     result.Add(row);
                 }
+                // ログ出力
+                CommonUtils.Instance.Logger.LogInformation(
+                    $"[GetChartPriceRows] code={code}, count={result.Count}");
             }
-            catch
+            catch (Exception ex)
             {
-                // 例外は無視
+                CommonUtils.Instance.Logger.LogInformation(
+                    $"[GetChartPriceRows][Error] code={code}, error={ex.Message}");
             }
             return result;
         }
@@ -221,6 +242,116 @@ namespace ConsoleApp1.Assets.Repositories
                 catch { }
             }
             return 0;
+        }
+
+        /// <summary>
+        /// 株価履歴の登録（重複チェック付き）
+        /// </summary>
+        public async Task RegisterHistoryAsync(string code, List<ScrapedPrice> prices)
+        {
+            var connection = DbConnectionFactory.GetConnection();
+            foreach (var p in prices)
+            {
+                if (!await IsInHistoryAsync(code, p, connection))
+                {
+                    string query = "INSERT INTO history (code, date_string, date, open, high, low, close, volume) " +
+                                   "VALUES (@code, @date_string, @date, @open, @high, @low, @close, @volume)";
+                    using var command = new SQLiteCommand(query, connection);
+                    command.Parameters.AddWithValue("@code", code);
+                    command.Parameters.AddWithValue("@date_string", p.DateYYYYMMDD);
+                    command.Parameters.AddWithValue("@date", p.Date);
+                    command.Parameters.AddWithValue("@open", p.Open);
+                    command.Parameters.AddWithValue("@high", p.High);
+                    command.Parameters.AddWithValue("@low", p.Low);
+                    command.Parameters.AddWithValue("@close", p.AdjustedClose);
+                    command.Parameters.AddWithValue("@volume", p.Volume);
+                    await command.ExecuteNonQueryAsync();
+
+                    // ログ出力
+                    CommonUtils.Instance.Logger.LogInformation(
+                        $"[RegisterHistory] code={code}, date={p.Date:yyyy-MM-dd}, open={p.Open}, close={p.AdjustedClose}");
+                }
+            }
+        }
+
+        /// <summary>
+        /// 履歴の存在チェック
+        /// </summary>
+        private async Task<bool> IsInHistoryAsync(string code, ScrapedPrice p, SQLiteConnection connection)
+        {
+            string query = "SELECT count(code) as count FROM history WHERE code = @code and date_string = @date_string";
+            using var command = new SQLiteCommand(query, connection);
+            command.Parameters.AddWithValue("@code", code);
+            command.Parameters.AddWithValue("@date_string", p.DateYYYYMMDD);
+            var result = await command.ExecuteScalarAsync();
+            return Convert.ToInt32(result) > 0;
+        }
+
+        /// <summary>
+        /// 古い株価履歴の削除
+        /// </summary>
+        public async Task DeleteOldHistoryAsync(string code, DateTime beforeDate)
+        {
+            var connection = DbConnectionFactory.GetConnection();
+            string query = "DELETE FROM history WHERE code = @code and date <= @date";
+            using var command = new SQLiteCommand(query, connection);
+            command.Parameters.AddWithValue("@code", code);
+            command.Parameters.AddWithValue("@date", beforeDate);
+            int affected = await command.ExecuteNonQueryAsync();
+
+            // ログ出力
+            CommonUtils.Instance.Logger.LogInformation(
+                $"[DeleteOldHistory] code={code}, beforeDate={beforeDate:yyyy-MM-dd}, affectedRows={affected}");
+        }
+
+        /// <summary>
+        /// 通期予想履歴の登録（重複チェック付き）
+        /// </summary>
+        public async Task RegisterForcastHistoryAsync(string code, List<FullYearPerformanceForcast> forcasts)
+        {
+            var connection = DbConnectionFactory.GetConnection();
+            foreach (var f in forcasts)
+            {
+                if (!await IsInForcastHistoryAsync(code, f, connection))
+                {
+                    string query = "INSERT INTO forcast_history (" +
+                        "code, revision_date_string, revision_date, fiscal_period, category, revision_direction, " +
+                        "revenue, operating_profit, ordinary_income, net_profit, revised_dividend) " +
+                        "VALUES (" +
+                        "@code, @revision_date_string, @revision_date, @fiscal_period, @category, @revision_direction, " +
+                        "@revenue, @operating_profit, @ordinary_income, @net_profit, @revised_dividend)";
+                    using var command = new SQLiteCommand(query, connection);
+                    command.Parameters.AddWithValue("@code", code);
+                    command.Parameters.AddWithValue("@revision_date_string", f.RevisionDate.ToString("yyyyMMdd"));
+                    command.Parameters.AddWithValue("@revision_date", f.RevisionDate);
+                    command.Parameters.AddWithValue("@fiscal_period", f.FiscalPeriod);
+                    command.Parameters.AddWithValue("@category", f.Category);
+                    command.Parameters.AddWithValue("@revision_direction", f.RevisionDirection);
+                    command.Parameters.AddWithValue("@revenue", double.TryParse(f.Revenue, out var r) ? r : 0);
+                    command.Parameters.AddWithValue("@operating_profit", double.TryParse(f.OperatingProfit, out var op) ? op : 0);
+                    command.Parameters.AddWithValue("@ordinary_income", double.TryParse(f.OrdinaryProfit, out var oi) ? oi : 0);
+                    command.Parameters.AddWithValue("@net_profit", double.TryParse(f.NetProfit, out var np) ? np : 0);
+                    command.Parameters.AddWithValue("@revised_dividend", double.TryParse(f.RevisedDividend, out var rd) ? rd : 0);
+                    await command.ExecuteNonQueryAsync();
+
+                    // ログ出力
+                    CommonUtils.Instance.Logger.LogInformation(
+                        $"[RegisterForcastHistory] code={code}, revisionDate={f.RevisionDate:yyyy-MM-dd}, category={f.Category}");
+                }
+            }
+        }
+
+        /// <summary>
+        /// 予想履歴の存在チェック
+        /// </summary>
+        private async Task<bool> IsInForcastHistoryAsync(string code, FullYearPerformanceForcast f, SQLiteConnection connection)
+        {
+            string query = "SELECT count(code) as count FROM forcast_history WHERE code = @code and revision_date_string = @revision_date_string";
+            using var command = new SQLiteCommand(query, connection);
+            command.Parameters.AddWithValue("@code", code);
+            command.Parameters.AddWithValue("@revision_date_string", f.RevisionDate.ToString("yyyyMMdd"));
+            var result = await command.ExecuteScalarAsync();
+            return Convert.ToInt32(result) > 0;
         }
     }
 }
