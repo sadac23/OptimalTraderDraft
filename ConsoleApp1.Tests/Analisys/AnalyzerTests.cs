@@ -1,7 +1,8 @@
+using System;
+using System.Collections.Generic;
 using System.Data.SQLite;
+using Xunit;
 using ConsoleApp1.Database;
-using ConsoleApp1.Assets;
-using ConsoleApp1.Assets.Models;
 
 namespace ConsoleApp1.Tests.Analisys
 {
@@ -50,7 +51,7 @@ namespace ConsoleApp1.Tests.Analisys
             // DbConnectionFactoryのコネクションを差し替え
             DbConnectionFactory.SetConnection(connection);
 
-            var stockInfo = AssetInfo.GetInstance(new WatchList.WatchStock
+            var stockInfo = StockInfo.GetInstance(new WatchList.WatchStock
             {
                 Code = code,
                 Classification = "1",
@@ -63,7 +64,7 @@ namespace ConsoleApp1.Tests.Analisys
             CommonUtils.Instance.LastTradingDate = lastTradingDate;
 
             // LatestScrapedPriceをhistoryに存在しない日付でセット
-            stockInfo.LatestScrapedPrice = new ScrapedPrice
+            stockInfo.LatestScrapedPrice = new StockInfo.ScrapedPrice
             {
                 Date = lastTradingDate,
                 Close = 999 // テスト用の特異値

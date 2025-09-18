@@ -1,14 +1,16 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
-using ConsoleApp1.Assets;
-using ConsoleApp1.Assets.Models;
+using DocumentFormat.OpenXml.Bibliography;
 using HtmlAgilityPack;
 using Microsoft.Extensions.Logging;
 using System.Globalization;
+using System.Security.Policy;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+using static WatchList;
 
 internal class YahooScraper
 {
-    internal async Task ScrapeHistory(AssetInfo stockInfo, DateTime from, DateTime to)
+    internal async Task ScrapeHistory(StockInfo stockInfo, DateTime from, DateTime to)
     {
         int _pageCountMax = CommonUtils.Instance.MaxPageCountToScrapeYahooHistory;
 
@@ -16,7 +18,7 @@ internal class YahooScraper
         {
             var htmlDocument = new HtmlDocument();
             // サフィックス判定（指数は".O"、それ以外は".T"）
-            string suffix = stockInfo.Classification == CommonUtils.Instance.Classification.Indexs ? ".O" : ".T";
+            string suffix = stockInfo.Classification == CommonUtils.Instance.Classification.Index ? ".O" : ".T";
             var urlBaseYahooFinance = $"https://finance.yahoo.co.jp/quote/{stockInfo.Code}{suffix}/history?styl=stock&from={from:yyyyMMdd}&to={to:yyyyMMdd}&timeFrame=d";
 
             /** Yahooファイナンス */
@@ -38,7 +40,7 @@ internal class YahooScraper
 
                 // 指数かどうかでXPathを切り替え
                 string xpath;
-                if (stockInfo.Classification == CommonUtils.Instance.Classification.Indexs)
+                if (stockInfo.Classification == CommonUtils.Instance.Classification.Index)
                 {
                     // 指数の場合
                     xpath = "//table[contains(@class, 'table__CO3B')]/tbody/tr";
@@ -56,7 +58,7 @@ internal class YahooScraper
 
                     // 指数の場合は1行目（ヘッダー）をスキップ
                     int startIndex = 0;
-                    if (stockInfo.Classification == CommonUtils.Instance.Classification.Indexs && rows.Count > 1)
+                    if (stockInfo.Classification == CommonUtils.Instance.Classification.Index && rows.Count > 1)
                     {
                         startIndex = 1;
                     }
@@ -66,7 +68,7 @@ internal class YahooScraper
                         var row = rows[r];
                         var columns = row.SelectNodes("td|th");
 
-                        if (stockInfo.Classification == CommonUtils.Instance.Classification.Indexs)
+                        if (stockInfo.Classification == CommonUtils.Instance.Classification.Index)
                         {
                             // 指数の場合: 日付・始値・高値・安値・終値のみ
                             if (columns != null && columns.Count >= 5)
@@ -77,7 +79,7 @@ internal class YahooScraper
                                 var low = CommonUtils.Instance.GetDouble(columns[3].InnerText.Trim());
                                 var close = CommonUtils.Instance.GetDouble(columns[4].InnerText.Trim());
 
-                                stockInfo.ScrapedPrices.Add(new ScrapedPrice
+                                stockInfo.ScrapedPrices.Add(new StockInfo.ScrapedPrice
                                 {
                                     Date = date,
                                     DateYYYYMMDD = date.ToString("yyyyMMdd"),
@@ -103,7 +105,7 @@ internal class YahooScraper
                                 var volume = CommonUtils.Instance.GetDouble(columns[5].InnerText.Trim());
                                 var adjustedClose = CommonUtils.Instance.GetDouble(columns[6].InnerText.Trim());
 
-                                stockInfo.ScrapedPrices.Add(new ScrapedPrice
+                                stockInfo.ScrapedPrices.Add(new StockInfo.ScrapedPrice
                                 {
                                     Date = date,
                                     DateYYYYMMDD = date.ToString("yyyyMMdd"),
@@ -129,9 +131,9 @@ internal class YahooScraper
         }
     }
 
-    internal async Task ScrapeProfile(AssetInfo stockInfo)
+    internal async Task ScrapeProfile(StockInfo stockInfo)
     {
-        string suffix = stockInfo.Classification == CommonUtils.Instance.Classification.Indexs ? ".O" : ".T";
+        string suffix = stockInfo.Classification == CommonUtils.Instance.Classification.Index ? ".O" : ".T";
         var url = $"https://finance.yahoo.co.jp/quote/{stockInfo.Code}{suffix}/profile";
 
         try
@@ -160,11 +162,11 @@ internal class YahooScraper
             Console.WriteLine("ScrapeProfile: " + e.Message);
         }
     }
-    internal async Task ScrapeTop(AssetInfo stockInfo)
+    internal async Task ScrapeTop(StockInfo stockInfo)
     {
         try
         {
-            string suffix = stockInfo.Classification == CommonUtils.Instance.Classification.Indexs ? ".O" : ".T";
+            string suffix = stockInfo.Classification == CommonUtils.Instance.Classification.Index ? ".O" : ".T";
             var url = $"https://finance.yahoo.co.jp/quote/{stockInfo.Code}{suffix}";
             CommonUtils.Instance.Logger.LogInformation(url);
 
@@ -180,7 +182,7 @@ internal class YahooScraper
             if (titleNode != null)
             {
                 var titleText = titleNode.InnerText.Trim();
-                if (stockInfo.Classification == CommonUtils.Instance.Classification.Indexs) // 指数の場合
+                if (stockInfo.Classification == CommonUtils.Instance.Classification.Index) // 指数の場合
                 {
                     // 「：」または「:」で分割し、最初の部分を取得
                     var name = titleText.Split(new[] { '：', ':' }, 2)[0].Trim();
@@ -257,7 +259,7 @@ internal class YahooScraper
             // 最新の株価情報
 
             string xpath_open, xpath_high, xpath_low, xpath_close;
-            if (stockInfo.Classification == CommonUtils.Instance.Classification.Indexs)
+            if (stockInfo.Classification == CommonUtils.Instance.Classification.Index)
             {
                 // 指数の場合
                 xpath_open = "//*[@id=\"detail\"]/div/div/dl[2]/dd/span[1]";
@@ -278,7 +280,7 @@ internal class YahooScraper
             var high = document.DocumentNode.SelectSingleNode(xpath_high);
             var low = document.DocumentNode.SelectSingleNode(xpath_low);
             var close = document.DocumentNode.SelectSingleNode(xpath_close);
-            stockInfo.LatestScrapedPrice = new ScrapedPrice()
+            stockInfo.LatestScrapedPrice = new StockInfo.ScrapedPrice()
             {
                 Date = date,
                 DateYYYYMMDD = date.ToString("yyyyMMdd"),
@@ -320,9 +322,9 @@ internal class YahooScraper
         }
     }
 
-    internal async Task ScrapeDisclosure(AssetInfo stockInfo)
+    internal async Task ScrapeDisclosure(StockInfo stockInfo)
     {
-        string suffix = stockInfo.Classification == CommonUtils.Instance.Classification.Indexs ? ".O" : ".T";
+        string suffix = stockInfo.Classification == CommonUtils.Instance.Classification.Index ? ".O" : ".T";
         var url = $"https://finance.yahoo.co.jp/quote/{stockInfo.Code}{suffix}/disclosure";
 
         try
@@ -354,7 +356,7 @@ internal class YahooScraper
                     {
                         datetime = this.ConvertToDatetime(nodeDate.InnerText.Trim());
                     }
-                    stockInfo.Disclosures.Add(new Disclosure
+                    stockInfo.Disclosures.Add(new StockInfo.Disclosure
                     {
                         Header = header,
                         Datetime = datetime,

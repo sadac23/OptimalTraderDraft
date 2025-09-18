@@ -1,5 +1,6 @@
-using ConsoleApp1.Assets;
-using ConsoleApp1.Assets.Models;
+using System;
+using System.Collections.Generic;
+using Xunit;
 
 namespace ConsoleApp1.Tests.Analisys
 {
@@ -14,7 +15,7 @@ namespace ConsoleApp1.Tests.Analisys
                 _testPrices = testPrices;
             }
 
-            internal override List<(DateTime, double)> GetCutlerRsiPrices(int v, DateTime endDate, AssetInfo stockInfo)
+            internal override List<(DateTime, double)> GetCutlerRsiPrices(int v, DateTime endDate, StockInfo stockInfo)
             {
                 return _testPrices;
             }
@@ -33,8 +34,8 @@ namespace ConsoleApp1.Tests.Analisys
                 prices1.Add((baseDate.AddDays(i), 100 + i));
             // 最後の日付は lastTradingDay より前
             var analyzer1 = new TestAnalyzer(prices1);
-            var stockInfo1 = AssetInfo.GetInstance(new WatchList.WatchStock { Code = "TEST1", Name = "Test1" });
-            stockInfo1.LatestScrapedPrice = new ScrapedPrice
+            var stockInfo1 = StockInfo.GetInstance(new WatchList.WatchStock { Code = "TEST1", Name = "Test1" });
+            stockInfo1.LatestScrapedPrice = new StockInfo.ScrapedPrice
             {
                 Date = lastTradingDay,
                 Close = 200
@@ -48,8 +49,8 @@ namespace ConsoleApp1.Tests.Analisys
                 (lastTradingDay, 200)
             };
             var analyzer2 = new TestAnalyzer(prices2);
-            var stockInfo2 = AssetInfo.GetInstance(new WatchList.WatchStock { Code = "TEST2", Name = "Test2" });
-            stockInfo2.LatestScrapedPrice = new ScrapedPrice
+            var stockInfo2 = StockInfo.GetInstance(new WatchList.WatchStock { Code = "TEST2", Name = "Test2" });
+            stockInfo2.LatestScrapedPrice = new StockInfo.ScrapedPrice
             {
                 Date = lastTradingDay,
                 Close = 200
@@ -59,15 +60,15 @@ namespace ConsoleApp1.Tests.Analisys
 
             // 3. latestPriceがnull（追加されない）
             var analyzer3 = new TestAnalyzer(prices1);
-            var stockInfo3 = AssetInfo.GetInstance(new WatchList.WatchStock { Code = "TEST3", Name = "Test3" });
+            var stockInfo3 = StockInfo.GetInstance(new WatchList.WatchStock { Code = "TEST3", Name = "Test3" });
             stockInfo3.LatestScrapedPrice = null;
             double rsi3 = analyzer3.GetCutlerRSI(v, lastTradingDay, stockInfo3);
             Assert.InRange(rsi3, 0, 100);
 
             // 4. latestPrice.Date.Date > 直近営業日（追加されない）
             var analyzer4 = new TestAnalyzer(prices1);
-            var stockInfo4 = AssetInfo.GetInstance(new WatchList.WatchStock { Code = "TEST4", Name = "Test4" });
-            stockInfo4.LatestScrapedPrice = new ScrapedPrice
+            var stockInfo4 = StockInfo.GetInstance(new WatchList.WatchStock { Code = "TEST4", Name = "Test4" });
+            stockInfo4.LatestScrapedPrice = new StockInfo.ScrapedPrice
             {
                 Date = lastTradingDay.AddDays(1), // 将来日付
                 Close = 999
@@ -81,8 +82,8 @@ namespace ConsoleApp1.Tests.Analisys
                 prices5.Add((baseDate.AddDays(i), 100 + i));
             // 最後の日付は lastTradingDay より前
             var analyzer5 = new TestAnalyzer(prices5);
-            var stockInfo5 = AssetInfo.GetInstance(new WatchList.WatchStock { Code = "TEST5", Name = "Test5" });
-            stockInfo5.LatestScrapedPrice = new ScrapedPrice
+            var stockInfo5 = StockInfo.GetInstance(new WatchList.WatchStock { Code = "TEST5", Name = "Test5" });
+            stockInfo5.LatestScrapedPrice = new StockInfo.ScrapedPrice
             {
                 Date = lastTradingDay,
                 Close = 999

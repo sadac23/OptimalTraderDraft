@@ -1,10 +1,7 @@
-using ConsoleApp1.Assets;
-using ConsoleApp1.Assets.Models;
-using ConsoleApp1.Assets.Repositories;
 using Moq;
-using static ConsoleApp1.Assets.AssetInfo;
+using static StockInfo;
 
-namespace ConsoleApp1.Tests.Assets;
+namespace ConsoleApp1.Tests.Stocks;
 
 [Collection("CommonUtils collection")]
 public class IndexInfoTests
@@ -22,9 +19,8 @@ public class IndexInfoTests
                 IsFavorite = "1",
                 Memo = "テスト用"
             },
-            new IndexUpdater(),
-            new IndexFormatter(),
-            new AssetRepository()
+            new IndexInfo.IndexUpdater(),
+            new IndexInfo.IndexFormatter()
         ) { CallBase = true };
         mock.Setup(x => x.GetLastHistoryUpdateDay())
             .Returns(new DateTime(2024, 1, 1));
@@ -88,7 +84,7 @@ public class IndexFormatterTests
         public override bool OverboughtIndicator() => false;
     }
 
-    private class MockStockInfo : AssetInfo
+    private class MockStockInfo : StockInfo
     {
         public MockStockInfo() : base(new WatchList.WatchStock
         {
@@ -116,7 +112,7 @@ public class IndexFormatterTests
     public void ToOutputString_FormatsIndexInfoCorrectly()
     {
         // Arrange
-        var formatter = new IndexFormatter();
+        var formatter = new IndexInfo.IndexFormatter();
 
         // StockInfoのモック
         var stockInfo = new MockStockInfo();
