@@ -1,4 +1,5 @@
 using ConsoleApp1.Assets.Models;
+using Microsoft.Extensions.Logging;
 using System.Globalization;
 
 namespace ConsoleApp1.Assets.Calculators
@@ -237,27 +238,39 @@ namespace ConsoleApp1.Assets.Calculators
             {
                 if (asset.LastQuarterPeriod == CommonUtils.Instance.QuarterString.Quarter4)
                 {
-                    var previousFinalForcast = asset.FullYearPerformancesForcasts
-                        .Where(forcast =>
-                            forcast.FiscalPeriod == asset.CurrentFiscalMonth.AddYears(-1).ToString("yyyy.MM") &&
-                            (forcast.Category == CommonUtils.Instance.ForecastCategoryString.Initial ||
-                             forcast.Category == CommonUtils.Instance.ForecastCategoryString.Revised))
-                        .LastOrDefault();
-
-                    if (previousFinalForcast != null)
+                    // AddYears(-1)の前にCurrentFiscalMonthの値をチェック
+                    if (asset.CurrentFiscalMonth > DateTime.MinValue.AddYears(1))
                     {
-                        result.FiscalPeriod = previousFinalForcast.FiscalPeriod;
-                        result.Revenue = previousFinalForcast.Revenue;
-                        result.OperatingProfit = previousFinalForcast.OperatingProfit;
-                        result.OrdinaryProfit = previousFinalForcast.OrdinaryProfit;
-                        result.NetProft = previousFinalForcast.NetProfit;
-                        result.AdjustedEarningsPerShare = string.Empty;
-                        result.AdjustedDividendPerShare = previousFinalForcast.RevisedDividend;
-                        result.AnnouncementDate = previousFinalForcast.RevisionDate.ToString();
+                        var prevFiscalPeriod = asset.CurrentFiscalMonth.AddYears(-1).ToString("yyyy.MM");
+                        var previousFinalForcast = asset.FullYearPerformancesForcasts
+                            .Where(forcast =>
+                                forcast.FiscalPeriod == prevFiscalPeriod &&
+                                (forcast.Category == CommonUtils.Instance.ForecastCategoryString.Initial ||
+                                 forcast.Category == CommonUtils.Instance.ForecastCategoryString.Revised))
+                            .LastOrDefault();
+
+                        if (previousFinalForcast != null)
+                        {
+                            result.FiscalPeriod = previousFinalForcast.FiscalPeriod;
+                            result.Revenue = previousFinalForcast.Revenue;
+                            result.OperatingProfit = previousFinalForcast.OperatingProfit;
+                            result.OrdinaryProfit = previousFinalForcast.OrdinaryProfit;
+                            result.NetProft = previousFinalForcast.NetProfit;
+                            result.AdjustedEarningsPerShare = string.Empty;
+                            result.AdjustedDividendPerShare = previousFinalForcast.RevisedDividend;
+                            result.AnnouncementDate = previousFinalForcast.RevisionDate.ToString();
+                        }
+                        else
+                        {
+                            result = asset.FullYearPerformances[asset.FullYearPerformances.Count - (refIndex + 1)];
+                        }
                     }
                     else
                     {
-                        result = asset.FullYearPerformances[asset.FullYearPerformances.Count - (refIndex + 1)];
+                        // 不正なCurrentFiscalMonthの場合はログ出力し、直近の履歴を返す
+                        CommonUtils.Instance.Logger.LogWarning(
+                            $"CurrentFiscalMonthが不正なため、AddYears(-1)をスキップします。Code:{asset.Code}, Value:{asset.CurrentFiscalMonth:yyyy/MM/dd}");
+                        result = asset.FullYearPerformances[asset.FullYearPerformances.Count - refIndex];
                     }
                 }
                 else

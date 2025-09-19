@@ -16,18 +16,33 @@ internal class MinkabuScraper
         try
         {
             var urlBaseMinkabuDividend = $"https://minkabu.jp/stock/{stockInfo.Code}/dividend";
-
             var htmlDocument = new HtmlDocument();
-
-            var url = string.Empty;
+            var url = urlBaseMinkabuDividend;
             var html = string.Empty;
             HtmlNodeCollection rows = null;
 
-            /** みんかぶ（配当） */
-            url = urlBaseMinkabuDividend;
             CommonUtils.Instance.Logger.LogInformation(url);
 
-            html = await CommonUtils.Instance.HttpClient.GetStringAsync(url);
+            try
+            {
+                html = await CommonUtils.Instance.HttpClient.GetStringAsync(url);
+            }
+            catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                CommonUtils.Instance.Logger.LogWarning($"ScrapeDividend: 404 Not Found - Code:{stockInfo.Code} URL:{url}");
+                return;
+            }
+            catch (HttpRequestException ex)
+            {
+                CommonUtils.Instance.Logger.LogError(ex, $"ScrapeDividend: HttpRequestException - Code:{stockInfo.Code} URL:{url}");
+                return;
+            }
+            catch (Exception ex)
+            {
+                CommonUtils.Instance.Logger.LogError(ex, $"ScrapeDividend: Unexpected error - Code:{stockInfo.Code} URL:{url}");
+                return;
+            }
+
             htmlDocument.LoadHtml(html);
 
             // 配当利回り/配当性向/配当権利確定月
@@ -47,7 +62,10 @@ internal class MinkabuScraper
                         {
                             var dividendYield = columns[1].InnerText.Trim();
                             // みんかぶの利回りを利用しても良い
-                            //stockInfo.DividendYield = dividendYield;
+                            if (double.TryParse(dividendYield.Replace("%", "").Replace("％", ""), out double yield))
+                            {
+                                stockInfo.DividendYield = yield / 100.0;
+                            }
                         }
                     }
                     // 配当性向
@@ -56,8 +74,11 @@ internal class MinkabuScraper
                         if (columns != null && columns.Count >= 2)
                         {
                             var dividendPayoutRatio = columns[1].InnerText.Trim();
-                            // 前期の情報であるため採用しない
-                            //stockInfo.DividendPayoutRatio = dividendPayoutRatio;
+                            // 前期の情報であるため採用しない場合はコメントアウト
+                            //if (double.TryParse(dividendPayoutRatio.Replace("%", "").Replace("％", ""), out double payout))
+                            //{
+                            //    stockInfo.DividendPayoutRatio = payout / 100.0;
+                            //}
                         }
                     }
                     // 配当権利確定月
@@ -75,7 +96,7 @@ internal class MinkabuScraper
         }
         catch (Exception e)
         {
-            CommonUtils.Instance.Logger.LogError(e, "ScrapeDividend: " + e.Message);
+            CommonUtils.Instance.Logger.LogError(e, $"ScrapeDividend: {e.Message} Code:{stockInfo.Code}");
         }
     }
 

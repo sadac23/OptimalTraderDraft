@@ -28,14 +28,14 @@ public class AssetInfoTests
             new FullYearPerformance { AdjustedEarningsPerShare = "120" },
             new FullYearPerformance { AdjustedEarningsPerShare = "" }
         };
-    }
-    // ダミー WatchStock クラス
-    private class DummyWatchStock
-    {
-        public string Code { get; set; } = "1234";
-        public string Classification { get; set; } = "1";
-        public string IsFavorite { get; set; } = "1";
-        public string Memo { get; set; } = "テストメモ";
+
+        // Act
+        asset.SetupPEGRatio();
+
+        // Assert
+        // 2番目(120)と1番目(100)で成長率 = (120-100)/100*100 = 20
+        // PEG = 15.0 / 20 = 0.75
+        Assert.Equal(0.75, asset.PEGRatio, 2);
     }
 
     // --- 追加テスト ---
