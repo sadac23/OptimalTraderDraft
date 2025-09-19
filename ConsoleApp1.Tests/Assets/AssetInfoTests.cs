@@ -703,7 +703,7 @@ CREATE TABLE forcast_history (
 public class JapaneseStockFormatterTests
 {
     [Fact]
-    public void ToOutputString_BasicOutput_ContainsKeyInfo()
+        public void ToOutputString_BasicOutput_ContainsKeyInfo()
     {
         // Arrange
         var stockInfo = new TestAssetInfo(new WatchList.WatchStock
@@ -793,6 +793,232 @@ public class JapaneseStockFormatterTests
 // 修正: TestAssetInfo クラスの LatestPrice プロパティのあいまいさを解消するため、プロパティ名を変更  
 public class TestAssetInfo : AssetInfo
 {
-    public TestAssetInfo(WatchList.WatchStock stock) : base(stock, null) { }
+    public TestAssetInfo(WatchList.WatchStock stock)
+        : base(stock, new AssetInfoDependencies
+        {
+            Updater = new DummyUpdater(),
+            Formatter = new DummyFormatter(),
+            Repository = new AssetRepository(),
+            JudgementStrategy = new DummyJudgementStrategy(),
+            Calculator = new DummyCalculator(),
+            SetupStrategy = new DummySetupStrategy()
+        })
+    { }
 }
 
+internal class DummySetupStrategy : IAssetSetupStrategy
+{
+    public void UpdateExecutions(AssetInfo asset, List<ExecutionList.ListDetail> executionList)
+    {
+        // ダミー実装: 実際のロジックは必要に応じて追加してください
+    }
+
+    public void UpdateAveragePerPbr(AssetInfo asset, List<MasterList.AveragePerPbrDetails> masterList)
+    {
+        // ダミー実装: 実際のロジックは必要に応じて追加してください
+    }
+}
+
+internal class DummyCalculator : IAssetCalculator
+{
+    public void UpdateProgress(AssetInfo asset)
+    {
+        // ダミー実装: 実際のロジックは必要に応じて追加してください
+    }
+
+    public void UpdateDividendPayoutRatio(AssetInfo asset)
+    {
+        // ダミー実装: 実際のロジックは必要に応じて追加してください
+    }
+
+    public void UpdateFullYearPerformanceForcastSummary(AssetInfo asset)
+    {
+        // ダミー実装: 実際のロジックは必要に応じて追加してください
+    }
+
+    public void SetupChartPrices(AssetInfo asset)
+    {
+        // ダミー実装: 実際のロジックは必要に応じて追加してください
+    }
+
+    public double GetDividendPayoutRatio(string adjustedDividendPerShare, string adjustedEarningsPerShare)
+    {
+        return 0.0; // ダミー実装
+    }
+
+    public double GetDOE(double dividendPayoutRatio, double roe)
+    {
+        return 0.0; // ダミー実装
+    }
+
+    public string GetDividendPerShareIncreased(string adjustedDividendPerShare1, string adjustedDividendPerShare2)
+    {
+        return string.Empty; // ダミー実装
+    }
+
+    public string GetIncreasedRate(string lastValue, string secondLastValue)
+    {
+        return string.Empty; // ダミー実装
+    }
+
+    public string GetRevenueIncreasedSummary(string revenue1, string revenue2)
+    {
+        return string.Empty; // ダミー実装
+    }
+
+    public string GetOrdinaryIncomeIncreasedSummary(string ordinaryIncome1, string ordinaryIncome2)
+    {
+        return string.Empty; // ダミー実装
+    }
+
+    public string GetDividendPerShareIncreasedSummary(string adjustedDividendPerShare1, string adjustedDividendPerShare2)
+    {
+        return string.Empty; // ダミー実装
+    }
+
+    public string ConvertToPercentageStringWithSign(double v)
+    {
+        return string.Empty; // ダミー実装
+    }
+
+    public string ConvertToStringWithSign(double number)
+    {
+        return string.Empty; // ダミー実装
+    }
+}
+
+internal class DummyFormatter : IOutputFormattable
+{
+    public string ToOutputString(AssetInfo stockInfo)
+    {
+        // ダミー実装: 必要に応じて適切なロジックを追加してください
+        return string.Empty;
+    }
+}
+
+internal class DummyUpdater : IExternalSourceUpdatable
+{
+    public Task UpdateFromExternalSourceAsync(AssetInfo stockInfo)
+    {
+        // ダミー実装: 実際のロジックは必要に応じて追加してください
+        return Task.CompletedTask;
+    }
+}
+
+internal class DummyJudgementStrategy : IAssetJudgementStrategy
+{
+    public bool ExtractAndValidateDateWithinOneMonth(AssetInfo asset)
+    {
+        return false;
+    }
+
+    public bool HasDisclosure(AssetInfo asset)
+    {
+        return false;
+    }
+
+    public bool HasRecentStockSplitOccurred(AssetInfo asset)
+    {
+        return false;
+    }
+
+    public bool IsAfterQuarterEnd(AssetInfo asset)
+    {
+        return false;
+    }
+
+    public bool IsAfterRecordDate(AssetInfo asset)
+    {
+        return false;
+    }
+
+    public bool IsAnnualProgressOnTrack(AssetInfo asset)
+    {
+        return false;
+    }
+
+    public bool IsCloseToDividendRecordDate(AssetInfo asset)
+    {
+        return false;
+    }
+
+    public bool IsCloseToQuarterEnd(AssetInfo asset)
+    {
+        return false;
+    }
+
+    public bool IsCloseToRecordDate(AssetInfo asset)
+    {
+        return false;
+    }
+
+    public bool IsCloseToShareholderBenefitRecordDate(AssetInfo asset)
+    {
+        return false;
+    }
+
+    public bool IsGoldenCrossPossible(AssetInfo asset)
+    {
+        return false;
+    }
+
+    public bool IsGranvilleCase1Matched(AssetInfo asset)
+    {
+        return false;
+    }
+
+    public bool IsGranvilleCase2Matched(AssetInfo asset)
+    {
+        return false;
+    }
+
+    public bool IsHighMarketCap(AssetInfo asset)
+    {
+        return false;
+    }
+
+    public bool IsHighYield(AssetInfo asset)
+    {
+        return false;
+    }
+
+    public bool IsJustSold(AssetInfo asset)
+    {
+        return false;
+    }
+
+    public bool IsOwnedNow(AssetInfo asset)
+    {
+        return false;
+    }
+
+    public bool IsPBRUndervalued(AssetInfo asset, bool isLenient = false)
+    {
+        return false;
+    }
+
+    public bool IsPERUndervalued(AssetInfo asset, bool isLenient = false)
+    {
+        return false;
+    }
+
+    public bool IsQuarterEnd(AssetInfo asset)
+    {
+        return false;
+    }
+
+    public bool IsRecordDate(AssetInfo asset)
+    {
+        return false;
+    }
+
+    public bool IsROEAboveThreshold(AssetInfo asset)
+    {
+        return false;
+    }
+
+    public bool ShouldAverageDown(AssetInfo asset, ExecutionList.Execution e)
+    {
+        return false;
+    }
+}
