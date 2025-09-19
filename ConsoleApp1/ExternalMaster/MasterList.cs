@@ -1,10 +1,8 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
 using ClosedXML.Excel;
-using System.Runtime.InteropServices.Marshalling;
-using static WatchList;
 
-internal class MasterList
+public class MasterList
 {
     internal static List<AveragePerPbrDetails> LoadXlsx()
     {
@@ -67,7 +65,7 @@ internal class MasterList
         return results;
     }
 
-    internal class AveragePerPbrDetails
+    public class AveragePerPbrDetails
     {
         public string YearMonth { get; set; }
         public string Section { get; set; }

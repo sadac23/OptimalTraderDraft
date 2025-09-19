@@ -20,6 +20,18 @@ public class ExecutionList
             {
                 if (!string.IsNullOrEmpty(detail.BuyDate))
                 {
+                    // 安全なパース処理
+                    double buyPrice = 0;
+                    double buyQuantity = 0;
+                    if (!double.TryParse(detail.BuyPrice, out buyPrice))
+                    {
+                        CommonUtils.Instance.Logger.LogWarning($"BuyPriceが不正です。No:{detail.No}, Code:{detail.Code}, Value:'{detail.BuyPrice}'");
+                    }
+                    if (!double.TryParse(detail.BuyQuantity, out buyQuantity))
+                    {
+                        CommonUtils.Instance.Logger.LogWarning($"BuyQuantityが不正です。No:{detail.No}, Code:{detail.Code}, Value:'{detail.BuyQuantity}'");
+                    }
+
                     Execution execution = new Execution()
                     {
                         No = detail.No,
@@ -27,8 +39,8 @@ public class ExecutionList
                         Name = detail.Name,
                         BuyOrSell = CommonUtils.Instance.BuyOrSellString.Buy,
                         Date = DateTime.Parse(detail.BuyDate),
-                        Price = double.Parse(detail.BuyPrice),
-                        Quantity = double.Parse(detail.BuyQuantity),
+                        Price = buyPrice,
+                        Quantity = buyQuantity,
                         HasSellExecuted = !string.IsNullOrEmpty(detail.SellDate) ? true : false,
                     };
                     list.Add(execution);
@@ -36,6 +48,18 @@ public class ExecutionList
 
                 if (!string.IsNullOrEmpty(detail.SellDate))
                 {
+                    // 安全なパース処理
+                    double sellPrice = 0;
+                    double sellQuantity = 0;
+                    if (!double.TryParse(detail.SellPrice, out sellPrice))
+                    {
+                        CommonUtils.Instance.Logger.LogWarning($"SellPriceが不正です。No:{detail.No}, Code:{detail.Code}, Value:'{detail.SellPrice}'");
+                    }
+                    if (!double.TryParse(detail.SellQuantity, out sellQuantity))
+                    {
+                        CommonUtils.Instance.Logger.LogWarning($"SellQuantityが不正です。No:{detail.No}, Code:{detail.Code}, Value:'{detail.SellQuantity}'");
+                    }
+
                     Execution executionS = new Execution()
                     {
                         No = detail.No,
@@ -43,8 +67,8 @@ public class ExecutionList
                         Name = detail.Name,
                         BuyOrSell = CommonUtils.Instance.BuyOrSellString.Sell,
                         Date = DateTime.Parse(detail.SellDate),
-                        Price = double.Parse(detail.SellPrice),
-                        Quantity= double.Parse(detail.SellQuantity),
+                        Price = sellPrice,
+                        Quantity = sellQuantity,
                         HasSellExecuted = false
                     };
                     list.Add(executionS);

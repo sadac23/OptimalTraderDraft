@@ -1,4 +1,5 @@
 // See https://aka.ms/new-console-template for more information
+using ConsoleApp1.Assets;
 using ConsoleApp1.Database;
 using ConsoleApp1.ExternalMaster;
 using Microsoft.Extensions.Logging;
@@ -10,7 +11,7 @@ namespace ConsoleApp1
         static async Task Main(string[] args)
         {
             // 分析結果
-            var results = new List<StockInfo>();
+            var results = new List<AssetInfo>();
 
             try
             {
@@ -45,7 +46,7 @@ namespace ConsoleApp1
                     if (!string.IsNullOrEmpty(watchStock.DeleteDate)) continue;
 
                     // インスタンスの初期化
-                    var stockInfo = StockInfo.GetInstance(watchStock);
+                    var stockInfo = AssetInfoFactory.Create(watchStock);
 
                     try
                     {
@@ -59,7 +60,7 @@ namespace ConsoleApp1
                         stockInfo.UpdateAveragePerPbr(masterList);
 
                         // 情報更新
-                        stockInfo.Setup();
+                        await stockInfo.SetupAsync();
 
                         // 結果登録
                         results.Add(stockInfo);
