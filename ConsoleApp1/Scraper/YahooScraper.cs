@@ -8,124 +8,112 @@ using System.Globalization;
 
 internal class YahooScraper
 {
-    internal async Task ScrapeHistory(AssetInfo stockInfo, DateTime from, DateTime to)
+    internal async Task ScrapeHistory(AssetInfo stockInfo, DateTime from, DateTime to, int maxRetry = 3, int retryDelayMs = 1000)
     {
         int _pageCountMax = CommonUtils.Instance.MaxPageCountToScrapeYahooHistory;
-
-        try
+        int retryCount = 0;
+        while (retryCount < maxRetry)
         {
-            var htmlDocument = new HtmlDocument();
-            // サフィックス判定（指数は".O"、それ以外は".T"）
-            string suffix = stockInfo.Classification == CommonUtils.Instance.Classification.Indexs ? ".O" : ".T";
-            var urlBaseYahooFinance = $"https://finance.yahoo.co.jp/quote/{stockInfo.Code}{suffix}/history?styl=stock&from={from:yyyyMMdd}&to={to:yyyyMMdd}&timeFrame=d";
-
-            /** Yahooファイナンス */
-            for (int i = 1; i < _pageCountMax; i++)
+            try
             {
-                var url = urlBaseYahooFinance + $"&page={i}";
-                var html = await CommonUtils.Instance.HttpClient.GetStringAsync(url);
+                var htmlDocument = new HtmlDocument();
+                string suffix = stockInfo.Classification == CommonUtils.Instance.Classification.Indexs ? ".O" : ".T";
+                var urlBaseYahooFinance = $"https://finance.yahoo.co.jp/quote/{stockInfo.Code}{suffix}/history?styl=stock&from={from:yyyyMMdd}&to={to:yyyyMMdd}&timeFrame=d";
 
-                CommonUtils.Instance.Logger.LogInformation(url);
-
-                // ページ内行カウント
-                short rowCount = 0;
-
-                // 取得できない場合は終了
-                if (html.Contains("時系列情報がありません")) break;
-
-                // 他の処理
-                htmlDocument.LoadHtml(html);
-
-                // 指数かどうかでXPathを切り替え
-                string xpath;
-                if (stockInfo.Classification == CommonUtils.Instance.Classification.Indexs)
+                for (int i = 1; i < _pageCountMax; i++)
                 {
-                    // 指数の場合
-                    xpath = "//table[contains(@class, 'table__CO3B')]/tbody/tr";
-                }
-                else
-                {
-                    // 日本株・ETF等
-                    xpath = "//table[contains(@class, 'StocksEtfReitPriceHistory')]/tbody/tr";
-                }
-                var rows = htmlDocument.DocumentNode.SelectNodes(xpath);
+                    var url = urlBaseYahooFinance + $"&page={i}";
+                    string html = await CommonUtils.Instance.HttpClient.GetStringAsync(url);
 
-                if (rows != null && rows.Count != 0)
-                {
-                    rowCount = 0;
+                    CommonUtils.Instance.Logger.LogInformation(url);
 
-                    // 指数の場合は1行目（ヘッダー）をスキップ
-                    int startIndex = 0;
-                    if (stockInfo.Classification == CommonUtils.Instance.Classification.Indexs && rows.Count > 1)
+                    short rowCount = 0;
+                    if (html.Contains("時系列情報がありません")) break;
+
+                    htmlDocument.LoadHtml(html);
+
+                    string xpath = stockInfo.Classification == CommonUtils.Instance.Classification.Indexs
+                        ? "//table[contains(@class, 'table__CO3B')]/tbody/tr"
+                        : "//table[contains(@class, 'StocksEtfReitPriceHistory')]/tbody/tr";
+                    var rows = htmlDocument.DocumentNode.SelectNodes(xpath);
+
+                    if (rows != null && rows.Count != 0)
                     {
-                        startIndex = 1;
-                    }
+                        rowCount = 0;
+                        int startIndex = (stockInfo.Classification == CommonUtils.Instance.Classification.Indexs && rows.Count > 1) ? 1 : 0;
 
-                    for (int r = startIndex; r < rows.Count; r++)
-                    {
-                        var row = rows[r];
-                        var columns = row.SelectNodes("td|th");
-
-                        if (stockInfo.Classification == CommonUtils.Instance.Classification.Indexs)
+                        for (int r = startIndex; r < rows.Count; r++)
                         {
-                            // 指数の場合: 日付・始値・高値・安値・終値のみ
-                            if (columns != null && columns.Count >= 5)
-                            {
-                                var date = this.GetDate(columns[0].InnerText.Trim());
-                                var open = CommonUtils.Instance.GetDouble(columns[1].InnerText.Trim());
-                                var high = CommonUtils.Instance.GetDouble(columns[2].InnerText.Trim());
-                                var low = CommonUtils.Instance.GetDouble(columns[3].InnerText.Trim());
-                                var close = CommonUtils.Instance.GetDouble(columns[4].InnerText.Trim());
+                            var row = rows[r];
+                            var columns = row.SelectNodes("td|th");
 
-                                stockInfo.ScrapedPrices.Add(new ScrapedPrice
-                                {
-                                    Date = date,
-                                    DateYYYYMMDD = date.ToString("yyyyMMdd"),
-                                    Open = open,
-                                    High = high,
-                                    Low = low,
-                                    Close = close,
-                                    Volume = 0,         // 指数は出来高なし
-                                    AdjustedClose = close // 指数は調整後終値なし（終値をセット）
-                                });
-                            }
-                        }
-                        else
-                        {
-                            // 日本株・ETF等: 既存の処理
-                            if (columns != null && columns.Count > 6)
+                            if (stockInfo.Classification == CommonUtils.Instance.Classification.Indexs)
                             {
-                                var date = this.GetDate(columns[0].InnerText.Trim());
-                                var open = CommonUtils.Instance.GetDouble(columns[1].InnerText.Trim());
-                                var high = CommonUtils.Instance.GetDouble(columns[2].InnerText.Trim());
-                                var low = CommonUtils.Instance.GetDouble(columns[3].InnerText.Trim());
-                                var close = CommonUtils.Instance.GetDouble(columns[4].InnerText.Trim());
-                                var volume = CommonUtils.Instance.GetDouble(columns[5].InnerText.Trim());
-                                var adjustedClose = CommonUtils.Instance.GetDouble(columns[6].InnerText.Trim());
-
-                                stockInfo.ScrapedPrices.Add(new ScrapedPrice
+                                if (columns != null && columns.Count >= 5)
                                 {
-                                    Date = date,
-                                    DateYYYYMMDD = date.ToString("yyyyMMdd"),
-                                    Open = open,
-                                    High = high,
-                                    Low = low,
-                                    Close = close,
-                                    Volume = volume,
-                                    AdjustedClose = adjustedClose
-                                });
+                                    var date = this.GetDate(columns[0].InnerText.Trim());
+                                    var open = CommonUtils.Instance.GetDouble(columns[1].InnerText.Trim());
+                                    var high = CommonUtils.Instance.GetDouble(columns[2].InnerText.Trim());
+                                    var low = CommonUtils.Instance.GetDouble(columns[3].InnerText.Trim());
+                                    var close = CommonUtils.Instance.GetDouble(columns[4].InnerText.Trim());
+
+                                    stockInfo.ScrapedPrices.Add(new ScrapedPrice
+                                    {
+                                        Date = date,
+                                        DateYYYYMMDD = date.ToString("yyyyMMdd"),
+                                        Open = open,
+                                        High = high,
+                                        Low = low,
+                                        Close = close,
+                                        Volume = 0,
+                                        AdjustedClose = close
+                                    });
+                                }
                             }
+                            else
+                            {
+                                if (columns != null && columns.Count > 6)
+                                {
+                                    var date = this.GetDate(columns[0].InnerText.Trim());
+                                    var open = CommonUtils.Instance.GetDouble(columns[1].InnerText.Trim());
+                                    var high = CommonUtils.Instance.GetDouble(columns[2].InnerText.Trim());
+                                    var low = CommonUtils.Instance.GetDouble(columns[3].InnerText.Trim());
+                                    var close = CommonUtils.Instance.GetDouble(columns[4].InnerText.Trim());
+                                    var volume = CommonUtils.Instance.GetDouble(columns[5].InnerText.Trim());
+                                    var adjustedClose = CommonUtils.Instance.GetDouble(columns[6].InnerText.Trim());
+
+                                    stockInfo.ScrapedPrices.Add(new ScrapedPrice
+                                    {
+                                        Date = date,
+                                        DateYYYYMMDD = date.ToString("yyyyMMdd"),
+                                        Open = open,
+                                        High = high,
+                                        Low = low,
+                                        Close = close,
+                                        Volume = volume,
+                                        AdjustedClose = adjustedClose
+                                    });
+                                }
+                            }
+                            rowCount++;
                         }
-                        rowCount++;
                     }
+                    if (rowCount <= 19) break;
                 }
-
-                // ページ内行カウントが19件以下の時は終了
-                if (rowCount <= 19) break;
+                // 成功したらループを抜ける
+                break;
             }
-        }
-        catch (Exception e) {
-            Console.WriteLine("ScrapeHistory: " + e.Message);
+            catch (Exception e)
+            {
+                CommonUtils.Instance.Logger.LogError($"ScrapeHistory失敗（{retryCount + 1}回目）: {stockInfo.Code} {e.Message}", e);
+                retryCount++;
+                if (retryCount >= maxRetry)
+                {
+                    // 方針によりthrowせず、処理を終了（呼び出し元でtry-catchして継続する）
+                    return;
+                }
+                await Task.Delay(retryDelayMs);
+            }
         }
     }
 
@@ -299,7 +287,6 @@ internal class YahooScraper
     {
         string[] formats = { "yyyy年M月d日", "yyyy年MM月dd日", "yyyy年MM月d日", "yyyy年M月dd日" };
         DateTime.TryParseExact(v, formats, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime date);
-
         return date;
     }
     private double ConvertToDouble(string percentString)

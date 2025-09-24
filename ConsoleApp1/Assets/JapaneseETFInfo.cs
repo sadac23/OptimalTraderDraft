@@ -2,6 +2,7 @@
 using ConsoleApp1.Assets;
 using ConsoleApp1.ExternalSource;
 using ConsoleApp1.Output;
+using Microsoft.Extensions.Logging;
 using System.Text;
 
 public class JapaneseETFInfo : AssetInfo
@@ -21,40 +22,59 @@ internal class JapaneseETFUpdater : IExternalSourceUpdatable
 {
     public async Task UpdateFromExternalSourceAsync(AssetInfo assetInfo)
     {
-        // ETF用の外部情報取得処理をここに実装
         List<Task> tasks = new List<Task>();
-
         var yahooScraper = new YahooScraper();
 
-        Task yahooTop = Task.Run(async () =>
+        // Top情報取得（リトライなし、例外はログ＋伝播）
+        tasks.Add(Task.Run(async () =>
         {
-            await yahooScraper.ScrapeTop(assetInfo);
-        });
-        tasks.Add(yahooTop);
-
-        Task yahooHistory = Task.Run(async () =>
-        {
-            // 履歴更新の最終日を取得（なければ基準開始日を取得）
-            var lastUpdateDay = assetInfo.GetLastHistoryUpdateDay();
-
-            // 最終更新後に直近営業日がある場合は履歴取得
-            if (CommonUtils.Instance.LastTradingDate > lastUpdateDay)
+            try
             {
-                await yahooScraper.ScrapeHistory(assetInfo, lastUpdateDay, CommonUtils.Instance.ExecusionDate);
+                await yahooScraper.ScrapeTop(assetInfo);
+            }
+            catch (Exception ex)
+            {
+                CommonUtils.Instance.Logger.LogError($"YahooTop失敗: {ex.Message}", ex);
+                throw;
+            }
+        }));
 
-                // 株式分割がある場合は履歴をクリアして再取得
-                if (assetInfo.HasRecentStockSplitOccurred() && lastUpdateDay != CommonUtils.Instance.MasterStartDate)
+        // 履歴情報取得（リトライあり、例外はログ＋伝播）
+        tasks.Add(Task.Run(async () =>
+        {
+            try
+            {
+                var lastUpdateDay = assetInfo.GetLastHistoryUpdateDay();
+                if (CommonUtils.Instance.LastTradingDate > lastUpdateDay)
                 {
-                    await assetInfo.DeleteHistoryAsync(CommonUtils.Instance.ExecusionDate);
-                    assetInfo.ScrapedPrices.Clear();
-                    await yahooScraper.ScrapeHistory(assetInfo, CommonUtils.Instance.MasterStartDate, CommonUtils.Instance.ExecusionDate);
+                    // 履歴取得（最大3回リトライ、1秒待機）
+                    await yahooScraper.ScrapeHistory(assetInfo, lastUpdateDay, CommonUtils.Instance.ExecusionDate, 3, 1000);
+
+                    if (assetInfo.HasRecentStockSplitOccurred() && lastUpdateDay != CommonUtils.Instance.MasterStartDate)
+                    {
+                        if (assetInfo.Repository != null)
+                            await assetInfo.DeleteHistoryAsync(CommonUtils.Instance.ExecusionDate);
+                        assetInfo.ScrapedPrices.Clear();
+                        await yahooScraper.ScrapeHistory(assetInfo, CommonUtils.Instance.MasterStartDate, CommonUtils.Instance.ExecusionDate, 3, 1000);
+                    }
                 }
             }
-        });
-        tasks.Add(yahooHistory);
+            catch (Exception ex)
+            {
+                CommonUtils.Instance.Logger.LogError($"YahooHistory失敗: {ex.Message}", ex);
+                throw;
+            }
+        }));
 
-        // タスクの実行待ち
-        await Task.WhenAll(tasks);
+        try
+        {
+            await Task.WhenAll(tasks);
+        }
+        catch (Exception ex)
+        {
+            CommonUtils.Instance.Logger.LogError($"UpdateFromExternalSourceAsyncで例外: {ex.Message}", ex);
+            throw;
+        }
     }
 }
 
