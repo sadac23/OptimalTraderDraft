@@ -3,6 +3,7 @@ using System.Text;
 using ConsoleApp1.Assets;
 using ConsoleApp1.ExternalSource;
 using ConsoleApp1.Output;
+using Microsoft.Extensions.Logging;
 
 public class IndexInfo : AssetInfo
 {
@@ -22,27 +23,50 @@ internal class IndexUpdater : IExternalSourceUpdatable
     public async Task UpdateFromExternalSourceAsync(AssetInfo stockInfo)
     {
         List<Task> tasks = new List<Task>();
-
         var yahooScraper = new YahooScraper();
 
-        Task yahooTop = Task.Run(async () =>
+        // Top情報取得（例外はログ＋伝播）
+        tasks.Add(Task.Run(async () =>
         {
-            await yahooScraper.ScrapeTop(stockInfo);
-        });
-        tasks.Add(yahooTop);
-
-        Task yahooHistory = Task.Run(async () =>
-        {
-            var lastUpdateDay = stockInfo.GetLastHistoryUpdateDay();
-
-            if (CommonUtils.Instance.LastTradingDate > lastUpdateDay)
+            try
             {
-                await yahooScraper.ScrapeHistory(stockInfo, lastUpdateDay, CommonUtils.Instance.ExecusionDate);
+                await yahooScraper.ScrapeTop(stockInfo);
             }
-        });
-        tasks.Add(yahooHistory);
+            catch (Exception ex)
+            {
+                CommonUtils.Instance.Logger.LogError($"YahooTop失敗: {ex.Message}", ex);
+                throw;
+            }
+        }));
 
-        await Task.WhenAll(tasks);
+        // 履歴情報取得（リトライあり、例外はログ＋伝播）
+        tasks.Add(Task.Run(async () =>
+        {
+            try
+            {
+                var lastUpdateDay = stockInfo.GetLastHistoryUpdateDay();
+                if (CommonUtils.Instance.LastTradingDate > lastUpdateDay)
+                {
+                    // 最大3回リトライ、1秒待機
+                    await yahooScraper.ScrapeHistory(stockInfo, lastUpdateDay, CommonUtils.Instance.ExecusionDate, 3, 1000);
+                }
+            }
+            catch (Exception ex)
+            {
+                CommonUtils.Instance.Logger.LogError($"YahooHistory失敗: {ex.Message}", ex);
+                throw;
+            }
+        }));
+
+        try
+        {
+            await Task.WhenAll(tasks);
+        }
+        catch (Exception ex)
+        {
+            CommonUtils.Instance.Logger.LogError($"UpdateFromExternalSourceAsyncで例外: {ex.Message}", ex);
+            throw;
+        }
     }
 }
 

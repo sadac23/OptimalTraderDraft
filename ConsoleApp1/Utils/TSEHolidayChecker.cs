@@ -1,7 +1,10 @@
 ﻿// See https://aka.ms/new-console-template for more information
 
-internal class TSEHolidayChecker
+public static class TSEHolidayChecker
 {
+    // テスト用に差し替え可能なデリゲート
+    public static Func<DateTime, bool>? IsTSEHolidayOverride;
+
     // 日本の祝日を取得するメソッド
     private static HashSet<DateTime> GetJapaneseHolidays(int year)
     {
@@ -91,15 +94,15 @@ internal class TSEHolidayChecker
         }
         else if (year <= 1979)
         {
-            day = (int)(23.2588 + 0.242194 * (year - 1980) - (year - 1983) / 4);
+            day = (int)(23.2588 + 0.242194 * (year - 1980) - ((year - 1983) / 4.0));
         }
         else if (year <= 2099)
         {
-            day = (int)(23.2488 + 0.242194 * (year - 1980) - (year - 1983) / 4);
+            day = (int)(23.2488 + 0.242194 * (year - 1980) - ((year - 1983) / 4.0));
         }
         else
         {
-            day = (int)(24.2488 + 0.242194 * (year - 1980) - (year - 1983) / 4);
+            day = (int)(24.2488 + 0.242194 * (year - 1980) - ((year - 1983) / 4.0));
         }
         return new DateTime(year, 9, day);
     }
@@ -119,6 +122,9 @@ internal class TSEHolidayChecker
     // 東証の休業日かどうかを判定するメソッド
     public static bool IsTSEHoliday(DateTime date)
     {
+        if (IsTSEHolidayOverride != null)
+            return IsTSEHolidayOverride(date);
+
         // 土曜日と日曜日は休業日
         if (date.DayOfWeek == DayOfWeek.Saturday || date.DayOfWeek == DayOfWeek.Sunday)
         {

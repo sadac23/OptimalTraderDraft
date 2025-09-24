@@ -2,6 +2,7 @@ using ConsoleApp1.Assets;
 using ConsoleApp1.Assets.Models;
 using ConsoleApp1.ExternalSource;
 using ConsoleApp1.Output;
+using Microsoft.Extensions.Logging;
 using System.Text;
 
 public class JapaneseStockInfo : AssetInfo
@@ -20,64 +21,74 @@ public class JapaneseStockUpdater : IExternalSourceUpdatable
 {
     public async Task UpdateFromExternalSourceAsync(AssetInfo stockInfo)
     {
-        // 日本株用の外部情報取得処理をここに実装
         List<Task> tasks = new List<Task>();
-
         var yahooScraper = new YahooScraper();
         var kabutanScraper = new KabutanScraper();
         var minkabuScraper = new MinkabuScraper();
 
-        Task kabutanFinance = Task.Run(async () =>
+        tasks.Add(Task.Run(async () =>
         {
-            await kabutanScraper.ScrapeFinance(stockInfo);
-        });
-        tasks.Add(kabutanFinance);
+            try { await kabutanScraper.ScrapeFinance(stockInfo); }
+            catch (Exception ex) { CommonUtils.Instance.Logger.LogError($"KabutanFinance失敗: {ex.Message}", ex); throw; }
+        }));
 
-        Task minkabuDividend = Task.Run(async () =>
+        tasks.Add(Task.Run(async () =>
         {
-            await minkabuScraper.ScrapeDividend(stockInfo);
-        });
-        tasks.Add(minkabuDividend);
+            try { await minkabuScraper.ScrapeDividend(stockInfo); }
+            catch (Exception ex) { CommonUtils.Instance.Logger.LogError($"MinkabuDividend失敗: {ex.Message}", ex); throw; }
+        }));
 
-        Task minkabuYutai = Task.Run(async () =>
+        tasks.Add(Task.Run(async () =>
         {
-            await minkabuScraper.ScrapeYutai(stockInfo);
-        });
-        tasks.Add(minkabuYutai);
+            try { await minkabuScraper.ScrapeYutai(stockInfo); }
+            catch (Exception ex) { CommonUtils.Instance.Logger.LogError($"MinkabuYutai失敗: {ex.Message}", ex); throw; }
+        }));
 
-        Task yahooTop = Task.Run(async () =>
+        tasks.Add(Task.Run(async () =>
         {
-            await yahooScraper.ScrapeTop(stockInfo);
-        });
-        tasks.Add(yahooTop);
+            try { await yahooScraper.ScrapeTop(stockInfo); }
+            catch (Exception ex) { CommonUtils.Instance.Logger.LogError($"YahooTop失敗: {ex.Message}", ex); throw; }
+        }));
 
-        Task yahooProfile = Task.Run(async () =>
+        tasks.Add(Task.Run(async () =>
         {
-            await yahooScraper.ScrapeProfile(stockInfo);
-        });
-        tasks.Add(yahooProfile);
+            try { await yahooScraper.ScrapeProfile(stockInfo); }
+            catch (Exception ex) { CommonUtils.Instance.Logger.LogError($"YahooProfile失敗: {ex.Message}", ex); throw; }
+        }));
 
-        Task yahooHistory = Task.Run(async () =>
+        tasks.Add(Task.Run(async () =>
         {
-            var lastUpdateDay = stockInfo.GetLastHistoryUpdateDay();
-
-            if (CommonUtils.Instance.LastTradingDate > lastUpdateDay)
+            try
             {
-                await yahooScraper.ScrapeHistory(stockInfo, lastUpdateDay, CommonUtils.Instance.ExecusionDate);
-
-                if (stockInfo.HasRecentStockSplitOccurred() && lastUpdateDay != CommonUtils.Instance.MasterStartDate)
+                var lastUpdateDay = stockInfo.GetLastHistoryUpdateDay();
+                if (CommonUtils.Instance.LastTradingDate > lastUpdateDay)
                 {
-                    // Repositoryパターン対応：DB削除は非同期メソッドを利用
-                    if (stockInfo.Repository != null)
-                        await stockInfo.DeleteHistoryAsync(CommonUtils.Instance.ExecusionDate);
-                    stockInfo.ScrapedPrices.Clear();
-                    await yahooScraper.ScrapeHistory(stockInfo, CommonUtils.Instance.MasterStartDate, CommonUtils.Instance.ExecusionDate);
+                    await yahooScraper.ScrapeHistory(stockInfo, lastUpdateDay, CommonUtils.Instance.ExecusionDate, 3, 1000);
+                    if (stockInfo.HasRecentStockSplitOccurred() && lastUpdateDay != CommonUtils.Instance.MasterStartDate)
+                    {
+                        if (stockInfo.Repository != null)
+                            await stockInfo.DeleteHistoryAsync(CommonUtils.Instance.ExecusionDate);
+                        stockInfo.ScrapedPrices.Clear();
+                        await yahooScraper.ScrapeHistory(stockInfo, CommonUtils.Instance.MasterStartDate, CommonUtils.Instance.ExecusionDate, 3, 1000);
+                    }
                 }
             }
-        });
-        tasks.Add(yahooHistory);
+            catch (Exception ex)
+            {
+                CommonUtils.Instance.Logger.LogError($"YahooHistory失敗: {ex.Message}", ex);
+                throw;
+            }
+        }));
 
-        await Task.WhenAll(tasks);
+        try
+        {
+            await Task.WhenAll(tasks);
+        }
+        catch (Exception ex)
+        {
+            CommonUtils.Instance.Logger.LogError($"UpdateFromExternalSourceAsyncで例外: {ex.Message}", ex);
+            throw;
+        }
     }
 }
 
