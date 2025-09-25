@@ -7,7 +7,7 @@ using Microsoft.Extensions.Logging;
 
 namespace ConsoleApp1.Assets;
 
-public class IndexInfo : AssetInfo
+public sealed class IndexInfo : AssetInfo
 {
     // Factory以外からの直接生成を禁止
     internal IndexInfo(

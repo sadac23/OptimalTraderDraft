@@ -1,4 +1,4 @@
-using ConsoleApp1.Assets;
+// See https://aka.ms/new-console-template for more information
 using ConsoleApp1.Assets.Models;
 using ConsoleApp1.ExternalSource;
 using ConsoleApp1.Output;
@@ -7,57 +7,45 @@ using System.Text;
 
 namespace ConsoleApp1.Assets;
 
-public sealed class JapaneseStockInfo : AssetInfo
+/// <summary>
+/// 米国個別株用の資産情報クラス
+/// </summary>
+public sealed class USStockInfo : AssetInfo
 {
     // Factory以外からの直接生成を禁止
-    internal JapaneseStockInfo(WatchList.WatchStock watchStock, AssetInfoDependencies deps)
+    internal USStockInfo(
+        WatchList.WatchStock watchStock,
+        AssetInfoDependencies deps)
         : base(watchStock, deps)
     {
     }
 
-    // 必要に応じて日本株固有のプロパティやメソッドを追加可能
-
+    // 必要に応じて米国株固有のプロパティやメソッドを追加可能
 }
 
-public class JapaneseStockUpdater : IExternalSourceUpdatable
+// 米国個別株用の外部情報取得処理
+internal class USStockUpdater : IExternalSourceUpdatable
 {
     public async Task UpdateFromExternalSourceAsync(AssetInfo stockInfo)
     {
         List<Task> tasks = new List<Task>();
         var yahooScraper = new YahooScraper();
-        var kabutanScraper = new KabutanScraper();
-        var minkabuScraper = new MinkabuScraper();
 
+        // Top情報取得（例外はログ＋伝播）
         tasks.Add(Task.Run(async () =>
         {
-            try { await kabutanScraper.ScrapeFinance(stockInfo); }
-            catch (Exception ex) { CommonUtils.Instance.Logger.LogError($"KabutanFinance失敗: {ex.Message}", ex); throw; }
+            try
+            {
+                await yahooScraper.ScrapeTop(stockInfo);
+            }
+            catch (Exception ex)
+            {
+                CommonUtils.Instance.Logger.LogError($"YahooTop失敗: {ex.Message}", ex);
+                throw;
+            }
         }));
 
-        tasks.Add(Task.Run(async () =>
-        {
-            try { await minkabuScraper.ScrapeDividend(stockInfo); }
-            catch (Exception ex) { CommonUtils.Instance.Logger.LogError($"MinkabuDividend失敗: {ex.Message}", ex); throw; }
-        }));
-
-        tasks.Add(Task.Run(async () =>
-        {
-            try { await minkabuScraper.ScrapeYutai(stockInfo); }
-            catch (Exception ex) { CommonUtils.Instance.Logger.LogError($"MinkabuYutai失敗: {ex.Message}", ex); throw; }
-        }));
-
-        tasks.Add(Task.Run(async () =>
-        {
-            try { await yahooScraper.ScrapeTop(stockInfo); }
-            catch (Exception ex) { CommonUtils.Instance.Logger.LogError($"YahooTop失敗: {ex.Message}", ex); throw; }
-        }));
-
-        tasks.Add(Task.Run(async () =>
-        {
-            try { await yahooScraper.ScrapeProfile(stockInfo); }
-            catch (Exception ex) { CommonUtils.Instance.Logger.LogError($"YahooProfile失敗: {ex.Message}", ex); throw; }
-        }));
-
+        // 履歴情報取得（リトライあり、例外はログ＋伝播）
         tasks.Add(Task.Run(async () =>
         {
             try
@@ -65,14 +53,8 @@ public class JapaneseStockUpdater : IExternalSourceUpdatable
                 var lastUpdateDay = stockInfo.GetLastHistoryUpdateDay();
                 if (CommonUtils.Instance.LastTradingDate > lastUpdateDay)
                 {
+                    // 最大3回リトライ、1秒待機
                     await yahooScraper.ScrapeHistory(stockInfo, lastUpdateDay, CommonUtils.Instance.ExecusionDate, 3, 1000);
-                    if (stockInfo.HasRecentStockSplitOccurred() && lastUpdateDay != CommonUtils.Instance.MasterStartDate)
-                    {
-                        if (stockInfo.Repository != null)
-                            await stockInfo.DeleteHistoryAsync(CommonUtils.Instance.ExecusionDate);
-                        stockInfo.ScrapedPrices.Clear();
-                        await yahooScraper.ScrapeHistory(stockInfo, CommonUtils.Instance.MasterStartDate, CommonUtils.Instance.ExecusionDate, 3, 1000);
-                    }
                 }
             }
             catch (Exception ex)
@@ -94,11 +76,12 @@ public class JapaneseStockUpdater : IExternalSourceUpdatable
     }
 }
 
-public class JapaneseStockFormatter : IOutputFormattable
+// 米国個別株用の出力処理
+public class USStockFormatter : IOutputFormattable
 {
     public string ToOutputString(AssetInfo stockInfo)
     {
-        // 既存の出力処理をそのまま維持
+        // JapaneseStockFormatterの出力処理をベースに移植
         StringBuilder sb = new StringBuilder();
 
         var mark = CommonUtils.Instance.BadgeString.ShouldWatch;

@@ -7,7 +7,7 @@ using System.Text;
 
 namespace ConsoleApp1.Assets;
 
-public class JapaneseETFInfo : AssetInfo
+public sealed class JapaneseETFInfo : AssetInfo
 {
     // Factory以外からの直接生成を禁止
     internal JapaneseETFInfo(

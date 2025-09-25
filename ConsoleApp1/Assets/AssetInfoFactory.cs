@@ -15,10 +15,10 @@ namespace ConsoleApp1.Assets
                 JudgementStrategy = new DefaultAssetJudgementStrategy(),
                 Calculator = new DefaultAssetCalculator(),
                 SetupStrategy = new DefaultAssetSetupStrategy(),
-                AlertEvaluator = new DefaultAlertEvaluator() // 追加
+                AlertEvaluator = new DefaultAlertEvaluator()
             };
 
-            // 派生クラスごとにUpdater/Formatterを切り替え
+            // ドメインごとにUpdater/Formatterを切り替え
             if (watchStock.Classification == CommonUtils.Instance.Classification.JapaneseETFs)
             {
                 deps.Updater = new JapaneseETFUpdater();
@@ -30,6 +30,12 @@ namespace ConsoleApp1.Assets
                 deps.Updater = new IndexUpdater();
                 deps.Formatter = new IndexFormatter();
                 return new IndexInfo(watchStock, deps);
+            }
+            else if (watchStock.Classification == CommonUtils.Instance.Classification.USStocks)
+            {
+                deps.Updater = new USStockUpdater();
+                deps.Formatter = new USStockFormatter();
+                return new USStockInfo(watchStock, deps);
             }
             else
             {
