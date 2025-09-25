@@ -5,6 +5,8 @@ using ConsoleApp1.Output;
 using Microsoft.Extensions.Logging;
 using System.Text;
 
+namespace ConsoleApp1.Assets;
+
 public class JapaneseETFInfo : AssetInfo
 {
     // Factory以外からの直接生成を禁止

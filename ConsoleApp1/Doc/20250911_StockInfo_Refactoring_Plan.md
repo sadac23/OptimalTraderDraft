@@ -221,9 +221,81 @@
    - JapaneseStockInfo, JapaneseETFInfo, IndexInfo等の派生クラスをStrategyの組み合わせ指定のみで構築
    - 個別ロジックはStrategy実装側に集約
 
+---
+
+### 【補足】派生クラスの整理・統一方針と実装例
+
+#### 方針
+
+- JapaneseStockInfo, JapaneseETFInfo, IndexInfo等の派生クラスは、**Strategyの組み合わせ指定のみ**で構築する。
+- 派生クラス本体には固有プロパティや必要最小限の拡張のみを残し、ロジックは極力持たせない。
+- 個別の判定・計算・出力・DBアクセス等のロジックは、すべてStrategy実装側（Updater/Formatter/JudgementStrategy/Calculator/SetupStrategy/AlertEvaluator等）に集約する。
+- Factoryで用途ごとに適切なStrategyを組み合わせてDIし、柔軟な拡張・差し替えを可能にする。
+
+#### 実装例
+
+**派生クラスの最小実装例**
+
+`public class JapaneseETFInfo : AssetInfo
+{
+    internal JapaneseETFInfo(
+        WatchList.WatchStock watchStock,
+        AssetInfoDependencies deps)
+        : base(watchStock, deps)
+    {
+    }
+    // 必要ならETF固有のプロパティやメソッドを追加
+}`
+
+**FactoryでのStrategy組み合わせ例**
+
+`if (watchStock.Classification == CommonUtils.Instance.Classification.JapaneseETFs)
+{
+    deps.Updater = new JapaneseETFUpdater();
+    deps.Formatter = new JapaneseETFFormatter();
+    deps.AlertEvaluator = new JapaneseETFAlertEvaluator(); // ETF専用の判定が必要なら
+    return new JapaneseETFInfo(watchStock, deps);
+}`
+
+#### 効果
+
+- 派生クラス本体は極力シンプルに保たれ、拡張や保守が容易になる。
+- 個別ロジックの追加・変更はStrategy実装の差し替えのみで対応可能。
+- FactoryでのStrategy組み合わせにより、用途ごとに柔軟な設計が可能。
+
+---
+
+この方針により、派生クラスの責務が明確化され、拡張性・保守性・テスト容易性が大幅に向上します。
+
 6. **テスト・リファクタリングの完了**
    - 各Strategy/Repositoryの単体テストを作成
    - AssetInfoの責務が「データ保持＋委譲」のみになっていることを確認
+
+---
+
+### 【補足】テスト・リファクタリング完了方針
+
+- 各Strategy（例：DefaultAlertEvaluator, DefaultAssetCalculator等）やAssetRepositoryの**単体テスト**を作成し、リファクタリング後の動作・品質を担保する。
+- AssetInfo本体にロジックが残っていないか、**データ保持と委譲のみ**になっていることを最終確認する。
+- 既存利用箇所の動作確認・既存テストのパスをもってリファクタリング完了とする。
+
+**テスト例（インライン表記）**
+
+`using Xunit;
+using ConsoleApp1.Assets;
+using ConsoleApp1.Assets.Alerting;
+
+public class DefaultAlertEvaluatorTests
+{
+    [Fact]
+    public void ShouldAlert_Favorite_ReturnsTrue()
+    {
+        var asset = new TestAssetInfo { IsFavorite = true };
+        var evaluator = new DefaultAlertEvaluator();
+        Assert.True(evaluator.ShouldAlert(asset));
+    }
+    // 他の条件分岐パターンも網羅的にテスト
+}`
 
 ---
 

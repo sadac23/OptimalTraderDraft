@@ -37,6 +37,11 @@ namespace ConsoleApp1.Assets.Repositories
                 };
                 result.Add(price);
             }
+
+            // ÉçÉOèoóÕÇí«â¡
+            CommonUtils.Instance.Logger.LogInformation(
+                $"[LoadHistory] code={code}, count={result.Count}");
+
             return result;
         }
 

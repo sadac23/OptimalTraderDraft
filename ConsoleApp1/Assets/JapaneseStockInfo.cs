@@ -5,6 +5,8 @@ using ConsoleApp1.Output;
 using Microsoft.Extensions.Logging;
 using System.Text;
 
+namespace ConsoleApp1.Assets;
+
 public class JapaneseStockInfo : AssetInfo
 {
     // FactoryˆÈŠO‚©‚ç‚Ì’¼Ú¶¬‚ğ‹Ö~
