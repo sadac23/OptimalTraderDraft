@@ -5,6 +5,8 @@ using ConsoleApp1.ExternalSource;
 using ConsoleApp1.Output;
 using Microsoft.Extensions.Logging;
 
+namespace ConsoleApp1.Assets;
+
 public class IndexInfo : AssetInfo
 {
     // Factory以外からの直接生成を禁止

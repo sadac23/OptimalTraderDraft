@@ -7,7 +7,7 @@ using ConsoleApp1.Assets.Models;
 using ConsoleApp1.Assets.Repositories;
 using ConsoleApp1.Assets.Calculators;
 using ConsoleApp1.Assets.Setups;
-using System.Threading.Tasks;
+using ConsoleApp1.Assets.Alerting;
 
 namespace ConsoleApp1.Assets;
 
@@ -25,6 +25,9 @@ public abstract class AssetInfo
 
     // セットアップストラテジー
     protected IAssetSetupStrategy _setupStrategy;
+
+    // フィールド追加
+    private IAlertEvaluator _alertEvaluator;
 
     // 生成はFactory経由のみ許可
     internal AssetInfo(WatchList.WatchStock watchStock, AssetInfoDependencies deps)
@@ -48,6 +51,7 @@ public abstract class AssetInfo
         this._judgementStrategy = deps.JudgementStrategy;
         this._calculator = deps.Calculator;
         this._setupStrategy = deps.SetupStrategy;
+        this._alertEvaluator = deps.AlertEvaluator;
     }
 
     // Repositoryプロパティを公開するためのアクセサを追加
@@ -526,90 +530,10 @@ public abstract class AssetInfo
     internal virtual string ToOutputString()
         => _formatter.ToOutputString(this);
 
+    // メソッド修正
     internal virtual bool ShouldAlert()
     {
-        // 初期値は通知
-        bool result = true;
-
-        // 注目 or 所有している or 売却直後の場合
-        if (this.IsFavorite || this.IsOwnedNow() || this.IsJustSold())
-        {
-            // 強制通知
-        }
-        //// ゴールデンクロス発生可能性がある場合
-        //else if (this.StockInfo.IsGoldenCrossPossible())
-        //{
-        //    // 利回りが低い場合
-        //    if (!this.StockInfo.IsHighYield()) result = false;
-
-        //    // 時価総額が低い場合
-        //    if (!this.StockInfo.IsHighMarketCap()) result = false;
-
-        //    // 進捗が良くない場合
-        //    if (!this.StockInfo.IsAnnualProgressOnTrack()) result = false;
-        //}
-        //// グランビルケースに該当する場合
-        //else if (this.IsGranvilleCase1Matched() || this.IsGranvilleCase2Matched())
-        //{
-        //    // 利回りが低い場合
-        //    if (!this.IsHighYield()) result = false;
-
-        //    // 時価総額が低い場合
-        //    if (!this.IsHighMarketCap()) result = false;
-        //}
-        // 権利確定月前後の場合
-        else if (this.IsCloseToRecordDate() || this.IsRecordDate() || this.IsAfterRecordDate())
-        {
-            // 利回りが低い場合
-            if (!this.IsHighYield()) result = false;
-
-            // 直近で暴落していない場合
-            if (!this.LatestPrice.OversoldIndicator()) result = false;
-
-            // 時価総額が低い場合
-            if (!this.IsHighMarketCap()) result = false;
-
-            // 進捗が良くない場合
-            if (!this.IsAnnualProgressOnTrack()) result = false;
-        }
-        // 四半期決算前後の場合
-        else if (this.IsCloseToQuarterEnd() || this.IsQuarterEnd() || this.IsAfterQuarterEnd())
-        {
-            // 利回りが低い場合
-            if (!this.IsHighYield()) result = false;
-
-            // 直近で暴落していない場合
-            if (!this.LatestPrice.OversoldIndicator()) result = false;
-
-            // 時価総額が低い場合
-            if (!this.IsHighMarketCap()) result = false;
-
-            // 進捗が良くない場合
-            if (!this.IsAnnualProgressOnTrack()) result = false;
-        }
-        // それ以外
-        else
-        {
-            // 利回りが低い場合
-            if (!this.IsHighYield()) result = false;
-
-            // 直近で暴落していない場合
-            if (!this.LatestPrice.OversoldIndicator()) result = false;
-
-            // 時価総額が低い場合
-            if (!this.IsHighMarketCap()) result = false;
-
-            // 進捗が良くない場合
-            if (!this.IsAnnualProgressOnTrack()) result = false;
-
-            // PERが割高の場合
-            if (!this.IsPERUndervalued(true)) result = false;
-
-            // PBRが割高の場合
-            if (!this.IsPBRUndervalued(true)) result = false;
-        }
-
-        return result;
+        return _alertEvaluator.ShouldAlert(this);
     }
 
     public static bool IsWithinMonths(string monthsStr, short m)

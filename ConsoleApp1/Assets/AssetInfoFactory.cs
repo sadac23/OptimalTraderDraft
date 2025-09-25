@@ -1,3 +1,4 @@
+using ConsoleApp1.Assets.Alerting;
 using ConsoleApp1.Assets.Calculators;
 using ConsoleApp1.Assets.Repositories;
 using ConsoleApp1.Assets.Setups;
@@ -13,7 +14,8 @@ namespace ConsoleApp1.Assets
                 Repository = new AssetRepository(),
                 JudgementStrategy = new DefaultAssetJudgementStrategy(),
                 Calculator = new DefaultAssetCalculator(),
-                SetupStrategy = new DefaultAssetSetupStrategy()
+                SetupStrategy = new DefaultAssetSetupStrategy(),
+                AlertEvaluator = new DefaultAlertEvaluator() // í«â¡
             };
 
             // îhê∂ÉNÉâÉXÇ≤Ç∆Ç…Updater/FormatterÇêÿÇËë÷Ç¶

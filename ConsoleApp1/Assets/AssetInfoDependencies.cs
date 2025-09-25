@@ -1,3 +1,4 @@
+using ConsoleApp1.Assets.Alerting;
 using ConsoleApp1.Assets.Calculators;
 using ConsoleApp1.Assets.Repositories;
 using ConsoleApp1.Assets.Setups;
@@ -14,5 +15,6 @@ namespace ConsoleApp1.Assets
         public IAssetJudgementStrategy JudgementStrategy { get; set; }
         public IAssetCalculator Calculator { get; set; }
         public IAssetSetupStrategy SetupStrategy { get; set; }
+        public IAlertEvaluator AlertEvaluator { get; set; } // ’Ç‰Á
     }
 }
