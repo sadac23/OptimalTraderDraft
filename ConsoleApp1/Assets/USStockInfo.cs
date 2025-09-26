@@ -4,6 +4,8 @@ using ConsoleApp1.ExternalSource;
 using ConsoleApp1.Output;
 using Microsoft.Extensions.Logging;
 using System.Text;
+using ConsoleApp1.Scraper.Contracts;
+using ConsoleApp1.Scraper.Strategies;
 
 namespace ConsoleApp1.Assets;
 
@@ -29,14 +31,17 @@ internal class USStockUpdater : IExternalSourceUpdatable
     public async Task UpdateFromExternalSourceAsync(AssetInfo stockInfo)
     {
         List<Task> tasks = new List<Task>();
-        var yahooScraper = new YahooScraper();
 
-        // Top情報取得（例外はログ＋伝播）
+        // Strategyを注入したYahooScraperを利用
+        var yahooStrategy = new USStockYahooScrapeStrategy();
+        var yahooScraper = new YahooScraper(yahooStrategy);
+
+        // Top情報取得
         tasks.Add(Task.Run(async () =>
         {
             try
             {
-                await yahooScraper.ScrapeTop(stockInfo);
+                await yahooScraper.ScrapeAsync(stockInfo, ScrapeTarget.Top);
             }
             catch (Exception ex)
             {
@@ -45,7 +50,7 @@ internal class USStockUpdater : IExternalSourceUpdatable
             }
         }));
 
-        // 履歴情報取得（リトライあり、例外はログ＋伝播）
+        // 履歴情報取得
         tasks.Add(Task.Run(async () =>
         {
             try
@@ -53,8 +58,7 @@ internal class USStockUpdater : IExternalSourceUpdatable
                 var lastUpdateDay = stockInfo.GetLastHistoryUpdateDay();
                 if (CommonUtils.Instance.LastTradingDate > lastUpdateDay)
                 {
-                    // 最大3回リトライ、1秒待機
-                    await yahooScraper.ScrapeHistory(stockInfo, lastUpdateDay, CommonUtils.Instance.ExecusionDate, 3, 1000);
+                    await yahooScraper.ScrapeAsync(stockInfo, ScrapeTarget.History);
                 }
             }
             catch (Exception ex)

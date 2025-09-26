@@ -15,7 +15,6 @@ namespace ConsoleApp1.Assets.Repositories
         {
             var result = new List<ScrapedPrice>();
             var connection = DbConnectionFactory.GetConnection();
-            await connection.OpenAsync();
 
             string query = "SELECT * FROM history WHERE code = @code ORDER BY date DESC";
             using var command = new SQLiteCommand(query, connection);
@@ -48,7 +47,6 @@ namespace ConsoleApp1.Assets.Repositories
         public async Task SaveHistoryAsync(string code, List<ScrapedPrice> prices)
         {
             var connection = DbConnectionFactory.GetConnection();
-            await connection.OpenAsync();
 
             foreach (var price in prices)
             {
@@ -75,7 +73,6 @@ namespace ConsoleApp1.Assets.Repositories
         public async Task DeleteHistoryAsync(string code, DateTime targetDate)
         {
             var connection = DbConnectionFactory.GetConnection();
-            await connection.OpenAsync();
 
             string query = "DELETE FROM history WHERE code = @code AND date = @date";
             using var command = new SQLiteCommand(query, connection);

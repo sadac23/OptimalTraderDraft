@@ -1,9 +1,10 @@
-﻿// See https://aka.ms/new-console-template for more information
-using System.Text;
+﻿using System.Text;
 using ConsoleApp1.Assets;
 using ConsoleApp1.ExternalSource;
 using ConsoleApp1.Output;
 using Microsoft.Extensions.Logging;
+using ConsoleApp1.Scraper.Contracts;
+using ConsoleApp1.Scraper.Strategies;
 
 namespace ConsoleApp1.Assets;
 
@@ -16,7 +17,6 @@ public sealed class IndexInfo : AssetInfo
         : base(watchStock, deps)
     {
     }
-
 }
 
 // インデックス種別用の外部情報取得処理
@@ -25,14 +25,17 @@ internal class IndexUpdater : IExternalSourceUpdatable
     public async Task UpdateFromExternalSourceAsync(AssetInfo stockInfo)
     {
         List<Task> tasks = new List<Task>();
-        var yahooScraper = new YahooScraper();
 
-        // Top情報取得（例外はログ＋伝播）
+        // Strategyを注入したYahooScraperを利用
+        var yahooStrategy = new IndexYahooScrapeStrategy(); // インデックス用Strategyを作成する場合は差し替え
+        var yahooScraper = new YahooScraper(yahooStrategy);
+
+        // Top情報取得
         tasks.Add(Task.Run(async () =>
         {
             try
             {
-                await yahooScraper.ScrapeTop(stockInfo);
+                await yahooScraper.ScrapeAsync(stockInfo, ScrapeTarget.Top);
             }
             catch (Exception ex)
             {
@@ -49,8 +52,8 @@ internal class IndexUpdater : IExternalSourceUpdatable
                 var lastUpdateDay = stockInfo.GetLastHistoryUpdateDay();
                 if (CommonUtils.Instance.LastTradingDate > lastUpdateDay)
                 {
-                    // 最大3回リトライ、1秒待機
-                    await yahooScraper.ScrapeHistory(stockInfo, lastUpdateDay, CommonUtils.Instance.ExecusionDate, 3, 1000);
+                    // ScrapeAsyncでHistoryを取得
+                    await yahooScraper.ScrapeAsync(stockInfo, ScrapeTarget.History);
                 }
             }
             catch (Exception ex)

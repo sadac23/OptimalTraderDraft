@@ -2,6 +2,8 @@ using ConsoleApp1.Assets;
 using ConsoleApp1.Assets.Models;
 using ConsoleApp1.ExternalSource;
 using ConsoleApp1.Output;
+using ConsoleApp1.Scraper.Contracts;
+using ConsoleApp1.Scraper.Strategies;
 using Microsoft.Extensions.Logging;
 using System.Text;
 
@@ -24,37 +26,43 @@ public class JapaneseStockUpdater : IExternalSourceUpdatable
     public async Task UpdateFromExternalSourceAsync(AssetInfo stockInfo)
     {
         List<Task> tasks = new List<Task>();
-        var yahooScraper = new YahooScraper();
-        var kabutanScraper = new KabutanScraper();
-        var minkabuScraper = new MinkabuScraper();
+
+        var kabutanStrategy = new ConsoleApp1.Scraper.Strategies.JapaneseStockKabutanScrapeStrategy();
+        var kabutanScraper = new KabutanScraper(kabutanStrategy);
+
+        var minkabuStrategy = new ConsoleApp1.Scraper.Strategies.JapaneseStockMinkabuScrapeStrategy();
+        var minkabuScraper = new MinkabuScraper(minkabuStrategy);
+
+        var yahooStrategy = new ConsoleApp1.Scraper.Strategies.JapaneseStockYahooScrapeStrategy();
+        var yahooScraper = new YahooScraper(yahooStrategy);
 
         tasks.Add(Task.Run(async () =>
         {
-            try { await kabutanScraper.ScrapeFinance(stockInfo); }
+            try { await kabutanScraper.ScrapeAsync(stockInfo, ScrapeTarget.Finance); }
             catch (Exception ex) { CommonUtils.Instance.Logger.LogError($"KabutanFinanceŽ¸”s: {ex.Message}", ex); throw; }
         }));
 
         tasks.Add(Task.Run(async () =>
         {
-            try { await minkabuScraper.ScrapeDividend(stockInfo); }
+            try { await minkabuScraper.ScrapeAsync(stockInfo, ScrapeTarget.Dividend); }
             catch (Exception ex) { CommonUtils.Instance.Logger.LogError($"MinkabuDividendŽ¸”s: {ex.Message}", ex); throw; }
         }));
 
         tasks.Add(Task.Run(async () =>
         {
-            try { await minkabuScraper.ScrapeYutai(stockInfo); }
+            try { await minkabuScraper.ScrapeAsync(stockInfo, ScrapeTarget.Yutai); }
             catch (Exception ex) { CommonUtils.Instance.Logger.LogError($"MinkabuYutaiŽ¸”s: {ex.Message}", ex); throw; }
         }));
 
         tasks.Add(Task.Run(async () =>
         {
-            try { await yahooScraper.ScrapeTop(stockInfo); }
+            try { await yahooScraper.ScrapeAsync(stockInfo, ScrapeTarget.Top); }
             catch (Exception ex) { CommonUtils.Instance.Logger.LogError($"YahooTopŽ¸”s: {ex.Message}", ex); throw; }
         }));
 
         tasks.Add(Task.Run(async () =>
         {
-            try { await yahooScraper.ScrapeProfile(stockInfo); }
+            try { await yahooScraper.ScrapeAsync(stockInfo, ScrapeTarget.Profile); }
             catch (Exception ex) { CommonUtils.Instance.Logger.LogError($"YahooProfileŽ¸”s: {ex.Message}", ex); throw; }
         }));
 
@@ -65,13 +73,13 @@ public class JapaneseStockUpdater : IExternalSourceUpdatable
                 var lastUpdateDay = stockInfo.GetLastHistoryUpdateDay();
                 if (CommonUtils.Instance.LastTradingDate > lastUpdateDay)
                 {
-                    await yahooScraper.ScrapeHistory(stockInfo, lastUpdateDay, CommonUtils.Instance.ExecusionDate, 3, 1000);
+                    await yahooScraper.ScrapeAsync(stockInfo, ScrapeTarget.History);
                     if (stockInfo.HasRecentStockSplitOccurred() && lastUpdateDay != CommonUtils.Instance.MasterStartDate)
                     {
                         if (stockInfo.Repository != null)
                             await stockInfo.DeleteHistoryAsync(CommonUtils.Instance.ExecusionDate);
                         stockInfo.ScrapedPrices.Clear();
-                        await yahooScraper.ScrapeHistory(stockInfo, CommonUtils.Instance.MasterStartDate, CommonUtils.Instance.ExecusionDate, 3, 1000);
+                        await yahooScraper.ScrapeAsync(stockInfo, ScrapeTarget.History);
                     }
                 }
             }

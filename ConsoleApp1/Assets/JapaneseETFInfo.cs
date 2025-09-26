@@ -4,6 +4,8 @@ using ConsoleApp1.ExternalSource;
 using ConsoleApp1.Output;
 using Microsoft.Extensions.Logging;
 using System.Text;
+using ConsoleApp1.Scraper.Contracts;
+using ConsoleApp1.Scraper.Strategies;
 
 namespace ConsoleApp1.Assets;
 
@@ -25,14 +27,17 @@ internal class JapaneseETFUpdater : IExternalSourceUpdatable
     public async Task UpdateFromExternalSourceAsync(AssetInfo assetInfo)
     {
         List<Task> tasks = new List<Task>();
-        var yahooScraper = new YahooScraper();
+
+        // Strategyを注入したYahooScraperを利用
+        var yahooStrategy = new JapaneseStockYahooScrapeStrategy(); // ETF専用Strategyを作成する場合は差し替え
+        var yahooScraper = new YahooScraper(yahooStrategy);
 
         // Top情報取得（リトライなし、例外はログ＋伝播）
         tasks.Add(Task.Run(async () =>
         {
             try
             {
-                await yahooScraper.ScrapeTop(assetInfo);
+                await yahooScraper.ScrapeAsync(assetInfo, ScrapeTarget.Top);
             }
             catch (Exception ex)
             {
@@ -49,15 +54,14 @@ internal class JapaneseETFUpdater : IExternalSourceUpdatable
                 var lastUpdateDay = assetInfo.GetLastHistoryUpdateDay();
                 if (CommonUtils.Instance.LastTradingDate > lastUpdateDay)
                 {
-                    // 履歴取得（最大3回リトライ、1秒待機）
-                    await yahooScraper.ScrapeHistory(assetInfo, lastUpdateDay, CommonUtils.Instance.ExecusionDate, 3, 1000);
+                    await yahooScraper.ScrapeAsync(assetInfo, ScrapeTarget.History);
 
                     if (assetInfo.HasRecentStockSplitOccurred() && lastUpdateDay != CommonUtils.Instance.MasterStartDate)
                     {
                         if (assetInfo.Repository != null)
                             await assetInfo.DeleteHistoryAsync(CommonUtils.Instance.ExecusionDate);
                         assetInfo.ScrapedPrices.Clear();
-                        await yahooScraper.ScrapeHistory(assetInfo, CommonUtils.Instance.MasterStartDate, CommonUtils.Instance.ExecusionDate, 3, 1000);
+                        await yahooScraper.ScrapeAsync(assetInfo, ScrapeTarget.History);
                     }
                 }
             }
